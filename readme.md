@@ -12,6 +12,7 @@ The application leverages **Google Gemini 3.5 Flash-Lite** and **Next.js 16** to
 - **Application README & Setup**: [`ai-real-estate/README.md`](ai-real-estate/README.md)
 - **Sprint One Backlog & User Stories**: [`ai-real-estate/docs/sprintone.md`](ai-real-estate/docs/sprintone.md)
 - **Sprint One Implementation Summary**: [`ai-real-estate/docs/sprint-one-implementation-summary.md`](ai-real-estate/docs/sprint-one-implementation-summary.md)
+- **Sprint Two Development Guidelines & Workflow**: [`ai-real-estate/docs/sprint-2-development.md`](ai-real-estate/docs/sprint-2-development.md)
 
 ---
 
