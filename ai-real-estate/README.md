@@ -23,7 +23,7 @@ All features and acceptance criteria are aligned with the Sprint One user storie
   - **North-Facing Orientation**: Instant toggle for homes oriented to the northern sun.
 
 ### 3. Automated Comparable Sales (Comps)
-- Located within the property details drawer.
+- Located within the centered property details dialog.
 - Analyzes nearby transactions matching property type, bedroom counts, and floor area.
 - Uses the **Haversine formula** to calculate physical distance.
 - **Adjustable Controls**: Customise distance radius (1–10 km) and timeframe (3–12 months, default 6 months) with real-time recalculation of local market averages.
@@ -57,7 +57,8 @@ ai-real-estate/
 │   └── page.tsx                 # Server-rendered entry point with initial dataset
 ├── docs/
 │   ├── sprintone.md             # Sprint One user stories, acceptance criteria, and INVEST scores
-│   └── sprint-one-implementation-summary.md # Architectural summary, test coverage, and decisions
+│   ├── sprint-one-implementation-summary.md # Architectural summary, test coverage, and decisions
+│   └── sprint-2-development.md  # Sprint Two branching, commit message, and PR review workflow
 ├── lib/
 │   ├── gemini-search.ts         # Gemini API client, response schema, console logging & fallback
 │   ├── property-data.ts         # Auckland Housing Market dataset listings & comps
