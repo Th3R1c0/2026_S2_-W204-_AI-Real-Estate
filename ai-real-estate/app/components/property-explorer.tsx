@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 
 import {
   calculateMonthlyMortgage,
@@ -133,6 +133,15 @@ function PropertyCard({ property, selected, onCompare, onOpen }: { property: Pro
 
 function ComparisonDialog({ properties, onClose, onRemove }: { properties: Property[]; onClose: () => void; onRemove: (id: string) => void }) {
   const [highlight, setHighlight] = useState(false);
+
+  useEffect(() => {
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") onClose();
+    }
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [onClose]);
+
   const values = {
     Price: properties.map(({ price }) => formatMoney(price)),
     Bedrooms: properties.map(({ bedrooms }) => String(bedrooms)),
@@ -145,7 +154,13 @@ function ComparisonDialog({ properties, onClose, onRemove }: { properties: Prope
   };
 
   return (
-    <div className="modal-backdrop" role="presentation">
+    <div
+      className="modal-backdrop"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+      role="presentation"
+    >
       <section aria-label="Property comparison" aria-modal="true" className="modal comparison-modal" role="dialog">
         <div className="modal-header"><div><p className="eyebrow">Side-by-side view</p><h2>Compare your shortlist</h2></div><button aria-label="Close comparison" className="icon-button" onClick={onClose} type="button"><Icon name="close" /></button></div>
         <div className="comparison-toolbar"><p>{properties.length} homes selected</p><label className="switch-label"><input checked={highlight} onChange={(event) => setHighlight(event.target.checked)} type="checkbox" />Highlight differences</label></div>
@@ -180,6 +195,15 @@ function DetailDialog({ property, comparableSales, onClose }: { property: Proper
   const [deposit, setDeposit] = useState(20);
   const [rate, setRate] = useState(6.49);
   const [term, setTerm] = useState(30);
+
+  useEffect(() => {
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") onClose();
+    }
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [onClose]);
+
   const compResult = useMemo(() => findComparableSales(property, comparableSales, { radiusKm: radius, months, asOf: new Date("2026-09-18T00:00:00Z") }), [property, comparableSales, radius, months]);
   const monthlyPayment = calculateMonthlyMortgage(property.price, deposit, rate, term);
   const sunlightScore = Math.min(100, Math.round((property.sunlightHours / 9) * 100));
@@ -191,7 +215,13 @@ function DetailDialog({ property, comparableSales, onClose }: { property: Proper
   ];
 
   return (
-    <div className="modal-backdrop detail-backdrop" role="presentation">
+    <div
+      className="modal-backdrop detail-backdrop"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+      role="presentation"
+    >
       <section aria-label="Property details" aria-modal="true" className="modal detail-modal" role="dialog">
         <div className="detail-hero">
           <Image alt={property.imageAlt} fill priority sizes="(max-width: 800px) 100vw, 720px" src={property.image} />
@@ -262,11 +292,25 @@ export default function PropertyExplorer({ properties, comparableSales, aiSearch
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [comparisonOpen, setComparisonOpen] = useState(false);
   const [detailId, setDetailId] = useState<string | null>(null);
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
   const filteredProperties = useMemo(() => filterProperties(properties, filters), [properties, filters]);
   const selectedProperties = properties.filter(({ id }) => selectedIds.includes(id));
   const detailProperty = properties.find(({ id }) => id === detailId);
   const hasFilters = Object.keys(filters).length > 0;
+
+  const activeFilterCount = useMemo(() => {
+    let count = 0;
+    if (filters.propertyTypes?.length) count += filters.propertyTypes.length;
+    if (filters.architecturalStyles?.length) count += filters.architecturalStyles.length;
+    if (filters.floodRisks?.length) count += filters.floodRisks.length;
+    if (filters.northFacingOnly) count += 1;
+    if (filters.yearBuiltFrom || filters.yearBuiltTo) count += 1;
+    if (filters.location) count += 1;
+    if (filters.maxPrice || filters.minPrice) count += 1;
+    if (filters.bedrooms) count += 1;
+    return count;
+  }, [filters]);
 
   function togglePropertyType(type: PropertyType) {
     setFilters((current) => ({ ...current, propertyTypes: current.propertyTypes?.includes(type) ? undefined : [type] }));
@@ -331,8 +375,96 @@ export default function PropertyExplorer({ properties, comparableSales, aiSearch
         </section>
 
         <section className="discover-section" id="discover">
-          <aside className="filter-panel">
-            <div className="filter-title"><div><Icon name="sliders" /><h2>Refine search</h2></div>{hasFilters && <button onClick={clearFilters} type="button">Clear all filters</button>}</div>
+          <div className="mobile-filter-bar">
+            <button
+              aria-expanded={mobileFiltersOpen}
+              aria-label={activeFilterCount > 0 ? `Filters, ${activeFilterCount} active` : "Open filters"}
+              className="mobile-filter-trigger"
+              onClick={() => setMobileFiltersOpen(true)}
+              type="button"
+            >
+              <Icon name="sliders" size={17} />
+              <span>Filters</span>
+              {activeFilterCount > 0 && <span className="filter-badge">{activeFilterCount}</span>}
+            </button>
+            {hasFilters && (
+              <button className="mobile-clear-btn" onClick={clearFilters} type="button">
+                Clear all
+              </button>
+            )}
+          </div>
+
+          {activeFilterCount > 0 && (
+            <div aria-label="Active filters" className="active-chips-row">
+              {filters.propertyTypes?.map((type) => (
+                <button
+                  aria-label={`Remove filter ${type}`}
+                  className="active-chip"
+                  key={type}
+                  onClick={() => togglePropertyType(type)}
+                  type="button"
+                >
+                  {type} <Icon name="close" size={12} />
+                </button>
+              ))}
+              {filters.architecturalStyles?.map((style) => (
+                <button
+                  aria-label={`Remove filter ${style}`}
+                  className="active-chip"
+                  key={style}
+                  onClick={() => toggleStyle(style)}
+                  type="button"
+                >
+                  {style} <Icon name="close" size={12} />
+                </button>
+              ))}
+              {filters.floodRisks?.map((risk) => (
+                <button
+                  aria-label={`Remove filter Flood ${risk}`}
+                  className="active-chip"
+                  key={risk}
+                  onClick={() => setFilters((curr) => ({ ...curr, floodRisks: undefined }))}
+                  type="button"
+                >
+                  Flood: {risk} <Icon name="close" size={12} />
+                </button>
+              ))}
+              {filters.northFacingOnly && (
+                <button
+                  aria-label="Remove filter North-facing only"
+                  className="active-chip"
+                  onClick={() => setFilters((curr) => ({ ...curr, northFacingOnly: undefined }))}
+                  type="button"
+                >
+                  North-facing <Icon name="close" size={12} />
+                </button>
+              )}
+            </div>
+          )}
+
+          {mobileFiltersOpen && (
+            <div
+              className="filter-backdrop"
+              onClick={() => setMobileFiltersOpen(false)}
+              role="presentation"
+            />
+          )}
+
+          <aside className={`filter-panel ${mobileFiltersOpen ? "is-open" : ""}`} aria-label="Search filters">
+            <div className="filter-drawer-header">
+              <div className="filter-title">
+                <div><Icon name="sliders" /><h2>Refine search</h2></div>
+                {hasFilters && <button onClick={clearFilters} type="button">Clear all filters</button>}
+              </div>
+              <button
+                aria-label="Close filters"
+                className="icon-button filter-drawer-close"
+                onClick={() => setMobileFiltersOpen(false)}
+                type="button"
+              >
+                <Icon name="close" size={18} />
+              </button>
+            </div>
             <div className="filter-group"><h3>Property type</h3><div className="type-grid">{propertyTypes.map((type) => <button aria-label={type} className={filters.propertyTypes?.includes(type) ? "selected" : ""} key={type} onClick={() => togglePropertyType(type)} type="button"><Icon name="house" size={18} />{type}</button>)}</div></div>
             <details className="filter-details" open><summary>Architecture <span>{filters.architecturalStyles?.length || ""}</span></summary><div className="check-list">{architecturalStyles.map((style) => <label key={style}><input checked={filters.architecturalStyles?.includes(style) ?? false} onChange={() => toggleStyle(style)} type="checkbox" /><span>{style}</span></label>)}</div></details>
             <details className="filter-details" open>
@@ -342,6 +474,15 @@ export default function PropertyExplorer({ properties, comparableSales, aiSearch
             </details>
             <details className="filter-details"><summary>Building age</summary><div className="year-fields"><label>Built from<input inputMode="numeric" onChange={(event) => setFilters((current) => ({ ...current, yearBuiltFrom: Number(event.target.value) || undefined }))} placeholder="1900" value={filters.yearBuiltFrom ?? ""} /></label><label>Built to<input inputMode="numeric" onChange={(event) => setFilters((current) => ({ ...current, yearBuiltTo: Number(event.target.value) || undefined }))} placeholder="2026" value={filters.yearBuiltTo ?? ""} /></label></div></details>
             <div className="data-note"><Icon name="map" size={18} /><p><strong>Demo data</strong><span>Source records are enriched with indicative specialist attributes.</span></p></div>
+            <div className="filter-drawer-actions">
+              <button
+                className="filter-apply-btn"
+                onClick={() => setMobileFiltersOpen(false)}
+                type="button"
+              >
+                Show {filteredProperties.length} {filteredProperties.length === 1 ? "home" : "homes"}
+              </button>
+            </div>
           </aside>
 
           <div className="results-panel">

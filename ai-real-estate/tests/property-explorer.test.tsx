@@ -163,4 +163,34 @@ describe("PropertyExplorer", () => {
       initialPayment,
     );
   });
+
+  it("opens mobile filter drawer, applies filters, and displays active chips", async () => {
+    const user = userEvent.setup();
+    render(<PropertyExplorer properties={properties} comparableSales={comparableSales} />);
+
+    const filterTrigger = screen.getByRole("button", { name: /open filters/i });
+    expect(filterTrigger).toBeInTheDocument();
+
+    await user.click(filterTrigger);
+    const filterPanel = screen.getByLabelText(/search filters/i);
+    expect(filterPanel).toHaveClass("is-open");
+
+    await user.click(within(filterPanel).getByRole("button", { name: "Villa" }));
+    expect(screen.getByText("54 Kelmarna Avenue")).toBeInTheDocument();
+    expect(screen.queryByText("2/30 Hardington Street")).not.toBeInTheDocument();
+
+    expect(screen.getByRole("button", { name: /filters, 1 active/i })).toBeInTheDocument();
+
+    const chip = screen.getByRole("button", { name: /remove filter villa/i });
+    expect(chip).toBeInTheDocument();
+
+    const closeBtn = screen.getByRole("button", { name: /close filters/i });
+    await user.click(closeBtn);
+    expect(filterPanel).not.toHaveClass("is-open");
+
+    await user.click(chip);
+    expect(screen.getByText("2/30 Hardington Street")).toBeInTheDocument();
+    expect(screen.getByText("54 Kelmarna Avenue")).toBeInTheDocument();
+  });
 });
+

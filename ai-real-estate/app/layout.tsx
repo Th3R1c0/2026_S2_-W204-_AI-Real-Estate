@@ -1,10 +1,18 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Haven — AI property discovery",
   description:
     "Find New Zealand homes by architecture, sunlight, flood risk, building age and natural-language search.",
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  viewportFit: "cover",
+  themeColor: "#171a17",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
