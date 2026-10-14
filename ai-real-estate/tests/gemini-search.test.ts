@@ -44,6 +44,29 @@ describe("Gemini search interpretation", () => {
     });
   });
 
+  it("does not apply filters for attributes absent from database listings", async () => {
+    const listingsWithoutSpecialistFields = [
+      {
+        ...properties[0],
+        propertyType: null,
+        architecturalStyle: null,
+        floodRisk: null,
+        orientation: null,
+        sunlightHours: null,
+      },
+    ];
+    const result = await interpretPropertyQuery(
+      "character villa",
+      listingsWithoutSpecialistFields,
+      { apiKey: "" },
+    );
+
+    expect(result.status).toBe("needs-clarification");
+    expect(result.filters).toEqual({});
+    expect(result.message).toContain("architectural style");
+    expect(result.message).toContain("property type");
+  });
+
   it("uses Gemini 3.5 Flash-Lite structured output without exposing the key", async () => {
     const fakeFetch: typeof fetch = async (input, init) => {
       expect(String(input)).toBe(
@@ -105,9 +128,18 @@ describe("Gemini search interpretation", () => {
       });
     };
 
+    const listings = [
+      ...properties,
+      {
+        ...properties[0],
+        id: "townhouse",
+        propertyType: "Townhouse" as const,
+        architecturalStyle: "Modernist" as const,
+      },
+    ];
     const result = await interpretPropertyQuery(
       "Modern three-bedroom townhouses in Auckland under $900k",
-      properties,
+      listings,
       { apiKey: "test-secret", fetchImpl: fakeFetch },
     );
 

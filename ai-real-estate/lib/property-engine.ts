@@ -18,16 +18,24 @@ export function filterProperties(
 
     return (
       (!filters.propertyTypes?.length ||
-        filters.propertyTypes.includes(property.propertyType)) &&
+        (property.propertyType !== null &&
+          filters.propertyTypes.includes(property.propertyType))) &&
       (!filters.architecturalStyles?.length ||
-        filters.architecturalStyles.includes(property.architecturalStyle)) &&
-      (!filters.floodRisks?.length || filters.floodRisks.includes(property.floodRisk)) &&
+        (property.architecturalStyle !== null &&
+          filters.architecturalStyles.includes(property.architecturalStyle))) &&
+      (!filters.floodRisks?.length ||
+        (property.floodRisk !== null &&
+          filters.floodRisks.includes(property.floodRisk))) &&
       (!location || propertyLocation.includes(location)) &&
-      (filters.maxPrice === undefined || property.price <= filters.maxPrice) &&
-      (filters.minPrice === undefined || property.price >= filters.minPrice) &&
+      (filters.maxPrice === undefined ||
+        (property.price !== null && property.price <= filters.maxPrice)) &&
+      (filters.minPrice === undefined ||
+        (property.price !== null && property.price >= filters.minPrice)) &&
       (filters.bedrooms === undefined || property.bedrooms === filters.bedrooms) &&
-      (filters.yearBuiltFrom === undefined || property.yearBuilt >= filters.yearBuiltFrom) &&
-      (filters.yearBuiltTo === undefined || property.yearBuilt <= filters.yearBuiltTo) &&
+      (filters.yearBuiltFrom === undefined ||
+        (property.yearBuilt !== null && property.yearBuilt >= filters.yearBuiltFrom)) &&
+      (filters.yearBuiltTo === undefined ||
+        (property.yearBuilt !== null && property.yearBuilt <= filters.yearBuiltTo)) &&
       (!filters.northFacingOnly || property.orientation === "North")
     );
   });
@@ -82,7 +90,11 @@ export function parseNaturalLanguageSearch(
   if (style) filters.architecturalStyles = [style];
 
   const places = Array.from(
-    new Set(properties.flatMap(({ city, region, suburb }) => [city, region, suburb])),
+    new Set(
+      properties.flatMap(({ city, region, suburb }) =>
+        [city, region, suburb].filter((place): place is string => Boolean(place)),
+      ),
+    ),
   ).sort((a, b) => b.length - a.length);
   const location = places.find((place) =>
     query.toLocaleLowerCase().includes(place.toLocaleLowerCase()),
@@ -120,6 +132,12 @@ export function parseNaturalLanguageSearch(
 }
 
 function distanceBetweenKm(a: Property, b: Property): number {
+  if (
+    a.latitude === null ||
+    a.longitude === null ||
+    b.latitude === null ||
+    b.longitude === null
+  ) return Number.POSITIVE_INFINITY;
   const radiusKm = 6_371;
   const toRadians = (value: number) => (value * Math.PI) / 180;
   const latitudeDelta = toRadians(b.latitude - a.latitude);
@@ -148,7 +166,19 @@ export function findComparableSales(
 
   const comps = sales
     .filter((property) => {
-      if (!property.soldDate || property.id === target.id) return false;
+      if (
+        !property.soldDate ||
+        property.id === target.id ||
+        property.price === null ||
+        property.floorArea === null ||
+        target.floorArea === null ||
+        property.bedrooms === null ||
+        target.bedrooms === null ||
+        property.latitude === null ||
+        property.longitude === null ||
+        target.latitude === null ||
+        target.longitude === null
+      ) return false;
       const floorAreaDifference =
         Math.abs(property.floorArea - target.floorArea) / target.floorArea;
       return (
@@ -171,7 +201,8 @@ export function findComparableSales(
 
   const averagePrice = comps.length
     ? Math.round(
-        comps.reduce((sum, { property }) => sum + property.price, 0) / comps.length,
+        comps.reduce((sum, { property }) => sum + (property.price ?? 0), 0) /
+          comps.length,
       )
     : 0;
 

@@ -2,8 +2,11 @@ export type PropertyType =
   | "Apartment"
   | "House"
   | "Lifestyle block"
+  | "Commercial"
+  | "Other"
   | "Section"
   | "Townhouse"
+  | "Unit"
   | "Villa";
 
 export type ArchitecturalStyle =
@@ -18,23 +21,33 @@ export type FloodRisk = "Low" | "Moderate" | "High";
 export type Property = {
   id: string;
   address: string;
-  suburb: string;
+  title?: string;
+  description?: string | null;
+  suburb: string | null;
   city: string;
-  region: string;
-  price: number;
-  bedrooms: number;
-  bathrooms: number;
-  landArea: number;
-  floorArea: number;
-  yearBuilt: number;
-  propertyType: PropertyType;
-  architecturalStyle: ArchitecturalStyle;
-  floodRisk: FloodRisk;
-  orientation: "North" | "East" | "South" | "West";
-  sunlightHours: number;
-  latitude: number;
-  longitude: number;
-  image: string;
+  region: string | null;
+  postCode?: string | null;
+  country?: string;
+  price: number | null;
+  currency?: string;
+  listingType?: "sale" | "rent" | "lease";
+  rentPeriod?: "week" | "fortnight" | "month" | null;
+  pricingMethod?: string;
+  status?: string;
+  listedAt?: string | null;
+  bedrooms: number | null;
+  bathrooms: number | null;
+  landArea: number | null;
+  floorArea: number | null;
+  yearBuilt: number | null;
+  propertyType: PropertyType | null;
+  architecturalStyle: ArchitecturalStyle | null;
+  floodRisk: FloodRisk | null;
+  orientation: "North" | "East" | "South" | "West" | null;
+  sunlightHours: number | null;
+  latitude: number | null;
+  longitude: number | null;
+  image: string | null;
   imageAlt: string;
   soldDate?: string;
 };

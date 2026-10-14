@@ -75,7 +75,77 @@ const responseSchema = {
 
 function localResult(query: string, properties: Property[]): InterpretedSearch {
   const result = parseNaturalLanguageSearch(query, properties);
-  return { ...result, source: "local" };
+  const unsupported = removeUnavailableFilters(result.filters, properties);
+  const hasFilters = Object.values(result.filters).some(
+    (value) => value !== undefined,
+  );
+  return {
+    ...result,
+    status: hasFilters ? result.status : "needs-clarification",
+    message: withAvailabilityMessage(result.message, unsupported),
+    source: "local",
+  };
+}
+
+function removeUnavailableFilters(
+  filters: PropertyFilters,
+  properties: Property[],
+): string[] {
+  const unsupported: string[] = [];
+  if (
+    filters.propertyTypes?.length &&
+    !properties.some(({ propertyType }) => propertyType !== null)
+  ) {
+    delete filters.propertyTypes;
+    unsupported.push("property type");
+  }
+  if (
+    filters.architecturalStyles?.length &&
+    !properties.some(({ architecturalStyle }) => architecturalStyle !== null)
+  ) {
+    delete filters.architecturalStyles;
+    unsupported.push("architectural style");
+  }
+  if (
+    filters.floodRisks?.length &&
+    !properties.some(({ floodRisk }) => floodRisk !== null)
+  ) {
+    delete filters.floodRisks;
+    unsupported.push("flood risk");
+  }
+  if (filters.northFacingOnly && !properties.some(({ orientation }) => orientation)) {
+    delete filters.northFacingOnly;
+    unsupported.push("orientation");
+  }
+  if (
+    (filters.minPrice !== undefined || filters.maxPrice !== undefined) &&
+    !properties.some(({ price }) => price !== null)
+  ) {
+    delete filters.minPrice;
+    delete filters.maxPrice;
+    unsupported.push("price");
+  }
+  if (
+    filters.bedrooms !== undefined &&
+    !properties.some(({ bedrooms }) => bedrooms !== null)
+  ) {
+    delete filters.bedrooms;
+    unsupported.push("bedroom count");
+  }
+  if (
+    (filters.yearBuiltFrom !== undefined || filters.yearBuiltTo !== undefined) &&
+    !properties.some(({ yearBuilt }) => yearBuilt !== null)
+  ) {
+    delete filters.yearBuiltFrom;
+    delete filters.yearBuiltTo;
+    unsupported.push("year built");
+  }
+  return unsupported;
+}
+
+function withAvailabilityMessage(message: string, unavailable: string[]) {
+  if (!unavailable.length) return message;
+  return `${message} The live listings do not include ${unavailable.join(", ")}, so those criteria were not applied.`;
 }
 
 function cleanGeminiFilters(result: GeminiFilters): PropertyFilters {
@@ -123,7 +193,13 @@ export async function interpretPropertyQuery(
   }
 
   const locations = Array.from(
-    new Set(properties.flatMap(({ suburb, city, region }) => [suburb, city, region])),
+    new Set(
+      properties.flatMap(({ suburb, city, region }) =>
+        [suburb, city, region].filter((location): location is string =>
+          Boolean(location),
+        ),
+      ),
+    ),
   );
 
   try {
@@ -178,14 +254,22 @@ export async function interpretPropertyQuery(
     const result = JSON.parse(text) as GeminiFilters;
     console.log("[AI Search] Parsed filter result from Gemini:", JSON.stringify(result, null, 2));
 
+    const filters = cleanGeminiFilters(result);
+    const unsupported = removeUnavailableFilters(filters, properties);
+    const hasFilters = Object.values(filters).some((value) => value !== undefined);
     return {
-      status: result.needsClarification ? "needs-clarification" : "ready",
-      filters: cleanGeminiFilters(result),
-      message:
+      status:
+        result.needsClarification || !hasFilters
+          ? "needs-clarification"
+          : "ready",
+      filters,
+      message: withAvailabilityMessage(
         result.message ||
-        (result.needsClarification
-          ? "Try adding a location, property type, style or budget."
-          : "I applied the details from your search."),
+          (result.needsClarification
+            ? "Try adding a location, property type, style or budget."
+            : "I applied the details from your search."),
+        unsupported,
+      ),
       source: "gemini",
     };
   } catch (error) {

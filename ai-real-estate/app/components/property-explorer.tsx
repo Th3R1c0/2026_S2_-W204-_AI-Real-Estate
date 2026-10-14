@@ -38,6 +38,9 @@ const propertyTypes: PropertyType[] = [
   "House",
   "Lifestyle block",
   "Section",
+  "Unit",
+  "Commercial",
+  "Other",
 ];
 
 const architecturalStyles: ArchitecturalStyle[] = [
@@ -51,14 +54,20 @@ const architecturalStyles: ArchitecturalStyle[] = [
 const floodRisks: FloodRisk[] = ["Low", "Moderate", "High"];
 
 const numberFormatter = new Intl.NumberFormat("en-NZ");
-const moneyFormatter = new Intl.NumberFormat("en-NZ", {
-  style: "currency",
-  currency: "NZD",
-  maximumFractionDigits: 0,
-});
+function formatMoney(value: number | null, currency = "NZD") {
+  if (value === null) return "Price on application";
+  return new Intl.NumberFormat("en-NZ", {
+    style: "currency",
+    currency,
+    currencyDisplay: "narrowSymbol",
+    maximumFractionDigits: 0,
+  }).format(value);
+}
 
-function formatMoney(value: number) {
-  return moneyFormatter.format(value).replace("NZ", "");
+function formatListingPrice(property: Property) {
+  const price = formatMoney(property.price, property.currency);
+  if (property.listingType !== "rent" || !property.rentPeriod) return price;
+  return `${price} / ${property.rentPeriod}`;
 }
 
 async function searchWithApi(query: string): Promise<AiSearchResult> {
@@ -101,12 +110,41 @@ function Icon({ name, size = 18 }: { name: string; size?: number }) {
   );
 }
 
+function PropertyImage({
+  property,
+  sizes,
+  priority = false,
+}: {
+  property: Property;
+  sizes: string;
+  priority?: boolean;
+}) {
+  if (!property.image) {
+    return (
+      <div className="property-image-placeholder" role="img" aria-label="No property image available">
+        <Icon name="house" size={32} />
+      </div>
+    );
+  }
+  return (
+    <Image
+      alt={property.imageAlt}
+      className="property-image"
+      fill
+      priority={priority}
+      sizes={sizes}
+      src={property.image}
+      unoptimized
+    />
+  );
+}
+
 function PropertyCard({ property, selected, onCompare, onOpen }: { property: Property; selected: boolean; onCompare: () => void; onOpen: () => void }) {
   return (
     <article className="property-card">
       <div className="property-media">
-        <Image alt={property.imageAlt} className="property-image" fill sizes="(max-width: 720px) 100vw, (max-width: 1200px) 50vw, 380px" src={property.image} />
-        <span className="style-badge">{property.architecturalStyle}</span>
+        <PropertyImage property={property} sizes="(max-width: 720px) 100vw, (max-width: 1200px) 50vw, 380px" />
+        {property.architecturalStyle && <span className="style-badge">{property.architecturalStyle}</span>}
         <label className={`compare-check ${selected ? "is-selected" : ""}`}>
           <input aria-label={`Compare ${property.address}`} checked={selected} onChange={onCompare} type="checkbox" />
           <Icon name="compare" size={15} />Compare
@@ -114,16 +152,16 @@ function PropertyCard({ property, selected, onCompare, onOpen }: { property: Pro
       </div>
       <div className="property-body">
         <div className="property-heading">
-          <div><p className="property-price">{formatMoney(property.price)}</p><h3>{property.address}</h3><p className="property-location">{property.suburb}, {property.city}</p></div>
-          <span className={`risk-dot risk-${property.floodRisk.toLowerCase()}`} title={`${property.floodRisk} flood risk`} />
+          <div><p className="property-price">{formatListingPrice(property)}</p><h3>{property.address}</h3><p className="property-location">{[property.suburb, property.city].filter(Boolean).join(", ")}</p></div>
+          {property.floodRisk && <span className={`risk-dot risk-${property.floodRisk.toLowerCase()}`} title={`${property.floodRisk} flood risk`} />}
         </div>
         <div className="property-specs" aria-label="Property features">
-          <span><Icon name="bed" size={17} />{property.bedrooms} beds</span>
-          <span><Icon name="bath" size={17} />{property.bathrooms} baths</span>
-          <span><Icon name="ruler" size={17} />{numberFormatter.format(property.landArea)} m²</span>
+          <span><Icon name="bed" size={17} />{property.bedrooms ?? "—"} beds</span>
+          <span><Icon name="bath" size={17} />{property.bathrooms ?? "—"} baths</span>
+          <span><Icon name="ruler" size={17} />{property.landArea === null ? "—" : numberFormatter.format(property.landArea)} m²</span>
         </div>
         <div className="card-footer">
-          <div className="sun-chip"><Icon name="sun" size={15} />{property.sunlightHours} hrs sunlight</div>
+          {property.sunlightHours !== null && <div className="sun-chip"><Icon name="sun" size={15} />{property.sunlightHours} hrs sunlight</div>}
           <button aria-label={`View details for ${property.address}`} className="icon-button" onClick={onOpen} type="button"><Icon name="arrow" /></button>
         </div>
       </div>
@@ -134,14 +172,14 @@ function PropertyCard({ property, selected, onCompare, onOpen }: { property: Pro
 function ComparisonDialog({ properties, onClose, onRemove }: { properties: Property[]; onClose: () => void; onRemove: (id: string) => void }) {
   const [highlight, setHighlight] = useState(false);
   const values = {
-    Price: properties.map(({ price }) => formatMoney(price)),
-    Bedrooms: properties.map(({ bedrooms }) => String(bedrooms)),
-    Bathrooms: properties.map(({ bathrooms }) => String(bathrooms)),
-    "Land area": properties.map(({ landArea }) => `${numberFormatter.format(landArea)} m²`),
-    "Built in": properties.map(({ yearBuilt }) => String(yearBuilt)),
-    Style: properties.map(({ architecturalStyle }) => architecturalStyle),
-    "Flood risk": properties.map(({ floodRisk }) => floodRisk),
-    Sunlight: properties.map(({ sunlightHours }) => `${sunlightHours} hrs/day`),
+    Price: properties.map((property) => formatListingPrice(property)),
+    Bedrooms: properties.map(({ bedrooms }) => String(bedrooms ?? "—")),
+    Bathrooms: properties.map(({ bathrooms }) => String(bathrooms ?? "—")),
+    "Land area": properties.map(({ landArea }) => landArea === null ? "—" : `${numberFormatter.format(landArea)} m²`),
+    "Built in": properties.map(({ yearBuilt }) => String(yearBuilt ?? "—")),
+    Style: properties.map(({ architecturalStyle }) => architecturalStyle ?? "Not provided"),
+    "Flood risk": properties.map(({ floodRisk }) => floodRisk ?? "Not provided"),
+    Sunlight: properties.map(({ sunlightHours }) => sunlightHours === null ? "Not provided" : `${sunlightHours} hrs/day`),
   };
 
   return (
@@ -155,7 +193,7 @@ function ComparisonDialog({ properties, onClose, onRemove }: { properties: Prope
             {properties.map((property) => (
               <div className="compare-property-head" key={property.id}>
                 <button aria-label={`Remove ${property.address}`} className="remove-button" onClick={() => onRemove(property.id)} type="button"><Icon name="close" size={14} /></button>
-                <div className="compare-thumb"><Image alt={property.imageAlt} fill sizes="200px" src={property.image} /></div>
+                <div className="compare-thumb"><PropertyImage property={property} sizes="200px" /></div>
                 <strong>{property.address}</strong><span>{property.suburb}</span>
               </div>
             ))}
@@ -181,22 +219,28 @@ function DetailDialog({ property, comparableSales, onClose }: { property: Proper
   const [rate, setRate] = useState(6.49);
   const [term, setTerm] = useState(30);
   const compResult = useMemo(() => findComparableSales(property, comparableSales, { radiusKm: radius, months, asOf: new Date("2026-09-18T00:00:00Z") }), [property, comparableSales, radius, months]);
-  const monthlyPayment = calculateMonthlyMortgage(property.price, deposit, rate, term);
-  const sunlightScore = Math.min(100, Math.round((property.sunlightHours / 9) * 100));
+  const monthlyPayment = calculateMonthlyMortgage(property.price ?? 0, deposit, rate, term);
+  const sunlightScore = property.sunlightHours === null
+    ? null
+    : Math.min(100, Math.round((property.sunlightHours / 9) * 100));
   const tabs: Array<{ id: DetailTab; label: string }> = [
     { id: "overview", label: "Overview" },
     { id: "comps", label: "Comparable sales" },
-    { id: "sunlight", label: "Sunlight" },
-    { id: "mortgage", label: "Mortgage" },
+    ...(property.sunlightHours !== null && property.orientation
+      ? [{ id: "sunlight" as const, label: "Sunlight" }]
+      : []),
+    ...(property.price !== null && (!property.listingType || property.listingType === "sale")
+      ? [{ id: "mortgage" as const, label: "Mortgage" }]
+      : []),
   ];
 
   return (
     <div className="modal-backdrop detail-backdrop" role="presentation">
       <section aria-label="Property details" aria-modal="true" className="modal detail-modal" role="dialog">
         <div className="detail-hero">
-          <Image alt={property.imageAlt} fill priority sizes="(max-width: 800px) 100vw, 720px" src={property.image} />
+          <PropertyImage property={property} priority sizes="(max-width: 800px) 100vw, 720px" />
           <button aria-label="Close property details" className="icon-button modal-close" onClick={onClose} type="button"><Icon name="close" /></button>
-          <div className="detail-hero-copy"><span>{property.propertyType} · {property.architecturalStyle}</span><h2>{property.address}</h2><p>{property.suburb}, {property.city}</p></div>
+          <div className="detail-hero-copy"><span>{property.propertyType ?? "Property"}{property.architecturalStyle ? ` · ${property.architecturalStyle}` : ""}</span><h2>{property.address}</h2><p>{[property.suburb, property.city].filter(Boolean).join(", ")}</p></div>
         </div>
         <nav aria-label="Property detail sections" className="detail-tabs">
           {tabs.map(({ id, label }) => <button className={tab === id ? "active" : ""} key={id} onClick={() => setTab(id)} type="button">{label}</button>)}
@@ -204,11 +248,11 @@ function DetailDialog({ property, comparableSales, onClose }: { property: Proper
         <div className="detail-content">
           {tab === "overview" && (
             <div className="overview-panel">
-              <div className="overview-price"><p>Indicative price</p><strong>{formatMoney(property.price)}</strong><span>Demo valuation, not a live listing</span></div>
+              <div className="overview-price"><p>Asking price</p><strong>{formatListingPrice(property)}</strong><span>{property.pricingMethod?.replaceAll("_", " ") ?? "Current listing"}</span></div>
               <div className="stat-grid">
-                <div><Icon name="bed" /><strong>{property.bedrooms}</strong><span>Bedrooms</span></div><div><Icon name="bath" /><strong>{property.bathrooms}</strong><span>Bathrooms</span></div><div><Icon name="ruler" /><strong>{property.floorArea} m²</strong><span>Floor area</span></div><div><Icon name="house" /><strong>{property.yearBuilt}</strong><span>Year built</span></div>
+                <div><Icon name="bed" /><strong>{property.bedrooms ?? "—"}</strong><span>Bedrooms</span></div><div><Icon name="bath" /><strong>{property.bathrooms ?? "—"}</strong><span>Bathrooms</span></div><div><Icon name="ruler" /><strong>{property.floorArea === null ? "—" : `${property.floorArea} m²`}</strong><span>Floor area</span></div><div><Icon name="house" /><strong>{property.yearBuilt ?? "—"}</strong><span>Year built</span></div>
               </div>
-              <div className="insight-note"><Icon name="sparkle" /><div><strong>Why it stands out</strong><p>{property.architecturalStyle} design, {property.floodRisk.toLowerCase()} demo flood band and {property.sunlightHours} estimated sunlight hours.</p></div></div>
+              <div className="insight-note"><Icon name="sparkle" /><div><strong>About this listing</strong><p>{property.description || `${property.propertyType ?? "Property"} listing${property.status ? ` · ${property.status.replaceAll("_", " ")}` : ""}.`}</p></div></div>
             </div>
           )}
 
@@ -221,17 +265,17 @@ function DetailDialog({ property, comparableSales, onClose }: { property: Proper
               </div>
               <div className="comp-list">
                 {compResult.comps.length ? compResult.comps.map(({ property: comp, distanceKm }) => (
-                  <article className="comp-row" key={comp.id}><div><strong>{comp.address}</strong><span>{comp.bedrooms} bed · {comp.floorArea} m² · {distanceKm.toFixed(1)} km away</span></div><div><strong>{formatMoney(comp.price)}</strong><span>Sold {new Date(comp.soldDate!).toLocaleDateString("en-NZ", { month: "short", year: "numeric" })}</span></div></article>
+                  <article className="comp-row" key={comp.id}><div><strong>{comp.address}</strong><span>{comp.bedrooms ?? "—"} bed · {comp.floorArea === null ? "—" : `${comp.floorArea} m²`} · {distanceKm.toFixed(1)} km away</span></div><div><strong>{formatMoney(comp.price, comp.currency)}</strong><span>Sold {new Date(comp.soldDate!).toLocaleDateString("en-NZ", { month: "short", year: "numeric" })}</span></div></article>
                 )) : <div className="empty-inline">No similar sales fit this radius and timeframe. Try widening either control.</div>}
               </div>
-              <p className="disclaimer">Demo comparable sales are indicative only and are not a registered valuation.</p>
+              <p className="disclaimer">Comparable sales are historical records, not a registered valuation.</p>
             </div>
           )}
 
-          {tab === "sunlight" && (
+          {tab === "sunlight" && property.sunlightHours !== null && property.orientation && sunlightScore !== null && (
             <div className="sunlight-panel">
               <div className="sun-orbit"><div className="sun-core"><Icon name="sun" size={38} /></div></div>
-              <div className="sunlight-copy"><p className="eyebrow">Estimated daily exposure</p><h3>{property.sunlightHours} hours/day</h3><p>This {property.orientation.toLowerCase()}-facing home has a demo sunlight score of {sunlightScore}/100, based on orientation and an indicative site profile.</p><div className="score-track"><span style={{ width: `${sunlightScore}%` }} /></div><div className="sun-facts"><span><strong>{property.orientation}-facing</strong> primary aspect</span><span><strong>{sunlightScore}/100</strong> exposure score</span></div></div>
+              <div className="sunlight-copy"><p className="eyebrow">Estimated daily exposure</p><h3>{property.sunlightHours} hours/day</h3><p>This {property.orientation?.toLowerCase()}-facing home has a demo sunlight score of {sunlightScore}/100, based on orientation and an indicative site profile.</p><div className="score-track"><span style={{ width: `${sunlightScore}%` }} /></div><div className="sun-facts"><span><strong>{property.orientation}-facing</strong> primary aspect</span><span><strong>{sunlightScore}/100</strong> exposure score</span></div></div>
             </div>
           )}
 
@@ -243,7 +287,7 @@ function DetailDialog({ property, comparableSales, onClose }: { property: Proper
                 <label><span>Interest rate <strong>{rate.toFixed(2)}%</strong></span><input aria-label="Interest rate" max="10" min="2" onChange={(event) => setRate(Number(event.target.value))} step="0.01" type="range" value={rate} /></label>
                 <label><span>Loan term <strong>{term} years</strong></span><input aria-label="Loan term" max="30" min="10" onChange={(event) => setTerm(Number(event.target.value))} step="5" type="range" value={term} /></label>
               </div>
-              <div className="loan-summary"><span>Deposit amount<strong>{formatMoney((property.price * deposit) / 100)}</strong></span><span>Estimated loan<strong>{formatMoney(property.price * (1 - deposit / 100))}</strong></span></div>
+              <div className="loan-summary"><span>Deposit amount<strong>{formatMoney(((property.price ?? 0) * deposit) / 100, property.currency)}</strong></span><span>Estimated loan<strong>{formatMoney((property.price ?? 0) * (1 - deposit / 100), property.currency)}</strong></span></div>
               <p className="disclaimer">Estimate only. Rates, fees, insurance and lender criteria are not included.</p>
             </div>
           )}
@@ -267,6 +311,13 @@ export default function PropertyExplorer({ properties, comparableSales, aiSearch
   const selectedProperties = properties.filter(({ id }) => selectedIds.includes(id));
   const detailProperty = properties.find(({ id }) => id === detailId);
   const hasFilters = Object.keys(filters).length > 0;
+  const hasArchitecturalStyles = properties.some(({ architecturalStyle }) => architecturalStyle !== null);
+  const hasFloodRisk = properties.some(({ floodRisk }) => floodRisk !== null);
+  const hasAspect = properties.some(({ orientation }) => orientation !== null);
+  const hasBuildYears = properties.some(({ yearBuilt }) => yearBuilt !== null);
+  const availablePropertyTypes = propertyTypes.filter((type) =>
+    properties.some((property) => property.propertyType === type),
+  );
 
   function togglePropertyType(type: PropertyType) {
     setFilters((current) => ({ ...current, propertyTypes: current.propertyTypes?.includes(type) ? undefined : [type] }));
@@ -313,35 +364,35 @@ export default function PropertyExplorer({ properties, comparableSales, aiSearch
           <div className="hero-copy">
             <div className="hero-kicker"><span><Icon name="sparkle" size={14} /></span>AI-powered property discovery</div>
             <h1>Find more than a house.<br /><em>Find your fit.</em></h1>
-            <p>Search homes the way you think—by architecture, sunlight, flood risk, building age and the details that actually matter.</p>
+            <p>Search live property listings and explore the verified details available for each home.</p>
             <form className="ai-search" onSubmit={submitAiSearch}>
               <span className="ai-search-icon"><Icon name="sparkle" size={21} /></span>
               <label className="sr-only" htmlFor="ai-property-search">Describe your ideal property</label>
               <input aria-label="Describe your ideal property" id="ai-property-search" onChange={(event) => setQuery(event.target.value)} placeholder="Try “a north-facing character villa in Auckland”" value={query} />
               <button disabled={isSearching} type="submit"><span>{isSearching ? "Thinking…" : "Search"}</span><Icon name="arrow" size={17} /></button>
             </form>
-            <div className="prompt-row"><span>Try asking:</span>{["Modernist under $1.2m", "Low flood risk", "North-facing homes"].map((prompt) => <button key={prompt} onClick={() => setQuery(prompt)} type="button">{prompt}</button>)}</div>
+            <div className="prompt-row"><span>Try asking:</span>{["Townhouse in Auckland", "House under $1.2m", "3-bedroom apartment"].map((prompt) => <button key={prompt} onClick={() => setQuery(prompt)} type="button">{prompt}</button>)}</div>
             {aiMessage && <div className="ai-response" role="status"><Icon name="sparkle" size={16} /><span>{aiMessage}</span>{aiSource && <small>{aiSource === "gemini" ? "Gemini interpreted" : "Local search"}</small>}</div>}
           </div>
           <div className="hero-aside" aria-hidden="true">
-            <div className="hero-stat hero-stat-top"><span>Matching your brief</span><strong>98%</strong><small>AI confidence</small></div>
+            <div className="hero-stat hero-stat-top"><span>Live listings</span><strong>{numberFormatter.format(properties.length)}</strong><small>From your property database</small></div>
             <div className="hero-home-visual"><div className="home-sun" /><div className="home-shape"><span /><span /><span /></div><div className="home-ground" /></div>
-            <div className="hero-stat hero-stat-bottom"><Icon name="sun" size={18} /><div><strong>7.8 hrs</strong><span>daily sunlight</span></div></div>
+            <div className="hero-stat hero-stat-bottom"><Icon name="map" size={18} /><div><strong>Connected</strong><span>MySQL listing data</span></div></div>
           </div>
         </section>
 
         <section className="discover-section" id="discover">
           <aside className="filter-panel">
             <div className="filter-title"><div><Icon name="sliders" /><h2>Refine search</h2></div>{hasFilters && <button onClick={clearFilters} type="button">Clear all filters</button>}</div>
-            <div className="filter-group"><h3>Property type</h3><div className="type-grid">{propertyTypes.map((type) => <button aria-label={type} className={filters.propertyTypes?.includes(type) ? "selected" : ""} key={type} onClick={() => togglePropertyType(type)} type="button"><Icon name="house" size={18} />{type}</button>)}</div></div>
-            <details className="filter-details" open><summary>Architecture <span>{filters.architecturalStyles?.length || ""}</span></summary><div className="check-list">{architecturalStyles.map((style) => <label key={style}><input checked={filters.architecturalStyles?.includes(style) ?? false} onChange={() => toggleStyle(style)} type="checkbox" /><span>{style}</span></label>)}</div></details>
-            <details className="filter-details" open>
-              <summary>Risk & environment</summary><label className="field-label" htmlFor="flood-risk">Flood risk</label>
-              <select id="flood-risk" onChange={(event) => setFilters((current) => ({ ...current, floodRisks: event.target.value ? [event.target.value as FloodRisk] : undefined }))} value={filters.floodRisks?.[0] ?? ""}><option value="">Any flood band</option>{floodRisks.map((risk) => <option key={risk} value={risk}>{risk}</option>)}</select>
-              <label className="north-check"><input checked={filters.northFacingOnly ?? false} onChange={(event) => setFilters((current) => ({ ...current, northFacingOnly: event.target.checked || undefined }))} type="checkbox" /><Icon name="sun" size={18} /><span><strong>North-facing only</strong><small>Higher sunlight potential</small></span></label>
-            </details>
-            <details className="filter-details"><summary>Building age</summary><div className="year-fields"><label>Built from<input inputMode="numeric" onChange={(event) => setFilters((current) => ({ ...current, yearBuiltFrom: Number(event.target.value) || undefined }))} placeholder="1900" value={filters.yearBuiltFrom ?? ""} /></label><label>Built to<input inputMode="numeric" onChange={(event) => setFilters((current) => ({ ...current, yearBuiltTo: Number(event.target.value) || undefined }))} placeholder="2026" value={filters.yearBuiltTo ?? ""} /></label></div></details>
-            <div className="data-note"><Icon name="map" size={18} /><p><strong>Demo data</strong><span>Source records are enriched with indicative specialist attributes.</span></p></div>
+            {!!availablePropertyTypes.length && <div className="filter-group"><h3>Property type</h3><div className="type-grid">{availablePropertyTypes.map((type) => <button aria-label={type} className={filters.propertyTypes?.includes(type) ? "selected" : ""} key={type} onClick={() => togglePropertyType(type)} type="button"><Icon name="house" size={18} />{type}</button>)}</div></div>}
+            {hasArchitecturalStyles && <details className="filter-details" open><summary>Architecture <span>{filters.architecturalStyles?.length || ""}</span></summary><div className="check-list">{architecturalStyles.map((style) => <label key={style}><input checked={filters.architecturalStyles?.includes(style) ?? false} onChange={() => toggleStyle(style)} type="checkbox" /><span>{style}</span></label>)}</div></details>}
+            {(hasFloodRisk || hasAspect) && <details className="filter-details" open>
+              <summary>Risk & environment</summary>
+              {hasFloodRisk && <><label className="field-label" htmlFor="flood-risk">Flood risk</label><select id="flood-risk" onChange={(event) => setFilters((current) => ({ ...current, floodRisks: event.target.value ? [event.target.value as FloodRisk] : undefined }))} value={filters.floodRisks?.[0] ?? ""}><option value="">Any flood band</option>{floodRisks.map((risk) => <option key={risk} value={risk}>{risk}</option>)}</select></>}
+              {hasAspect && <label className="north-check"><input checked={filters.northFacingOnly ?? false} onChange={(event) => setFilters((current) => ({ ...current, northFacingOnly: event.target.checked || undefined }))} type="checkbox" /><Icon name="sun" size={18} /><span><strong>North-facing only</strong><small>Higher sunlight potential</small></span></label>}
+            </details>}
+            {hasBuildYears && <details className="filter-details"><summary>Building age</summary><div className="year-fields"><label>Built from<input inputMode="numeric" onChange={(event) => setFilters((current) => ({ ...current, yearBuiltFrom: Number(event.target.value) || undefined }))} placeholder="1900" value={filters.yearBuiltFrom ?? ""} /></label><label>Built to<input inputMode="numeric" onChange={(event) => setFilters((current) => ({ ...current, yearBuiltTo: Number(event.target.value) || undefined }))} placeholder="2026" value={filters.yearBuiltTo ?? ""} /></label></div></details>}
+            <div className="data-note"><Icon name="map" size={18} /><p><strong>Live database</strong><span>Style, flood, aspect and sunlight insights appear when listing records include them.</span></p></div>
           </aside>
 
           <div className="results-panel">
@@ -356,9 +407,9 @@ export default function PropertyExplorer({ properties, comparableSales, aiSearch
         </section>
       </main>
 
-      <footer><a className="brand footer-brand" href="#top"><span className="brand-mark"><Icon name="house" size={18} /></span><span>haven<span className="brand-dot">.</span></span></a><p>Smarter property discovery for Aotearoa buyers.</p><span>Demo experience · 2026</span></footer>
+      <footer><a className="brand footer-brand" href="#top"><span className="brand-mark"><Icon name="house" size={18} /></span><span>haven<span className="brand-dot">.</span></span></a><p>Smarter property discovery for Aotearoa buyers.</p><span>Live property data</span></footer>
 
-      {selectedIds.length > 0 && !comparisonOpen && <div className="compare-dock"><div className="compare-avatars">{selectedProperties.slice(0, 3).map((property) => <span key={property.id}><Image alt="" fill sizes="44px" src={property.image} /></span>)}</div><div><strong>{selectedIds.length} {selectedIds.length === 1 ? "home" : "homes"} selected</strong><span>{selectedIds.length < 2 ? "Choose one more to compare" : "Ready for a side-by-side view"}</span></div><button disabled={selectedIds.length < 2} onClick={() => setComparisonOpen(true)} type="button">Compare {selectedIds.length >= 2 ? `${selectedIds.length} homes` : ""}<Icon name="arrow" size={16} /></button></div>}
+      {selectedIds.length > 0 && !comparisonOpen && <div className="compare-dock"><div className="compare-avatars">{selectedProperties.slice(0, 3).map((property) => <span key={property.id}><PropertyImage property={property} sizes="44px" /></span>)}</div><div><strong>{selectedIds.length} {selectedIds.length === 1 ? "home" : "homes"} selected</strong><span>{selectedIds.length < 2 ? "Choose one more to compare" : "Ready for a side-by-side view"}</span></div><button disabled={selectedIds.length < 2} onClick={() => setComparisonOpen(true)} type="button">Compare {selectedIds.length >= 2 ? `${selectedIds.length} homes` : ""}<Icon name="arrow" size={16} /></button></div>}
       {comparisonOpen && <ComparisonDialog onClose={() => setComparisonOpen(false)} onRemove={(id) => setSelectedIds((current) => current.filter((item) => item !== id))} properties={selectedProperties} />}
       {detailProperty && <DetailDialog comparableSales={comparableSales} onClose={() => setDetailId(null)} property={detailProperty} />}
     </div>

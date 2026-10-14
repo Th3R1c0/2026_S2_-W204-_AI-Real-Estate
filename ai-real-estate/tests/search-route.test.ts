@@ -1,6 +1,9 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { POST } from "../app/api/search/route";
+import { properties } from "../lib/property-data";
+
+afterEach(() => vi.unstubAllGlobals());
 
 describe("POST /api/search", () => {
   it("rejects an empty property query", async () => {
@@ -20,6 +23,10 @@ describe("POST /api/search", () => {
   it("returns interpreted filters without exposing server configuration", async () => {
     const previousKey = process.env.GEMINI_API_KEY;
     delete process.env.GEMINI_API_KEY;
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => Response.json({ items: properties })),
+    );
 
     try {
       const response = await POST(
