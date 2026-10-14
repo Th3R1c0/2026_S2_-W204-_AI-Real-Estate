@@ -1,4 +1,4 @@
-import type { Property } from "./property-types";
+import type { Property, PropertySource } from "./property-types";
 
 /**
  * Demo records use address, bedroom, bathroom, land-area, valuation and
@@ -10,7 +10,7 @@ import type { Property } from "./property-types";
  * Photography is downloaded from Unsplash and is illustrative rather than a
  * photograph of the named address.
  */
-export const properties: Property[] = [
+const propertyRecords: Property[] = [
   {
     id: "kelmarna-avenue",
     address: "54 Kelmarna Avenue",
@@ -233,9 +233,25 @@ export const properties: Property[] = [
   },
 ];
 
+const aucklandHousingSource: PropertySource = {
+  id: "auckland-house-prices",
+  title: "Auckland House Prices dataset",
+  publisher: "Sakyawira Nanda Ruslim",
+  url: "https://github.com/Sakyawira/auckland-house-prices/blob/master/Combined%20and%20Cleaned%20Dataframe.csv",
+  reference: "Executive Summary, Linear Regression Analysis of Auckland House Prices (July 2020)",
+  material:
+    "The dataset contains the number of bedrooms, number of bathrooms, the address, the land area, and CV (Capital Value).",
+  fields: ["address", "price", "bedrooms", "bathrooms", "landArea"],
+};
+
+export const properties: Property[] = propertyRecords.map((property) => ({
+  ...property,
+  sources: [aucklandHousingSource],
+}));
+
 export const comparableSales: Property[] = [
   {
-    ...properties[0],
+    ...propertyRecords[0],
     id: "sale-clarence-street",
     address: "51 Clarence Street",
     price: 1_625_000,
@@ -267,7 +283,7 @@ export const comparableSales: Property[] = [
     soldDate: "2026-04-04",
   },
   {
-    ...properties[1],
+    ...propertyRecords[1],
     id: "sale-kuhanui-drive",
     address: "45 Kuhanui Drive",
     price: 1_025_000,
@@ -288,7 +304,7 @@ export const comparableSales: Property[] = [
     soldDate: "2026-06-10",
   },
   {
-    ...properties[2],
+    ...propertyRecords[2],
     id: "sale-monteith-crescent",
     address: "11D Monteith Crescent",
     price: 880_000,
@@ -298,7 +314,7 @@ export const comparableSales: Property[] = [
     soldDate: "2026-08-02",
   },
   {
-    ...properties[3],
+    ...propertyRecords[3],
     id: "sale-grey-street",
     address: "152 Grey Street",
     price: 1_175_000,
@@ -309,7 +325,7 @@ export const comparableSales: Property[] = [
     soldDate: "2026-05-14",
   },
   {
-    ...properties[4],
+    ...propertyRecords[4],
     id: "sale-belmont-place",
     address: "10 Belmont Place",
     price: 830_000,
@@ -320,7 +336,7 @@ export const comparableSales: Property[] = [
     soldDate: "2026-07-03",
   },
   {
-    ...properties[6],
+    ...propertyRecords[6],
     id: "sale-great-north-road",
     address: "556 Great North Road",
     price: 1_575_000,
@@ -330,7 +346,7 @@ export const comparableSales: Property[] = [
     soldDate: "2026-06-23",
   },
   {
-    ...properties[9],
+    ...propertyRecords[9],
     id: "sale-pleasant-street",
     address: "25C Pleasant Street",
     price: 990_000,

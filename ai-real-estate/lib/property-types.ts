@@ -30,6 +30,18 @@ export type WalkabilityData = {
   supermarketsNearby: number;
 };
 
+export type PropertySourceField = "address" | "price" | "bedrooms" | "bathrooms" | "landArea";
+
+export type PropertySource = {
+  id: string;
+  title: string;
+  publisher: string;
+  url: string;
+  reference: string;
+  material: string;
+  fields: PropertySourceField[];
+};
+
 export type Property = {
   id: string;
   address: string;
@@ -55,6 +67,7 @@ export type Property = {
   // Family & Lifestyle Features
   walkability?: WalkabilityData;
   schoolZones?: SchoolZone[];
+  sources?: PropertySource[];
 };
 
 export type PropertyFilters = {
