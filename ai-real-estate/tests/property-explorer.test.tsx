@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 
 import PropertyExplorer from "../app/components/property-explorer";
+import { properties as seededProperties } from "../lib/property-data";
 import type { Property } from "../lib/property-types";
 
 const properties: Property[] = [
@@ -161,6 +162,30 @@ describe("PropertyExplorer", () => {
     });
     expect(within(details).getByTestId("monthly-repayment").textContent).not.toBe(
       initialPayment,
+    );
+  });
+
+  it("opens source details from an inline property citation", async () => {
+    const user = userEvent.setup();
+    render(<PropertyExplorer properties={[seededProperties[0]]} comparableSales={[]} />);
+    await user.click(
+      screen.getByRole("button", { name: /view details for 54 kelmarna avenue/i }),
+    );
+
+    const details = screen.getByRole("dialog", { name: /property details/i });
+    await user.click(
+      within(details).getByRole("button", { name: /view source 1 for bedrooms/i }),
+    );
+
+    const sourceDetails = screen.getByRole("dialog", { name: /source details/i });
+    expect(within(sourceDetails).getByText(/auckland house prices dataset/i)).toBeInTheDocument();
+    expect(within(sourceDetails).getByText(/sakyawira nanda ruslim/i)).toBeInTheDocument();
+    expect(within(sourceDetails).getByText(/the dataset contains the number of bedrooms/i)).toBeInTheDocument();
+    expect(
+      within(sourceDetails).getByRole("link", { name: /open original source/i }),
+    ).toHaveAttribute(
+      "href",
+      "https://github.com/Sakyawira/auckland-house-prices/blob/master/Combined%20and%20Cleaned%20Dataframe.csv",
     );
   });
 });

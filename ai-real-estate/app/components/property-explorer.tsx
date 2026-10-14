@@ -14,6 +14,8 @@ import type {
   FloodRisk,
   Property,
   PropertyFilters,
+  PropertySource,
+  PropertySourceField,
   PropertyType,
 } from "../../lib/property-types";
 
@@ -31,6 +33,19 @@ type PropertyExplorerProps = {
 };
 
 type DetailTab = "overview" | "comps" | "sunlight" | "family" | "mortgage";
+type SourceSelection = {
+  source: PropertySource;
+  field: PropertySourceField;
+  property: Property;
+};
+
+const sourceFieldLabels: Record<PropertySourceField, string> = {
+  address: "address",
+  price: "indicative value",
+  bedrooms: "bedrooms",
+  bathrooms: "bathrooms",
+  landArea: "land area",
+};
 
 const propertyTypes: PropertyType[] = [
   "Villa",
@@ -60,6 +75,36 @@ const moneyFormatter = new Intl.NumberFormat("en-NZ", {
 
 function formatMoney(value: number) {
   return moneyFormatter.format(value).replace("NZ", "");
+}
+
+function SourceCitations({
+  property,
+  field,
+  onOpen,
+}: {
+  property: Property;
+  field: PropertySourceField;
+  onOpen: (source: PropertySource, field: PropertySourceField) => void;
+}) {
+  const sources = property.sources?.filter((source) => source.fields.includes(field)) ?? [];
+
+  if (!sources.length) return null;
+
+  return (
+    <span className="source-citations">
+      {sources.map((source, index) => (
+        <button
+          aria-label={`View source ${index + 1} for ${sourceFieldLabels[field]}`}
+          className="source-citation"
+          key={source.id}
+          onClick={() => onOpen(source, field)}
+          type="button"
+        >
+          [{index + 1}]
+        </button>
+      ))}
+    </span>
+  );
 }
 
 async function searchWithApi(query: string): Promise<AiSearchResult> {
@@ -177,11 +222,13 @@ function PropertyCard({
   selected,
   onCompare,
   onOpen,
+  onOpenSource,
 }: {
   property: Property;
   selected: boolean;
   onCompare: () => void;
   onOpen: () => void;
+  onOpenSource: (source: PropertySource, field: PropertySourceField) => void;
 }) {
   return (
     <article className="property-card">
@@ -208,8 +255,14 @@ function PropertyCard({
       <div className="property-body">
         <div className="property-heading">
           <div>
-            <p className="property-price">{formatMoney(property.price)}</p>
-            <h3>{property.address}</h3>
+            <p className="property-price">
+              {formatMoney(property.price)}
+              <SourceCitations field="price" onOpen={onOpenSource} property={property} />
+            </p>
+            <h3>
+              {property.address}
+              <SourceCitations field="address" onOpen={onOpenSource} property={property} />
+            </h3>
             <p className="property-location">
               {property.suburb}, {property.city}
             </p>
@@ -223,14 +276,17 @@ function PropertyCard({
           <span>
             <Icon name="bed" size={17} />
             {property.bedrooms} beds
+            <SourceCitations field="bedrooms" onOpen={onOpenSource} property={property} />
           </span>
           <span>
             <Icon name="bath" size={17} />
             {property.bathrooms} baths
+            <SourceCitations field="bathrooms" onOpen={onOpenSource} property={property} />
           </span>
           <span>
             <Icon name="ruler" size={17} />
             {numberFormatter.format(property.landArea)} m²
+            <SourceCitations field="landArea" onOpen={onOpenSource} property={property} />
           </span>
         </div>
         <div className="card-footer">
@@ -361,10 +417,12 @@ function DetailDialog({
   property,
   comparableSales,
   onClose,
+  onOpenSource,
 }: {
   property: Property;
   comparableSales: Property[];
   onClose: () => void;
+  onOpenSource: (source: PropertySource, field: PropertySourceField) => void;
 }) {
   const [tab, setTab] = useState<DetailTab>("overview");
   const [radius, setRadius] = useState(2);
@@ -438,7 +496,10 @@ function DetailDialog({
             <div className="overview-panel">
               <div className="overview-price">
                 <p>Indicative price</p>
-                <strong>{formatMoney(property.price)}</strong>
+                <strong>
+                  {formatMoney(property.price)}
+                  <SourceCitations field="price" onOpen={onOpenSource} property={property} />
+                </strong>
                 <span>Demo valuation, not a live listing</span>
               </div>
               <div className="stat-grid">
@@ -446,21 +507,24 @@ function DetailDialog({
                   <Icon name="bed" />
                   <strong>{property.bedrooms}</strong>
                   <span>Bedrooms</span>
+                  <SourceCitations field="bedrooms" onOpen={onOpenSource} property={property} />
                 </div>
                 <div>
                   <Icon name="bath" />
                   <strong>{property.bathrooms}</strong>
                   <span>Bathrooms</span>
+                  <SourceCitations field="bathrooms" onOpen={onOpenSource} property={property} />
                 </div>
                 <div>
                   <Icon name="ruler" />
-                  <strong>{property.floorArea} m²</strong>
-                  <span>Floor area</span>
+                  <strong>{numberFormatter.format(property.landArea)} m²</strong>
+                  <span>Land area</span>
+                  <SourceCitations field="landArea" onOpen={onOpenSource} property={property} />
                 </div>
                 <div>
                   <Icon name="house" />
                   <strong>{property.yearBuilt}</strong>
-                  <span>Year built</span>
+                  <span>Demo year built</span>
                 </div>
               </div>
               <div className="insight-note">
@@ -645,6 +709,76 @@ function DetailDialog({
   );
 }
 
+function SourceDetailsDialog({
+  selection,
+  onClose,
+}: {
+  selection: SourceSelection;
+  onClose: () => void;
+}) {
+  const { field, property, source } = selection;
+  const claimValue = {
+    address: property.address,
+    price: formatMoney(property.price),
+    bedrooms: String(property.bedrooms),
+    bathrooms: String(property.bathrooms),
+    landArea: `${numberFormatter.format(property.landArea)} m²`,
+  }[field];
+
+  return (
+    <div className="modal-backdrop source-backdrop" role="presentation">
+      <section
+        aria-label="Source details"
+        aria-modal="true"
+        className="modal source-modal"
+        role="dialog"
+      >
+        <div className="modal-header">
+          <div>
+            <p className="eyebrow">Reference for {sourceFieldLabels[field]}</p>
+            <h2>{source.title}</h2>
+          </div>
+          <button
+            aria-label="Close source details"
+            className="icon-button"
+            onClick={onClose}
+            type="button"
+          >
+            <Icon name="close" />
+          </button>
+        </div>
+        <div className="source-content">
+          <dl className="source-claim">
+            <div>
+              <dt>Property claim</dt>
+              <dd>{claimValue}</dd>
+            </div>
+            <div>
+              <dt>Property</dt>
+              <dd>{property.address}</dd>
+            </div>
+          </dl>
+          <div className="source-publication">
+            <p className="eyebrow">Published by {source.publisher}</p>
+            <p>{source.reference}</p>
+          </div>
+          <div className="source-material">
+            <h3>Reference material</h3>
+            <blockquote>{source.material}</blockquote>
+          </div>
+          <a className="source-link" href={source.url} rel="noreferrer" target="_blank">
+            Open original source <Icon name="arrow" size={16} />
+          </a>
+          <p className="source-caveat">
+            This dataset reports Capital Value (CV), not a current asking price. Demo property records
+            and enriched details should be independently verified.
+          </p>
+        </div>
+      </section>
+    </div>
+  );
+}
+
 export default function PropertyExplorer({
   properties,
   comparableSales,
@@ -658,6 +792,7 @@ export default function PropertyExplorer({
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [comparisonOpen, setComparisonOpen] = useState(false);
   const [detailId, setDetailId] = useState<string | null>(null);
+  const [sourceSelection, setSourceSelection] = useState<SourceSelection | null>(null);
 
   const filteredProperties = useMemo(() => filterProperties(properties, filters), [properties, filters]);
   const selectedProperties = properties.filter(({ id }) => selectedIds.includes(id));
@@ -1015,6 +1150,9 @@ export default function PropertyExplorer({
                     key={property.id}
                     onCompare={() => toggleCompare(property.id)}
                     onOpen={() => setDetailId(property.id)}
+                    onOpenSource={(source, field) =>
+                      setSourceSelection({ source, field, property })
+                    }
                     property={property}
                     selected={selectedIds.includes(property.id)}
                   />
@@ -1087,7 +1225,17 @@ export default function PropertyExplorer({
         <DetailDialog
           comparableSales={comparableSales}
           onClose={() => setDetailId(null)}
+          onOpenSource={(source, field) =>
+            setSourceSelection({ source, field, property: detailProperty })
+          }
           property={detailProperty}
+        />
+      )}
+
+      {sourceSelection && (
+        <SourceDetailsDialog
+          onClose={() => setSourceSelection(null)}
+          selection={sourceSelection}
         />
       )}
 
