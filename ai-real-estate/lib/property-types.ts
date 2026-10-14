@@ -15,6 +15,21 @@ export type ArchitecturalStyle =
 
 export type FloodRisk = "Low" | "Moderate" | "High";
 
+export type SchoolZone = {
+  name: string;
+  type: "Primary" | "Intermediate" | "Secondary";
+  distanceKm: number;
+  isInZone: boolean;
+};
+
+export type WalkabilityData = {
+  score: number; // 0 to 100
+  label: "Car-Dependent" | "Somewhat Walkable" | "Very Walkable" | "Walker's Paradise";
+  parksNearby: number;
+  cafesNearby: number;
+  supermarketsNearby: number;
+};
+
 export type Property = {
   id: string;
   address: string;
@@ -37,6 +52,9 @@ export type Property = {
   image: string;
   imageAlt: string;
   soldDate?: string;
+  // Family & Lifestyle Features
+  walkability?: WalkabilityData;
+  schoolZones?: SchoolZone[];
 };
 
 export type PropertyFilters = {
@@ -50,4 +68,7 @@ export type PropertyFilters = {
   yearBuiltFrom?: number;
   yearBuiltTo?: number;
   northFacingOnly?: boolean;
+  // Family & Lifestyle Filters
+  minWalkScore?: number;
+  inZoneOnly?: boolean;
 };

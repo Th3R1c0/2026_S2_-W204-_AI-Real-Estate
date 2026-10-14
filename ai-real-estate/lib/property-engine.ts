@@ -28,7 +28,13 @@ export function filterProperties(
       (filters.bedrooms === undefined || property.bedrooms === filters.bedrooms) &&
       (filters.yearBuiltFrom === undefined || property.yearBuilt >= filters.yearBuiltFrom) &&
       (filters.yearBuiltTo === undefined || property.yearBuilt <= filters.yearBuiltTo) &&
-      (!filters.northFacingOnly || property.orientation === "North")
+      (!filters.northFacingOnly || property.orientation === "North") &&
+      // Walkability filter
+      (filters.minWalkScore === undefined ||
+        (property.walkability?.score ?? 0) >= filters.minWalkScore) &&
+      // In-zone school catchment filter
+      (!filters.inZoneOnly ||
+        (property.schoolZones?.some((zone) => zone.isInZone) ?? false))
     );
   });
 }
@@ -43,7 +49,7 @@ const typeMatchers: Array<[RegExp, PropertyType]> = [
 ];
 
 const styleMatchers: Array<[RegExp, ArchitecturalStyle]> = [
-  [/\bmid[- ]?century\b/i, "Mid-Century"],
+  [/\bmid[-_\s]?century\b/i, "Mid-Century"],
   [/\bmodern(?:ist)?\b/i, "Modernist"],
   [/\bcontemporary\b/i, "Contemporary"],
   [/\bcraftsman\b/i, "Craftsman"],
@@ -95,7 +101,7 @@ export function parseNaturalLanguageSearch(
   if (priceMatch) filters.maxPrice = parsePriceAmount(priceMatch[1], priceMatch[2]);
 
   const bedroomsMatch = query.match(
-    /\b(one|two|three|four|five|six|\d+)\s*[- ]?bed(?:room)?s?\b/i,
+    /\b(one|two|three|four|five|six|\d+)\s*[-_\s]?bed(?:room)?s?\b/i,
   );
   if (bedroomsMatch) {
     const value = bedroomsMatch[1].toLocaleLowerCase();
