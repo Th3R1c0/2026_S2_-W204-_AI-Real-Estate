@@ -30,7 +30,7 @@ type PropertyExplorerProps = {
   aiSearch?: (query: string) => Promise<AiSearchResult>;
 };
 
-type DetailTab = "overview" | "comps" | "sunlight" | "mortgage";
+type DetailTab = "overview" | "comps" | "sunlight" | "family" | "mortgage";
 
 const propertyTypes: PropertyType[] = [
   "Villa",
@@ -271,6 +271,9 @@ function ComparisonDialog({
     Style: properties.map(({ architecturalStyle }) => architecturalStyle),
     "Flood risk": properties.map(({ floodRisk }) => floodRisk),
     Sunlight: properties.map(({ sunlightHours }) => `${sunlightHours} hrs/day`),
+    Walkability: properties.map(({ walkability }) =>
+      walkability ? `${walkability.score}/100` : "N/A"
+    ),
   };
 
   return (
@@ -380,6 +383,7 @@ function DetailDialog({
     { id: "overview", label: "Overview" },
     { id: "comps", label: "Comparable sales" },
     { id: "sunlight", label: "Sunlight" },
+    { id: "family", label: "Schools & Walkability" },
     { id: "mortgage", label: "Mortgage" },
   ];
 
@@ -564,6 +568,67 @@ function DetailDialog({
                   <span>
                     <strong>{sunlightScore}/100</strong> exposure score
                   </span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {tab === "family" && (
+            <div className="family-panel" style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+              {/* Walkability Score Card */}
+              <div className="insight-note" style={{ padding: "1rem", borderRadius: "8px" }}>
+                <Icon name="sparkle" />
+                <div>
+                  <strong>Walkability Score: {property.walkability?.score ?? 75}/100</strong>
+                  <p style={{ margin: "0.25rem 0" }}>{property.walkability?.label ?? "Somewhat Walkable"}</p>
+                  <small style={{ opacity: 0.8 }}>
+                    Nearby: {property.walkability?.parksNearby ?? 2} parks · {property.walkability?.cafesNearby ?? 4} cafes · {property.walkability?.supermarketsNearby ?? 1} supermarket
+                  </small>
+                </div>
+              </div>
+
+              {/* School Catchments */}
+              <div>
+                <h4 style={{ marginBottom: "0.75rem", fontWeight: "600" }}>School Catchments</h4>
+                <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                  {property.schoolZones?.length ? (
+                    property.schoolZones.map((school) => (
+                      <div
+                        key={school.name}
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                          padding: "0.75rem",
+                          border: "1px solid var(--border-color, #e5e7eb)",
+                          borderRadius: "6px",
+                        }}
+                      >
+                        <div>
+                          <strong>{school.name}</strong>
+                          <span style={{ display: "block", fontSize: "0.8rem", opacity: 0.7 }}>
+                            {school.type} · {school.distanceKm} km away
+                          </span>
+                        </div>
+                        <span
+                          style={{
+                            padding: "0.25rem 0.5rem",
+                            borderRadius: "4px",
+                            fontSize: "0.75rem",
+                            fontWeight: "600",
+                            backgroundColor: school.isInZone ? "#dcfce7" : "#f3f4f6",
+                            color: school.isInZone ? "#166534" : "#4b5563",
+                          }}
+                        >
+                          {school.isInZone ? "In Zone" : "Out of Zone"}
+                        </span>
+                      </div>
+                    ))
+                  ) : (
+                    <p style={{ opacity: 0.7, fontSize: "0.9rem" }}>
+                      No direct school zone information available for this property.
+                    </p>
+                  )}
                 </div>
               </div>
             </div>
@@ -878,6 +943,48 @@ export default function PropertyExplorer({
                 </label>
               </div>
             </details>
+
+            {/* Family & Community Filters */}
+            <details className="filter-details" open>
+              <summary>Family & Community</summary>
+              <div className="filter-group" style={{ marginTop: "8px" }}>
+                <label className="field-label" htmlFor="walk-score">
+                  Min walk score: <strong>{filters.minWalkScore ?? 0}</strong>
+                </label>
+                <input
+                  id="walk-score"
+                  max="100"
+                  min="0"
+                  onChange={(e) =>
+                    setFilters((curr) => ({
+                      ...curr,
+                      minWalkScore: Number(e.target.value) || undefined,
+                    }))
+                  }
+                  step="10"
+                  type="range"
+                  value={filters.minWalkScore ?? 0}
+                />
+              </div>
+              <label className="north-check" style={{ marginTop: "12px" }}>
+                <input
+                  checked={filters.inZoneOnly ?? false}
+                  onChange={(e) =>
+                    setFilters((curr) => ({
+                      ...curr,
+                      inZoneOnly: e.target.checked || undefined,
+                    }))
+                  }
+                  type="checkbox"
+                />
+                <Icon name="house" size={18} />
+                <span>
+                  <strong>In-zone schools only</strong>
+                  <small>Guaranteed school catchment zone</small>
+                </span>
+              </label>
+            </details>
+
             <div className="data-note">
               <Icon name="map" size={18} />
               <p>
