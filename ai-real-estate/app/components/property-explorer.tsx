@@ -639,7 +639,6 @@ function DetailDialog({
 
           {tab === "family" && (
             <div className="family-panel" style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
-              {/* Walkability Score Card */}
               <div className="insight-note" style={{ padding: "1rem", borderRadius: "8px" }}>
                 <Icon name="sparkle" />
                 <div>
@@ -651,7 +650,6 @@ function DetailDialog({
                 </div>
               </div>
 
-              {/* School Catchments */}
               <div>
                 <h4 style={{ marginBottom: "0.75rem", fontWeight: "600" }}>School Catchments</h4>
                 <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
@@ -858,7 +856,6 @@ export default function PropertyExplorer({
           </span>
         </a>
 
-        {/* Updated navigation bar */}
         <nav aria-label="Main navigation" className="main-nav">
           <a className="active" href="#discover">
             Discover
@@ -1118,6 +1115,47 @@ export default function PropertyExplorer({
                   <small>Guaranteed school catchment zone</small>
                 </span>
               </label>
+            </details>
+
+            {/* Commute & Transport Filters */}
+            <details className="filter-details" open>
+              <summary>Commute & Transport</summary>
+              <div className="filter-group" style={{ marginTop: "8px" }}>
+                <label className="field-label" htmlFor="max-commute">
+                  Max commute time: <strong>{filters.maxCommuteTimeMinutes ?? 45} mins</strong>
+                </label>
+                <input
+                  id="max-commute"
+                  max="60"
+                  min="10"
+                  step="5"
+                  type="range"
+                  onChange={(e) =>
+                    setFilters((curr) => ({
+                      ...curr,
+                      maxCommuteTimeMinutes: Number(e.target.value) || undefined,
+                    }))
+                  }
+                  value={filters.maxCommuteTimeMinutes ?? 45}
+                />
+              </div>
+              <label className="field-label" htmlFor="commute-mode" style={{ marginTop: "12px", display: "block" }}>
+                Transport Mode
+              </label>
+              <select
+                id="commute-mode"
+                value={filters.commuteMode ?? "driving"}
+                onChange={(e) =>
+                  setFilters((curr) => ({
+                    ...curr,
+                    commuteMode: e.target.value ? (e.target.value as "driving" | "transit" | "walking") : undefined,
+                  }))
+                }
+              >
+                <option value="driving">Driving</option>
+                <option value="transit">Public Transit</option>
+                <option value="walking">Walking</option>
+              </select>
             </details>
 
             <div className="data-note">

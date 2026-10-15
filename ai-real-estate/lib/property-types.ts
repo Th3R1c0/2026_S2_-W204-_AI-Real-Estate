@@ -30,6 +30,19 @@ export type WalkabilityData = {
   supermarketsNearby: number;
 };
 
+// --- NEW COMMUTE TYPES ---
+export type TransportMode = 'driving' | 'transit' | 'walking';
+
+export type CommuteOption = {
+  destinationName: string; // e.g., "Workplace", "CBD"
+  travelTimes: {
+    driving: number; // in minutes
+    transit: number; // in minutes
+    walking: number; // in minutes
+  };
+};
+// -------------------------
+
 export type PropertySourceField = "address" | "price" | "bedrooms" | "bathrooms" | "landArea";
 
 export type PropertySource = {
@@ -68,6 +81,8 @@ export type Property = {
   walkability?: WalkabilityData;
   schoolZones?: SchoolZone[];
   sources?: PropertySource[];
+  // --- NEW PROPERTY FIELD ---
+  commuteOptions?: CommuteOption[];
 };
 
 export type PropertyFilters = {
@@ -84,4 +99,10 @@ export type PropertyFilters = {
   // Family & Lifestyle Filters
   minWalkScore?: number;
   inZoneOnly?: boolean;
+  // --- NEW COMMUTE FILTER ---
+  commuteFilter?: {
+    destinationName: string;
+    maxTime: number;
+    mode: TransportMode;
+  };
 };
