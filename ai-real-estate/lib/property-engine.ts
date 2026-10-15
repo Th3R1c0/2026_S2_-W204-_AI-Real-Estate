@@ -34,7 +34,23 @@ export function filterProperties(
         (property.walkability?.score ?? 0) >= filters.minWalkScore) &&
       // In-zone school catchment filter
       (!filters.inZoneOnly ||
-        (property.schoolZones?.some((zone) => zone.isInZone) ?? false))
+        (property.schoolZones?.some((zone) => zone.isInZone) ?? false)) &&
+      // --- NEW COMMUTE FILTER LOGIC ---
+      (!filters.commuteFilter ||
+        !filters.commuteFilter.destinationName ||
+        (() => {
+          const { destinationName, maxTime, mode } = filters.commuteFilter!;
+          if (!property.commuteOptions) return false;
+
+          const matchingCommute = property.commuteOptions.find(
+            (opt) => opt?.destinationName?.toLowerCase() === destinationName.toLowerCase()
+          );
+
+          if (!matchingCommute) return false;
+
+          const travelTime = matchingCommute.travelTimes?.[mode];
+          return travelTime !== undefined && travelTime <= maxTime;
+        })())
     );
   });
 }
