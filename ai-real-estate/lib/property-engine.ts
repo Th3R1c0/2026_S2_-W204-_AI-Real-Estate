@@ -43,12 +43,12 @@ export function filterProperties(
           if (!property.commuteOptions) return false;
 
           const matchingCommute = property.commuteOptions.find(
-            (opt) => opt.destinationName.toLowerCase() === destinationName.toLowerCase()
+            (opt) => opt?.destinationName?.toLowerCase() === destinationName.toLowerCase()
           );
 
           if (!matchingCommute) return false;
 
-          const travelTime = matchingCommute.travelTimes[mode];
+          const travelTime = matchingCommute.travelTimes?.[mode];
           return travelTime !== undefined && travelTime <= maxTime;
         })())
     );
