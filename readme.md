@@ -29,11 +29,23 @@ Open [http://localhost:3000](http://localhost:3000) to view the application.
 
 For environment setup (such as configuring `GEMINI_API_KEY` in `.env.local`), testing with Vitest, and architecture details, refer to the [Application README](ai-real-estate/README.md).
 
-## License
+## 🤝 Contributing
+
+We follow the **Scrum Agile methodology** to support iterative development, continuous testing, and collaborative teamwork.
+
+- **Create a user story:** Before implementing major changes or new features, create a user story on Trello to discuss the proposed changes, define requirements in the user acceptance tests, and agree on priorities with the team.
+- **Follow Scrum practices:** Organize work into manageable tasks and sprints, with clear goals and acceptance criteria.
+- **Submit pull requests:** Create a pull request for your changes, providing a clear description of the implementation and linking any related issues or sprint tasks.
+- **Update tests:** Add or update tests to verify functionality, maintain code quality, and ensure that existing features continue to work as expected.
+- **Review and improve:** Participate in code reviews and incorporate feedback to continuously improve the project's reliability, usability, and AI-driven real estate capabilities.
+
+All contributions should align with the project's objectives and follow Agile principles of collaboration, transparency, and continuous improvement.
+
+## 📄 License
 
 MIT License
 
-Copyright (c) [2026] Rico Saunders, Lucas McKinney, Praneel Kumar, Yasser Saeed, Alister Martin Repasa
+Copyright (c) 2026 Rico Saunders, Lucas McKinney, Praneel Kumar, Yasser Saeed, Alister Martin Repasa
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
