@@ -54,6 +54,17 @@ export type CommuteOption = {
   travelTimes?: Record<string, number>;
 };
 
+export type PropertyNotification = {
+  id: string;
+  propertyId: string;
+  propertyAddress: string;
+  type: "price_drop" | "status_update" | "open_home";
+  title: string;
+  message: string;
+  date: string;
+  read: boolean;
+};
+
 export type Property = {
   id: string;
   address: string;
