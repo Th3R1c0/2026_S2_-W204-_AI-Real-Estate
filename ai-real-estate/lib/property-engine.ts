@@ -20,8 +20,10 @@ export function filterProperties(
       (!filters.propertyTypes?.length ||
         filters.propertyTypes.includes(property.propertyType)) &&
       (!filters.architecturalStyles?.length ||
-        filters.architecturalStyles.includes(property.architecturalStyle)) &&
-      (!filters.floodRisks?.length || filters.floodRisks.includes(property.floodRisk)) &&
+        (property.architecturalStyle !== undefined &&
+          filters.architecturalStyles.includes(property.architecturalStyle))) &&
+      (!filters.floodRisks?.length ||
+        (property.floodRisk !== undefined && filters.floodRisks.includes(property.floodRisk))) &&
       (!location || propertyLocation.includes(location)) &&
       (filters.maxPrice === undefined || property.price <= filters.maxPrice) &&
       (filters.minPrice === undefined || property.price >= filters.minPrice) &&

@@ -139,6 +139,24 @@ describe("specialist filters", () => {
   it("restores every listing when filters are empty", () => {
     expect(filterProperties(listings, {})).toHaveLength(3);
   });
+
+  it("does not match listings with unknown optional demo metadata", () => {
+    const listingWithUnknownMetadata: Property = {
+      ...listings[0],
+      architecturalStyle: undefined,
+      floodRisk: undefined,
+      orientation: undefined,
+      sunlightHours: undefined,
+    };
+
+    expect(
+      filterProperties([listingWithUnknownMetadata], {
+        architecturalStyles: ["Modernist"],
+        floodRisks: ["Low"],
+        northFacingOnly: true,
+      }),
+    ).toEqual([]);
+  });
 });
 
 describe("comparable sales", () => {

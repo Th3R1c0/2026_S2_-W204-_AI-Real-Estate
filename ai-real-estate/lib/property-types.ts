@@ -23,11 +23,11 @@ export type SchoolZone = {
 };
 
 export type WalkabilityData = {
-  score: number; // 0 to 100
-  label: "Car-Dependent" | "Somewhat Walkable" | "Very Walkable" | "Walker's Paradise";
-  parksNearby: number;
-  cafesNearby: number;
-  supermarketsNearby: number;
+  score?: number; // 0 to 100
+  label?: "Car-Dependent" | "Somewhat Walkable" | "Very Walkable" | "Walker's Paradise";
+  parksNearby?: number;
+  cafesNearby?: number;
+  supermarketsNearby?: number;
 };
 
 export type PropertySourceField = "address" | "price" | "bedrooms" | "bathrooms" | "landArea";
@@ -55,10 +55,10 @@ export type Property = {
   floorArea: number;
   yearBuilt: number;
   propertyType: PropertyType;
-  architecturalStyle: ArchitecturalStyle;
-  floodRisk: FloodRisk;
-  orientation: "North" | "East" | "South" | "West";
-  sunlightHours: number;
+  architecturalStyle?: ArchitecturalStyle;
+  floodRisk?: FloodRisk;
+  orientation?: "North" | "East" | "South" | "West";
+  sunlightHours?: number;
   latitude: number;
   longitude: number;
   image: string;

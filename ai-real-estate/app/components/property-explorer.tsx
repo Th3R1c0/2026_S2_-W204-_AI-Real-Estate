@@ -240,7 +240,7 @@ function PropertyCard({
           sizes="(max-width: 720px) 100vw, (max-width: 1200px) 50vw, 380px"
           src={property.image}
         />
-        <span className="style-badge">{property.architecturalStyle}</span>
+        <span className="style-badge">{property.architecturalStyle ?? "Style not provided"}</span>
         <label className={`compare-check ${selected ? "is-selected" : ""}`}>
           <input
             aria-label={`Compare ${property.address}`}
@@ -267,10 +267,14 @@ function PropertyCard({
               {property.suburb}, {property.city}
             </p>
           </div>
-          <span
-            className={`risk-dot risk-${property.floodRisk.toLowerCase()}`}
-            title={`${property.floodRisk} flood risk`}
-          />
+          {property.floodRisk ? (
+            <span
+              className={`risk-dot risk-${property.floodRisk.toLowerCase()}`}
+              title={`${property.floodRisk} flood risk`}
+            />
+          ) : (
+            <span className="risk-dot" title="Flood risk not provided" />
+          )}
         </div>
         <div className="property-specs" aria-label="Property features">
           <span>
@@ -292,7 +296,9 @@ function PropertyCard({
         <div className="card-footer">
           <div className="sun-chip">
             <Icon name="sun" size={15} />
-            {property.sunlightHours} hrs sunlight
+            {property.sunlightHours === undefined
+              ? "Sunlight not provided"
+              : `${property.sunlightHours} hrs sunlight`}
           </div>
           <button
             aria-label={`View details for ${property.address}`}
@@ -324,11 +330,13 @@ function ComparisonDialog({
     Bathrooms: properties.map(({ bathrooms }) => String(bathrooms)),
     "Land area": properties.map(({ landArea }) => `${numberFormatter.format(landArea)} m²`),
     "Built in": properties.map(({ yearBuilt }) => String(yearBuilt)),
-    Style: properties.map(({ architecturalStyle }) => architecturalStyle),
-    "Flood risk": properties.map(({ floodRisk }) => floodRisk),
-    Sunlight: properties.map(({ sunlightHours }) => `${sunlightHours} hrs/day`),
+    Style: properties.map(({ architecturalStyle }) => architecturalStyle ?? "N/A"),
+    "Flood risk": properties.map(({ floodRisk }) => floodRisk ?? "N/A"),
+    Sunlight: properties.map(({ sunlightHours }) =>
+      sunlightHours === undefined ? "N/A" : `${sunlightHours} hrs/day`
+    ),
     Walkability: properties.map(({ walkability }) =>
-      walkability ? `${walkability.score}/100` : "N/A"
+      walkability?.score === undefined ? "N/A" : `${walkability.score}/100`
     ),
   };
 
@@ -436,7 +444,10 @@ function DetailDialog({
       }),
     [property, comparableSales, radius, months]
   );
-  const sunlightScore = Math.min(100, Math.round((property.sunlightHours / 9) * 100));
+  const sunlightScore =
+    property.sunlightHours === undefined
+      ? undefined
+      : Math.min(100, Math.round((property.sunlightHours / 9) * 100));
   const tabs: Array<{ id: DetailTab; label: string }> = [
     { id: "overview", label: "Overview" },
     { id: "comps", label: "Comparable sales" },
@@ -471,7 +482,7 @@ function DetailDialog({
           </button>
           <div className="detail-hero-copy">
             <span>
-              {property.propertyType} · {property.architecturalStyle}
+              {property.propertyType} · {property.architecturalStyle ?? "Style not provided"}
             </span>
             <h2>{property.address}</h2>
             <p>
@@ -532,7 +543,19 @@ function DetailDialog({
                 <div>
                   <strong>Why it stands out</strong>
                   <p>
-                    {property.architecturalStyle} design, {property.floodRisk.toLowerCase()} demo flood band and {property.sunlightHours} estimated sunlight hours.
+                    {[
+                      property.architecturalStyle
+                        ? `${property.architecturalStyle} design`
+                        : undefined,
+                      property.floodRisk
+                        ? `${property.floodRisk.toLowerCase()} demo flood band`
+                        : undefined,
+                      property.sunlightHours === undefined
+                        ? undefined
+                        : `${property.sunlightHours} estimated sunlight hours`,
+                    ]
+                      .filter(Boolean)
+                      .join("; ") || "Additional property details are not available yet."}
                   </p>
                 </div>
               </div>
@@ -618,20 +641,35 @@ function DetailDialog({
               </div>
               <div className="sunlight-copy">
                 <p className="eyebrow">Estimated daily exposure</p>
-                <h3>{property.sunlightHours} hours/day</h3>
+                <h3>
+                  {property.sunlightHours === undefined
+                    ? "Sunlight estimate not provided"
+                    : `${property.sunlightHours} hours/day`}
+                </h3>
                 <p>
-                  This {property.orientation.toLowerCase()}-facing home has a demo sunlight score of {sunlightScore}/100, based on orientation and an indicative site profile.
+                  {property.orientation
+                    ? `This ${property.orientation.toLowerCase()}-facing home has an indicative site profile.`
+                    : "Orientation information is not available for this property."}
+                  {sunlightScore === undefined
+                    ? ""
+                    : ` Its demo sunlight score is ${sunlightScore}/100.`}
                 </p>
-                <div className="score-track">
-                  <span style={{ width: `${sunlightScore}%` }} />
-                </div>
+                {sunlightScore !== undefined && (
+                  <div className="score-track">
+                    <span style={{ width: `${sunlightScore}%` }} />
+                  </div>
+                )}
                 <div className="sun-facts">
-                  <span>
-                    <strong>{property.orientation}-facing</strong> primary aspect
-                  </span>
-                  <span>
-                    <strong>{sunlightScore}/100</strong> exposure score
-                  </span>
+                  {property.orientation && (
+                    <span>
+                      <strong>{property.orientation}-facing</strong> primary aspect
+                    </span>
+                  )}
+                  {sunlightScore !== undefined && (
+                    <span>
+                      <strong>{sunlightScore}/100</strong> exposure score
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
@@ -640,16 +678,29 @@ function DetailDialog({
           {tab === "family" && (
             <div className="family-panel" style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
               {/* Walkability Score Card */}
-              <div className="insight-note" style={{ padding: "1rem", borderRadius: "8px" }}>
-                <Icon name="sparkle" />
-                <div>
-                  <strong>Walkability Score: {property.walkability?.score ?? 75}/100</strong>
-                  <p style={{ margin: "0.25rem 0" }}>{property.walkability?.label ?? "Somewhat Walkable"}</p>
-                  <small style={{ opacity: 0.8 }}>
-                    Nearby: {property.walkability?.parksNearby ?? 2} parks · {property.walkability?.cafesNearby ?? 4} cafes · {property.walkability?.supermarketsNearby ?? 1} supermarket
-                  </small>
+              {property.walkability ? (
+                <div className="insight-note" style={{ padding: "1rem", borderRadius: "8px" }}>
+                  <Icon name="sparkle" />
+                  <div>
+                    <strong>
+                      Walkability Score:{" "}
+                      {property.walkability.score === undefined
+                        ? "Not provided"
+                        : `${property.walkability.score}/100`}
+                    </strong>
+                    {property.walkability.label && (
+                      <p style={{ margin: "0.25rem 0" }}>{property.walkability.label}</p>
+                    )}
+                    <small style={{ opacity: 0.8 }}>
+                      Nearby: {property.walkability.parksNearby ?? "N/A"} parks · {property.walkability.cafesNearby ?? "N/A"} cafes · {property.walkability.supermarketsNearby ?? "N/A"} supermarkets
+                    </small>
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <p style={{ opacity: 0.7, fontSize: "0.9rem" }}>
+                  Walkability information is not available for this property.
+                </p>
+              )}
 
               {/* School Catchments */}
               <div>
