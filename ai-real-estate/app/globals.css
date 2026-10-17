@@ -1798,6 +1798,108 @@ input[type="range"] {
   gap: 18px;
 }
 
+.commute-panel {
+  display: grid;
+  gap: 18px;
+}
+
+.commute-count,
+.commute-prompt {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.commute-modes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.commute-modes button,
+.commute-add,
+.commute-remove {
+  min-height: 38px;
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--white);
+  color: var(--ink);
+  font-size: 11px;
+  font-weight: 650;
+}
+
+.commute-modes button.active {
+  border-color: var(--forest);
+  background: var(--forest);
+  color: var(--white);
+}
+
+.commute-list {
+  display: grid;
+  gap: 10px;
+}
+
+.commute-destination {
+  display: grid;
+  grid-template-columns: 0.8fr 1.2fr auto auto;
+  align-items: end;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--white);
+}
+
+.commute-destination label {
+  display: grid;
+  gap: 5px;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 650;
+}
+
+.commute-destination input {
+  width: 100%;
+  min-width: 0;
+  min-height: 38px;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  background: var(--paper);
+  font-size: 12px;
+}
+
+.commute-destination a {
+  color: var(--forest);
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.commute-remove {
+  min-height: 34px;
+  padding: 6px 9px;
+  color: var(--danger);
+}
+
+.commute-add {
+  justify-self: start;
+}
+
+.commute-add:disabled {
+  opacity: 0.55;
+}
+
+.commute-empty {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.commute-panel .disclaimer {
+  margin: 0;
+}
+
 .payment-card {
   display: flex;
   min-height: 205px;
@@ -1914,6 +2016,9 @@ input[type="range"] {
   .sunlight-panel { grid-template-columns: 1fr; gap: 16px; }
   .sun-orbit { width: 180px; height: 180px; margin: 0 auto; }
   .mortgage-panel { grid-template-columns: 1fr; }
+  .commute-destination { grid-template-columns: 1fr 1fr; }
+  .commute-destination a,
+  .commute-destination .commute-prompt { align-self: center; }
   .payment-card { min-height: 175px; }
   .loan-summary { grid-column: auto; }
   .mortgage-panel .disclaimer { grid-column: auto; }
