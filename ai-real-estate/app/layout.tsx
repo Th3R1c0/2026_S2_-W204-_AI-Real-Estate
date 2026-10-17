@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import AIChatbot from "./components/ai-chatbot";
 
 export const metadata: Metadata = {
   title: "Haven — AI property discovery",
@@ -10,7 +11,10 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en-NZ">
-      <body>{children}</body>
+      <body>
+        {children}
+        <AIChatbot />
+      </body>
     </html>
   );
 }
