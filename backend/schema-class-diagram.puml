@@ -1,0 +1,226 @@
+@startuml
+title Real Estate Database - UML Class Diagram
+hide methods
+hide stereotypes
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+top to bottom direction
+
+class users <<table>> {
+  user_id: INT UNSIGNED {PK}
+  username: VARCHAR(50) {UNIQUE}
+  email: VARCHAR(255) {UNIQUE}
+  password_hash: VARCHAR(255)
+  created_at: TIMESTAMP
+  updated_at: TIMESTAMP
+}
+
+class agencies <<table>> {
+  agency_id: INT UNSIGNED {PK}
+  name: VARCHAR(150)
+  website: VARCHAR(255) [0..1]
+  phone: VARCHAR(30) [0..1]
+  email: VARCHAR(255) [0..1]
+}
+
+class real_estate_agents <<table>> {
+  agent_id: INT UNSIGNED {PK}
+  agency_id: INT UNSIGNED [0..1] {FK}
+  first_name: VARCHAR(80)
+  last_name: VARCHAR(80)
+  email: VARCHAR(255) {UNIQUE}
+  phone_number: VARCHAR(30) [0..1]
+  phone_number_2: VARCHAR(30) [0..1]
+  photo_url: VARCHAR(500) [0..1]
+}
+
+class properties <<table>> {
+  property_id: INT UNSIGNED {PK}
+  demo_key: VARCHAR(80) [0..1] {UNIQUE}
+  title: VARCHAR(200)
+  body: TEXT [0..1]
+  listing_type: ENUM(sale, rent, lease)
+  status: ENUM(draft, active, under_offer, sold, rented, withdrawn)
+  listed_at: DATETIME [0..1]
+  created_at: TIMESTAMP
+  updated_at: TIMESTAMP
+}
+
+class property_price <<table>> {
+  property_id: INT UNSIGNED {PK, FK}
+  pricing_method: ENUM(fixed, negotiation, auction, tender, enquiries_over, price_on_application)
+  sale_price: DECIMAL(12,2) [0..1]
+  rent_price: DECIMAL(10,2) [0..1]
+  rent_period: ENUM(week, fortnight, month) [0..1]
+  lease_price: DECIMAL(12,2) [0..1]
+  currency: CHAR(3)
+}
+
+class address <<table>> {
+  property_id: INT UNSIGNED {PK, FK}
+  unit_number: VARCHAR(20) [0..1]
+  street_number: VARCHAR(20)
+  street_name: VARCHAR(120)
+  suburb: VARCHAR(100) [0..1]
+  city: VARCHAR(100)
+  state: VARCHAR(100) [0..1]
+  post_code: VARCHAR(12) [0..1]
+  country: VARCHAR(100)
+  latitude: DECIMAL(9,6)
+  longitude: DECIMAL(9,6)
+  location: POINT
+}
+
+class property_details <<table>> {
+  property_id: INT UNSIGNED {PK, FK}
+  property_type: ENUM(house, apartment, townhouse, unit, section, lifestyle, commercial, other)
+  land_area: DECIMAL(10,2) [0..1]
+  floor_area: DECIMAL(10,2) [0..1]
+  bedrooms: TINYINT UNSIGNED
+  bathrooms: TINYINT UNSIGNED
+  ensuites: TINYINT UNSIGNED
+  toilets: TINYINT UNSIGNED
+  living_rooms: TINYINT UNSIGNED
+  garage_parking: TINYINT UNSIGNED
+  off_street_parking: TINYINT UNSIGNED
+  year_built: SMALLINT UNSIGNED [0..1]
+}
+
+class property_demo_details <<table>> {
+  property_id: INT UNSIGNED {PK, FK}
+  display_property_type: VARCHAR(40) [0..1]
+  architectural_style: VARCHAR(40) [0..1]
+  flood_risk: ENUM(Low, Moderate, High) [0..1]
+  orientation: ENUM(North, East, South, West) [0..1]
+  sunlight_hours: DECIMAL(4,1) [0..1]
+  walkability_score: TINYINT UNSIGNED [0..1]
+  walkability_label: VARCHAR(40) [0..1]
+  parks_nearby: TINYINT UNSIGNED [0..1]
+  cafes_nearby: TINYINT UNSIGNED [0..1]
+  supermarkets_nearby: TINYINT UNSIGNED [0..1]
+}
+
+class property_agent <<table>> {
+  property_id: INT UNSIGNED {PK, FK}
+  agent_id: INT UNSIGNED {PK, FK}
+  is_primary: BOOLEAN
+}
+
+class open_homes <<table>> {
+  open_home_id: INT UNSIGNED {PK}
+  property_id: INT UNSIGNED {FK}
+  open_date: DATE
+  start_time: TIME
+  end_time: TIME
+}
+
+class property_valuations <<table>> {
+  valuation_id: INT UNSIGNED {PK}
+  property_id: INT UNSIGNED {FK}
+  valuation_date: DATE
+  capital_value: DECIMAL(12,2) [0..1]
+  land_value: DECIMAL(12,2) [0..1]
+  improvement_value: DECIMAL(12,2) [0..1]
+  low_estimate: DECIMAL(12,2) [0..1]
+  median_estimate: DECIMAL(12,2) [0..1]
+  high_estimate: DECIMAL(12,2) [0..1]
+  source: VARCHAR(100) [0..1]
+}
+
+class property_sales <<table>> {
+  sale_id: INT UNSIGNED {PK}
+  property_id: INT UNSIGNED {FK}
+  sold_price: DECIMAL(12,2)
+  sold_date: DATE
+}
+
+class property_images <<table>> {
+  image_id: INT UNSIGNED {PK}
+  property_id: INT UNSIGNED {FK}
+  url: VARCHAR(500)
+  caption: VARCHAR(200) [0..1]
+  sort_order: SMALLINT UNSIGNED
+  is_cover: BOOLEAN
+}
+
+class features <<table>> {
+  feature_id: INT UNSIGNED {PK}
+  name: VARCHAR(80) {UNIQUE}
+}
+
+class property_features <<table>> {
+  property_id: INT UNSIGNED {PK, FK}
+  feature_id: INT UNSIGNED {PK, FK}
+}
+
+class saved_properties <<table>> {
+  user_id: INT UNSIGNED {PK, FK}
+  property_id: INT UNSIGNED {PK, FK}
+  saved_at: TIMESTAMP
+}
+
+class enquiries <<table>> {
+  enquiry_id: INT UNSIGNED {PK}
+  property_id: INT UNSIGNED {FK}
+  user_id: INT UNSIGNED [0..1] {FK}
+  agent_id: INT UNSIGNED [0..1] {FK}
+  name: VARCHAR(120)
+  email: VARCHAR(255)
+  phone: VARCHAR(30) [0..1]
+  message: TEXT
+  created_at: TIMESTAMP
+}
+
+class property_school_zones <<table>> {
+  property_school_zone_id: INT UNSIGNED {PK}
+  property_id: INT UNSIGNED {FK}
+  name: VARCHAR(150)
+  type: ENUM(Primary, Intermediate, Secondary)
+  distance_km: DECIMAL(5,2)
+  is_in_zone: BOOLEAN
+}
+
+class property_sources <<table>> {
+  property_source_id: INT UNSIGNED {PK}
+  property_id: INT UNSIGNED {FK}
+  source_key: VARCHAR(80)
+  title: VARCHAR(200)
+  publisher: VARCHAR(150)
+  url: VARCHAR(500)
+  reference: VARCHAR(255)
+  material: TEXT
+  fields: JSON
+}
+
+agencies "0..1" <-- "0..*" real_estate_agents : agency_id
+
+properties "1" *-- "0..1" property_price : property_id
+properties "1" *-- "0..1" address : property_id
+properties "1" *-- "0..1" property_details : property_id
+properties "1" *-- "0..1" property_demo_details : property_id
+properties "1" *-- "0..*" open_homes : property_id
+properties "1" *-- "0..*" property_valuations : property_id
+properties "1" *-- "0..*" property_sales : property_id
+properties "1" *-- "0..*" property_images : property_id
+properties "1" *-- "0..*" property_school_zones : property_id
+properties "1" *-- "0..*" property_sources : property_id
+properties "1" *-- "0..*" property_agent : property_id
+real_estate_agents "1" -- "0..*" property_agent : agent_id
+properties "1" *-- "0..*" property_features : property_id
+features "1" -- "0..*" property_features : feature_id
+users "1" *-- "0..*" saved_properties : user_id
+properties "1" *-- "0..*" saved_properties : property_id
+properties "1" *-- "0..*" enquiries : property_id
+users "0..1" <-- "0..*" enquiries : user_id
+real_estate_agents "0..1" <-- "0..*" enquiries : agent_id
+
+note right of address
+  location is populated from longitude/latitude
+  by insert/update triggers and has a spatial index.
+end note
+
+note bottom of open_homes
+  CHECK constraint: end_time > start_time
+end note
+
+@enduml
