@@ -165,6 +165,43 @@ describe("PropertyExplorer", () => {
     );
   });
 
+  it("saves up to three commute destinations and updates the directions mode", async () => {
+    window.localStorage.clear();
+    const user = userEvent.setup();
+    render(<PropertyExplorer properties={properties} comparableSales={comparableSales} />);
+
+    await user.click(
+      screen.getByRole("button", { name: /view details for 2\/30 hardington street/i }),
+    );
+    const details = screen.getByRole("dialog", { name: /property details/i });
+    await user.click(within(details).getByRole("button", { name: "Commute" }));
+    await user.click(within(details).getByRole("button", { name: "Add destination" }));
+
+    await user.type(within(details).getByRole("textbox", { name: "Name for destination 1" }), "Work");
+    await user.type(
+      within(details).getByRole("textbox", { name: "Address for destination 1" }),
+      "1 Queen Street, Auckland",
+    );
+    await user.click(within(details).getByRole("button", { name: "Add destination" }));
+    await user.click(within(details).getByRole("button", { name: "Add destination" }));
+    expect(within(details).getByRole("button", { name: "Add destination" })).toBeDisabled();
+
+    await user.click(within(details).getByRole("button", { name: "Public transport" }));
+    const directions = new URL(
+      within(details).getByRole("link", { name: "Open directions" }).getAttribute("href")!,
+    );
+    expect(directions.searchParams.get("travelmode")).toBe("transit");
+    expect(directions.searchParams.get("origin")).toBe("-36.913,174.787");
+    expect(directions.searchParams.get("destination")).toBe("1 Queen Street, Auckland");
+    expect(window.localStorage.getItem("ai-real-estate-commute-destinations")).toContain("Work");
+
+    await user.click(within(details).getByRole("button", { name: "Overview" }));
+    await user.click(within(details).getByRole("button", { name: "Commute" }));
+    expect(within(details).getByRole("textbox", { name: "Address for destination 1" })).toHaveValue(
+      "1 Queen Street, Auckland",
+    );
+  });
+
   it("opens source details from an inline property citation", async () => {
     const user = userEvent.setup();
     render(<PropertyExplorer properties={[seededProperties[0]]} comparableSales={[]} />);

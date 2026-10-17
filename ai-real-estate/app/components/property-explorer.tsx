@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 import MortgageCalculator from "./mortgage-calculator";
 
 import {
@@ -33,7 +33,9 @@ type PropertyExplorerProps = {
   aiSearch?: (query: string) => Promise<AiSearchResult>;
 };
 
-type DetailTab = "overview" | "comps" | "sunlight" | "family" | "mortgage";
+type DetailTab = "overview" | "comps" | "sunlight" | "family" | "commute" | "mortgage";
+type CommuteMode = "driving" | "transit" | "bicycling" | "walking";
+type CommuteDestination = { name: string; address: string };
 type SourceSelection = {
   source: PropertySource;
   field: PropertySourceField;
@@ -73,9 +75,148 @@ const moneyFormatter = new Intl.NumberFormat("en-NZ", {
   currency: "NZD",
   maximumFractionDigits: 0,
 });
+const commuteStorageKey = "ai-real-estate-commute-destinations";
+const commuteModes: Array<{ id: CommuteMode; label: string }> = [
+  { id: "driving", label: "Driving" },
+  { id: "transit", label: "Public transport" },
+  { id: "bicycling", label: "Cycling" },
+  { id: "walking", label: "Walking" },
+];
 
 function formatMoney(value: number) {
   return moneyFormatter.format(value).replace("NZ", "");
+}
+
+function CommutePlanner({ property }: { property: Property }) {
+  const [destinations, setDestinations] = useState<CommuteDestination[]>([]);
+  const [mode, setMode] = useState<CommuteMode>("driving");
+  const [storageLoaded, setStorageLoaded] = useState(false);
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(commuteStorageKey);
+      const parsed: unknown = saved ? JSON.parse(saved) : [];
+      if (Array.isArray(parsed)) {
+        setDestinations(
+          parsed
+            .filter(
+              (item): item is CommuteDestination =>
+                item && typeof item.name === "string" && typeof item.address === "string",
+            )
+            .slice(0, 3),
+        );
+      }
+    } catch {
+      setDestinations([]);
+    }
+    setStorageLoaded(true);
+  }, []);
+
+  useEffect(() => {
+    if (storageLoaded) {
+      localStorage.setItem(commuteStorageKey, JSON.stringify(destinations));
+    }
+  }, [destinations, storageLoaded]);
+
+  function updateDestination(index: number, field: keyof CommuteDestination, value: string) {
+    setDestinations((current) =>
+      current.map((destination, currentIndex) =>
+        currentIndex === index ? { ...destination, [field]: value } : destination,
+      ),
+    );
+  }
+
+  return (
+    <div className="commute-panel">
+      <div className="tool-heading">
+        <div>
+          <p className="eyebrow">Your regular journeys</p>
+          <h3>Commute destinations</h3>
+        </div>
+        <span className="commute-count">{destinations.length}/3 saved</span>
+      </div>
+      <div aria-label="Travel mode" className="commute-modes" role="group">
+        {commuteModes.map(({ id, label }) => (
+          <button
+            aria-pressed={mode === id}
+            className={mode === id ? "active" : ""}
+            key={id}
+            onClick={() => setMode(id)}
+            type="button"
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+      {destinations.length ? (
+        <div className="commute-list">
+          {destinations.map((destination, index) => {
+            const mapsUrl = new URL("https://www.google.com/maps/dir/");
+            mapsUrl.searchParams.set("api", "1");
+            mapsUrl.searchParams.set("origin", `${property.latitude},${property.longitude}`);
+            mapsUrl.searchParams.set("destination", destination.address);
+            mapsUrl.searchParams.set("travelmode", mode);
+
+            return (
+              <div className="commute-destination" key={index}>
+                <label>
+                  <span>Destination name</span>
+                  <input
+                    aria-label={`Name for destination ${index + 1}`}
+                    onChange={(event) => updateDestination(index, "name", event.target.value)}
+                    placeholder="e.g. Work"
+                    value={destination.name}
+                  />
+                </label>
+                <label>
+                  <span>Address</span>
+                  <input
+                    aria-label={`Address for destination ${index + 1}`}
+                    onChange={(event) => updateDestination(index, "address", event.target.value)}
+                    placeholder="Enter a street address"
+                    value={destination.address}
+                  />
+                </label>
+                {destination.address.trim() ? (
+                  <a href={mapsUrl.toString()} rel="noreferrer" target="_blank">
+                    Open directions
+                  </a>
+                ) : (
+                  <span className="commute-prompt">Enter an address to open directions</span>
+                )}
+                <button
+                  aria-label={`Remove destination ${index + 1}`}
+                  className="commute-remove"
+                  onClick={() =>
+                    setDestinations((current) =>
+                      current.filter((_, currentIndex) => currentIndex !== index),
+                    )
+                  }
+                  type="button"
+                >
+                  Remove
+                </button>
+              </div>
+            );
+          })}
+        </div>
+      ) : (
+        <p className="commute-empty">Add a workplace, childcare, or other regular destination.</p>
+      )}
+      <button
+        className="commute-add"
+        disabled={destinations.length >= 3}
+        onClick={() => setDestinations((current) => [...current, { name: "", address: "" }])}
+        type="button"
+      >
+        Add destination
+      </button>
+      <p className="disclaimer">
+        Destinations are saved in this browser. Google Maps provides route details when opened;
+        in-app and peak-hour travel times are not configured.
+      </p>
+    </div>
+  );
 }
 
 function SourceCitations({
@@ -673,6 +814,7 @@ function DetailDialog({
     { id: "comps", label: "Comparable sales" },
     { id: "sunlight", label: "Sunlight" },
     { id: "family", label: "Schools & Walkability" },
+    { id: "commute", label: "Commute" },
     { id: "mortgage", label: "Mortgage" },
   ];
 
@@ -997,6 +1139,7 @@ function DetailDialog({
               <MortgageCalculator defaultPrice={property.price} />
             </div>
           )}
+          {tab === "commute" && <CommutePlanner property={property} />}
         </div>
       </section>
     </div>
