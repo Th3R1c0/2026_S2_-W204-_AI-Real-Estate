@@ -1,8 +1,11 @@
 import type {
   ArchitecturalStyle,
+  PastSale,
   Property,
   PropertyFilters,
+  PropertyNotification,
   PropertyType,
+  ValuationRecord,
 } from "./property-types";
 
 export function filterProperties(
@@ -35,7 +38,7 @@ export function filterProperties(
       // In-zone school catchment filter
       (!filters.inZoneOnly ||
         (property.schoolZones?.some((zone) => zone.isInZone) ?? false)) &&
-      // --- NEW COMMUTE FILTER LOGIC ---
+      // Commute filter logic
       (!filters.commuteFilter ||
         !filters.commuteFilter.destinationName ||
         (() => {
@@ -217,4 +220,81 @@ export function calculateMonthlyMortgage(
     (principal * monthlyRate * (1 + monthlyRate) ** paymentCount) /
       ((1 + monthlyRate) ** paymentCount - 1),
   );
+}
+
+export function generateSampleNotifications(savedProperties: Property[]): PropertyNotification[] {
+  return savedProperties.map((prop, index) => {
+    const types: PropertyNotification["type"][] = ["price_drop", "status_update", "open_home"];
+    const type = types[index % types.length];
+    
+    if (type === "price_drop") {
+      return {
+        id: `notif-${prop.id}-1`,
+        propertyId: prop.id,
+        propertyAddress: prop.address,
+        type: "price_drop",
+        title: "Price Adjusted",
+        message: `Indicative value updated for ${prop.address}.`,
+        date: "2026-10-15",
+        read: false,
+      };
+    } else if (type === "status_update") {
+      return {
+        id: `notif-${prop.id}-2`,
+        propertyId: prop.id,
+        propertyAddress: prop.address,
+        type: "status_update",
+        title: "Market Status Update",
+        message: `${prop.address} is marked as high interest in ${prop.suburb}.`,
+        date: "2026-10-14",
+        read: false,
+      };
+    } else {
+      return {
+        id: `notif-${prop.id}-3`,
+        propertyId: prop.id,
+        propertyAddress: prop.address,
+        type: "open_home",
+        title: "Upcoming Open Home",
+        message: `Private viewing and open home scheduled for this weekend.`,
+        date: "2026-10-13",
+        read: true,
+      };
+    }
+  });
+}
+
+export function generateValuationHistory(property: Property): {
+  pastSales: PastSale[];
+  valuationHistory: ValuationRecord[];
+} {
+  const basePrice = property.price;
+  
+  // Generate realistic past sales (e.g. 3 years ago and 6 years ago)
+  const pastSales: PastSale[] = [
+    {
+      date: "2023-04-12",
+      price: Math.round(basePrice * 0.82),
+      source: "Land Information New Zealand (LINZ)",
+      saleType: "Auction",
+    },
+    {
+      date: "2020-09-18",
+      price: Math.round(basePrice * 0.65),
+      source: "District Council Records",
+      saleType: "Private Sale",
+    },
+  ];
+
+  // Generate automated valuation history points (AVM / CV trajectory)
+  const valuationHistory: ValuationRecord[] = [
+    { date: "2021", value: Math.round(basePrice * 0.70), source: "Council CV" },
+    { date: "2022", value: Math.round(basePrice * 0.78), source: "Automated Valuation Model" },
+    { date: "2023", value: Math.round(basePrice * 0.85), source: "Council CV" },
+    { date: "2024", value: Math.round(basePrice * 0.92), source: "Automated Valuation Model" },
+    { date: "2025", value: Math.round(basePrice * 0.97), source: "Market Index Update" },
+    { date: "2026", value: basePrice, source: "Haven Live AVM" },
+  ];
+
+  return { pastSales, valuationHistory };
 }

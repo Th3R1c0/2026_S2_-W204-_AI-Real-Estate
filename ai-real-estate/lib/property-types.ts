@@ -54,6 +54,30 @@ export type CommuteOption = {
   travelTimes?: Record<string, number>;
 };
 
+export type PropertyNotification = {
+  id: string;
+  propertyId: string;
+  propertyAddress: string;
+  type: "price_drop" | "status_update" | "open_home";
+  title: string;
+  message: string;
+  date: string;
+  read: boolean;
+};
+
+export type PastSale = {
+  date: string;
+  price: number;
+  source: string;
+  saleType?: "Auction" | "Private Sale" | "Deadline Treaty";
+};
+
+export type ValuationRecord = {
+  date: string;
+  value: number;
+  source: string;
+};
+
 export type Property = {
   id: string;
   address: string;
@@ -80,6 +104,8 @@ export type Property = {
   schoolZones?: SchoolZone[];
   walkability?: WalkabilityProfile;
   commuteOptions?: CommuteOption[];
+  pastSales?: PastSale[];
+  valuationHistory?: ValuationRecord[];
 };
 
 export type PropertyFilters = {
