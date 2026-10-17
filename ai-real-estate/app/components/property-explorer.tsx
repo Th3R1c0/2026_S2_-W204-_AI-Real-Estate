@@ -1,11 +1,10 @@
 "use client";
 
 import Image from "next/image";
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useMemo, useState } from "react";
 import MortgageCalculator from "./mortgage-calculator";
 
 import {
-  calculateMonthlyMortgage,
   filterProperties,
   findComparableSales,
   generateSampleNotifications,
@@ -478,7 +477,7 @@ function SavedListingsDialog({
               </div>
             ) : (
               <div className="empty-inline" style={{ textAlign: "center", padding: "2rem" }}>
-                <p>You haven't saved any listings yet. Click the heart icon on any property card to save it here.</p>
+                <p>You haven&apos;t saved any listings yet. Click the heart icon on any property card to save it here.</p>
               </div>
             )
           ) : (
@@ -921,14 +920,25 @@ function DetailDialog({
 
           {tab === "family" && (
             <div className="family-panel" style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
-              <div className="insight-note" style={{ padding: "1rem", borderRadius: "8px" }}>
-                <Icon name="sparkle" />
-                <div>
-                  <strong>Walkability Score: {property.walkability?.score ?? 75}/100</strong>
-                  <p style={{ margin: "0.25rem 0" }}>{property.walkability?.label ?? "Somewhat Walkable"}</p>
-                  <small style={{ opacity: 0.8 }}>
-                    Nearby: {property.walkability?.parksNearby ?? 2} parks · {property.walkability?.cafesNearby ?? 4} cafes · {property.walkability?.supermarketsNearby ?? 1} supermarket
-                  </small>
+              {property.walkability ? (
+                <div className="insight-note" style={{ padding: "1rem", borderRadius: "8px" }}>
+                  <Icon name="sparkle" />
+                  <div>
+                    <strong>
+                      Walkability Score:{" "}
+                      {property.walkability.score === undefined
+                        ? "Not provided"
+                        : `${property.walkability.score}/100`}
+                    </strong>
+                    {property.walkability.label && (
+                      <p style={{ margin: "0.25rem 0" }}>{property.walkability.label}</p>
+                    )}
+                    <small style={{ opacity: 0.8 }}>
+                      Nearby: {property.walkability.parksNearby ?? "N/A"} parks ·{" "}
+                      {property.walkability.cafesNearby ?? "N/A"} cafes ·{" "}
+                      {property.walkability.supermarketsNearby ?? "N/A"} supermarkets
+                    </small>
+                  </div>
                 </div>
               ) : (
                 <p style={{ opacity: 0.7, fontSize: "0.9rem" }}>
@@ -1079,7 +1089,7 @@ export default function PropertyExplorer({
   const [savedModalOpen, setSavedModalOpen] = useState(false);
   const [detailId, setDetailId] = useState<string | null>(null);
   const [sourceSelection, setSourceSelection] = useState<SourceSelection | null>(null);
-  const [notifications, setNotifications] = useState<PropertyNotification[]>([]);
+  const [readNotificationIds, setReadNotificationIds] = useState<string[]>([]);
 
   const filteredProperties = useMemo(() => filterProperties(properties, filters), [properties, filters]);
   const selectedProperties = properties.filter(({ id }) => selectedIds.includes(id));
@@ -1087,16 +1097,15 @@ export default function PropertyExplorer({
   const detailProperty = properties.find(({ id }) => id === detailId);
   const hasFilters = Object.keys(filters).length > 0;
 
-  // Initialize sample notifications when saved IDs change
-  useEffect(() => {
-    const generated = generateSampleNotifications(savedProperties);
-    setNotifications((curr) => {
-      return generated.map((gen) => {
-        const existing = curr.find((c) => c.id === gen.id);
-        return existing ? { ...gen, read: existing.read } : gen;
-      });
-    });
-  }, [savedIds]);
+  const notifications = useMemo(
+    () =>
+      generateSampleNotifications(savedProperties).map((notification) =>
+        readNotificationIds.includes(notification.id)
+          ? { ...notification, read: true }
+          : notification,
+      ),
+    [savedProperties, readNotificationIds],
+  );
 
   function togglePropertyType(type: PropertyType) {
     setFilters((current) => ({
@@ -1135,8 +1144,8 @@ export default function PropertyExplorer({
   }
 
   function markNotificationRead(id: string) {
-    setNotifications((curr) =>
-      curr.map((n) => (n.id === id ? { ...n, read: true } : n))
+    setReadNotificationIds((current) =>
+      current.includes(id) ? current : [...current, id],
     );
   }
 

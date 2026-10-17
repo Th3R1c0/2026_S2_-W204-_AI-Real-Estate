@@ -34,17 +34,17 @@ export type PropertySource = {
 
 export type SchoolZone = {
   name: string;
-  type: string;
+  type: "Primary" | "Intermediate" | "Secondary";
   distanceKm: number;
   isInZone: boolean;
 };
 
 export type WalkabilityProfile = {
-  score: number;
-  label: string;
-  parksNearby: number;
-  cafesNearby: number;
-  supermarketsNearby: number;
+  score?: number;
+  label?: string;
+  parksNearby?: number;
+  cafesNearby?: number;
+  supermarketsNearby?: number;
 };
 
 export type CommuteOption = {
@@ -78,10 +78,10 @@ export type Property = {
   floorArea: number;
   yearBuilt: number;
   propertyType: PropertyType;
-  architecturalStyle: ArchitecturalStyle;
-  floodRisk: FloodRisk;
-  orientation: "North" | "South" | "East" | "West";
-  sunlightHours: number;
+  architecturalStyle?: ArchitecturalStyle;
+  floodRisk?: FloodRisk;
+  orientation?: "North" | "South" | "East" | "West";
+  sunlightHours?: number;
   latitude: number;
   longitude: number;
   image: string;

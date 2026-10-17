@@ -21,7 +21,7 @@ import type {
   PropertySourceField,
   PropertyType,
   SchoolZone,
-  WalkabilityData,
+  WalkabilityProfile,
 } from "../property-types";
 
 const propertyTypeValues: PropertyType[] = [
@@ -209,7 +209,7 @@ export async function getPropertiesByStatus(status: PropertyStatus): Promise<Pro
     const image = imageByProperty.get(row.propertyId);
     if (!image) throw new Error(`Missing property image for database property ${row.propertyId}.`);
 
-    let walkability: WalkabilityData | undefined;
+    let walkability: WalkabilityProfile | undefined;
     if (
       row.walkabilityScore !== null ||
       row.walkabilityLabel !== null ||
@@ -217,7 +217,7 @@ export async function getPropertiesByStatus(status: PropertyStatus): Promise<Pro
       row.cafesNearby !== null ||
       row.supermarketsNearby !== null
     ) {
-      let walkabilityLabel: WalkabilityData["label"];
+      let walkabilityLabel: WalkabilityProfile["label"];
       if (
         row.walkabilityLabel !== null &&
         row.walkabilityLabel !== "Car-Dependent" &&
