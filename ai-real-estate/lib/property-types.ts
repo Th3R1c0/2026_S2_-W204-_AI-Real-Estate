@@ -1,45 +1,68 @@
 export type PropertyType =
+  | "Villa"
+  | "Townhouse"
   | "Apartment"
   | "House"
   | "Lifestyle block"
-  | "Section"
-  | "Townhouse"
-  | "Villa";
+  | "Section";
 
 export type ArchitecturalStyle =
   | "Character"
+  | "Modernist"
   | "Contemporary"
   | "Craftsman"
-  | "Mid-Century"
-  | "Modernist";
+  | "Mid-Century";
 
 export type FloodRisk = "Low" | "Moderate" | "High";
 
-export type SchoolZone = {
-  name: string;
-  type: "Primary" | "Intermediate" | "Secondary";
-  distanceKm: number;
-  isInZone: boolean;
-};
-
-export type WalkabilityData = {
-  score?: number; // 0 to 100
-  label?: "Car-Dependent" | "Somewhat Walkable" | "Very Walkable" | "Walker's Paradise";
-  parksNearby?: number;
-  cafesNearby?: number;
-  supermarketsNearby?: number;
-};
-
-export type PropertySourceField = "address" | "price" | "bedrooms" | "bathrooms" | "landArea";
+export type PropertySourceField =
+  | "address"
+  | "price"
+  | "bedrooms"
+  | "bathrooms"
+  | "landArea";
 
 export type PropertySource = {
   id: string;
   title: string;
   publisher: string;
-  url: string;
   reference: string;
   material: string;
+  url: string;
   fields: PropertySourceField[];
+};
+
+export type SchoolZone = {
+  name: string;
+  type: string;
+  distanceKm: number;
+  isInZone: boolean;
+};
+
+export type WalkabilityProfile = {
+  score: number;
+  label: string;
+  parksNearby: number;
+  cafesNearby: number;
+  supermarketsNearby: number;
+};
+
+export type CommuteOption = {
+  destinationName?: string;
+  mode: "driving" | "transit" | "walking";
+  timeMinutes?: number;
+  travelTimes?: Record<string, number>;
+};
+
+export type PropertyNotification = {
+  id: string;
+  propertyId: string;
+  propertyAddress: string;
+  type: "price_drop" | "status_update" | "open_home";
+  title: string;
+  message: string;
+  date: string;
+  read: boolean;
 };
 
 export type Property = {
@@ -55,33 +78,40 @@ export type Property = {
   floorArea: number;
   yearBuilt: number;
   propertyType: PropertyType;
-  architecturalStyle?: ArchitecturalStyle;
-  floodRisk?: FloodRisk;
-  orientation?: "North" | "East" | "South" | "West";
-  sunlightHours?: number;
+  architecturalStyle: ArchitecturalStyle;
+  floodRisk: FloodRisk;
+  orientation: "North" | "South" | "East" | "West";
+  sunlightHours: number;
   latitude: number;
   longitude: number;
   image: string;
   imageAlt: string;
   soldDate?: string;
-  // Family & Lifestyle Features
-  walkability?: WalkabilityData;
-  schoolZones?: SchoolZone[];
   sources?: PropertySource[];
+  schoolZones?: SchoolZone[];
+  walkability?: WalkabilityProfile;
+  commuteOptions?: CommuteOption[];
 };
 
 export type PropertyFilters = {
   propertyTypes?: PropertyType[];
   architecturalStyles?: ArchitecturalStyle[];
   floodRisks?: FloodRisk[];
+  northFacingOnly?: boolean;
+  yearBuiltFrom?: number;
+  yearBuiltTo?: number;
+  minWalkScore?: number;
+  inZoneOnly?: boolean;
+  maxCommuteTimeMinutes?: number;
+  commuteMode?: "driving" | "transit" | "walking";
   location?: string;
   maxPrice?: number;
   minPrice?: number;
   bedrooms?: number;
-  yearBuiltFrom?: number;
-  yearBuiltTo?: number;
-  northFacingOnly?: boolean;
-  // Family & Lifestyle Filters
-  minWalkScore?: number;
-  inZoneOnly?: boolean;
+  commuteFilter?: {
+    destinationName: string;
+    maxTimeMinutes?: number;
+    maxTime: number;
+    mode: "driving" | "transit" | "walking";
+  };
 };

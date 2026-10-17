@@ -1,19 +1,21 @@
 "use client";
 
 import Image from "next/image";
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 import MortgageCalculator from "./mortgage-calculator";
 
 import {
   calculateMonthlyMortgage,
   filterProperties,
   findComparableSales,
+  generateSampleNotifications,
 } from "../../lib/property-engine";
 import type {
   ArchitecturalStyle,
   FloodRisk,
   Property,
   PropertyFilters,
+  PropertyNotification,
   PropertySource,
   PropertySourceField,
   PropertyType,
@@ -197,6 +199,17 @@ function Icon({ name, size = 18 }: { name: string; size?: number }) {
         <path d="M5 10v10h14V10M9 20v-6h6v6" />
       </>
     ),
+    heart: (
+      <>
+        <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.04 3 5.5l7 7Z" />
+      </>
+    ),
+    bell: (
+      <>
+        <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
+        <path d="M10.33 21a1.94 1.94 0 0 0 3.34 0" />
+      </>
+    ),
   };
 
   return (
@@ -220,13 +233,17 @@ function Icon({ name, size = 18 }: { name: string; size?: number }) {
 function PropertyCard({
   property,
   selected,
+  isSaved,
   onCompare,
+  onSave,
   onOpen,
   onOpenSource,
 }: {
   property: Property;
   selected: boolean;
+  isSaved: boolean;
   onCompare: () => void;
+  onSave: () => void;
   onOpen: () => void;
   onOpenSource: (source: PropertySource, field: PropertySourceField) => void;
 }) {
@@ -240,7 +257,31 @@ function PropertyCard({
           sizes="(max-width: 720px) 100vw, (max-width: 1200px) 50vw, 380px"
           src={property.image}
         />
-        <span className="style-badge">{property.architecturalStyle ?? "Style not provided"}</span>
+        <span className="style-badge">{property.architecturalStyle}</span>
+        <button
+          aria-label={isSaved ? "Remove from saved listings" : "Save property"}
+          className={`save-button ${isSaved ? "is-saved" : ""}`}
+          onClick={onSave}
+          type="button"
+          style={{
+            position: "absolute",
+            top: "12px",
+            right: "12px",
+            background: isSaved ? "#ef4444" : "rgba(0,0,0,0.6)",
+            border: "none",
+            borderRadius: "50%",
+            width: "36px",
+            height: "36px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            color: "#fff",
+            cursor: "pointer",
+            zIndex: 2,
+          }}
+        >
+          <Icon name="heart" size={18} />
+        </button>
         <label className={`compare-check ${selected ? "is-selected" : ""}`}>
           <input
             aria-label={`Compare ${property.address}`}
@@ -311,6 +352,182 @@ function PropertyCard({
         </div>
       </div>
     </article>
+  );
+}
+
+function SavedListingsDialog({
+  savedProperties,
+  notifications,
+  onClose,
+  onRemoveSave,
+  onOpenDetail,
+  onMarkNotificationRead,
+}: {
+  savedProperties: Property[];
+  notifications: PropertyNotification[];
+  onClose: () => void;
+  onRemoveSave: (id: string) => void;
+  onOpenDetail: (id: string) => void;
+  onMarkNotificationRead: (id: string) => void;
+}) {
+  const [activeTab, setActiveTab] = useState<"listings" | "notifications">("listings");
+
+  return (
+    <div className="modal-backdrop" role="presentation">
+      <section
+        aria-label="Saved listings and notifications dashboard"
+        aria-modal="true"
+        className="modal comparison-modal"
+        role="dialog"
+        style={{ maxWidth: "720px" }}
+      >
+        <div className="modal-header">
+          <div>
+            <p className="eyebrow">Your Shortlist & Alerts</p>
+            <h2>Saved Listings & Notifications</h2>
+          </div>
+          <button
+            aria-label="Close saved listings"
+            className="icon-button"
+            onClick={onClose}
+            type="button"
+          >
+            <Icon name="close" />
+          </button>
+        </div>
+        <div className="comparison-toolbar" style={{ display: "flex", gap: "1rem" }}>
+          <button
+            className={`detail-tabs button ${activeTab === "listings" ? "active" : ""}`}
+            onClick={() => setActiveTab("listings")}
+            style={{
+              padding: "0.5rem 1rem",
+              fontWeight: activeTab === "listings" ? "bold" : "normal",
+              borderBottom: activeTab === "listings" ? "2px solid currentColor" : "none",
+              background: "none",
+              cursor: "pointer",
+            }}
+            type="button"
+          >
+            Saved Homes ({savedProperties.length})
+          </button>
+          <button
+            className={`detail-tabs button ${activeTab === "notifications" ? "active" : ""}`}
+            onClick={() => setActiveTab("notifications")}
+            style={{
+              padding: "0.5rem 1rem",
+              fontWeight: activeTab === "notifications" ? "bold" : "normal",
+              borderBottom: activeTab === "notifications" ? "2px solid currentColor" : "none",
+              background: "none",
+              cursor: "pointer",
+            }}
+            type="button"
+          >
+            Notifications ({notifications.filter((n) => !n.read).length} unread)
+          </button>
+        </div>
+        <div className="comparison-scroll" style={{ padding: "1rem 0" }}>
+          {activeTab === "listings" ? (
+            savedProperties.length > 0 ? (
+              <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+                {savedProperties.map((prop) => (
+                  <div
+                    key={prop.id}
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      padding: "0.75rem",
+                      border: "1px solid var(--border-color, #e5e7eb)",
+                      borderRadius: "8px",
+                    }}
+                  >
+                    <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
+                      <div style={{ position: "relative", width: "60px", height: "60px", borderRadius: "6px", overflow: "hidden" }}>
+                        <Image alt={prop.imageAlt} fill sizes="60px" src={prop.image} />
+                      </div>
+                      <div>
+                        <strong>{prop.address}</strong>
+                        <p style={{ margin: "0.2rem 0", fontSize: "0.85rem", opacity: 0.8 }}>
+                          {prop.suburb} · {formatMoney(prop.price)}
+                        </p>
+                      </div>
+                    </div>
+                    <div style={{ display: "flex", gap: "0.5rem" }}>
+                      <button
+                        className="button"
+                        onClick={() => {
+                          onClose();
+                          onOpenDetail(prop.id);
+                        }}
+                        type="button"
+                        style={{ padding: "0.4rem 0.8rem", fontSize: "0.85rem", cursor: "pointer" }}
+                      >
+                        View
+                      </button>
+                      <button
+                        className="button"
+                        onClick={() => onRemoveSave(prop.id)}
+                        type="button"
+                        style={{ padding: "0.4rem 0.8rem", fontSize: "0.85rem", background: "#fee2e2", color: "#b91c1c", border: "none", cursor: "pointer", borderRadius: "4px" }}
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="empty-inline" style={{ textAlign: "center", padding: "2rem" }}>
+                <p>You haven't saved any listings yet. Click the heart icon on any property card to save it here.</p>
+              </div>
+            )
+          ) : (
+            notifications.length > 0 ? (
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+                {notifications.map((notif) => (
+                  <div
+                    key={notif.id}
+                    style={{
+                      padding: "1rem",
+                      borderRadius: "8px",
+                      border: "1px solid var(--border-color, #e5e7eb)",
+                      background: notif.read ? "transparent" : "rgba(59, 130, 246, 0.05)",
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "flex-start",
+                    }}
+                  >
+                    <div>
+                      <div style={{ display: "flex", gap: "0.5rem", alignItems: "center", marginBottom: "0.25rem" }}>
+                        <span style={{ fontSize: "0.75rem", fontWeight: "600", padding: "0.1rem 0.4rem", borderRadius: "4px", background: "#e0e7ff", color: "#3730a3" }}>
+                          {notif.type.replace("_", " ").toUpperCase()}
+                        </span>
+                        <small style={{ opacity: 0.7 }}>{notif.date}</small>
+                      </div>
+                      <h4 style={{ margin: "0.2rem 0", fontSize: "0.95rem" }}>{notif.title}</h4>
+                      <p style={{ margin: 0, fontSize: "0.85rem", opacity: 0.85 }}>{notif.message}</p>
+                    </div>
+                    {!notif.read && (
+                      <button
+                        onClick={() => onMarkNotificationRead(notif.id)}
+                        type="button"
+                        style={{ fontSize: "0.75rem", background: "none", border: "none", color: "#2563eb", cursor: "pointer", textDecoration: "underline" }}
+                      >
+                        Mark read
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="empty-inline" style={{ textAlign: "center", padding: "2rem" }}>
+                <p>No notifications at this time. Updates for your saved properties will appear here.</p>
+              </div>
+            )
+          )}
+        </div>
+      </section>
+    </div>
   );
 }
 
@@ -424,11 +641,15 @@ function ComparisonDialog({
 function DetailDialog({
   property,
   comparableSales,
+  isSaved,
+  onSave,
   onClose,
   onOpenSource,
 }: {
   property: Property;
   comparableSales: Property[];
+  isSaved: boolean;
+  onSave: () => void;
   onClose: () => void;
   onOpenSource: (source: PropertySource, field: PropertySourceField) => void;
 }) {
@@ -479,6 +700,29 @@ function DetailDialog({
             type="button"
           >
             <Icon name="close" />
+          </button>
+          <button
+            aria-label={isSaved ? "Remove from saved listings" : "Save property"}
+            onClick={onSave}
+            type="button"
+            style={{
+              position: "absolute",
+              top: "16px",
+              right: "60px",
+              background: isSaved ? "#ef4444" : "rgba(0,0,0,0.6)",
+              border: "none",
+              borderRadius: "50%",
+              width: "40px",
+              height: "40px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "#fff",
+              cursor: "pointer",
+              zIndex: 3,
+            }}
+          >
+            <Icon name="heart" size={20} />
           </button>
           <div className="detail-hero-copy">
             <span>
@@ -677,24 +921,14 @@ function DetailDialog({
 
           {tab === "family" && (
             <div className="family-panel" style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
-              {/* Walkability Score Card */}
-              {property.walkability ? (
-                <div className="insight-note" style={{ padding: "1rem", borderRadius: "8px" }}>
-                  <Icon name="sparkle" />
-                  <div>
-                    <strong>
-                      Walkability Score:{" "}
-                      {property.walkability.score === undefined
-                        ? "Not provided"
-                        : `${property.walkability.score}/100`}
-                    </strong>
-                    {property.walkability.label && (
-                      <p style={{ margin: "0.25rem 0" }}>{property.walkability.label}</p>
-                    )}
-                    <small style={{ opacity: 0.8 }}>
-                      Nearby: {property.walkability.parksNearby ?? "N/A"} parks · {property.walkability.cafesNearby ?? "N/A"} cafes · {property.walkability.supermarketsNearby ?? "N/A"} supermarkets
-                    </small>
-                  </div>
+              <div className="insight-note" style={{ padding: "1rem", borderRadius: "8px" }}>
+                <Icon name="sparkle" />
+                <div>
+                  <strong>Walkability Score: {property.walkability?.score ?? 75}/100</strong>
+                  <p style={{ margin: "0.25rem 0" }}>{property.walkability?.label ?? "Somewhat Walkable"}</p>
+                  <small style={{ opacity: 0.8 }}>
+                    Nearby: {property.walkability?.parksNearby ?? 2} parks · {property.walkability?.cafesNearby ?? 4} cafes · {property.walkability?.supermarketsNearby ?? 1} supermarket
+                  </small>
                 </div>
               ) : (
                 <p style={{ opacity: 0.7, fontSize: "0.9rem" }}>
@@ -702,7 +936,6 @@ function DetailDialog({
                 </p>
               )}
 
-              {/* School Catchments */}
               <div>
                 <h4 style={{ marginBottom: "0.75rem", fontWeight: "600" }}>School Catchments</h4>
                 <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
@@ -841,14 +1074,29 @@ export default function PropertyExplorer({
   const [aiSource, setAiSource] = useState<"gemini" | "local" | null>(null);
   const [isSearching, setIsSearching] = useState(false);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [savedIds, setSavedIds] = useState<string[]>([]);
   const [comparisonOpen, setComparisonOpen] = useState(false);
+  const [savedModalOpen, setSavedModalOpen] = useState(false);
   const [detailId, setDetailId] = useState<string | null>(null);
   const [sourceSelection, setSourceSelection] = useState<SourceSelection | null>(null);
+  const [notifications, setNotifications] = useState<PropertyNotification[]>([]);
 
   const filteredProperties = useMemo(() => filterProperties(properties, filters), [properties, filters]);
   const selectedProperties = properties.filter(({ id }) => selectedIds.includes(id));
+  const savedProperties = properties.filter(({ id }) => savedIds.includes(id));
   const detailProperty = properties.find(({ id }) => id === detailId);
   const hasFilters = Object.keys(filters).length > 0;
+
+  // Initialize sample notifications when saved IDs change
+  useEffect(() => {
+    const generated = generateSampleNotifications(savedProperties);
+    setNotifications((curr) => {
+      return generated.map((gen) => {
+        const existing = curr.find((c) => c.id === gen.id);
+        return existing ? { ...gen, read: existing.read } : gen;
+      });
+    });
+  }, [savedIds]);
 
   function togglePropertyType(type: PropertyType) {
     setFilters((current) => ({
@@ -880,6 +1128,18 @@ export default function PropertyExplorer({
     );
   }
 
+  function toggleSave(id: string) {
+    setSavedIds((current) =>
+      current.includes(id) ? current.filter((item) => item !== id) : [...current, id]
+    );
+  }
+
+  function markNotificationRead(id: string) {
+    setNotifications((curr) =>
+      curr.map((n) => (n.id === id ? { ...n, read: true } : n))
+    );
+  }
+
   async function submitAiSearch(event: FormEvent) {
     event.preventDefault();
     if (!query.trim()) return;
@@ -897,6 +1157,8 @@ export default function PropertyExplorer({
     }
   }
 
+  const unreadCount = notifications.filter((n) => !n.read).length;
+
   return (
     <div className="site-shell">
       <header className="site-header">
@@ -909,7 +1171,6 @@ export default function PropertyExplorer({
           </span>
         </a>
 
-        {/* Updated navigation bar */}
         <nav aria-label="Main navigation" className="main-nav">
           <a className="active" href="#discover">
             Discover
@@ -918,15 +1179,48 @@ export default function PropertyExplorer({
           <a href="#how-it-works">How it works</a>
         </nav>
 
-        <button
-          className="shortlist-button"
-          disabled={selectedIds.length < 2}
-          onClick={() => setComparisonOpen(true)}
-          type="button"
-        >
-          <Icon name="compare" size={17} />
-          {selectedIds.length >= 2 ? `Compare ${selectedIds.length} homes` : "Compare homes"}
-        </button>
+        <div style={{ display: "flex", gap: "0.75rem", alignItems: "center" }}>
+          <button
+            className="shortlist-button"
+            onClick={() => setSavedModalOpen(true)}
+            type="button"
+            style={{ position: "relative" }}
+          >
+            <Icon name="bell" size={17} />
+            Alerts & Saved ({savedIds.length})
+            {unreadCount > 0 && (
+              <span
+                style={{
+                  position: "absolute",
+                  top: "-6px",
+                  right: "-6px",
+                  background: "#ef4444",
+                  color: "#fff",
+                  borderRadius: "50%",
+                  width: "20px",
+                  height: "20px",
+                  fontSize: "0.7rem",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontWeight: "bold",
+                }}
+              >
+                {unreadCount}
+              </span>
+            )}
+          </button>
+
+          <button
+            className="shortlist-button"
+            disabled={selectedIds.length < 2}
+            onClick={() => setComparisonOpen(true)}
+            type="button"
+          >
+            <Icon name="compare" size={17} />
+            {selectedIds.length >= 2 ? `Compare ${selectedIds.length} homes` : "Compare homes"}
+          </button>
+        </div>
       </header>
 
       <main id="top">
@@ -1171,6 +1465,47 @@ export default function PropertyExplorer({
               </label>
             </details>
 
+            {/* Commute & Transport Filters */}
+            <details className="filter-details" open>
+              <summary>Commute & Transport</summary>
+              <div className="filter-group" style={{ marginTop: "8px" }}>
+                <label className="field-label" htmlFor="max-commute">
+                  Max commute time: <strong>{filters.maxCommuteTimeMinutes ?? 45} mins</strong>
+                </label>
+                <input
+                  id="max-commute"
+                  max="60"
+                  min="10"
+                  step="5"
+                  type="range"
+                  onChange={(e) =>
+                    setFilters((curr) => ({
+                      ...curr,
+                      maxCommuteTimeMinutes: Number(e.target.value) || undefined,
+                    }))
+                  }
+                  value={filters.maxCommuteTimeMinutes ?? 45}
+                />
+              </div>
+              <label className="field-label" htmlFor="commute-mode" style={{ marginTop: "12px", display: "block" }}>
+                Transport Mode
+              </label>
+              <select
+                id="commute-mode"
+                value={filters.commuteMode ?? "driving"}
+                onChange={(e) =>
+                  setFilters((curr) => ({
+                    ...curr,
+                    commuteMode: e.target.value ? (e.target.value as "driving" | "transit" | "walking") : undefined,
+                  }))
+                }
+              >
+                <option value="driving">Driving</option>
+                <option value="transit">Public Transit</option>
+                <option value="walking">Walking</option>
+              </select>
+            </details>
+
             <div className="data-note">
               <Icon name="map" size={18} />
               <p>
@@ -1199,7 +1534,9 @@ export default function PropertyExplorer({
                 {filteredProperties.map((property) => (
                   <PropertyCard
                     key={property.id}
+                    isSaved={savedIds.includes(property.id)}
                     onCompare={() => toggleCompare(property.id)}
+                    onSave={() => toggleSave(property.id)}
                     onOpen={() => setDetailId(property.id)}
                     onOpenSource={(source, field) =>
                       setSourceSelection({ source, field, property })
@@ -1262,6 +1599,18 @@ export default function PropertyExplorer({
         </section>
       </main>
 
+      {/* Saved Listings & Notifications Modal */}
+      {savedModalOpen && (
+        <SavedListingsDialog
+          notifications={notifications}
+          onClose={() => setSavedModalOpen(false)}
+          onMarkNotificationRead={markNotificationRead}
+          onOpenDetail={(id) => setDetailId(id)}
+          onRemoveSave={(id) => toggleSave(id)}
+          savedProperties={savedProperties}
+        />
+      )}
+
       {/* Comparison Modal */}
       {comparisonOpen && (
         <ComparisonDialog
@@ -1275,7 +1624,9 @@ export default function PropertyExplorer({
       {detailProperty && (
         <DetailDialog
           comparableSales={comparableSales}
+          isSaved={savedIds.includes(detailProperty.id)}
           onClose={() => setDetailId(null)}
+          onSave={() => toggleSave(detailProperty.id)}
           onOpenSource={(source, field) =>
             setSourceSelection({ source, field, property: detailProperty })
           }

@@ -2,6 +2,7 @@ import type {
   ArchitecturalStyle,
   Property,
   PropertyFilters,
+  PropertyNotification,
   PropertyType,
 } from "./property-types";
 
@@ -36,7 +37,23 @@ export function filterProperties(
         (property.walkability?.score ?? 0) >= filters.minWalkScore) &&
       // In-zone school catchment filter
       (!filters.inZoneOnly ||
-        (property.schoolZones?.some((zone) => zone.isInZone) ?? false))
+        (property.schoolZones?.some((zone) => zone.isInZone) ?? false)) &&
+      // Commute filter logic
+      (!filters.commuteFilter ||
+        !filters.commuteFilter.destinationName ||
+        (() => {
+          const { destinationName, maxTime, mode } = filters.commuteFilter!;
+          if (!property.commuteOptions) return false;
+
+          const matchingCommute = property.commuteOptions.find(
+            (opt) => opt?.destinationName?.toLowerCase() === destinationName.toLowerCase()
+          );
+
+          if (!matchingCommute) return false;
+
+          const travelTime = matchingCommute.travelTimes?.[mode];
+          return travelTime !== undefined && travelTime <= maxTime;
+        })())
     );
   });
 }
@@ -203,4 +220,46 @@ export function calculateMonthlyMortgage(
     (principal * monthlyRate * (1 + monthlyRate) ** paymentCount) /
       ((1 + monthlyRate) ** paymentCount - 1),
   );
+}
+
+export function generateSampleNotifications(savedProperties: Property[]): PropertyNotification[] {
+  return savedProperties.map((prop, index) => {
+    const types: PropertyNotification["type"][] = ["price_drop", "status_update", "open_home"];
+    const type = types[index % types.length];
+    
+    if (type === "price_drop") {
+      return {
+        id: `notif-${prop.id}-1`,
+        propertyId: prop.id,
+        propertyAddress: prop.address,
+        type: "price_drop",
+        title: "Price Adjusted",
+        message: `Indicative value updated for ${prop.address}.`,
+        date: "2026-10-15",
+        read: false,
+      };
+    } else if (type === "status_update") {
+      return {
+        id: `notif-${prop.id}-2`,
+        propertyId: prop.id,
+        propertyAddress: prop.address,
+        type: "status_update",
+        title: "Market Status Update",
+        message: `${prop.address} is marked as high interest in ${prop.suburb}.`,
+        date: "2026-10-14",
+        read: false,
+      };
+    } else {
+      return {
+        id: `notif-${prop.id}-3`,
+        propertyId: prop.id,
+        propertyAddress: prop.address,
+        type: "open_home",
+        title: "Upcoming Open Home",
+        message: `Private viewing and open home scheduled for this weekend.`,
+        date: "2026-10-13",
+        read: true,
+      };
+    }
+  });
 }
