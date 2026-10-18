@@ -23,8 +23,10 @@ export function filterProperties(
       (!filters.propertyTypes?.length ||
         filters.propertyTypes.includes(property.propertyType)) &&
       (!filters.architecturalStyles?.length ||
-        filters.architecturalStyles.includes(property.architecturalStyle)) &&
-      (!filters.floodRisks?.length || filters.floodRisks.includes(property.floodRisk)) &&
+        (property.architecturalStyle !== undefined &&
+          filters.architecturalStyles.includes(property.architecturalStyle))) &&
+      (!filters.floodRisks?.length ||
+        (property.floodRisk !== undefined && filters.floodRisks.includes(property.floodRisk))) &&
       (!location || propertyLocation.includes(location)) &&
       (filters.maxPrice === undefined || property.price <= filters.maxPrice) &&
       (filters.minPrice === undefined || property.price >= filters.minPrice) &&
@@ -262,39 +264,4 @@ export function generateSampleNotifications(savedProperties: Property[]): Proper
       };
     }
   });
-}
-
-export function generateValuationHistory(property: Property): {
-  pastSales: PastSale[];
-  valuationHistory: ValuationRecord[];
-} {
-  const basePrice = property.price;
-  
-  // Generate realistic past sales (e.g. 3 years ago and 6 years ago)
-  const pastSales: PastSale[] = [
-    {
-      date: "2023-04-12",
-      price: Math.round(basePrice * 0.82),
-      source: "Land Information New Zealand (LINZ)",
-      saleType: "Auction",
-    },
-    {
-      date: "2020-09-18",
-      price: Math.round(basePrice * 0.65),
-      source: "District Council Records",
-      saleType: "Private Sale",
-    },
-  ];
-
-  // Generate automated valuation history points (AVM / CV trajectory)
-  const valuationHistory: ValuationRecord[] = [
-    { date: "2021", value: Math.round(basePrice * 0.70), source: "Council CV" },
-    { date: "2022", value: Math.round(basePrice * 0.78), source: "Automated Valuation Model" },
-    { date: "2023", value: Math.round(basePrice * 0.85), source: "Council CV" },
-    { date: "2024", value: Math.round(basePrice * 0.92), source: "Automated Valuation Model" },
-    { date: "2025", value: Math.round(basePrice * 0.97), source: "Market Index Update" },
-    { date: "2026", value: basePrice, source: "Haven Live AVM" },
-  ];
-
-  return { pastSales, valuationHistory };
 }

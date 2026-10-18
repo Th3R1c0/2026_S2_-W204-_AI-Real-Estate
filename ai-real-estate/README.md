@@ -59,8 +59,12 @@ ai-real-estate/
 │   ├── sprintone.md             # Sprint One user stories, acceptance criteria, and INVEST scores
 │   └── sprint-one-implementation-summary.md # Architectural summary, test coverage, and decisions
 ├── lib/
+│   ├── db/
+│   │   ├── index.ts            # MySQL connection pool and Drizzle client
+│   │   ├── properties.ts       # Server-side property and comparable-sale queries
+│   │   └── schema.ts           # Drizzle schema for backend/schema.SQL
 │   ├── gemini-search.ts         # Gemini API client, response schema, console logging & fallback
-│   ├── property-data.ts         # Auckland Housing Market dataset listings & comps
+│   ├── property-data.ts         # Source records used to seed the database and tests
 │   ├── property-engine.ts       # Filtering, distance math (Haversine), and mortgage formulas
 │   └── property-types.ts        # TypeScript domain models and interfaces
 ├── public/
@@ -77,6 +81,7 @@ ai-real-estate/
 ## 🔒 AI Security & Privacy
 
 - **Server-Only API Key**: `GEMINI_API_KEY` is read strictly on the server from `.env.local` and transmitted via HTTP headers (`x-goog-api-key`). It is never bundled into client-side code or exposed in URLs.
+- `DATABASE_URL` is used only by the server-side Drizzle client. Do not expose it through a `NEXT_PUBLIC_` variable.
 - **Constrained Schema**: Gemini is invoked with `responseMimeType: "application/json"` and an explicit schema, preventing arbitrary prompt injections or unstructured text outputs.
 - **Thinking Level**: Utilizes minimal thinking configuration (`MINIMAL`) for rapid latency and low token usage.
 
@@ -100,18 +105,28 @@ ai-real-estate/
    npm install
    ```
 
-3. Configure environment variables:
-   Create a `.env.local` file in the `ai-real-estate/` directory:
-   ```env
-   GEMINI_API_KEY=your_gemini_api_key_here
-   ```
-   *(Note: If no key is set, the application automatically falls back to its deterministic local natural-language parser).*
+3. Start MySQL 8 (for a Homebrew installation, run `brew services start mysql@8.4`).
 
-4. Run the development server:
+4. Create a local database and app user, apply migrations, and seed the demo records:
+   ```bash
+   npm run db:setup-local
+   ```
+   This generates a local-only password and writes `DATABASE_URL` to `.env.local` with owner-only permissions, runs the migrations, creates the coordinate triggers as the local MySQL administrator, then imports demo records. The seed command refuses to run if the `properties` table already contains records. Do not also run `backend/schema.SQL`; Drizzle migrations create the tables.
+
+5. Optionally add `GEMINI_API_KEY=your_gemini_api_key_here` to `.env.local`. If no key is set, AI search uses the local parser.
+
+6. Run the development server:
    ```bash
    npm run dev
    ```
    Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+After changing `lib/db/schema.ts`, generate a migration with:
+```bash
+npm run db:generate
+```
+
+The SQL design is maintained in [`../backend/schema.SQL`](../backend/schema.SQL). `lib/db/schema.ts` is its Drizzle representation, including added metadata tables for fields used by the current demo UI.
 
 ---
 

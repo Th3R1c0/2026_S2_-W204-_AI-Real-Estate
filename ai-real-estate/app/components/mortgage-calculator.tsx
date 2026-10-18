@@ -15,7 +15,7 @@ interface LoanOption {
 
 export default function MortgageCalculator({ defaultPrice = 850000 }: MortgageCalculatorProps) {
   const [propertyPrice, setPropertyPrice] = useState<number>(defaultPrice);
-  const [deposit, setDeposit] = useState<number>(defaultPrice * 0.2);
+  const [depositPercent, setDepositPercent] = useState<number>(20);
   const [interestRate, setInterestRate] = useState<number>(6.5);
   const [loanTermYears, setLoanTermYears] = useState<number>(30);
   const [activeTab, setActiveTab] = useState<'calculator' | 'compare'>('calculator');
@@ -27,6 +27,7 @@ export default function MortgageCalculator({ defaultPrice = 850000 }: MortgageCa
     { id: '3', name: '5-Year Introductory Rate', interestRate: 5.2, loanTermYears: 30 },
   ]);
 
+  const deposit = Math.max(0, propertyPrice * (depositPercent / 100));
   const loanAmount = Math.max(0, propertyPrice - deposit);
 
   const calculateMonthlyRepayment = (rate: number, term: number) => {
@@ -85,11 +86,26 @@ export default function MortgageCalculator({ defaultPrice = 850000 }: MortgageCa
         </div>
 
         <div>
+          <label className="block text-sm font-medium mb-1 text-gray-700">Deposit Percentage (%)</label>
+          <input
+            aria-label="Deposit percentage"
+            type="number"
+            min="0"
+            max="100"
+            value={depositPercent}
+            onChange={(e) => setDepositPercent(Number(e.target.value))}
+            className="w-full p-2 border border-gray-300 rounded-md bg-white focus:ring-2 focus:ring-blue-500 outline-none"
+          />
+        </div>
+
+        <div>
           <label className="block text-sm font-medium mb-1 text-gray-700">Deposit (\$)</label>
           <input
             type="number"
             value={deposit}
-            onChange={(e) => setDeposit(Number(e.target.value))}
+            onChange={(e) =>
+              setDepositPercent(propertyPrice > 0 ? (Number(e.target.value) / propertyPrice) * 100 : 0)
+            }
             className="w-full p-2 border border-gray-300 rounded-md bg-white focus:ring-2 focus:ring-blue-500 outline-none"
           />
         </div>
@@ -129,7 +145,7 @@ export default function MortgageCalculator({ defaultPrice = 850000 }: MortgageCa
             <span className="text-xs font-semibold text-blue-600 uppercase tracking-wider block">
               Estimated Repayment (Loan Amount: \${loanAmount.toLocaleString()})
             </span>
-            <div className="text-3xl font-extrabold text-blue-900 my-1">
+            <div className="text-3xl font-extrabold text-blue-900 my-1" data-testid="monthly-repayment">
               \${monthlyRepayment.toFixed(0)}{' '}
               <span className="text-sm font-normal text-gray-600">/ month</span>
             </div>

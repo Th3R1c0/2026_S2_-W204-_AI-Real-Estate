@@ -1,20 +1,20 @@
 "use client";
 
 import Image from "next/image";
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 import MortgageCalculator from "./mortgage-calculator";
 
 import {
-  calculateMonthlyMortgage,
   filterProperties,
   findComparableSales,
-  generateValuationHistory,
+  generateSampleNotifications,
 } from "../../lib/property-engine";
 import type {
   ArchitecturalStyle,
   FloodRisk,
   Property,
   PropertyFilters,
+  PropertyNotification,
   PropertySource,
   PropertySourceField,
   PropertyType,
@@ -33,7 +33,9 @@ type PropertyExplorerProps = {
   aiSearch?: (query: string) => Promise<AiSearchResult>;
 };
 
-type DetailTab = "overview" | "comps" | "sunlight" | "family" | "mortgage" | "history";
+type DetailTab = "overview" | "comps" | "sunlight" | "family" | "commute" | "mortgage";
+type CommuteMode = "driving" | "transit" | "bicycling" | "walking";
+type CommuteDestination = { name: string; address: string };
 type SourceSelection = {
   source: PropertySource;
   field: PropertySourceField;
@@ -73,9 +75,148 @@ const moneyFormatter = new Intl.NumberFormat("en-NZ", {
   currency: "NZD",
   maximumFractionDigits: 0,
 });
+const commuteStorageKey = "ai-real-estate-commute-destinations";
+const commuteModes: Array<{ id: CommuteMode; label: string }> = [
+  { id: "driving", label: "Driving" },
+  { id: "transit", label: "Public transport" },
+  { id: "bicycling", label: "Cycling" },
+  { id: "walking", label: "Walking" },
+];
 
 function formatMoney(value: number) {
   return moneyFormatter.format(value).replace("NZ", "");
+}
+
+function CommutePlanner({ property }: { property: Property }) {
+  const [destinations, setDestinations] = useState<CommuteDestination[]>([]);
+  const [mode, setMode] = useState<CommuteMode>("driving");
+  const [storageLoaded, setStorageLoaded] = useState(false);
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(commuteStorageKey);
+      const parsed: unknown = saved ? JSON.parse(saved) : [];
+      if (Array.isArray(parsed)) {
+        setDestinations(
+          parsed
+            .filter(
+              (item): item is CommuteDestination =>
+                item && typeof item.name === "string" && typeof item.address === "string",
+            )
+            .slice(0, 3),
+        );
+      }
+    } catch {
+      setDestinations([]);
+    }
+    setStorageLoaded(true);
+  }, []);
+
+  useEffect(() => {
+    if (storageLoaded) {
+      localStorage.setItem(commuteStorageKey, JSON.stringify(destinations));
+    }
+  }, [destinations, storageLoaded]);
+
+  function updateDestination(index: number, field: keyof CommuteDestination, value: string) {
+    setDestinations((current) =>
+      current.map((destination, currentIndex) =>
+        currentIndex === index ? { ...destination, [field]: value } : destination,
+      ),
+    );
+  }
+
+  return (
+    <div className="commute-panel">
+      <div className="tool-heading">
+        <div>
+          <p className="eyebrow">Your regular journeys</p>
+          <h3>Commute destinations</h3>
+        </div>
+        <span className="commute-count">{destinations.length}/3 saved</span>
+      </div>
+      <div aria-label="Travel mode" className="commute-modes" role="group">
+        {commuteModes.map(({ id, label }) => (
+          <button
+            aria-pressed={mode === id}
+            className={mode === id ? "active" : ""}
+            key={id}
+            onClick={() => setMode(id)}
+            type="button"
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+      {destinations.length ? (
+        <div className="commute-list">
+          {destinations.map((destination, index) => {
+            const mapsUrl = new URL("https://www.google.com/maps/dir/");
+            mapsUrl.searchParams.set("api", "1");
+            mapsUrl.searchParams.set("origin", `${property.latitude},${property.longitude}`);
+            mapsUrl.searchParams.set("destination", destination.address);
+            mapsUrl.searchParams.set("travelmode", mode);
+
+            return (
+              <div className="commute-destination" key={index}>
+                <label>
+                  <span>Destination name</span>
+                  <input
+                    aria-label={`Name for destination ${index + 1}`}
+                    onChange={(event) => updateDestination(index, "name", event.target.value)}
+                    placeholder="e.g. Work"
+                    value={destination.name}
+                  />
+                </label>
+                <label>
+                  <span>Address</span>
+                  <input
+                    aria-label={`Address for destination ${index + 1}`}
+                    onChange={(event) => updateDestination(index, "address", event.target.value)}
+                    placeholder="Enter a street address"
+                    value={destination.address}
+                  />
+                </label>
+                {destination.address.trim() ? (
+                  <a href={mapsUrl.toString()} rel="noreferrer" target="_blank">
+                    Open directions
+                  </a>
+                ) : (
+                  <span className="commute-prompt">Enter an address to open directions</span>
+                )}
+                <button
+                  aria-label={`Remove destination ${index + 1}`}
+                  className="commute-remove"
+                  onClick={() =>
+                    setDestinations((current) =>
+                      current.filter((_, currentIndex) => currentIndex !== index),
+                    )
+                  }
+                  type="button"
+                >
+                  Remove
+                </button>
+              </div>
+            );
+          })}
+        </div>
+      ) : (
+        <p className="commute-empty">Add a workplace, childcare, or other regular destination.</p>
+      )}
+      <button
+        className="commute-add"
+        disabled={destinations.length >= 3}
+        onClick={() => setDestinations((current) => [...current, { name: "", address: "" }])}
+        type="button"
+      >
+        Add destination
+      </button>
+      <p className="disclaimer">
+        Destinations are saved in this browser. Google Maps provides route details when opened;
+        in-app and peak-hour travel times are not configured.
+      </p>
+    </div>
+  );
 }
 
 function SourceCitations({
@@ -198,6 +339,17 @@ function Icon({ name, size = 18 }: { name: string; size?: number }) {
         <path d="M5 10v10h14V10M9 20v-6h6v6" />
       </>
     ),
+    heart: (
+      <>
+        <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.04 3 5.5l7 7Z" />
+      </>
+    ),
+    bell: (
+      <>
+        <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
+        <path d="M10.33 21a1.94 1.94 0 0 0 3.34 0" />
+      </>
+    ),
   };
 
   return (
@@ -221,13 +373,17 @@ function Icon({ name, size = 18 }: { name: string; size?: number }) {
 function PropertyCard({
   property,
   selected,
+  isSaved,
   onCompare,
+  onSave,
   onOpen,
   onOpenSource,
 }: {
   property: Property;
   selected: boolean;
+  isSaved: boolean;
   onCompare: () => void;
+  onSave: () => void;
   onOpen: () => void;
   onOpenSource: (source: PropertySource, field: PropertySourceField) => void;
 }) {
@@ -242,6 +398,30 @@ function PropertyCard({
           src={property.image}
         />
         <span className="style-badge">{property.architecturalStyle}</span>
+        <button
+          aria-label={isSaved ? "Remove from saved listings" : "Save property"}
+          className={`save-button ${isSaved ? "is-saved" : ""}`}
+          onClick={onSave}
+          type="button"
+          style={{
+            position: "absolute",
+            top: "12px",
+            right: "12px",
+            background: isSaved ? "#ef4444" : "rgba(0,0,0,0.6)",
+            border: "none",
+            borderRadius: "50%",
+            width: "36px",
+            height: "36px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            color: "#fff",
+            cursor: "pointer",
+            zIndex: 2,
+          }}
+        >
+          <Icon name="heart" size={18} />
+        </button>
         <label className={`compare-check ${selected ? "is-selected" : ""}`}>
           <input
             aria-label={`Compare ${property.address}`}
@@ -268,10 +448,14 @@ function PropertyCard({
               {property.suburb}, {property.city}
             </p>
           </div>
-          <span
-            className={`risk-dot risk-${property.floodRisk.toLowerCase()}`}
-            title={`${property.floodRisk} flood risk`}
-          />
+          {property.floodRisk ? (
+            <span
+              className={`risk-dot risk-${property.floodRisk.toLowerCase()}`}
+              title={`${property.floodRisk} flood risk`}
+            />
+          ) : (
+            <span className="risk-dot" title="Flood risk not provided" />
+          )}
         </div>
         <div className="property-specs" aria-label="Property features">
           <span>
@@ -293,7 +477,9 @@ function PropertyCard({
         <div className="card-footer">
           <div className="sun-chip">
             <Icon name="sun" size={15} />
-            {property.sunlightHours} hrs sunlight
+            {property.sunlightHours === undefined
+              ? "Sunlight not provided"
+              : `${property.sunlightHours} hrs sunlight`}
           </div>
           <button
             aria-label={`View details for ${property.address}`}
@@ -306,6 +492,182 @@ function PropertyCard({
         </div>
       </div>
     </article>
+  );
+}
+
+function SavedListingsDialog({
+  savedProperties,
+  notifications,
+  onClose,
+  onRemoveSave,
+  onOpenDetail,
+  onMarkNotificationRead,
+}: {
+  savedProperties: Property[];
+  notifications: PropertyNotification[];
+  onClose: () => void;
+  onRemoveSave: (id: string) => void;
+  onOpenDetail: (id: string) => void;
+  onMarkNotificationRead: (id: string) => void;
+}) {
+  const [activeTab, setActiveTab] = useState<"listings" | "notifications">("listings");
+
+  return (
+    <div className="modal-backdrop" role="presentation">
+      <section
+        aria-label="Saved listings and notifications dashboard"
+        aria-modal="true"
+        className="modal comparison-modal"
+        role="dialog"
+        style={{ maxWidth: "720px" }}
+      >
+        <div className="modal-header">
+          <div>
+            <p className="eyebrow">Your Shortlist & Alerts</p>
+            <h2>Saved Listings & Notifications</h2>
+          </div>
+          <button
+            aria-label="Close saved listings"
+            className="icon-button"
+            onClick={onClose}
+            type="button"
+          >
+            <Icon name="close" />
+          </button>
+        </div>
+        <div className="comparison-toolbar" style={{ display: "flex", gap: "1rem" }}>
+          <button
+            className={`detail-tabs button ${activeTab === "listings" ? "active" : ""}`}
+            onClick={() => setActiveTab("listings")}
+            style={{
+              padding: "0.5rem 1rem",
+              fontWeight: activeTab === "listings" ? "bold" : "normal",
+              borderBottom: activeTab === "listings" ? "2px solid currentColor" : "none",
+              background: "none",
+              cursor: "pointer",
+            }}
+            type="button"
+          >
+            Saved Homes ({savedProperties.length})
+          </button>
+          <button
+            className={`detail-tabs button ${activeTab === "notifications" ? "active" : ""}`}
+            onClick={() => setActiveTab("notifications")}
+            style={{
+              padding: "0.5rem 1rem",
+              fontWeight: activeTab === "notifications" ? "bold" : "normal",
+              borderBottom: activeTab === "notifications" ? "2px solid currentColor" : "none",
+              background: "none",
+              cursor: "pointer",
+            }}
+            type="button"
+          >
+            Notifications ({notifications.filter((n) => !n.read).length} unread)
+          </button>
+        </div>
+        <div className="comparison-scroll" style={{ padding: "1rem 0" }}>
+          {activeTab === "listings" ? (
+            savedProperties.length > 0 ? (
+              <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+                {savedProperties.map((prop) => (
+                  <div
+                    key={prop.id}
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      padding: "0.75rem",
+                      border: "1px solid var(--border-color, #e5e7eb)",
+                      borderRadius: "8px",
+                    }}
+                  >
+                    <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
+                      <div style={{ position: "relative", width: "60px", height: "60px", borderRadius: "6px", overflow: "hidden" }}>
+                        <Image alt={prop.imageAlt} fill sizes="60px" src={prop.image} />
+                      </div>
+                      <div>
+                        <strong>{prop.address}</strong>
+                        <p style={{ margin: "0.2rem 0", fontSize: "0.85rem", opacity: 0.8 }}>
+                          {prop.suburb} · {formatMoney(prop.price)}
+                        </p>
+                      </div>
+                    </div>
+                    <div style={{ display: "flex", gap: "0.5rem" }}>
+                      <button
+                        className="button"
+                        onClick={() => {
+                          onClose();
+                          onOpenDetail(prop.id);
+                        }}
+                        type="button"
+                        style={{ padding: "0.4rem 0.8rem", fontSize: "0.85rem", cursor: "pointer" }}
+                      >
+                        View
+                      </button>
+                      <button
+                        className="button"
+                        onClick={() => onRemoveSave(prop.id)}
+                        type="button"
+                        style={{ padding: "0.4rem 0.8rem", fontSize: "0.85rem", background: "#fee2e2", color: "#b91c1c", border: "none", cursor: "pointer", borderRadius: "4px" }}
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="empty-inline" style={{ textAlign: "center", padding: "2rem" }}>
+                <p>You haven&apos;t saved any listings yet. Click the heart icon on any property card to save it here.</p>
+              </div>
+            )
+          ) : (
+            notifications.length > 0 ? (
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+                {notifications.map((notif) => (
+                  <div
+                    key={notif.id}
+                    style={{
+                      padding: "1rem",
+                      borderRadius: "8px",
+                      border: "1px solid var(--border-color, #e5e7eb)",
+                      background: notif.read ? "transparent" : "rgba(59, 130, 246, 0.05)",
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "flex-start",
+                    }}
+                  >
+                    <div>
+                      <div style={{ display: "flex", gap: "0.5rem", alignItems: "center", marginBottom: "0.25rem" }}>
+                        <span style={{ fontSize: "0.75rem", fontWeight: "600", padding: "0.1rem 0.4rem", borderRadius: "4px", background: "#e0e7ff", color: "#3730a3" }}>
+                          {notif.type.replace("_", " ").toUpperCase()}
+                        </span>
+                        <small style={{ opacity: 0.7 }}>{notif.date}</small>
+                      </div>
+                      <h4 style={{ margin: "0.2rem 0", fontSize: "0.95rem" }}>{notif.title}</h4>
+                      <p style={{ margin: 0, fontSize: "0.85rem", opacity: 0.85 }}>{notif.message}</p>
+                    </div>
+                    {!notif.read && (
+                      <button
+                        onClick={() => onMarkNotificationRead(notif.id)}
+                        type="button"
+                        style={{ fontSize: "0.75rem", background: "none", border: "none", color: "#2563eb", cursor: "pointer", textDecoration: "underline" }}
+                      >
+                        Mark read
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="empty-inline" style={{ textAlign: "center", padding: "2rem" }}>
+                <p>No notifications at this time. Updates for your saved properties will appear here.</p>
+              </div>
+            )
+          )}
+        </div>
+      </section>
+    </div>
   );
 }
 
@@ -325,11 +687,13 @@ function ComparisonDialog({
     Bathrooms: properties.map(({ bathrooms }) => String(bathrooms)),
     "Land area": properties.map(({ landArea }) => `${numberFormatter.format(landArea)} m²`),
     "Built in": properties.map(({ yearBuilt }) => String(yearBuilt)),
-    Style: properties.map(({ architecturalStyle }) => architecturalStyle),
-    "Flood risk": properties.map(({ floodRisk }) => floodRisk),
-    Sunlight: properties.map(({ sunlightHours }) => `${sunlightHours} hrs/day`),
+    Style: properties.map(({ architecturalStyle }) => architecturalStyle ?? "N/A"),
+    "Flood risk": properties.map(({ floodRisk }) => floodRisk ?? "N/A"),
+    Sunlight: properties.map(({ sunlightHours }) =>
+      sunlightHours === undefined ? "N/A" : `${sunlightHours} hrs/day`
+    ),
     Walkability: properties.map(({ walkability }) =>
-      walkability ? `${walkability.score}/100` : "N/A"
+      walkability?.score === undefined ? "N/A" : `${walkability.score}/100`
     ),
   };
 
@@ -417,11 +781,15 @@ function ComparisonDialog({
 function DetailDialog({
   property,
   comparableSales,
+  isSaved,
+  onSave,
   onClose,
   onOpenSource,
 }: {
   property: Property;
   comparableSales: Property[];
+  isSaved: boolean;
+  onSave: () => void;
   onClose: () => void;
   onOpenSource: (source: PropertySource, field: PropertySourceField) => void;
 }) {
@@ -437,15 +805,16 @@ function DetailDialog({
       }),
     [property, comparableSales, radius, months]
   );
-
-  const historyData = useMemo(() => generateValuationHistory(property), [property]);
-
-  const sunlightScore = Math.min(100, Math.round((property.sunlightHours / 9) * 100));
+  const sunlightScore =
+    property.sunlightHours === undefined
+      ? undefined
+      : Math.min(100, Math.round((property.sunlightHours / 9) * 100));
   const tabs: Array<{ id: DetailTab; label: string }> = [
     { id: "overview", label: "Overview" },
     { id: "comps", label: "Comparable sales" },
     { id: "sunlight", label: "Sunlight" },
     { id: "family", label: "Schools & Walkability" },
+    { id: "commute", label: "Commute" },
     { id: "mortgage", label: "Mortgage" },
     { id: "history", label: "Market History" },
   ];
@@ -474,9 +843,32 @@ function DetailDialog({
           >
             <Icon name="close" />
           </button>
+          <button
+            aria-label={isSaved ? "Remove from saved listings" : "Save property"}
+            onClick={onSave}
+            type="button"
+            style={{
+              position: "absolute",
+              top: "16px",
+              right: "60px",
+              background: isSaved ? "#ef4444" : "rgba(0,0,0,0.6)",
+              border: "none",
+              borderRadius: "50%",
+              width: "40px",
+              height: "40px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "#fff",
+              cursor: "pointer",
+              zIndex: 3,
+            }}
+          >
+            <Icon name="heart" size={20} />
+          </button>
           <div className="detail-hero-copy">
             <span>
-              {property.propertyType} · {property.architecturalStyle}
+              {property.propertyType} · {property.architecturalStyle ?? "Style not provided"}
             </span>
             <h2>{property.address}</h2>
             <p>
@@ -537,7 +929,19 @@ function DetailDialog({
                 <div>
                   <strong>Why it stands out</strong>
                   <p>
-                    {property.architecturalStyle} design, {property.floodRisk.toLowerCase()} demo flood band and {property.sunlightHours} estimated sunlight hours.
+                    {[
+                      property.architecturalStyle
+                        ? `${property.architecturalStyle} design`
+                        : undefined,
+                      property.floodRisk
+                        ? `${property.floodRisk.toLowerCase()} demo flood band`
+                        : undefined,
+                      property.sunlightHours === undefined
+                        ? undefined
+                        : `${property.sunlightHours} estimated sunlight hours`,
+                    ]
+                      .filter(Boolean)
+                      .join("; ") || "Additional property details are not available yet."}
                   </p>
                 </div>
               </div>
@@ -623,20 +1027,35 @@ function DetailDialog({
               </div>
               <div className="sunlight-copy">
                 <p className="eyebrow">Estimated daily exposure</p>
-                <h3>{property.sunlightHours} hours/day</h3>
+                <h3>
+                  {property.sunlightHours === undefined
+                    ? "Sunlight estimate not provided"
+                    : `${property.sunlightHours} hours/day`}
+                </h3>
                 <p>
-                  This {property.orientation.toLowerCase()}-facing home has a demo sunlight score of {sunlightScore}/100, based on orientation and an indicative site profile.
+                  {property.orientation
+                    ? `This ${property.orientation.toLowerCase()}-facing home has an indicative site profile.`
+                    : "Orientation information is not available for this property."}
+                  {sunlightScore === undefined
+                    ? ""
+                    : ` Its demo sunlight score is ${sunlightScore}/100.`}
                 </p>
-                <div className="score-track">
-                  <span style={{ width: `${sunlightScore}%` }} />
-                </div>
+                {sunlightScore !== undefined && (
+                  <div className="score-track">
+                    <span style={{ width: `${sunlightScore}%` }} />
+                  </div>
+                )}
                 <div className="sun-facts">
-                  <span>
-                    <strong>{property.orientation}-facing</strong> primary aspect
-                  </span>
-                  <span>
-                    <strong>{sunlightScore}/100</strong> exposure score
-                  </span>
+                  {property.orientation && (
+                    <span>
+                      <strong>{property.orientation}-facing</strong> primary aspect
+                    </span>
+                  )}
+                  {sunlightScore !== undefined && (
+                    <span>
+                      <strong>{sunlightScore}/100</strong> exposure score
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
@@ -644,16 +1063,31 @@ function DetailDialog({
 
           {tab === "family" && (
             <div className="family-panel" style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
-              <div className="insight-note" style={{ padding: "1rem", borderRadius: "8px" }}>
-                <Icon name="sparkle" />
-                <div>
-                  <strong>Walkability Score: {property.walkability?.score ?? 75}/100</strong>
-                  <p style={{ margin: "0.25rem 0" }}>{property.walkability?.label ?? "Somewhat Walkable"}</p>
-                  <small style={{ opacity: 0.8 }}>
-                    Nearby: {property.walkability?.parksNearby ?? 2} parks · {property.walkability?.cafesNearby ?? 4} cafes · {property.walkability?.supermarketsNearby ?? 1} supermarket
-                  </small>
+              {property.walkability ? (
+                <div className="insight-note" style={{ padding: "1rem", borderRadius: "8px" }}>
+                  <Icon name="sparkle" />
+                  <div>
+                    <strong>
+                      Walkability Score:{" "}
+                      {property.walkability.score === undefined
+                        ? "Not provided"
+                        : `${property.walkability.score}/100`}
+                    </strong>
+                    {property.walkability.label && (
+                      <p style={{ margin: "0.25rem 0" }}>{property.walkability.label}</p>
+                    )}
+                    <small style={{ opacity: 0.8 }}>
+                      Nearby: {property.walkability.parksNearby ?? "N/A"} parks ·{" "}
+                      {property.walkability.cafesNearby ?? "N/A"} cafes ·{" "}
+                      {property.walkability.supermarketsNearby ?? "N/A"} supermarkets
+                    </small>
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <p style={{ opacity: 0.7, fontSize: "0.9rem" }}>
+                  Walkability information is not available for this property.
+                </p>
+              )}
 
               <div>
                 <h4 style={{ marginBottom: "0.75rem", fontWeight: "600" }}>School Catchments</h4>
@@ -706,78 +1140,7 @@ function DetailDialog({
               <MortgageCalculator defaultPrice={property.price} />
             </div>
           )}
-
-          {tab === "history" && (
-            <div className="tool-panel" style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
-              <div className="tool-heading">
-                <div>
-                  <p className="eyebrow">Appreciation & Valuations</p>
-                  <h3>Historical Market Valuation</h3>
-                </div>
-              </div>
-
-              <div>
-                <h4 style={{ marginBottom: "0.75rem", fontWeight: "600" }}>Past Sale History</h4>
-                <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-                  {historyData.pastSales.map((sale, i) => (
-                    <div
-                      key={i}
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                        padding: "0.85rem 1rem",
-                        border: "1px solid var(--border-color, #e5e7eb)",
-                        borderRadius: "8px",
-                        background: "rgba(0,0,0,0.01)",
-                      }}
-                    >
-                      <div>
-                        <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
-                          <strong>{formatMoney(sale.price)}</strong>
-                          <span style={{ fontSize: "0.75rem", padding: "0.1rem 0.4rem", borderRadius: "4px", background: "#f3f4f6", color: "#374151" }}>
-                            {sale.saleType}
-                          </span>
-                        </div>
-                        <p style={{ margin: "0.2rem 0 0 0", fontSize: "0.85rem", opacity: 0.75 }}>
-                          Sold on {sale.date} · Source: {sale.source}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <h4 style={{ marginBottom: "0.75rem", fontWeight: "600" }}>Automated Valuation History (CV / AVM)</h4>
-                <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-                  {historyData.valuationHistory.map((rec, i) => (
-                    <div
-                      key={i}
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                        padding: "0.75rem 1rem",
-                        border: "1px solid var(--border-color, #e5e7eb)",
-                        borderRadius: "6px",
-                      }}
-                    >
-                      <div>
-                        <span style={{ fontWeight: "600", marginRight: "1rem" }}>{rec.date}</span>
-                        <span style={{ fontSize: "0.85rem", opacity: 0.75 }}>{rec.source}</span>
-                      </div>
-                      <strong>{formatMoney(rec.value)}</strong>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <p className="disclaimer">
-                Historical market values and automated valuation models are indicative trend estimates based on council records and regional sales indices.
-              </p>
-            </div>
-          )}
+          {tab === "commute" && <CommutePlanner property={property} />}
         </div>
       </section>
     </div>
@@ -865,14 +1228,28 @@ export default function PropertyExplorer({
   const [aiSource, setAiSource] = useState<"gemini" | "local" | null>(null);
   const [isSearching, setIsSearching] = useState(false);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [savedIds, setSavedIds] = useState<string[]>([]);
   const [comparisonOpen, setComparisonOpen] = useState(false);
+  const [savedModalOpen, setSavedModalOpen] = useState(false);
   const [detailId, setDetailId] = useState<string | null>(null);
   const [sourceSelection, setSourceSelection] = useState<SourceSelection | null>(null);
+  const [readNotificationIds, setReadNotificationIds] = useState<string[]>([]);
 
   const filteredProperties = useMemo(() => filterProperties(properties, filters), [properties, filters]);
   const selectedProperties = properties.filter(({ id }) => selectedIds.includes(id));
+  const savedProperties = properties.filter(({ id }) => savedIds.includes(id));
   const detailProperty = properties.find(({ id }) => id === detailId);
   const hasFilters = Object.keys(filters).length > 0;
+
+  const notifications = useMemo(
+    () =>
+      generateSampleNotifications(savedProperties).map((notification) =>
+        readNotificationIds.includes(notification.id)
+          ? { ...notification, read: true }
+          : notification,
+      ),
+    [savedProperties, readNotificationIds],
+  );
 
   function togglePropertyType(type: PropertyType) {
     setFilters((current) => ({
@@ -904,6 +1281,18 @@ export default function PropertyExplorer({
     );
   }
 
+  function toggleSave(id: string) {
+    setSavedIds((current) =>
+      current.includes(id) ? current.filter((item) => item !== id) : [...current, id]
+    );
+  }
+
+  function markNotificationRead(id: string) {
+    setReadNotificationIds((current) =>
+      current.includes(id) ? current : [...current, id],
+    );
+  }
+
   async function submitAiSearch(event: FormEvent) {
     event.preventDefault();
     if (!query.trim()) return;
@@ -920,6 +1309,8 @@ export default function PropertyExplorer({
       setIsSearching(false);
     }
   }
+
+  const unreadCount = notifications.filter((n) => !n.read).length;
 
   return (
     <div className="site-shell">
@@ -941,15 +1332,48 @@ export default function PropertyExplorer({
           <a href="#how-it-works">How it works</a>
         </nav>
 
-        <button
-          className="shortlist-button"
-          disabled={selectedIds.length < 2}
-          onClick={() => setComparisonOpen(true)}
-          type="button"
-        >
-          <Icon name="compare" size={17} />
-          {selectedIds.length >= 2 ? `Compare ${selectedIds.length} homes` : "Compare homes"}
-        </button>
+        <div style={{ display: "flex", gap: "0.75rem", alignItems: "center" }}>
+          <button
+            className="shortlist-button"
+            onClick={() => setSavedModalOpen(true)}
+            type="button"
+            style={{ position: "relative" }}
+          >
+            <Icon name="bell" size={17} />
+            Alerts & Saved ({savedIds.length})
+            {unreadCount > 0 && (
+              <span
+                style={{
+                  position: "absolute",
+                  top: "-6px",
+                  right: "-6px",
+                  background: "#ef4444",
+                  color: "#fff",
+                  borderRadius: "50%",
+                  width: "20px",
+                  height: "20px",
+                  fontSize: "0.7rem",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontWeight: "bold",
+                }}
+              >
+                {unreadCount}
+              </span>
+            )}
+          </button>
+
+          <button
+            className="shortlist-button"
+            disabled={selectedIds.length < 2}
+            onClick={() => setComparisonOpen(true)}
+            type="button"
+          >
+            <Icon name="compare" size={17} />
+            {selectedIds.length >= 2 ? `Compare ${selectedIds.length} homes` : "Compare homes"}
+          </button>
+        </div>
       </header>
 
       <main id="top">
@@ -1263,7 +1687,9 @@ export default function PropertyExplorer({
                 {filteredProperties.map((property) => (
                   <PropertyCard
                     key={property.id}
+                    isSaved={savedIds.includes(property.id)}
                     onCompare={() => toggleCompare(property.id)}
+                    onSave={() => toggleSave(property.id)}
                     onOpen={() => setDetailId(property.id)}
                     onOpenSource={(source, field) =>
                       setSourceSelection({ source, field, property })
@@ -1326,6 +1752,18 @@ export default function PropertyExplorer({
         </section>
       </main>
 
+      {/* Saved Listings & Notifications Modal */}
+      {savedModalOpen && (
+        <SavedListingsDialog
+          notifications={notifications}
+          onClose={() => setSavedModalOpen(false)}
+          onMarkNotificationRead={markNotificationRead}
+          onOpenDetail={(id) => setDetailId(id)}
+          onRemoveSave={(id) => toggleSave(id)}
+          savedProperties={savedProperties}
+        />
+      )}
+
       {/* Comparison Modal */}
       {comparisonOpen && (
         <ComparisonDialog
@@ -1339,7 +1777,9 @@ export default function PropertyExplorer({
       {detailProperty && (
         <DetailDialog
           comparableSales={comparableSales}
+          isSaved={savedIds.includes(detailProperty.id)}
           onClose={() => setDetailId(null)}
+          onSave={() => toggleSave(detailProperty.id)}
           onOpenSource={(source, field) =>
             setSourceSelection({ source, field, property: detailProperty })
           }
