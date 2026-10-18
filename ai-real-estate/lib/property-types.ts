@@ -106,6 +106,7 @@ export type Property = {
   commuteOptions?: CommuteOption[];
   pastSales?: PastSale[];
   valuationHistory?: ValuationRecord[];
+  notifications?: PropertyNotification[];
 };
 
 export type PropertyFilters = {

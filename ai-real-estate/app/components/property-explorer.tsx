@@ -102,7 +102,7 @@ function CommutePlanner({ property }: { property: Property }) {
           )
           .slice(0, 3);
       }
-    } catch {}
+    } catch { }
     return [];
   });
   const [mode, setMode] = useState<CommuteMode>("driving");
@@ -110,7 +110,7 @@ function CommutePlanner({ property }: { property: Property }) {
   useEffect(() => {
     try {
       localStorage.setItem(commuteStorageKey, JSON.stringify(destinations));
-    } catch {}
+    } catch { }
   }, [destinations]);
 
   function updateDestination(index: number, field: keyof CommuteDestination, value: string) {
@@ -392,7 +392,9 @@ function PropertyCard({
           sizes="(max-width: 720px) 100vw, (max-width: 1200px) 50vw, 380px"
           src={property.image}
         />
-        <span className="style-badge">{property.architecturalStyle}</span>
+        {property.architecturalStyle ? (
+          <span className="style-badge">{property.architecturalStyle}</span>
+        ) : null}
         <button
           aria-label={isSaved ? "Remove from saved listings" : "Save property"}
           className={`save-button ${isSaved ? "is-saved" : ""}`}
@@ -681,7 +683,7 @@ function ComparisonDialog({
     Bedrooms: properties.map(({ bedrooms }) => String(bedrooms)),
     Bathrooms: properties.map(({ bathrooms }) => String(bathrooms)),
     "Land area": properties.map(({ landArea }) => `${numberFormatter.format(landArea)} m²`),
-    "Built in": properties.map(({ yearBuilt }) => String(yearBuilt)),
+    "Built in": properties.map(({ yearBuilt }) => yearBuilt ? String(yearBuilt) : "Unknown"),
     Style: properties.map(({ architecturalStyle }) => architecturalStyle ?? "N/A"),
     "Flood risk": properties.map(({ floodRisk }) => floodRisk ?? "N/A"),
     Sunlight: properties.map(({ sunlightHours }) =>
@@ -916,8 +918,8 @@ function DetailDialog({
                 </div>
                 <div>
                   <Icon name="house" />
-                  <strong>{property.yearBuilt}</strong>
-                  <span>Demo year built</span>
+                  <strong>{property.yearBuilt || "Unknown"}</strong>
+                  <span>Year built</span>
                 </div>
               </div>
               <div className="insight-note">
@@ -1149,6 +1151,7 @@ function DetailDialog({
               <div>
                 <h4 style={{ marginBottom: "0.75rem", fontWeight: "600" }}>Past Sale History</h4>
                 <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+                  {historyData.pastSales.length === 0 && <p>No verified past sales are available for this property.</p>}
                   {historyData.pastSales.map((sale, i) => (
                     <div
                       key={i}
@@ -1181,6 +1184,7 @@ function DetailDialog({
               <div>
                 <h4 style={{ marginBottom: "0.75rem", fontWeight: "600" }}>Automated Valuation History (CV / AVM)</h4>
                 <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                  {historyData.valuationHistory.length === 0 && <p>No historical valuation series is available for this property.</p>}
                   {historyData.valuationHistory.map((rec, i) => (
                     <div
                       key={i}
@@ -1204,7 +1208,7 @@ function DetailDialog({
               </div>
 
               <p className="disclaimer">
-                Historical market values and automated valuation models are indicative trend estimates based on council records and regional sales indices.
+                Only supplied sale and valuation records appear here; no history is inferred from the current estimate.
               </p>
             </div>
           )}
@@ -1275,8 +1279,7 @@ function SourceDetailsDialog({
             Open original source <Icon name="arrow" size={16} />
           </a>
           <p className="source-caveat">
-            This dataset reports Capital Value (CV), not a current asking price. Demo property records
-            and enriched details should be independently verified.
+            This is a one-time research snapshot. Website estimates and historical council values are not current asking prices or confirmed sale prices.
           </p>
         </div>
       </section>
@@ -1729,8 +1732,8 @@ export default function PropertyExplorer({
             <div className="data-note">
               <Icon name="map" size={18} />
               <p>
-                <strong>Demo data</strong>
-                <span>Source records are enriched with indicative specialist attributes.</span>
+                <strong>Auckland research snapshot</strong>
+                <span>50 verified addresses with website estimates. Architecture, flood and sunlight details are unavailable until sourced.</span>
               </p>
             </div>
           </aside>

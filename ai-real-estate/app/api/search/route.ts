@@ -1,5 +1,6 @@
 import { interpretPropertyQuery } from "../../../lib/gemini-search";
 import { getPropertiesByStatus } from "../../../lib/db/properties";
+import { properties as seedProperties } from "../../../lib/property-data";
 
 export async function POST(request: Request) {
   let body: { query?: unknown };
@@ -17,7 +18,9 @@ export async function POST(request: Request) {
   const query = body.query.trim().slice(0, 500);
   console.log(`[POST /api/search] Incoming query: "${query}"`);
 
-  const properties = await getPropertiesByStatus("active");
+  const properties = process.env.DATABASE_URL
+    ? await getPropertiesByStatus("active")
+    : seedProperties;
   const result = await interpretPropertyQuery(query, properties, {
     apiKey: process.env.GEMINI_API_KEY,
   });

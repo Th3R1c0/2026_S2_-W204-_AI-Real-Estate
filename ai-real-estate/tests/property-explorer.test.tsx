@@ -206,7 +206,7 @@ describe("PropertyExplorer", () => {
     const user = userEvent.setup();
     render(<PropertyExplorer properties={[seededProperties[0]]} comparableSales={[]} />);
     await user.click(
-      screen.getByRole("button", { name: /view details for 54 kelmarna avenue/i }),
+      screen.getByRole("button", { name: /view details for 59 israel avenue/i }),
     );
 
     const details = screen.getByRole("dialog", { name: /property details/i });
@@ -215,14 +215,27 @@ describe("PropertyExplorer", () => {
     );
 
     const sourceDetails = screen.getByRole("dialog", { name: /source details/i });
-    expect(within(sourceDetails).getByText(/auckland house prices dataset/i)).toBeInTheDocument();
+    expect(within(sourceDetails).getByText(/auckland house prices research dataset/i)).toBeInTheDocument();
     expect(within(sourceDetails).getByText(/sakyawira nanda ruslim/i)).toBeInTheDocument();
-    expect(within(sourceDetails).getByText(/the dataset contains the number of bedrooms/i)).toBeInTheDocument();
+    expect(within(sourceDetails).getByText(/bedroom, bathroom and land area figures/i)).toBeInTheDocument();
     expect(
       within(sourceDetails).getByRole("link", { name: /open original source/i }),
     ).toHaveAttribute(
       "href",
-      "https://github.com/Sakyawira/auckland-house-prices/blob/master/Combined%20and%20Cleaned%20Dataframe.csv",
+      "https://github.com/Sakyawira/auckland-house-prices",
     );
+  });
+
+  it("does not render 'Verified address' badge when property has no architectural style", () => {
+    const propertyWithoutStyle: Property = {
+      ...properties[0],
+      architecturalStyle: undefined,
+    };
+    const { container } = render(
+      <PropertyExplorer properties={[propertyWithoutStyle]} comparableSales={[]} />,
+    );
+
+    expect(screen.queryByText("Verified address")).not.toBeInTheDocument();
+    expect(container.querySelector(".style-badge")).toBeNull();
   });
 });

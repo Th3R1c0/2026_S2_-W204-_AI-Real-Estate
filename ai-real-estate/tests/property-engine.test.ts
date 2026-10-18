@@ -5,6 +5,7 @@ import {
   findComparableSales,
   filterProperties,
   generateValuationHistory,
+  generateSampleNotifications,
   parseNaturalLanguageSearch,
 } from "../lib/property-engine";
 import type { Property } from "../lib/property-types";
@@ -226,11 +227,14 @@ describe("mortgage repayment", () => {
 });
 
 describe("historical market valuation", () => {
-  it("generates past sales and valuation history trajectory", () => {
+  it("shows only supplied sale and valuation records", () => {
     const history = generateValuationHistory(listings[0]);
-    expect(history.pastSales.length).toBeGreaterThan(0);
-    expect(history.valuationHistory.length).toBeGreaterThan(0);
-    expect(history.pastSales[0].price).toBeLessThan(listings[0].price);
-    expect(history.valuationHistory.at(-1)?.value).toBe(listings[0].price);
+    expect(history).toEqual({ pastSales: [], valuationHistory: [] });
+  });
+});
+
+describe("saved property notifications", () => {
+  it("does not invent open homes or price changes for snapshot homes", () => {
+    expect(generateSampleNotifications([listings[0]])).toEqual([]);
   });
 });
