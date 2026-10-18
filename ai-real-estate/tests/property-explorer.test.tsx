@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 
 import PropertyExplorer from "../app/components/property-explorer";
-import { properties as seededProperties } from "../lib/property-data";
+import { aucklandProperties as seededProperties } from "../lib/property-data";
 import type { Property } from "../lib/property-types";
 
 const properties: Property[] = [
@@ -215,15 +215,23 @@ describe("PropertyExplorer", () => {
     );
 
     const sourceDetails = screen.getByRole("dialog", { name: /source details/i });
-    expect(within(sourceDetails).getByText(/auckland house prices research dataset/i)).toBeInTheDocument();
-    expect(within(sourceDetails).getByText(/sakyawira nanda ruslim/i)).toBeInTheDocument();
-    expect(within(sourceDetails).getByText(/bedroom, bathroom and land area figures/i)).toBeInTheDocument();
+    expect(within(sourceDetails).getByText(/realestate public property page/i)).toBeInTheDocument();
+    expect(within(sourceDetails).getByText(/direct page snapshot/i)).toBeInTheDocument();
     expect(
       within(sourceDetails).getByRole("link", { name: /open original source/i }),
     ).toHaveAttribute(
       "href",
-      "https://github.com/Sakyawira/auckland-house-prices",
+      seededProperties[0].sources?.find(source => source.publisher === "RealEstate")?.url,
     );
+  });
+
+  it("shows a map point and photo source for a directly collected house", async () => {
+    const user = userEvent.setup();
+    render(<PropertyExplorer properties={[seededProperties[0]]} comparableSales={[]} />);
+    await user.click(screen.getByRole("button", { name: /view details for 59 israel avenue/i }));
+    const details = screen.getByRole("dialog", { name: /property details/i });
+    expect(within(details).getByTitle(/map of 59 israel avenue/i)).toHaveAttribute("src", expect.stringContaining("openstreetmap.org"));
+    expect(within(details).getByRole("link", { name: /photo source/i })).toHaveAttribute("href", seededProperties[0].imageSourceUrl);
   });
 
   it("does not render 'Verified address' badge when property has no architectural style", () => {
