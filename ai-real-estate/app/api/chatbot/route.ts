@@ -1,10 +1,18 @@
-import { generateChatbotResponse, type ChatMessage } from "../../../lib/chatbot-service";
+import {
+  generateChatbotResponse,
+  type ChatMessage,
+} from "../../../lib/chatbot-service";
+import type { PropertyChatContext } from "../../../lib/chatbot-knowledge";
 
 export async function POST(request: Request) {
-  let body: { message?: unknown; history?: unknown };
+  let body: { message?: unknown; history?: unknown; context?: unknown };
 
   try {
-    body = (await request.json()) as { message?: unknown; history?: unknown };
+    body = (await request.json()) as {
+      message?: unknown;
+      history?: unknown;
+      context?: unknown;
+    };
   } catch {
     return Response.json({ error: "Please provide a valid question." }, { status: 400 });
   }
@@ -26,8 +34,13 @@ export async function POST(request: Request) {
         .slice(-10)
     : [];
 
+  const context = (body.context && typeof body.context === "object"
+    ? body.context
+    : undefined) as PropertyChatContext | undefined;
+
   const result = await generateChatbotResponse(message, history, {
     apiKey: process.env.GEMINI_API_KEY,
+    context,
   });
 
   return Response.json(result);

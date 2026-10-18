@@ -73,6 +73,178 @@ describe("Chatbot service (TDD)", () => {
     expect(result.source).toBe("local");
     expect(result.reply.toLowerCase()).toContain("haven");
   });
+
+  it("injects compared and saved properties into Gemini systemInstruction", async () => {
+    let capturedBody: {
+      systemInstruction?: { parts: Array<{ text: string }> };
+      contents?: unknown;
+    } | null = null;
+    const fakeFetch: typeof fetch = async (_input, init) => {
+      capturedBody = JSON.parse(String(init?.body));
+      return Response.json({
+        candidates: [
+          {
+            content: {
+              parts: [{ text: "Analysis of your compared homes." }],
+            },
+          },
+        ],
+      });
+    };
+
+    const mockContext = {
+      comparedProperties: [
+        {
+          id: "comp-1",
+          address: "2/30 Hardington Street",
+          suburb: "Onehunga",
+          city: "Auckland",
+          price: 740_000,
+          bedrooms: 3,
+          bathrooms: 2,
+          propertyType: "Townhouse",
+          floodRisk: "Low",
+          sunlightHours: 7.8,
+        },
+        {
+          id: "comp-2",
+          address: "54 Kelmarna Avenue",
+          suburb: "Ponsonby",
+          city: "Auckland",
+          price: 2_525_000,
+          bedrooms: 3,
+          bathrooms: 1,
+          propertyType: "Villa",
+          floodRisk: "Moderate",
+          sunlightHours: 5.4,
+        },
+      ],
+      savedProperties: [
+        {
+          id: "comp-1",
+          address: "2/30 Hardington Street",
+          suburb: "Onehunga",
+          city: "Auckland",
+          price: 740_000,
+          bedrooms: 3,
+          bathrooms: 2,
+          propertyType: "Townhouse",
+        },
+      ],
+    };
+
+    await generateChatbotResponse(
+      "Compare these homes for me",
+      [],
+      { apiKey: "test-key", fetchImpl: fakeFetch, context: mockContext },
+    );
+
+    expect(capturedBody).toBeDefined();
+    const body = capturedBody as unknown as {
+      systemInstruction?: { parts: Array<{ text: string }> };
+    };
+    const systemInstruction = body?.systemInstruction?.parts[0].text;
+    expect(systemInstruction).toContain("2/30 Hardington Street");
+    expect(systemInstruction).toContain("54 Kelmarna Avenue");
+    expect(systemInstruction).toContain("User's Currently Compared Properties");
+  });
+
+  it("answers questions about compared properties in local knowledge fallback", async () => {
+    const mockContext = {
+      comparedProperties: [
+        {
+          id: "comp-1",
+          address: "2/30 Hardington Street",
+          suburb: "Onehunga",
+          city: "Auckland",
+          price: 740_000,
+          bedrooms: 3,
+          bathrooms: 2,
+          propertyType: "Townhouse",
+          floodRisk: "Low",
+          sunlightHours: 7.8,
+        },
+        {
+          id: "comp-2",
+          address: "54 Kelmarna Avenue",
+          suburb: "Ponsonby",
+          city: "Auckland",
+          price: 2_525_000,
+          bedrooms: 3,
+          bathrooms: 1,
+          propertyType: "Villa",
+          floodRisk: "Moderate",
+          sunlightHours: 5.4,
+        },
+      ],
+    };
+
+    const result = await generateChatbotResponse(
+      "Compare my selected homes",
+      [],
+      { apiKey: "", context: mockContext },
+    );
+
+    expect(result.source).toBe("local");
+    expect(result.reply).toContain("2/30 Hardington Street");
+    expect(result.reply).toContain("54 Kelmarna Avenue");
+    expect(result.reply).toContain("Best Price Value");
+  });
+
+  it("answers questions about saved shortlist in local knowledge fallback", async () => {
+    const mockContext = {
+      savedProperties: [
+        {
+          id: "prop-1",
+          address: "12 Karaka Street",
+          suburb: "Takapuna",
+          city: "Auckland",
+          price: 1_850_000,
+          bedrooms: 4,
+          bathrooms: 2,
+          propertyType: "House",
+          floodRisk: "Low",
+        },
+      ],
+    };
+
+    const result = await generateChatbotResponse(
+      "What are my saved properties?",
+      [],
+      { apiKey: "", context: mockContext },
+    );
+
+    expect(result.source).toBe("local");
+    expect(result.reply).toContain("12 Karaka Street");
+    expect(result.reply).toContain("1,850,000");
+  });
+
+  it("provides search campaign planning advice", async () => {
+    const mockContext = {
+      savedProperties: [
+        {
+          id: "prop-1",
+          address: "12 Karaka Street",
+          suburb: "Takapuna",
+          city: "Auckland",
+          price: 1_850_000,
+          bedrooms: 4,
+          bathrooms: 2,
+          propertyType: "House",
+        },
+      ],
+    };
+
+    const result = await generateChatbotResponse(
+      "Help me think about my search campaign and organize my strategy",
+      [],
+      { apiKey: "", context: mockContext },
+    );
+
+    expect(result.source).toBe("local");
+    expect(result.reply.toLowerCase()).toContain("campaign");
+    expect(result.reply).toContain("LIM");
+  });
 });
 
 describe("POST /api/chatbot (TDD)", () => {
@@ -101,5 +273,45 @@ describe("POST /api/chatbot (TDD)", () => {
     const data = await response.json();
     expect(data.reply).toBeDefined();
     expect(typeof data.reply).toBe("string");
+  });
+
+  it("accepts property context in POST request", async () => {
+    const response = await POST(
+      new Request("http://localhost/api/chatbot", {
+        method: "POST",
+        body: JSON.stringify({
+          message: "Compare my selected homes",
+          context: {
+            comparedProperties: [
+              {
+                id: "1",
+                address: "10 Queen St",
+                suburb: "Auckland CBD",
+                city: "Auckland",
+                price: 800_000,
+                bedrooms: 2,
+                bathrooms: 1,
+                propertyType: "Apartment",
+              },
+              {
+                id: "2",
+                address: "20 Custom St",
+                suburb: "Auckland CBD",
+                city: "Auckland",
+                price: 950_000,
+                bedrooms: 2,
+                bathrooms: 2,
+                propertyType: "Apartment",
+              },
+            ],
+          },
+        }),
+      }),
+    );
+
+    expect(response.status).toBe(200);
+    const data = await response.json();
+    expect(data.reply).toContain("10 Queen St");
+    expect(data.reply).toContain("20 Custom St");
   });
 });
