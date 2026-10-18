@@ -1,3 +1,4 @@
+import { test, expect } from 'vitest';
 import { aucklandProperties as properties, forSaleProperties } from '../lib/property-data';
 import direct from '../reports/auckland-direct-sources.json';
 
