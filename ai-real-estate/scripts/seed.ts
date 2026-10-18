@@ -52,7 +52,7 @@ async function insertProperty(
       listingType: "sale",
       status,
     })
-    .$returningId();
+    .returning({ propertyId: propertyTable.propertyId });
   const propertyId = record.propertyId;
   const parsedAddress = splitAddress(property.address);
 
@@ -69,7 +69,7 @@ async function insertProperty(
       ${propertyId}, ${parsedAddress.unitNumber}, ${parsedAddress.streetNumber},
       ${parsedAddress.streetName}, ${property.suburb}, ${property.city}, ${property.region},
       'New Zealand', ${String(property.latitude)}, ${String(property.longitude)},
-      POINT(${property.longitude}, ${property.latitude})
+      point(${property.longitude}, ${property.latitude})
     )
   `);
   await tx.insert(propertyDetails).values({

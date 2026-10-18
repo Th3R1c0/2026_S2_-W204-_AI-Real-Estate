@@ -1,11 +1,11 @@
 import "server-only";
 
-import { drizzle } from "drizzle-orm/mysql2";
-import mysql, { type Pool } from "mysql2/promise";
+import { drizzle } from "drizzle-orm/node-postgres";
+import { Pool } from "pg";
 import * as schema from "./schema";
 
 type DatabaseGlobal = typeof globalThis & {
-  mysqlPool?: Pool;
+  postgresPool?: Pool;
 };
 
 const databaseGlobal = globalThis as DatabaseGlobal;
@@ -13,19 +13,19 @@ const databaseGlobal = globalThis as DatabaseGlobal;
 export function getDb() {
   const databaseUrl = process.env.DATABASE_URL;
   if (!databaseUrl) {
-    throw new Error("DATABASE_URL must be set to connect to the MySQL database.");
+    throw new Error("DATABASE_URL must be set to connect to the PostgreSQL database.");
   }
 
   const pool =
-    databaseGlobal.mysqlPool ??
-    (databaseGlobal.mysqlPool = mysql.createPool(databaseUrl));
+    databaseGlobal.postgresPool ??
+    (databaseGlobal.postgresPool = new Pool({ connectionString: databaseUrl }));
 
-  return drizzle(pool, { schema, mode: "default" });
+  return drizzle(pool, { schema });
 }
 
 export async function closeDb() {
-  if (databaseGlobal.mysqlPool) {
-    await databaseGlobal.mysqlPool.end();
-    databaseGlobal.mysqlPool = undefined;
+  if (databaseGlobal.postgresPool) {
+    await databaseGlobal.postgresPool.end();
+    databaseGlobal.postgresPool = undefined;
   }
 }

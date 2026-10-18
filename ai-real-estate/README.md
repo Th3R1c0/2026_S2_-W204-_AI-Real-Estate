@@ -60,7 +60,7 @@ ai-real-estate/
 │   └── sprint-one-implementation-summary.md # Architectural summary, test coverage, and decisions
 ├── lib/
 │   ├── db/
-│   │   ├── index.ts            # MySQL connection pool and Drizzle client
+│   │   ├── index.ts            # PostgreSQL connection pool and Drizzle client
 │   │   ├── properties.ts       # Server-side property and comparable-sale queries
 │   │   └── schema.ts           # Drizzle schema for backend/schema.SQL
 │   ├── gemini-search.ts         # Gemini API client, response schema, console logging & fallback
@@ -105,17 +105,22 @@ ai-real-estate/
    npm install
    ```
 
-3. Start MySQL 8 (for a Homebrew installation, run `brew services start mysql@8.4`).
+3. Start PostgreSQL and create a local database, for example with `createdb real_estate`.
 
-4. Create a local database and app user, apply migrations, and seed the demo records:
+4. Set `DATABASE_URL` in `.env.local` to your PostgreSQL connection string, for example:
+   ```dotenv
+   DATABASE_URL=postgresql://your-postgres-user@localhost:5432/real_estate
+   ```
+
+5. Apply migrations and seed the demo records:
    ```bash
    npm run db:setup-local
    ```
-   This generates a local-only password and writes `DATABASE_URL` to `.env.local` with owner-only permissions, runs the migrations, creates the coordinate triggers as the local MySQL administrator, then imports demo records. The seed command refuses to run if the `properties` table already contains records. Do not also run `backend/schema.SQL`; Drizzle migrations create the tables.
+   This runs the PostgreSQL migrations, then imports demo records. The seed command refuses to run if the `properties` table already contains records. Existing MySQL data is not migrated automatically.
 
-5. Optionally add `GEMINI_API_KEY=your_gemini_api_key_here` to `.env.local`. If no key is set, AI search uses the local parser.
+6. Optionally add `GEMINI_API_KEY=your_gemini_api_key_here` to `.env.local`. If no key is set, AI search uses the local parser.
 
-6. Run the development server:
+7. Run the development server:
    ```bash
    npm run dev
    ```
@@ -126,7 +131,7 @@ After changing `lib/db/schema.ts`, generate a migration with:
 npm run db:generate
 ```
 
-The SQL design is maintained in [`../backend/schema.SQL`](../backend/schema.SQL). `lib/db/schema.ts` is its Drizzle representation, including added metadata tables for fields used by the current demo UI.
+The PostgreSQL SQL reference is maintained in [`../backend/schema.SQL`](../backend/schema.SQL). `lib/db/schema.ts` is its Drizzle representation, including added metadata tables for fields used by the current demo UI. Drizzle's PostgreSQL migrations are stored in `drizzle/postgres`; the original MySQL migration history in `drizzle/` is not applied.
 
 ---
 
