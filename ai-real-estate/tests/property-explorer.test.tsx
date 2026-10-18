@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 
 import PropertyExplorer from "../app/components/property-explorer";
 import { properties as seededProperties } from "../lib/property-data";
+import { floodHazardDisclaimer } from "../lib/flood-hazards";
 import type { Property } from "../lib/property-types";
 
 const properties: Property[] = [
@@ -22,6 +23,13 @@ const properties: Property[] = [
     propertyType: "Townhouse",
     architecturalStyle: "Modernist",
     floodRisk: "Low",
+    floodHazards: [
+      {
+        type: "flood_plains",
+        sourceFeatureId: "1",
+        sourceUrl: "https://council.example/flood-plains",
+      },
+    ],
     orientation: "North",
     sunlightHours: 7.8,
     latitude: -36.913,
@@ -44,6 +52,7 @@ const properties: Property[] = [
     propertyType: "Villa",
     architecturalStyle: "Character",
     floodRisk: "Moderate",
+    floodHazards: [],
     orientation: "East",
     sunlightHours: 5.4,
     latitude: -36.849,
@@ -80,6 +89,21 @@ describe("PropertyExplorer", () => {
 
     await user.click(screen.getByRole("button", { name: /clear all filters/i }));
     expect(screen.getByText("2/30 Hardington Street")).toBeInTheDocument();
+  });
+
+  it("filters listings by imported Council flood hazard categories", async () => {
+    const user = userEvent.setup();
+    render(<PropertyExplorer properties={properties} comparableSales={comparableSales} />);
+
+    const floodFilter = screen.getByRole("combobox", { name: "Mapped flood hazard" });
+    await user.selectOptions(floodFilter, "flood_plains");
+
+    expect(screen.getByText("2/30 Hardington Street")).toBeInTheDocument();
+    expect(screen.queryByText("54 Kelmarna Avenue")).not.toBeInTheDocument();
+
+    await user.selectOptions(floodFilter, "none");
+    expect(screen.queryByText("2/30 Hardington Street")).not.toBeInTheDocument();
+    expect(screen.getByText("54 Kelmarna Avenue")).toBeInTheDocument();
   });
 
   it("applies an AI search and explains when there are no matches", async () => {
@@ -146,6 +170,15 @@ describe("PropertyExplorer", () => {
       screen.getByRole("button", { name: /view details for 2\/30 hardington street/i }),
     );
     const details = screen.getByRole("dialog", { name: /property details/i });
+
+    await user.click(within(details).getByRole("button", { name: "Flood risk" }));
+    expect(within(details).getByText("Flood plains")).toBeInTheDocument();
+    expect(
+      within(details).getByText(
+        "Council mapping identifies this property location within Flood plains. These layers map potential inundation areas or surface-water flow paths and do not establish site-specific flood depth or likelihood.",
+      ),
+    ).toBeInTheDocument();
+    expect(within(details).getByText(floodHazardDisclaimer)).toBeInTheDocument();
 
     await user.click(within(details).getByRole("button", { name: /comparable sales/i }));
     expect(within(details).getByText("31 Hardington Street")).toBeInTheDocument();

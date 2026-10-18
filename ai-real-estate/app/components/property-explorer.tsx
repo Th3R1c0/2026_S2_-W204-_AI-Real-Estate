@@ -10,9 +10,14 @@ import {
   generateSampleNotifications,
   generateValuationHistory,
 } from "../../lib/property-engine";
+import {
+  describeFloodHazards,
+  floodHazardDisclaimer,
+  floodHazardOptions,
+} from "../../lib/flood-hazards";
 import type {
   ArchitecturalStyle,
-  FloodRisk,
+  FloodHazardType,
   Property,
   PropertyFilters,
   PropertyNotification,
@@ -34,7 +39,15 @@ type PropertyExplorerProps = {
   aiSearch?: (query: string) => Promise<AiSearchResult>;
 };
 
-type DetailTab = "overview" | "comps" | "sunlight" | "family" | "commute" | "mortgage" | "history";
+type DetailTab =
+  | "overview"
+  | "flood"
+  | "comps"
+  | "sunlight"
+  | "family"
+  | "commute"
+  | "mortgage"
+  | "history";
 type CommuteMode = "driving" | "transit" | "bicycling" | "walking";
 type CommuteDestination = { name: string; address: string };
 type SourceSelection = {
@@ -67,8 +80,6 @@ const architecturalStyles: ArchitecturalStyle[] = [
   "Craftsman",
   "Mid-Century",
 ];
-
-const floodRisks: FloodRisk[] = ["Low", "Moderate", "High"];
 
 const numberFormatter = new Intl.NumberFormat("en-NZ");
 const moneyFormatter = new Intl.NumberFormat("en-NZ", {
@@ -445,14 +456,9 @@ function PropertyCard({
               {property.suburb}, {property.city}
             </p>
           </div>
-          {property.floodRisk ? (
-            <span
-              className={`risk-dot risk-${property.floodRisk.toLowerCase()}`}
-              title={`${property.floodRisk} flood risk`}
-            />
-          ) : (
-            <span className="risk-dot" title="Flood risk not provided" />
-          )}
+          {property.floodHazards?.length ? (
+            <span className="flood-hazard-badge">Mapped flood hazard</span>
+          ) : null}
         </div>
         <div className="property-specs" aria-label="Property features">
           <span>
@@ -685,7 +691,16 @@ function ComparisonDialog({
     "Land area": properties.map(({ landArea }) => `${numberFormatter.format(landArea)} m²`),
     "Built in": properties.map(({ yearBuilt }) => yearBuilt ? String(yearBuilt) : "Unknown"),
     Style: properties.map(({ architecturalStyle }) => architecturalStyle ?? "N/A"),
-    "Flood risk": properties.map(({ floodRisk }) => floodRisk ?? "N/A"),
+    "Mapped flood hazards": properties.map(({ floodHazards }) =>
+      floodHazards === undefined
+        ? "Not synced"
+        : floodHazards.length
+          ? floodHazardOptions
+              .filter(({ type }) => floodHazards.some((hazard) => hazard.type === type))
+              .map(({ label }) => label)
+              .join(", ")
+          : "No mapped intersection",
+    ),
     Sunlight: properties.map(({ sunlightHours }) =>
       sunlightHours === undefined ? "N/A" : `${sunlightHours} hrs/day`
     ),
@@ -809,6 +824,7 @@ function DetailDialog({
       : Math.min(100, Math.round((property.sunlightHours / 9) * 100));
   const tabs: Array<{ id: DetailTab; label: string }> = [
     { id: "overview", label: "Overview" },
+    { id: "flood", label: "Flood risk" },
     { id: "comps", label: "Comparable sales" },
     { id: "sunlight", label: "Sunlight" },
     { id: "family", label: "Schools & Walkability" },
@@ -931,8 +947,13 @@ function DetailDialog({
                       property.architecturalStyle
                         ? `${property.architecturalStyle} design`
                         : undefined,
-                      property.floodRisk
-                        ? `${property.floodRisk.toLowerCase()} demo flood band`
+                      property.floodHazards?.length
+                        ? `mapped flood hazard: ${floodHazardOptions
+                            .filter(({ type }) =>
+                              property.floodHazards?.some((hazard) => hazard.type === type),
+                            )
+                            .map(({ label }) => label)
+                            .join(", ")}`
                         : undefined,
                       property.sunlightHours === undefined
                         ? undefined
@@ -943,6 +964,41 @@ function DetailDialog({
                   </p>
                 </div>
               </div>
+            </div>
+          )}
+
+          {tab === "flood" && (
+            <div className="flood-risk-panel">
+              <div className="tool-heading">
+                <div>
+                  <p className="eyebrow">Auckland Council mapped layers</p>
+                  <h3>Flood hazard information</h3>
+                </div>
+              </div>
+              {property.floodHazards === undefined ? (
+                <p>
+                  Auckland Council flood data has not been synced for this property yet.
+                </p>
+              ) : property.floodHazards.length === 0 ? (
+                <p>
+                  No imported Auckland Council flood-hazard layers intersect this property&apos;s
+                  mapped location.
+                </p>
+              ) : (
+                <>
+                  <ul className="flood-hazard-list">
+                    {floodHazardOptions
+                      .filter(({ type }) =>
+                        property.floodHazards?.some((hazard) => hazard.type === type),
+                      )
+                      .map(({ type, label }) => (
+                        <li key={type}>{label}</li>
+                      ))}
+                  </ul>
+                  <p>{describeFloodHazards(property.floodHazards)}</p>
+                  <p className="flood-data-disclaimer">{floodHazardDisclaimer}</p>
+                </>
+              )}
             </div>
           )}
 
@@ -1336,7 +1392,7 @@ export default function PropertyExplorer({
         yearBuilt: p.yearBuilt,
         propertyType: p.propertyType,
         architecturalStyle: p.architecturalStyle,
-        floodRisk: p.floodRisk,
+        floodHazards: p.floodHazards?.map(({ type }) => type),
         orientation: p.orientation,
         sunlightHours: p.sunlightHours,
       }));
@@ -1354,7 +1410,7 @@ export default function PropertyExplorer({
         yearBuilt: p.yearBuilt,
         propertyType: p.propertyType,
         architecturalStyle: p.architecturalStyle,
-        floodRisk: p.floodRisk,
+        floodHazards: p.floodHazards?.map(({ type }) => type),
         orientation: p.orientation,
         sunlightHours: p.sunlightHours,
       }));
@@ -1537,7 +1593,7 @@ export default function PropertyExplorer({
             </form>
             <div className="prompt-row">
               <span>Try asking:</span>
-              {["Modernist under \$1.2m", "Low flood risk", "North-facing homes"].map((prompt) => (
+              {["Modernist under \$1.2m", "Homes in flood plains", "North-facing homes"].map((prompt) => (
                 <button key={prompt} onClick={() => setQuery(prompt)} type="button">
                   {prompt}
                 </button>
@@ -1627,23 +1683,41 @@ export default function PropertyExplorer({
             </details>
             <details className="filter-details" open>
               <summary>Risk & environment</summary>
-              <label className="field-label" htmlFor="flood-risk">
-                Flood risk
+              <label className="field-label" htmlFor="flood-hazard">
+                Mapped flood hazard
               </label>
               <select
-                id="flood-risk"
-                onChange={(event) =>
-                  setFilters((current) => ({
-                    ...current,
-                    floodRisks: event.target.value ? [event.target.value as FloodRisk] : undefined,
-                  }))
+                id="flood-hazard"
+                onChange={(event) => {
+                  const value = event.target.value;
+                  setFilters((current) => {
+                    const next = { ...current };
+                    delete next.floodHazardTypes;
+                    delete next.noMappedFloodHazard;
+                    if (value === "any_mapped") {
+                      next.floodHazardTypes = floodHazardOptions.map(({ type }) => type);
+                    } else if (value === "none") {
+                      next.noMappedFloodHazard = true;
+                    } else if (value) {
+                      next.floodHazardTypes = [value as FloodHazardType];
+                    }
+                    return next;
+                  });
+                }}
+                value={
+                  filters.noMappedFloodHazard
+                    ? "none"
+                    : filters.floodHazardTypes?.length === floodHazardOptions.length
+                      ? "any_mapped"
+                      : filters.floodHazardTypes?.[0] ?? ""
                 }
-                value={filters.floodRisks?.[0] ?? ""}
               >
-                <option value="">Any flood band</option>
-                {floodRisks.map((risk) => (
-                  <option key={risk} value={risk}>
-                    {risk}
+                <option value="">Any flood hazard</option>
+                <option value="any_mapped">Any mapped flood hazard</option>
+                <option value="none">No mapped flood hazard</option>
+                {floodHazardOptions.map(({ type, label }) => (
+                  <option key={type} value={type}>
+                    {label}
                   </option>
                 ))}
               </select>

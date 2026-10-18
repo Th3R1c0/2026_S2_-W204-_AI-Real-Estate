@@ -86,7 +86,8 @@ describe("Gemini search interpretation", () => {
                   text: JSON.stringify({
                     propertyTypes: ["Townhouse"],
                     architecturalStyles: ["Modernist"],
-                    floodRisks: [],
+                    floodHazardTypes: [],
+                    noMappedFloodHazard: false,
                     location: "Auckland",
                     maxPrice: 900000,
                     minPrice: null,

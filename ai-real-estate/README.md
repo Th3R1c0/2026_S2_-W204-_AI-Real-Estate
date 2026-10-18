@@ -18,7 +18,7 @@ All features and acceptance criteria are aligned with the Sprint One user storie
 - Search criteria not typically accessible on mainstream property platforms:
   - **Architectural Style**: Character, Modernist, Contemporary, Craftsman, Mid-Century.
   - **Property Type**: Villa, Townhouse, Apartment, House, Lifestyle block, Section.
-  - **Flood Risk Bands**: Low, Moderate, High demo hazard bands.
+  - **Mapped Flood Hazards**: Filter by Auckland Council flood plains, flood-prone areas, overland flow paths, coastal inundation, or properties with no mapped intersection.
   - **Building Age**: Interactive slider filtering by construction era (e.g., pre-1920s villas to 2020s modern builds).
   - **North-Facing Orientation**: Instant toggle for homes oriented to the northern sun.
 
@@ -27,6 +27,21 @@ All features and acceptance criteria are aligned with the Sprint One user storie
 - Analyzes nearby transactions matching property type, bedroom counts, and floor area.
 - Uses the **Haversine formula** to calculate physical distance.
 - **Adjustable Controls**: Customise distance radius (1–10 km) and timeframe (3–12 months, default 6 months) with real-time recalculation of local market averages.
+
+### Auckland Council Flood Hazard Data
+- A developer-run importer stores only Council flood features intersecting the current property-coordinate extent (buffered by 1 km) in PostGIS. It imports Flood Plains, Flood Prone Areas, Overland Flow Paths, and Coastal Inundation (100-year return); source attributes and geometries are retained.
+- PostGIS computes point/geometry intersections and records each matching property/hazard feature in `property_flood_hazards`. Hazard extents are not converted into a single risk rating.
+- The property details panel includes a Flood risk tab with mapped hazard types, a brief explanation, and a research-use disclaimer. Flood filters use those imported hazard types rather than the legacy demo risk bands.
+- The source Overland Flow Paths service contains over a million features, so the importer queries the Council services by the current property extent rather than downloading the entire regional service.
+- There is no active automatic schedule. Run the import manually after applying migrations and seeding properties:
+  ```bash
+  npm run db:sync-flood-data
+  ```
+- To opt into a yearly run later, uncomment and adapt a local crontab entry:
+  ```cron
+  # 0 3 1 1 * cd /path/to/ai-real-estate && npm run db:sync-flood-data >> /path/to/flood-sync.log 2>&1
+  ```
+- Council sources: [Flood Plains](https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Flood_Plains/FeatureServer/0), [Flood Prone Areas](https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Flood_Prone_Areas/FeatureServer/0), [Overland Flow Paths](https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Overland_Flow_Paths/FeatureServer/0), and [Coastal Inundation](https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Coastal_Inundation_100_yr_return/FeatureServer/0).
 
 ### 4. Side-by-Side Property Comparison
 - Select two or more properties to inspect specs side-by-side in parallel columns.
@@ -106,6 +121,7 @@ ai-real-estate/
    ```
 
 3. Start PostgreSQL and create a local database, for example with `createdb real_estate`.
+   Install PostGIS for the PostgreSQL server used by this database.
 
 4. Set `DATABASE_URL` in `.env.local` to your PostgreSQL connection string, for example:
    ```dotenv
@@ -131,7 +147,7 @@ After changing `lib/db/schema.ts`, generate a migration with:
 npm run db:generate
 ```
 
-The PostgreSQL SQL reference is maintained in [`../backend/schema.SQL`](../backend/schema.SQL). `lib/db/schema.ts` is its Drizzle representation, including added metadata tables for fields used by the current demo UI. Drizzle's PostgreSQL migrations are stored in `drizzle/postgres`; the original MySQL migration history in `drizzle/` is not applied.
+The PostgreSQL SQL reference is maintained in [`../backend/schema.SQL`](../backend/schema.SQL). `lib/db/schema.ts` is its Drizzle representation, including PostGIS-backed flood geometries and the property-to-hazard intersection table. Drizzle's PostgreSQL migrations are stored in `drizzle/postgres`; the original MySQL migration history in `drizzle/` is not applied.
 
 ---
 

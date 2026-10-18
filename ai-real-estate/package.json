@@ -12,7 +12,8 @@
     "db:setup-local": "node scripts/setup-local-db.mjs",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
-    "db:seed": "node --env-file=.env.local --conditions=react-server --import=tsx scripts/seed.ts"
+    "db:seed": "node --env-file=.env.local --conditions=react-server --import=tsx scripts/seed.ts",
+    "db:sync-flood-data": "node --env-file=.env.local --import=tsx scripts/sync-flood-data.ts"
   },
   "dependencies": {
     "drizzle-orm": "^0.45.4",

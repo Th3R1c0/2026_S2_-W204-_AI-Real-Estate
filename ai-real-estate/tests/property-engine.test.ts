@@ -26,6 +26,13 @@ const listings: Property[] = [
     propertyType: "Townhouse",
     architecturalStyle: "Modernist",
     floodRisk: "Low",
+    floodHazards: [
+      {
+        type: "flood_plains",
+        sourceFeatureId: "1",
+        sourceUrl: "https://council.example/flood-plains",
+      },
+    ],
     orientation: "North",
     sunlightHours: 7.8,
     latitude: -36.913,
@@ -48,6 +55,13 @@ const listings: Property[] = [
     propertyType: "Villa",
     architecturalStyle: "Character",
     floodRisk: "Moderate",
+    floodHazards: [
+      {
+        type: "flood_prone_areas",
+        sourceFeatureId: "2",
+        sourceUrl: "https://council.example/flood-prone",
+      },
+    ],
     orientation: "East",
     sunlightHours: 5.4,
     latitude: -36.849,
@@ -70,6 +84,7 @@ const listings: Property[] = [
     propertyType: "Townhouse",
     architecturalStyle: "Contemporary",
     floodRisk: "Low",
+    floodHazards: [],
     orientation: "South",
     sunlightHours: 4.6,
     latitude: -41.296,
@@ -114,6 +129,25 @@ describe("natural-language property search", () => {
     expect(result.message).toContain("Try adding");
   });
 
+  it("parses specific and generic mapped-flood search requests", () => {
+    expect(
+      parseNaturalLanguageSearch("properties in flood plains", listings).filters
+        .floodHazardTypes,
+    ).toEqual(["flood_plains"]);
+    expect(
+      parseNaturalLanguageSearch("properties with flood risk", listings).filters
+        .floodHazardTypes,
+    ).toEqual([
+      "flood_plains",
+      "flood_prone_areas",
+      "overland_flow_paths",
+      "coastal_inundation",
+    ]);
+    expect(
+      parseNaturalLanguageSearch("properties with no mapped flood hazard", listings).filters,
+    ).toEqual({ noMappedFloodHazard: true });
+  });
+
   it("returns an empty collection when no listing matches", () => {
     const parsed = parseNaturalLanguageSearch(
       "four-bedroom apartments in Wellington under $500k",
@@ -125,11 +159,11 @@ describe("natural-language property search", () => {
 });
 
 describe("specialist filters", () => {
-  it("filters by type, style, flood risk, age and north-facing orientation", () => {
+  it("filters by type, style, mapped flood hazard, age and north-facing orientation", () => {
     const result = filterProperties(listings, {
       propertyTypes: ["Townhouse"],
       architecturalStyles: ["Modernist"],
-      floodRisks: ["Low"],
+      floodHazardTypes: ["flood_plains"],
       yearBuiltFrom: 2010,
       yearBuiltTo: 2025,
       northFacingOnly: true,
@@ -147,6 +181,7 @@ describe("specialist filters", () => {
       ...listings[0],
       architecturalStyle: undefined,
       floodRisk: undefined,
+      floodHazards: undefined,
       orientation: undefined,
       sunlightHours: undefined,
     };
@@ -154,10 +189,16 @@ describe("specialist filters", () => {
     expect(
       filterProperties([listingWithUnknownMetadata], {
         architecturalStyles: ["Modernist"],
-        floodRisks: ["Low"],
+        floodHazardTypes: ["flood_plains"],
         northFacingOnly: true,
       }),
     ).toEqual([]);
+  });
+
+  it("distinguishes no mapped hazards from flood data that has not been synced", () => {
+    expect(
+      filterProperties(listings, { noMappedFloodHazard: true }).map(({ id }) => id),
+    ).toEqual(["wellington-townhouse"]);
   });
 });
 
