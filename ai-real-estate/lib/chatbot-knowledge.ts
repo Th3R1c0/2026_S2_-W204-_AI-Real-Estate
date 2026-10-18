@@ -207,9 +207,15 @@ export function findLocalKnowledgeAnswer(query: string, context?: PropertyChatCo
         .join("\n");
 
       const cheapest = [...compared].sort((a, b) => a.price - b.price)[0];
+      const mostExpensive = [...compared].sort((a, b) => b.price - a.price)[0];
+      const priceDifference = mostExpensive.price - cheapest.price;
       const highestSun = [...compared].sort((a, b) => (b.sunlightHours ?? 0) - (a.sunlightHours ?? 0))[0];
 
-      return `Here is a side-by-side comparison of your ${compared.length} selected homes:\n\n${summaryList}\n\nKey Insights:\n- Best Price Value: **${cheapest.address}** at $${cheapest.price.toLocaleString()}\n- Maximum Natural Light: **${highestSun.address}** with ${highestSun.sunlightHours ?? "N/A"} daily sunlight hours\n\nNext Step: Consider ordering a LIM report and checking school zones before attending weekend open homes.`;
+      const priceDiffText = priceDifference > 0
+        ? `\n- Price Difference: The price difference between them is **$${priceDifference.toLocaleString()}**.`
+        : "";
+
+      return `Here is a side-by-side comparison of your ${compared.length} selected homes:\n\n${summaryList}\n\nKey Insights:\n- Best Price Value: **${cheapest.address}** at $${cheapest.price.toLocaleString()}${priceDiffText}\n- Maximum Natural Light: **${highestSun.address}** with ${highestSun.sunlightHours ?? "N/A"} daily sunlight hours\n\nNext Step: Consider ordering a LIM report and checking school zones before attending weekend open homes.`;
     }
 
     if (compared.length === 1) {

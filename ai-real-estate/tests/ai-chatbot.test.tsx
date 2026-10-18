@@ -203,4 +203,47 @@ describe("AIChatbot component (TDD)", () => {
       expect(screen.getByText(/service is currently unavailable\. please try again\./i)).toBeInTheDocument();
     });
   });
+
+  it("displays 'Powered by Gemini' in the header and removes source tags from message bubbles", async () => {
+    const user = userEvent.setup();
+    render(<AIChatbot />);
+
+    await user.click(screen.getByRole("button", { name: /open ai chat|ask haven ai/i }));
+
+    // Header has Powered by Gemini
+    expect(screen.getByText("Powered by Gemini")).toBeInTheDocument();
+    expect(screen.queryByText("Online Helpdesk")).not.toBeInTheDocument();
+
+    // Source tags are not in message bubbles
+    expect(screen.queryByText(/• powered by gemini/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/• haven guide/i)).not.toBeInTheDocument();
+  });
+
+  it("applies bold styling to formatted markdown in assistant responses", async () => {
+    global.fetch = vi.fn().mockImplementation(async () => ({
+      ok: true,
+      json: async () => ({
+        reply: "The price difference between them is **$232,000**.",
+        source: "gemini",
+      }),
+    }));
+
+    const user = userEvent.setup();
+    const { container } = render(<AIChatbot />);
+
+    await user.click(screen.getByRole("button", { name: /open ai chat|ask haven ai/i }));
+
+    const input = screen.getByRole("textbox", { name: /ask a question/i });
+    const sendBtn = screen.getByRole("button", { name: /send/i });
+
+    await user.type(input, "What is the price difference?");
+    await user.click(sendBtn);
+
+    await waitFor(() => {
+      expect(screen.getByText("$232,000")).toBeInTheDocument();
+      const boldElement = container.querySelector("strong");
+      expect(boldElement).not.toBeNull();
+      expect(boldElement?.textContent).toBe("$232,000");
+    });
+  });
 });

@@ -11,12 +11,6 @@ type Message = {
   time: string;
 };
 
-const BASE_SUGGESTIONS = [
-  "What is a LIM report?",
-  "How does the mortgage calculator work?",
-  "Help me think about my search campaign",
-];
-
 let idCounter = 0;
 function generateId(prefix: string): string {
   idCounter += 1;
@@ -25,6 +19,151 @@ function generateId(prefix: string): string {
 
 function getTimestamp(): string {
   return new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+}
+
+function renderInlineFormattedText(text: string): React.ReactNode[] {
+  const regex = /(\*\*.*?\*\*|\*.*?\*|`.*?`|\[.*?\]\(https?:\/\/[^\s)]+\))/g;
+  const parts = text.split(regex);
+
+  return parts.map((part, index) => {
+    if (!part) return null;
+
+    if (part.startsWith("**") && part.endsWith("**") && part.length >= 4) {
+      return (
+        <strong key={index} style={{ fontWeight: 700 }}>
+          {part.slice(2, -2)}
+        </strong>
+      );
+    }
+
+    if (part.startsWith("*") && part.endsWith("*") && part.length >= 2) {
+      return (
+        <em key={index} style={{ fontStyle: "italic" }}>
+          {part.slice(1, -1)}
+        </em>
+      );
+    }
+
+    if (part.startsWith("`") && part.endsWith("`") && part.length >= 2) {
+      return (
+        <code
+          key={index}
+          style={{
+            fontFamily: "monospace",
+            fontSize: "12px",
+            backgroundColor: "rgba(0, 0, 0, 0.08)",
+            padding: "1px 5px",
+            borderRadius: "4px",
+          }}
+        >
+          {part.slice(1, -1)}
+        </code>
+      );
+    }
+
+    const linkMatch = /^\[(.*?)\]\((https?:\/\/[^\s)]+)\)$/.exec(part);
+    if (linkMatch) {
+      return (
+        <a
+          key={index}
+          href={linkMatch[2]}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ color: "#2563eb", textDecoration: "underline" }}
+        >
+          {linkMatch[1]}
+        </a>
+      );
+    }
+
+    return <React.Fragment key={index}>{part}</React.Fragment>;
+  });
+}
+
+export function FormattedMessage({ text }: { text: string }) {
+  const lines = text.split("\n");
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+      {lines.map((line, idx) => {
+        const trimmed = line.trim();
+
+        if (!trimmed) {
+          return <div key={idx} style={{ height: "4px" }} />;
+        }
+
+        const headingMatch = /^(#{1,3})\s+(.*)$/.exec(trimmed);
+        if (headingMatch) {
+          return (
+            <div
+              key={idx}
+              style={{
+                fontWeight: 700,
+                fontSize: "14px",
+                marginTop: idx > 0 ? "4px" : "0",
+              }}
+            >
+              {renderInlineFormattedText(headingMatch[2])}
+            </div>
+          );
+        }
+
+        const bulletMatch = /^[-*•]\s+(.*)$/.exec(trimmed);
+        if (bulletMatch) {
+          return (
+            <div
+              key={idx}
+              style={{
+                display: "flex",
+                alignItems: "flex-start",
+                gap: "8px",
+                paddingLeft: "4px",
+                lineHeight: "1.45",
+              }}
+            >
+              <span style={{ fontSize: "12px", opacity: 0.7, marginTop: "1px" }}>•</span>
+              <div style={{ flex: 1 }}>{renderInlineFormattedText(bulletMatch[1])}</div>
+            </div>
+          );
+        }
+
+        const numberedMatch = /^(\d+)[.)]\s+(.*)$/.exec(trimmed);
+        if (numberedMatch) {
+          return (
+            <div
+              key={idx}
+              style={{
+                display: "flex",
+                alignItems: "flex-start",
+                gap: "8px",
+                paddingLeft: "4px",
+                lineHeight: "1.45",
+              }}
+            >
+              <span
+                style={{
+                  fontSize: "11px",
+                  fontWeight: 600,
+                  opacity: 0.8,
+                  minWidth: "16px",
+                  marginTop: "1px",
+                }}
+              >
+                {numberedMatch[1]}.
+              </span>
+              <div style={{ flex: 1 }}>{renderInlineFormattedText(numberedMatch[2])}</div>
+            </div>
+          );
+        }
+
+        return (
+          <div key={idx} style={{ lineHeight: "1.5" }}>
+            {renderInlineFormattedText(line)}
+          </div>
+        );
+      })}
+    </div>
+  );
 }
 
 export default function AIChatbot({
@@ -107,15 +246,92 @@ export default function AIChatbot({
 
   const dynamicSuggestions = useMemo(() => {
     const list: string[] = [];
+    const userMessages = messages.filter((m) => m.role === "user");
+    const lastUserMessage = userMessages[userMessages.length - 1]?.text.toLowerCase() ?? "";
+    const assistantReplies = messages.filter((m, idx) => m.role === "model" && idx > 0);
+    const lastAssistantMessage = assistantReplies[assistantReplies.length - 1]?.text.toLowerCase() ?? "";
+    const conversationTopic = lastUserMessage || lastAssistantMessage;
+    const userHasSentMessages = userMessages.length > 0;
+
     if (comparedProperties.length >= 2) {
-      list.push("Compare my selected homes");
-    }
-    if (savedProperties.length >= 1) {
+      if (userHasSentMessages) {
+        if (conversationTopic.includes("flood") || conversationTopic.includes("hazard")) {
+          list.push("Which compared home has lower flood risk?");
+          list.push("What is the price difference between them?");
+          list.push("Compare my selected homes");
+          list.push("What is a LIM report?");
+        } else if (conversationTopic.includes("price") || conversationTopic.includes("cost") || conversationTopic.includes("difference")) {
+          list.push("What is the price difference between them?");
+          list.push("Which compared home has lower flood risk?");
+          list.push("Compare my selected homes");
+          list.push("What is a LIM report?");
+        } else {
+          list.push("Compare my selected homes");
+          list.push("What is the price difference between them?");
+          list.push("Which compared home has lower flood risk?");
+          list.push("What is a LIM report?");
+        }
+      } else {
+        list.push("Compare my selected homes");
+        list.push("What is the price difference between them?");
+        list.push("Which compared home has lower flood risk?");
+        list.push("What is a LIM report?");
+      }
+    } else if (comparedProperties.length === 1) {
+      list.push(`Tell me about ${comparedProperties[0].address}`);
+      list.push("How do I select another home to compare?");
+      if (savedProperties.length >= 1) {
+        list.push("Review my saved listings");
+      }
+      list.push("What is a LIM report?");
+    } else if (savedProperties.length >= 1) {
       list.push("Review my saved listings");
+      list.push("How do I compare two of my saved homes?");
+      list.push("Help me think about my search campaign");
+      list.push("What is a LIM report?");
+    } else {
+      if (userHasSentMessages) {
+        if (conversationTopic.includes("lim") || conversationTopic.includes("consent") || conversationTopic.includes("title")) {
+          list.push("What is a LIM report?");
+          list.push("What red flags should I look for in a LIM?");
+          list.push("How do I request a LIM report in Auckland?");
+          list.push("Help me think about my search campaign");
+        } else if (conversationTopic.includes("flood") || conversationTopic.includes("hazard")) {
+          list.push("How does Haven classify flood risks?");
+          list.push("Which suburbs have lowest flood risk?");
+          list.push("What is a LIM report?");
+          list.push("Help me think about my search campaign");
+        } else if (conversationTopic.includes("mortgage") || conversationTopic.includes("calculator") || conversationTopic.includes("price") || conversationTopic.includes("deposit")) {
+          list.push("How does the mortgage calculator work?");
+          list.push("How much deposit do I need in NZ?");
+          list.push("What is a LIM report?");
+          list.push("Help me think about my search campaign");
+        } else if (conversationTopic.includes("campaign") || conversationTopic.includes("search") || conversationTopic.includes("organis")) {
+          list.push("Help me think about my search campaign");
+          list.push("How should I prioritize suburbs and budgets?");
+          list.push("What is a LIM report?");
+          list.push("What architectural styles can I filter?");
+        } else if (conversationTopic.includes("style") || conversationTopic.includes("architect") || conversationTopic.includes("villa") || conversationTopic.includes("bungalow")) {
+          list.push("What architectural styles can I filter?");
+          list.push("What are common maintenance needs for 1920s bungalows?");
+          list.push("What is a LIM report?");
+          list.push("Help me think about my search campaign");
+        } else {
+          list.push("Help me think about my search campaign");
+          list.push("What architectural styles can I filter?");
+          list.push("What is a LIM report?");
+          list.push("How does the mortgage calculator work?");
+        }
+      } else {
+        list.push("Help me think about my search campaign");
+        list.push("What architectural styles can I filter?");
+        list.push("What is a LIM report?");
+        list.push("How does the mortgage calculator work?");
+      }
     }
-    list.push(...BASE_SUGGESTIONS);
-    return list.slice(0, 4);
-  }, [comparedProperties, savedProperties]);
+
+    return Array.from(new Set(list)).slice(0, 4);
+  }, [comparedProperties, savedProperties, messages]);
 
   const sendMessage = async (textToSend?: string) => {
     const text = (textToSend ?? input).trim();
@@ -294,7 +510,7 @@ export default function AIChatbot({
                       display: "inline-block",
                     }}
                   />
-                  Online Helpdesk
+                  Powered by Gemini
                 </div>
               </div>
             </div>
@@ -392,28 +608,20 @@ export default function AIChatbot({
                       color: isUser ? "#ffffff" : "#18181b",
                       fontSize: "13.5px",
                       lineHeight: "1.5",
-                      whiteSpace: "pre-wrap",
                       boxShadow: isUser ? "0 1px 2px rgba(0,0,0,0.1)" : "none",
                       border: isUser ? "none" : "1px solid #e4e4e7",
                     }}
                   >
-                    {m.text}
+                    <FormattedMessage text={m.text} />
                   </div>
                   <div
                     style={{
                       fontSize: "10px",
                       color: "#71717a",
                       marginTop: "3px",
-                      display: "flex",
-                      gap: "6px",
                     }}
                   >
                     <span>{m.time}</span>
-                    {m.source && (
-                      <span style={{ fontStyle: "italic" }}>
-                        {m.source === "gemini" ? "• Powered by Gemini" : "• Haven Guide"}
-                      </span>
-                    )}
                   </div>
                 </div>
               );
