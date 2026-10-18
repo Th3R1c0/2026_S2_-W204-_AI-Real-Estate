@@ -8,6 +8,7 @@ import {
   filterProperties,
   findComparableSales,
   generateSampleNotifications,
+  generateValuationHistory,
 } from "../../lib/property-engine";
 import type {
   ArchitecturalStyle,
@@ -33,7 +34,7 @@ type PropertyExplorerProps = {
   aiSearch?: (query: string) => Promise<AiSearchResult>;
 };
 
-type DetailTab = "overview" | "comps" | "sunlight" | "family" | "commute" | "mortgage";
+type DetailTab = "overview" | "comps" | "sunlight" | "family" | "commute" | "mortgage" | "history";
 type CommuteMode = "driving" | "transit" | "bicycling" | "walking";
 type CommuteDestination = { name: string; address: string };
 type SourceSelection = {
@@ -88,35 +89,29 @@ function formatMoney(value: number) {
 }
 
 function CommutePlanner({ property }: { property: Property }) {
-  const [destinations, setDestinations] = useState<CommuteDestination[]>([]);
-  const [mode, setMode] = useState<CommuteMode>("driving");
-  const [storageLoaded, setStorageLoaded] = useState(false);
-
-  useEffect(() => {
+  const [destinations, setDestinations] = useState<CommuteDestination[]>(() => {
+    if (typeof window === "undefined") return [];
     try {
       const saved = localStorage.getItem(commuteStorageKey);
       const parsed: unknown = saved ? JSON.parse(saved) : [];
       if (Array.isArray(parsed)) {
-        setDestinations(
-          parsed
-            .filter(
-              (item): item is CommuteDestination =>
-                item && typeof item.name === "string" && typeof item.address === "string",
-            )
-            .slice(0, 3),
-        );
+        return parsed
+          .filter(
+            (item): item is CommuteDestination =>
+              item && typeof item.name === "string" && typeof item.address === "string",
+          )
+          .slice(0, 3);
       }
-    } catch {
-      setDestinations([]);
-    }
-    setStorageLoaded(true);
-  }, []);
+    } catch {}
+    return [];
+  });
+  const [mode, setMode] = useState<CommuteMode>("driving");
 
   useEffect(() => {
-    if (storageLoaded) {
+    try {
       localStorage.setItem(commuteStorageKey, JSON.stringify(destinations));
-    }
-  }, [destinations, storageLoaded]);
+    } catch {}
+  }, [destinations]);
 
   function updateDestination(index: number, field: keyof CommuteDestination, value: string) {
     setDestinations((current) =>
@@ -805,6 +800,7 @@ function DetailDialog({
       }),
     [property, comparableSales, radius, months]
   );
+  const historyData = useMemo(() => generateValuationHistory(property), [property]);
   const sunlightScore =
     property.sunlightHours === undefined
       ? undefined
@@ -1141,6 +1137,77 @@ function DetailDialog({
             </div>
           )}
           {tab === "commute" && <CommutePlanner property={property} />}
+          {tab === "history" && (
+            <div className="tool-panel" style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+              <div className="tool-heading">
+                <div>
+                  <p className="eyebrow">Appreciation & Valuations</p>
+                  <h3>Historical Market Valuation</h3>
+                </div>
+              </div>
+
+              <div>
+                <h4 style={{ marginBottom: "0.75rem", fontWeight: "600" }}>Past Sale History</h4>
+                <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+                  {historyData.pastSales.map((sale, i) => (
+                    <div
+                      key={i}
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        padding: "0.85rem 1rem",
+                        border: "1px solid var(--border-color, #e5e7eb)",
+                        borderRadius: "8px",
+                        background: "rgba(0,0,0,0.01)",
+                      }}
+                    >
+                      <div>
+                        <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
+                          <strong>{formatMoney(sale.price)}</strong>
+                          <span style={{ fontSize: "0.75rem", padding: "0.1rem 0.4rem", borderRadius: "4px", background: "#f3f4f6", color: "#374151" }}>
+                            {sale.saleType}
+                          </span>
+                        </div>
+                        <p style={{ margin: "0.2rem 0 0 0", fontSize: "0.85rem", opacity: 0.75 }}>
+                          Sold on {sale.date} · Source: {sale.source}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <h4 style={{ marginBottom: "0.75rem", fontWeight: "600" }}>Automated Valuation History (CV / AVM)</h4>
+                <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                  {historyData.valuationHistory.map((rec, i) => (
+                    <div
+                      key={i}
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        padding: "0.75rem 1rem",
+                        border: "1px solid var(--border-color, #e5e7eb)",
+                        borderRadius: "6px",
+                      }}
+                    >
+                      <div>
+                        <span style={{ fontWeight: "600", marginRight: "1rem" }}>{rec.date}</span>
+                        <span style={{ fontSize: "0.85rem", opacity: 0.75 }}>{rec.source}</span>
+                      </div>
+                      <strong>{formatMoney(rec.value)}</strong>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <p className="disclaimer">
+                Historical market values and automated valuation models are indicative trend estimates based on council records and regional sales indices.
+              </p>
+            </div>
+          )}
         </div>
       </section>
     </div>

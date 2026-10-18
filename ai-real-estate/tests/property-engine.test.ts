@@ -4,6 +4,7 @@ import {
   calculateMonthlyMortgage,
   findComparableSales,
   filterProperties,
+  generateValuationHistory,
   parseNaturalLanguageSearch,
 } from "../lib/property-engine";
 import type { Property } from "../lib/property-types";
@@ -221,5 +222,15 @@ describe("mortgage repayment", () => {
 
   it("updates the payment when the deposit or rate changes", () => {
     expect(calculateMonthlyMortgage(800_000, 30, 5.5, 30)).toBe(3_180);
+  });
+});
+
+describe("historical market valuation", () => {
+  it("generates past sales and valuation history trajectory", () => {
+    const history = generateValuationHistory(listings[0]);
+    expect(history.pastSales.length).toBeGreaterThan(0);
+    expect(history.valuationHistory.length).toBeGreaterThan(0);
+    expect(history.pastSales[0].price).toBeLessThan(listings[0].price);
+    expect(history.valuationHistory.at(-1)?.value).toBe(listings[0].price);
   });
 });

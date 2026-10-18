@@ -65,6 +65,19 @@ export type PropertyNotification = {
   read: boolean;
 };
 
+export type PastSale = {
+  date: string;
+  price: number;
+  source: string;
+  saleType?: "Auction" | "Private Sale" | "Deadline Treaty";
+};
+
+export type ValuationRecord = {
+  date: string;
+  value: number;
+  source: string;
+};
+
 export type Property = {
   id: string;
   address: string;
