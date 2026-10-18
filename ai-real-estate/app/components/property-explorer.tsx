@@ -816,6 +816,7 @@ function DetailDialog({
     { id: "family", label: "Schools & Walkability" },
     { id: "commute", label: "Commute" },
     { id: "mortgage", label: "Mortgage" },
+    { id: "history", label: "Market History" },
   ];
 
   return (

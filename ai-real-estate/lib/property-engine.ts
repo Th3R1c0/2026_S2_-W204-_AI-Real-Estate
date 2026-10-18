@@ -1,9 +1,11 @@
 import type {
   ArchitecturalStyle,
+  PastSale,
   Property,
   PropertyFilters,
   PropertyNotification,
   PropertyType,
+  ValuationRecord,
 } from "./property-types";
 
 export function filterProperties(

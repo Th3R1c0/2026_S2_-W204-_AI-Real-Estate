@@ -91,6 +91,8 @@ export type Property = {
   schoolZones?: SchoolZone[];
   walkability?: WalkabilityProfile;
   commuteOptions?: CommuteOption[];
+  pastSales?: PastSale[];
+  valuationHistory?: ValuationRecord[];
 };
 
 export type PropertyFilters = {
