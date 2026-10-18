@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { comparableSales, properties } from "../lib/property-data";
+import { aucklandProperties as properties, comparableSales, forSaleProperties } from "../lib/property-data";
 
 describe("Auckland snapshot seed", () => {
   it("provides the 50 verified addresses with a sourced indicative value", () => {
@@ -24,4 +24,12 @@ describe("Auckland snapshot seed", () => {
   it("does not present invented comparable sales as records", () => {
     expect(comparableSales).toEqual([]);
   });
+
+  it("provides 40 live for-sale properties with verified coordinates and photos", () => {
+    expect(forSaleProperties).toHaveLength(40);
+    expect(new Set(forSaleProperties.map((property) => property.id)).size).toBe(40);
+    expect(forSaleProperties.every((property) => property.price > 0 && property.latitude && property.longitude)).toBe(true);
+    expect(forSaleProperties.every((property) => property.image.startsWith("http"))).toBe(true);
+  });
 });
+

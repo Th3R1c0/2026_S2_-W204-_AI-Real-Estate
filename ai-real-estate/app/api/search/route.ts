@@ -18,9 +18,14 @@ export async function POST(request: Request) {
   const query = body.query.trim().slice(0, 500);
   console.log(`[POST /api/search] Incoming query: "${query}"`);
 
-  const properties = process.env.DATABASE_URL
-    ? await getPropertiesByStatus("active")
-    : seedProperties;
+  let properties = seedProperties;
+  if (process.env.DATABASE_URL) {
+    try {
+      properties = await getPropertiesByStatus("active");
+    } catch (error) {
+      console.warn("[Database] Search fallback to local dataset:", error);
+    }
+  }
   const result = await interpretPropertyQuery(query, properties, {
     apiKey: process.env.GEMINI_API_KEY,
   });

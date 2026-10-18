@@ -5,9 +5,21 @@ import { comparableSales as seedSales, properties as seedProperties } from "../l
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  const [properties, comparableSales] = process.env.DATABASE_URL
-    ? await Promise.all([getPropertiesByStatus("active"), getComparableSales()])
-    : [seedProperties, seedSales];
+  let properties = seedProperties;
+  let comparableSales = seedSales;
+
+  if (process.env.DATABASE_URL) {
+    try {
+      const [dbProperties, dbSales] = await Promise.all([
+        getPropertiesByStatus("active"),
+        getComparableSales(),
+      ]);
+      properties = dbProperties;
+      comparableSales = dbSales;
+    } catch (error) {
+      console.warn("[Database] Connection unavailable, falling back to local dataset:", error);
+    }
+  }
 
   return <PropertyExplorer comparableSales={comparableSales} properties={properties} />;
 }

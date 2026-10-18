@@ -922,6 +922,35 @@ function DetailDialog({
                   <span>Year built</span>
                 </div>
               </div>
+              {property.imageSourceUrl ? (
+                <div style={{ marginTop: 18, fontSize: 13 }}>
+                  <a href={property.imageSourceUrl} target="_blank" rel="noopener noreferrer">Photo source ↗</a>
+                  {property.photoGallery && property.photoGallery.length > 1 ? <span> · {property.photoGallery.length} source photo URLs</span> : null}
+                </div>
+              ) : null}
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 12, marginTop: 18 }}>
+                {property.floorArea > 0 ? <div><strong>{property.floorArea} m²</strong><br /><span>Floor area</span></div> : null}
+                {property.parkingSpaces ? <div><strong>{property.parkingSpaces}</strong><br /><span>Parking spaces</span></div> : null}
+                {property.capitalValue ? <div><strong>{formatMoney(property.capitalValue)}</strong><br /><span>Capital value</span></div> : null}
+                {property.ownershipType ? <div><strong>{property.ownershipType}</strong><br /><span>Ownership</span></div> : null}
+                {property.estimatedWeeklyRent ? <div><strong>{formatMoney(property.estimatedWeeklyRent)} / week</strong><br /><span>Estimated rent</span></div> : null}
+              </div>
+              {property.photoGallery && property.photoGallery.length > 1 ? (
+                <div style={{ display: "flex", gap: 8, overflowX: "auto", marginTop: 18 }}>
+                  {property.photoGallery.slice(1, 5).map((url) => <a href={url} key={url} target="_blank" rel="noopener noreferrer" aria-label="Open source photo"><Image src={url} alt={`${property.address} source photo`} width={120} height={80} style={{ objectFit: "cover", borderRadius: 8 }} /></a>)}
+                </div>
+              ) : null}
+              <div style={{ marginTop: 22 }}>
+                <strong>Map position</strong>
+                <p style={{ fontSize: 13 }}>{property.latitude.toFixed(6)}, {property.longitude.toFixed(6)} · LINZ NZ Addresses</p>
+                <iframe
+                  title={`Map of ${property.address}`}
+                  src={`https://www.openstreetmap.org/export/embed.html?bbox=${property.longitude - 0.004}%2C${property.latitude - 0.003}%2C${property.longitude + 0.004}%2C${property.latitude + 0.003}&layer=mapnik&marker=${property.latitude}%2C${property.longitude}`}
+                  loading="lazy"
+                  style={{ width: "100%", height: 250, border: "1px solid #dce8e2", borderRadius: 12 }}
+                />
+                <a href={`https://www.openstreetmap.org/?mlat=${property.latitude}&mlon=${property.longitude}#map=17/${property.latitude}/${property.longitude}`} target="_blank" rel="noopener noreferrer">Open larger map ↗</a>
+              </div>
               <div className="insight-note">
                 <Icon name="sparkle" />
                 <div>

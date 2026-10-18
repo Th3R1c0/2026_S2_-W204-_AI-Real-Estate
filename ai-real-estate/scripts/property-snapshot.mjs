@@ -1,4 +1,110 @@
+import { JSDOM } from 'jsdom';
+
 const sites = ['RealEstate', 'OneRoof', 'Homes', 'TradeMe', 'QV', 'PropertyValue'];
+
+function sameHouse(actual, expected) {
+  const normalize = value => String(value ?? '').toLowerCase().replace(/[^a-z0-9]/g, '');
+  const expectedParts = expected.split(',');
+  const actualParts = String(actual ?? '').split(',');
+  return normalize(actualParts[0]) === normalize(expectedParts[0]) && (!expectedParts[1] || normalize(actualParts[1]).startsWith(normalize(expectedParts[1])));
+}
+
+function number(value) {
+  const parsed = Number(String(value ?? '').replace(/[^\d.]/g,''));
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+}
+
+function imageList(values) {
+  return [...new Set((Array.isArray(values) ? values : [values]).filter(value => typeof value === 'string' && /^https:\/\//.test(value)))];
+}
+
+function currencyAmount(value) {
+  const match = String(value || '').match(/\$([\d,.]+)\s*([KM])?/i);
+  return match ? Number(match[1].replaceAll(',','')) * (match[2]?.toUpperCase() === 'M' ? 1_000_000 : match[2]?.toUpperCase() === 'K' ? 1_000 : 1) : null;
+}
+
+export function parseDirectSourcePage(site, html, expectedAddress) {
+  const doc = new JSDOM(html).window.document;
+  let address, facts = {}, estimate = {}, images = [], coordinates = null;
+  if (site === 'Homes') {
+    const script = doc.querySelector('#homes-app-state');
+    const state = script && JSON.parse(script.textContent);
+    const card = state && Object.values(state).map(item => item?.b?.card).find(Boolean);
+    const p = card?.property_details;
+    address = p?.address;
+    if (p) {
+      facts = {bedrooms:number(p.num_bedrooms),bathrooms:number(p.num_bathrooms),floorArea:number(p.floor_area),landArea:number(p.land_area),parkingSpaces:number(p.num_car_spaces),capitalValue:number(p.capital_value),landValue:number(p.land_value),improvementValue:number(p.improvement_value),ownershipType:p.ownership_type || null,legalDescription:p.legal_description || null,certificateOfTitle:p.certificate_of_title || null,decadeBuilt:p.decade_built || null,estimatedWeeklyRent:number(p.display_estimated_rental_lower_value_short),valuationDate:p.current_revision_date || null,isForSale:/\bNOT LISTED\b/i.test(doc.body.textContent) ? false : null};
+      const money = value => value ? number(value) * (/M$/i.test(value) ? 1_000_000 : /K$/i.test(value) ? 1000 : 1) : null;
+      estimate = {low:money(p.display_estimated_lower_value_short),medium:money(p.display_estimated_value_short),high:money(p.display_estimated_upper_value_short)};
+      images = imageList([p.cover_image_url,...(p.listing_images || [])]);
+      if (card.point) coordinates = {latitude:number(card.point.lat) && Number(card.point.lat),longitude:Number(card.point.long)};
+    }
+  } else if (site === 'PropertyValue') {
+    const match = html.match(/window\.REDUX_DATA\s*=\s*(\{.*?\});?\s*<\/script>/s);
+    const p = match && JSON.parse(match[1]).PropertyDetails;
+    address = p?.location?.locallyFormattedAddress;
+    if (p) {
+      const lastSale = p.propertyTimeline?.find(item => item.type === 'sale');
+      facts = {bedrooms:number(p.core?.beds),bathrooms:number(p.core?.baths),floorArea:number(p.additional?.floorArea),landArea:number(p.core?.landArea),parkingSpaces:number(p.core?.carSpaces),yearBuilt:number(p.additional?.yearBuilt),capitalValue:number(p.ratingValuation?.capitalValue),landValue:number(p.ratingValuation?.landValue),improvementValue:number(p.ratingValuation?.improvementValue),isForSale:p.isForSale === false ? false : p.isForSale === true ? true : null,valuationDate:p.ratingValuation?.valuationDate || null,lastSaleDate:lastSale?.date || null,lastSalePrice:currencyAmount(lastSale?.priceDescription),legalDescription:p.ratingValuation?.legalDescriptions?.[0] || null,roofMaterial:p.additional?.roofMaterial || null,wallMaterial:p.additional?.wallMaterial || null,zone:p.site?.zoneDescriptionLocal || null};
+      const low = number(p.estimatedRange?.lowerBand), high = number(p.estimatedRange?.upperBand);
+      estimate = {low,medium:low && high ? Math.round((low + high) / 2) : null,high};
+      images = imageList((p.images?.propertyPhotoList || []).map(photo => photo.largePhotoUrl));
+      if (p.location?.latitude) coordinates = {latitude:Number(p.location.latitude),longitude:Number(p.location.longitude)};
+    }
+  } else if (site === 'RealEstate' || site === 'OneRoof') {
+    const schemas = [...doc.querySelectorAll('script[type="application/ld+json"]')].flatMap(script => { try { const item = JSON.parse(script.textContent); return Array.isArray(item) ? item : [item]; } catch { return []; } });
+    const property = schemas.find(item => item['@type'] === 'SingleFamilyResidence');
+    address = site === 'RealEstate' ? property?.name : `${property?.address?.streetAddress || ''}, ${expectedAddress.split(',')[1]?.trim() || ''}`;
+    images = imageList(property?.image || []);
+    facts = {floorArea:number(property?.floorSize?.value),bedrooms:number(property?.numberOfRooms)};
+    if (property?.geo?.latitude) coordinates = {latitude:Number(property.geo.latitude),longitude:Number(property.geo.longitude)};
+    if (site === 'RealEstate') {
+      const values = html.match(/\\"estimatedValues\\":\[\{[^}]*?\\"valueLow\\":(\d+),\\"valueMid\\":(\d+),\\"valueHigh\\":(\d+)/);
+      if (values) estimate = {low:Number(values[1]),medium:Number(values[2]),high:Number(values[3])};
+      const unescaped = html.replace(/\\"/g,'"');
+      for (const [field,key] of [['bathrooms','bathroomsTotalCount'],['landArea','landArea'],['parkingSpaces','parkingGarageCount'],['decadeBuilt','buildingAge']]) {
+        const match = unescaped.match(new RegExp('"' + key + '":(\\d+)'));
+        if (match) facts[field] = Number(match[1]);
+      }
+    } else {
+      const text = doc.body.textContent || '';
+      const match = text.match(/(\$[\d,.]+\s*[KM]?)OneRoof Estimate/i);
+      if (match) estimate.medium = currencyAmount(match[1]);
+      const band = text.match(/(\$[\d,.]+\s*[KM]?)Low[^$]{0,60}(\$[\d,.]+\s*[KM]?)RV\*?(\$[\d,.]+\s*[KM]?)High/i);
+      if (band) { estimate.low = currencyAmount(band[1]); estimate.high = currencyAmount(band[3]); }
+    }
+  } else if (site === 'QV') {
+    address = doc.title;
+    const text = doc.body.textContent.replace(/\s+/g,' ');
+    estimate.medium = currencyAmount(text.match(/QV:\s*(\$[\d,.]+\s*[KM]?)/i)?.[1]);
+    facts = {
+      bedrooms:number(text.match(/bedrooms\s+(\d+)/i)?.[1]),bathrooms:number(text.match(/bathrooms\s+(\d+)/i)?.[1]),
+      floorArea:number(text.match(/floor area\s+([\d,.]+)\s*m²/i)?.[1]),landArea:number(text.match(/land\s+([\d,.]+)\s*m²/i)?.[1]),
+      capitalValue:currencyAmount(text.match(/Capital value\s*(\$[\d,.]+)/i)?.[1]),
+    };
+  } else return {status:'unverified',reason:'No address-specific public data available'};
+  if (!address) return {status:'unverified',reason:'No property address in public page'};
+  if (!sameHouse(address,expectedAddress)) return {status:'wrong_address',pageAddress:address};
+  return {status:'matched',pageAddress:address,estimate,facts,images,coordinates};
+}
+
+export function renderDirectReport(houses) {
+  const sites = ['RealEstate','OneRoof','Homes','PropertyValue','QV','TradeMe'];
+  const currency = value => Number.isFinite(value) ? '$' + value.toLocaleString('en-NZ') : '—';
+  const rows = houses.map((house,index) => {
+    const map = `https://www.openstreetmap.org/?mlat=${house.latitude}&mlon=${house.longitude}#map=17/${house.latitude}/${house.longitude}`;
+    const sourceCards = sites.map(site => {
+      const source = house.sources?.[site] || {status:'unavailable'};
+      const facts = Object.entries(source.facts || {}).filter(([,value]) => value !== null && value !== '').map(([key,value]) => `<span>${escapeHtml(key)}: <b>${escapeHtml(value)}</b></span>`).join('');
+      const photo = source.images?.[0];
+      const link = safeLink(source.url);
+      return `<div class="source"><div class="source-head"><strong>${site}</strong><em class="${escapeHtml(source.status)}">${escapeHtml(source.status)}</em></div>${source.status === 'matched' ? `<p>${currency(source.estimate?.medium)} <small>${source.estimate?.low ? currency(source.estimate.low) + '–' + currency(source.estimate.high) : ''}</small></p><div class="facts">${facts}</div>${photo ? `<a href="${escapeHtml(photo)}" target="_blank" rel="noopener noreferrer"><img src="${escapeHtml(photo)}" alt="${escapeHtml(house.address)} from ${site}" loading="lazy"></a><small>${source.images.length} photo URL(s)</small>` : ''}` : `<small>${escapeHtml(source.reason || 'No verified page data')}</small>`}${link ? `<a href="${escapeHtml(link)}" target="_blank" rel="noopener noreferrer">Open source ↗</a>` : ''}</div>`;
+    }).join('');
+    return `<article><header><div><small>${index + 1} / ${houses.length} · LINZ ${escapeHtml(house.addressId)}</small><h2>${escapeHtml(house.address)}</h2></div><a href="${escapeHtml(map)}" target="_blank" rel="noopener noreferrer">Open map ↗</a></header><p class="coords">${escapeHtml(house.latitude)}, ${escapeHtml(house.longitude)}</p><div class="grid">${sourceCards}</div></article>`;
+  }).join('');
+  const counts = sites.map(site => `<span><b>${houses.filter(house => house.sources?.[site]?.status === 'matched').length}</b> ${site}</span>`).join('');
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>50 Auckland houses — direct-source report</title><style>body{margin:0;background:#f4f7f5;color:#17332d;font:15px system-ui,sans-serif}*{box-sizing:border-box}main{max-width:1380px;margin:auto;padding:28px}.mast{background:#153e3b;color:white;padding:42px max(28px,calc((100vw - 1324px)/2))}.mast h1{font-size:clamp(28px,4vw,46px);margin:8px 0}.mast p{max-width:850px;line-height:1.6;color:#dcece5}.counts{display:flex;flex-wrap:wrap;gap:10px;margin:20px 0}.counts span{background:white;border-radius:8px;padding:10px 14px}article{background:white;border:1px solid #d9e5df;border-radius:14px;margin:18px 0;padding:22px}article header{display:flex;justify-content:space-between;gap:15px;align-items:center}h2{margin:6px 0;font-size:22px}small,.coords{color:#667d75}a{color:#08705f;text-decoration:none}a:hover{text-decoration:underline}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:12px}.source{border:1px solid #e1e9e5;border-radius:10px;padding:12px;overflow:hidden}.source-head{display:flex;justify-content:space-between;gap:5px}.source-head em{font-size:11px;font-style:normal;border-radius:20px;background:#eff2f0;padding:3px 6px}.source-head em.matched{background:#d9f5e4;color:#116740}.source p{font-weight:750;font-size:20px;margin:12px 0}.source p small{font-size:12px;font-weight:400}.facts{font-size:12px;max-height:130px;overflow:auto}.facts span{display:block;margin:4px 0}.source img{width:100%;height:115px;object-fit:cover;border-radius:7px;margin:8px 0}.source>a:last-child{display:block;margin-top:8px;font-size:12px}.notes{line-height:1.6;color:#486259}</style></head><body><div class="mast"><small>ONE-TIME DIRECT WEBSITE SNAPSHOT</small><h1>50 real Auckland houses</h1><p>Each address and map point was verified with LINZ NZ Addresses. Property facts, estimates and photo URLs below were read from the named websites directly. Missing and mismatched data stays marked. These are estimates, not asking prices or current listings.</p></div><main><div class="counts"><span><b>${houses.length}</b> houses</span>${counts}</div><p class="notes">The source URLs were discovered during earlier research, then each public page was fetched directly and its displayed address checked against the LINZ address. Trade Me's public page did not expose address-specific data. Third-party photos remain linked to their sources; permission is needed before publishing copies.</p>${rows}</main></body></html>`;
+}
 
 function escapeHtml(value) {
   return String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));

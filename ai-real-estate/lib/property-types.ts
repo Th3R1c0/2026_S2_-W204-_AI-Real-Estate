@@ -99,6 +99,12 @@ export type Property = {
   longitude: number;
   image: string;
   imageAlt: string;
+  imageSourceUrl?: string;
+  photoGallery?: string[];
+  parkingSpaces?: number;
+  capitalValue?: number;
+  estimatedWeeklyRent?: number;
+  ownershipType?: string;
   soldDate?: string;
   sources?: PropertySource[];
   schoolZones?: SchoolZone[];
