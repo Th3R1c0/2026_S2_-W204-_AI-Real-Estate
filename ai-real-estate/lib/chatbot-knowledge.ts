@@ -54,6 +54,81 @@ You are the Haven AI Real Estate Assistant — a helpful, friendly, and knowledg
 - If asked how to use a feature on Haven, guide the user directly to the relevant part of the screen or tools.
 `;
 
+export type PropertyChatSummary = {
+  id: string;
+  address: string;
+  suburb: string;
+  city: string;
+  price: number;
+  bedrooms: number;
+  bathrooms: number;
+  landArea?: number;
+  floorArea?: number;
+  yearBuilt?: number;
+  propertyType: string;
+  architecturalStyle?: string;
+  floodRisk?: string;
+  orientation?: string;
+  sunlightHours?: number;
+};
+
+export type PropertyChatContext = {
+  savedProperties?: PropertyChatSummary[];
+  comparedProperties?: PropertyChatSummary[];
+};
+
+export function formatPropertiesContext(context?: PropertyChatContext): string {
+  if (!context) return "";
+  const parts: string[] = [];
+
+  if (context.comparedProperties && context.comparedProperties.length > 0) {
+    parts.push("### User's Currently Compared Properties (Active Side-by-Side Comparison):");
+    context.comparedProperties.forEach((p, idx) => {
+      const details = [
+        `Price: $${p.price.toLocaleString()}`,
+        `${p.bedrooms} beds, ${p.bathrooms} baths`,
+        p.landArea ? `${p.landArea}m² land` : null,
+        p.floorArea ? `${p.floorArea}m² floor` : null,
+        `Type: ${p.propertyType}`,
+        p.architecturalStyle ? `Style: ${p.architecturalStyle}` : null,
+        p.yearBuilt ? `Built: ${p.yearBuilt}` : null,
+        p.floodRisk ? `Flood Risk: ${p.floodRisk}` : null,
+        p.sunlightHours !== undefined ? `Sunlight: ${p.sunlightHours} hrs` : null,
+        p.orientation ? `Facing: ${p.orientation}` : null,
+      ].filter(Boolean).join(" | ");
+
+      parts.push(`${idx + 1}. **${p.address}, ${p.suburb}, ${p.city}** — ${details}`);
+    });
+  }
+
+  if (context.savedProperties && context.savedProperties.length > 0) {
+    parts.push("### User's Saved Properties (Favorites / Shortlist):");
+    context.savedProperties.forEach((p, idx) => {
+      const details = [
+        `Price: $${p.price.toLocaleString()}`,
+        `${p.bedrooms} beds, ${p.bathrooms} baths`,
+        p.propertyType,
+        p.architecturalStyle ? `Style: ${p.architecturalStyle}` : null,
+        p.floodRisk ? `Flood Risk: ${p.floodRisk}` : null,
+        p.sunlightHours !== undefined ? `Sunlight: ${p.sunlightHours} hrs` : null,
+      ].filter(Boolean).join(" | ");
+
+      parts.push(`${idx + 1}. **${p.address}, ${p.suburb}, ${p.city}** — ${details}`);
+    });
+  }
+
+  if (parts.length > 0) {
+    parts.push(
+      "Instructions for user properties:\n" +
+      "- The user has explicitly selected or saved the above listings in Haven.\n" +
+      "- When asked about their compared or saved properties, or when helping them think about their search campaign or which home to choose, refer to these specific listings and their attributes in detail.\n" +
+      "- Help them weigh trade-offs (e.g. price vs flood risk vs sunlight vs architectural style), organize their thinking, and plan their next steps in their buying campaign."
+    );
+  }
+
+  return parts.join("\n\n");
+}
+
 export type KnowledgeTopic = {
   keywords: string[];
   reply: string;
@@ -112,8 +187,83 @@ export const LOCAL_KNOWLEDGE_TOPICS: KnowledgeTopic[] = [
   },
 ];
 
-export function findLocalKnowledgeAnswer(query: string): string {
+export function findLocalKnowledgeAnswer(query: string, context?: PropertyChatContext): string {
   const normalized = query.toLowerCase().trim();
+
+  // 1. Direct questions about compared homes
+  if (
+    normalized.includes("compare") ||
+    normalized.includes("comparison") ||
+    normalized.includes("selected home") ||
+    normalized.includes("difference")
+  ) {
+    const compared = context?.comparedProperties ?? [];
+    if (compared.length >= 2) {
+      const summaryList = compared
+        .map(
+          (p, i) =>
+            `${i + 1}. **${p.address}** (${p.suburb}): $${p.price.toLocaleString()} — ${p.bedrooms} beds, ${p.bathrooms} baths, ${p.propertyType}${p.architecturalStyle ? ` (${p.architecturalStyle})` : ""}, Flood Risk: ${p.floodRisk ?? "N/A"}, Sunlight: ${p.sunlightHours ?? "N/A"} hrs`,
+        )
+        .join("\n");
+
+      const cheapest = [...compared].sort((a, b) => a.price - b.price)[0];
+      const highestSun = [...compared].sort((a, b) => (b.sunlightHours ?? 0) - (a.sunlightHours ?? 0))[0];
+
+      return `Here is a side-by-side comparison of your ${compared.length} selected homes:\n\n${summaryList}\n\nKey Insights:\n- Best Price Value: **${cheapest.address}** at $${cheapest.price.toLocaleString()}\n- Maximum Natural Light: **${highestSun.address}** with ${highestSun.sunlightHours ?? "N/A"} daily sunlight hours\n\nNext Step: Consider ordering a LIM report and checking school zones before attending weekend open homes.`;
+    }
+
+    if (compared.length === 1) {
+      return `You currently have 1 property selected for comparison: **${compared[0].address}** ($${compared[0].price.toLocaleString()}, ${compared[0].bedrooms} beds). Please tick the 'Compare' checkbox on at least one more listing to view a full side-by-side analysis!`;
+    }
+
+    return "You don't have any properties currently selected for comparison. You can tick the 'Compare' checkbox on 2 or more listings in the explorer, and I'll analyze their pricing, flood risks, and specs side by side!";
+  }
+
+  // 2. Direct questions about saved shortlist
+  if (
+    normalized.includes("saved") ||
+    normalized.includes("shortlist") ||
+    normalized.includes("favorite") ||
+    normalized.includes("bookmarked")
+  ) {
+    const saved = context?.savedProperties ?? [];
+    if (saved.length > 0) {
+      const savedList = saved
+        .map(
+          (p, i) =>
+            `${i + 1}. **${p.address}** (${p.suburb}) — $${p.price.toLocaleString()} | ${p.bedrooms} beds | ${p.propertyType}${p.architecturalStyle ? ` (${p.architecturalStyle})` : ""} | Flood Risk: ${p.floodRisk ?? "N/A"}`,
+        )
+        .join("\n");
+
+      return `You have ${saved.length} property saved to your shortlist:\n\n${savedList}\n\nWould you like me to help calculate mortgage repayments or organize viewing priorities for these homes?`;
+    }
+
+    return "You don't have any saved listings in your shortlist yet. Click the heart icon on any property card to save it for quick review!";
+  }
+
+  // 3. Search campaign & strategy advice
+  if (
+    normalized.includes("campaign") ||
+    normalized.includes("strategy") ||
+    normalized.includes("organise") ||
+    normalized.includes("organize") ||
+    normalized.includes("help me think") ||
+    normalized.includes("plan my search")
+  ) {
+    const savedCount = context?.savedProperties?.length ?? 0;
+    const comparedCount = context?.comparedProperties?.length ?? 0;
+
+    let contextualAdvice = "";
+    if (savedCount > 0 || comparedCount > 0) {
+      contextualAdvice = `Based on your ${savedCount} saved home(s) and ${comparedCount} compared listing(s), here is how to organize your campaign:\n\n`;
+    } else {
+      contextualAdvice = "Here is a structured campaign framework to organize your New Zealand home search:\n\n";
+    }
+
+    return `${contextualAdvice}1. **Define Your Criteria**: Lock in your top non-negotiables (bedrooms, school zones, and maximum commute time).\n2. **Evaluate Climate & Hazards**: Filter for Low/Moderate flood risks and North-facing orientation for warmth.\n3. **Financial Feasibility**: Use Haven's Mortgage Calculator to check your repayments against current interest rates.\n4. **Conduct Due Diligence**: For serious contenders, request the LIM report, verify title type, and inspect recent comparable sales (comps) in the suburb.\n5. **Inspect & Inquire**: Contact listing agents directly through Haven to arrange private viewings or confirm auction dates.`;
+  }
+
+  // 4. Check standard knowledge topics
   for (const topic of LOCAL_KNOWLEDGE_TOPICS) {
     if (topic.keywords.some((kw) => normalized.includes(kw))) {
       return topic.reply;

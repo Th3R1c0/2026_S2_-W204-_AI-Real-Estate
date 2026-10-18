@@ -1,4 +1,9 @@
-import { HAVEN_SYSTEM_KNOWLEDGE, findLocalKnowledgeAnswer } from "./chatbot-knowledge";
+import {
+  HAVEN_SYSTEM_KNOWLEDGE,
+  findLocalKnowledgeAnswer,
+  formatPropertiesContext,
+  type PropertyChatContext,
+} from "./chatbot-knowledge";
 
 export type ChatMessage = {
   role: "user" | "model";
@@ -16,7 +21,12 @@ const DEFAULT_GEMINI_ENDPOINT =
 export async function generateChatbotResponse(
   message: string,
   history: ChatMessage[] = [],
-  options: { apiKey?: string; fetchImpl?: typeof fetch; endpoint?: string } = {},
+  options: {
+    apiKey?: string;
+    fetchImpl?: typeof fetch;
+    endpoint?: string;
+    context?: PropertyChatContext;
+  } = {},
 ): Promise<ChatbotResponse> {
   const trimmed = message.trim();
   if (!trimmed) {
@@ -31,7 +41,7 @@ export async function generateChatbotResponse(
   // If no Gemini key is provided, answer using the embedded Haven knowledge base
   if (!apiKey) {
     return {
-      reply: findLocalKnowledgeAnswer(trimmed),
+      reply: findLocalKnowledgeAnswer(trimmed, options.context),
       source: "local",
     };
   }
@@ -53,6 +63,11 @@ export async function generateChatbotResponse(
     const endpoint = options.endpoint || DEFAULT_GEMINI_ENDPOINT;
     const fetchFunc = options.fetchImpl || fetch;
 
+    const propertiesContext = formatPropertiesContext(options.context);
+    const systemInstructionText = propertiesContext
+      ? `${HAVEN_SYSTEM_KNOWLEDGE}\n\n${propertiesContext}`
+      : HAVEN_SYSTEM_KNOWLEDGE;
+
     const response = await fetchFunc(endpoint, {
       method: "POST",
       headers: {
@@ -61,7 +76,7 @@ export async function generateChatbotResponse(
       },
       body: JSON.stringify({
         systemInstruction: {
-          parts: [{ text: HAVEN_SYSTEM_KNOWLEDGE }],
+          parts: [{ text: systemInstructionText }],
         },
         contents,
         generationConfig: {
@@ -74,7 +89,7 @@ export async function generateChatbotResponse(
     if (!response.ok) {
       console.warn(`[AI Chatbot] Gemini endpoint returned ${response.status}, falling back to local.`);
       return {
-        reply: findLocalKnowledgeAnswer(trimmed),
+        reply: findLocalKnowledgeAnswer(trimmed, options.context),
         source: "local",
       };
     }
@@ -91,7 +106,7 @@ export async function generateChatbotResponse(
 
     if (!replyText) {
       return {
-        reply: findLocalKnowledgeAnswer(trimmed),
+        reply: findLocalKnowledgeAnswer(trimmed, options.context),
         source: "local",
       };
     }
@@ -103,7 +118,7 @@ export async function generateChatbotResponse(
   } catch (error) {
     console.warn("[AI Chatbot] Error communicating with Gemini API, falling back:", error);
     return {
-      reply: findLocalKnowledgeAnswer(trimmed),
+      reply: findLocalKnowledgeAnswer(trimmed, options.context),
       source: "local",
     };
   }

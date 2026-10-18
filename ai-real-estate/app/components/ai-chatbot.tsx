@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
+import type { PropertyChatSummary } from "../../lib/chatbot-knowledge";
 
 type Message = {
   id: string;
@@ -10,10 +11,10 @@ type Message = {
   time: string;
 };
 
-const SUGGESTIONS = [
+const BASE_SUGGESTIONS = [
   "What is a LIM report?",
   "How does the mortgage calculator work?",
-  "What architectural styles can I filter?",
+  "Help me think about my search campaign",
 ];
 
 let idCounter = 0;
@@ -26,13 +27,22 @@ function getTimestamp(): string {
   return new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 }
 
-export default function AIChatbot() {
+export default function AIChatbot({
+  initialSavedProperties = [],
+  initialComparedProperties = [],
+}: {
+  initialSavedProperties?: PropertyChatSummary[];
+  initialComparedProperties?: PropertyChatSummary[];
+} = {}) {
   const [isOpen, setIsOpen] = useState(false);
+  const [savedProperties, setSavedProperties] = useState<PropertyChatSummary[]>(initialSavedProperties);
+  const [comparedProperties, setComparedProperties] = useState<PropertyChatSummary[]>(initialComparedProperties);
+
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "welcome",
       role: "model",
-      text: "Kia ora! I'm your Haven AI Assistant. Ask me anything about finding properties, architectural styles, flood risks, LIM reports, or using our calculators!",
+      text: "Kia ora! I'm your Haven AI Assistant. Ask me anything about finding properties, architectural styles, flood risks, LIM reports, or ask me to compare your selected homes and help plan your search campaign!",
       time: "Just now",
     },
   ]);
@@ -43,12 +53,69 @@ export default function AIChatbot() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  // Sync saved and compared properties from localStorage and window event
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const loadPropertiesFromStorage = () => {
+      try {
+        const savedRaw = localStorage.getItem("haven_saved_properties");
+        if (savedRaw) {
+          const parsed = JSON.parse(savedRaw);
+          if (Array.isArray(parsed)) setSavedProperties(parsed);
+        }
+        const comparedRaw = localStorage.getItem("haven_compared_properties");
+        if (comparedRaw) {
+          const parsed = JSON.parse(comparedRaw);
+          if (Array.isArray(parsed)) setComparedProperties(parsed);
+        }
+      } catch {}
+    };
+
+    loadPropertiesFromStorage();
+
+    const handleContextEvent = (event: Event) => {
+      const customEvent = event as CustomEvent<{
+        savedProperties?: PropertyChatSummary[];
+        comparedProperties?: PropertyChatSummary[];
+      }>;
+      if (customEvent.detail) {
+        if (customEvent.detail.savedProperties) {
+          setSavedProperties(customEvent.detail.savedProperties);
+        }
+        if (customEvent.detail.comparedProperties) {
+          setComparedProperties(customEvent.detail.comparedProperties);
+        }
+      }
+    };
+
+    window.addEventListener("haven_properties_context_updated", handleContextEvent);
+    window.addEventListener("storage", loadPropertiesFromStorage);
+
+    return () => {
+      window.removeEventListener("haven_properties_context_updated", handleContextEvent);
+      window.removeEventListener("storage", loadPropertiesFromStorage);
+    };
+  }, []);
+
   useEffect(() => {
     if (isOpen) {
       messagesEndRef.current?.scrollIntoView?.({ behavior: "smooth" });
       inputRef.current?.focus();
     }
   }, [isOpen, messages, loading]);
+
+  const dynamicSuggestions = useMemo(() => {
+    const list: string[] = [];
+    if (comparedProperties.length >= 2) {
+      list.push("Compare my selected homes");
+    }
+    if (savedProperties.length >= 1) {
+      list.push("Review my saved listings");
+    }
+    list.push(...BASE_SUGGESTIONS);
+    return list.slice(0, 4);
+  }, [comparedProperties, savedProperties]);
 
   const sendMessage = async (textToSend?: string) => {
     const text = (textToSend ?? input).trim();
@@ -74,7 +141,14 @@ export default function AIChatbot() {
       const res = await fetch("/api/chatbot", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: text, history }),
+        body: JSON.stringify({
+          message: text,
+          history,
+          context: {
+            savedProperties,
+            comparedProperties,
+          },
+        }),
       });
 
       if (!res.ok) {
@@ -248,6 +322,44 @@ export default function AIChatbot() {
             </button>
           </div>
 
+          {/* Active Context Banner */}
+          {(comparedProperties.length > 0 || savedProperties.length > 0) && (
+            <div
+              style={{
+                padding: "7px 16px",
+                backgroundColor: "#f0fdf4",
+                borderBottom: "1px solid #dcfce7",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                fontSize: "11px",
+                color: "#166534",
+                fontWeight: 600,
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                <span>📋</span>
+                <span>
+                  Context Active:{" "}
+                  {comparedProperties.length > 0 && `${comparedProperties.length} compared`}
+                  {comparedProperties.length > 0 && savedProperties.length > 0 && " · "}
+                  {savedProperties.length > 0 && `${savedProperties.length} saved`}
+                </span>
+              </div>
+              <span
+                style={{
+                  fontSize: "10px",
+                  color: "#15803d",
+                  backgroundColor: "#dcfce7",
+                  padding: "2px 6px",
+                  borderRadius: "10px",
+                }}
+              >
+                AI Ready
+              </span>
+            </div>
+          )}
+
           {/* Messages Stream */}
           <div
             style={{
@@ -344,7 +456,7 @@ export default function AIChatbot() {
                 backgroundColor: "#ffffff",
               }}
             >
-              {SUGGESTIONS.map((item) => (
+              {dynamicSuggestions.map((item) => (
                 <button
                   key={item}
                   type="button"

@@ -1321,6 +1321,58 @@ export default function PropertyExplorer({
     [savedProperties, readNotificationIds],
   );
 
+  useEffect(() => {
+    try {
+      const summarySaved = savedProperties.map((p) => ({
+        id: p.id,
+        address: p.address,
+        suburb: p.suburb,
+        city: p.city,
+        price: p.price,
+        bedrooms: p.bedrooms,
+        bathrooms: p.bathrooms,
+        landArea: p.landArea,
+        floorArea: p.floorArea,
+        yearBuilt: p.yearBuilt,
+        propertyType: p.propertyType,
+        architecturalStyle: p.architecturalStyle,
+        floodRisk: p.floodRisk,
+        orientation: p.orientation,
+        sunlightHours: p.sunlightHours,
+      }));
+
+      const summaryCompared = selectedProperties.map((p) => ({
+        id: p.id,
+        address: p.address,
+        suburb: p.suburb,
+        city: p.city,
+        price: p.price,
+        bedrooms: p.bedrooms,
+        bathrooms: p.bathrooms,
+        landArea: p.landArea,
+        floorArea: p.floorArea,
+        yearBuilt: p.yearBuilt,
+        propertyType: p.propertyType,
+        architecturalStyle: p.architecturalStyle,
+        floodRisk: p.floodRisk,
+        orientation: p.orientation,
+        sunlightHours: p.sunlightHours,
+      }));
+
+      localStorage.setItem("haven_saved_properties", JSON.stringify(summarySaved));
+      localStorage.setItem("haven_compared_properties", JSON.stringify(summaryCompared));
+
+      window.dispatchEvent(
+        new CustomEvent("haven_properties_context_updated", {
+          detail: {
+            savedProperties: summarySaved,
+            comparedProperties: summaryCompared,
+          },
+        }),
+      );
+    } catch {}
+  }, [savedProperties, selectedProperties]);
+
   function togglePropertyType(type: PropertyType) {
     setFilters((current) => ({
       ...current,
