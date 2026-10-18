@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 520" role="img" aria-label="Illustrated property placeholder">
+  <defs>
+    <linearGradient id="sky" x2="0" y2="1"><stop stop-color="#d9ede9"/><stop offset="1" stop-color="#f0f5ed"/></linearGradient>
+  </defs>
+  <rect width="800" height="520" fill="url(#sky)"/>
+  <circle cx="650" cy="115" r="55" fill="#f5d690"/>
+  <path d="M0 390c170-52 282-35 402 9 150-66 286-62 398-12v133H0z" fill="#afd0bc"/>
+  <path d="M177 260 402 102l225 158v196H177z" fill="#f7faf6" stroke="#416c62" stroke-width="9"/>
+  <path d="m147 274 255-181 255 181" fill="none" stroke="#244c45" stroke-linecap="round" stroke-linejoin="round" stroke-width="24"/>
+  <rect x="332" y="324" width="140" height="132" rx="8" fill="#d4e4d7" stroke="#416c62" stroke-width="8"/>
+  <rect x="215" y="309" width="80" height="73" rx="8" fill="#c6ddd9" stroke="#416c62" stroke-width="8"/>
+  <rect x="508" y="309" width="80" height="73" rx="8" fill="#c6ddd9" stroke="#416c62" stroke-width="8"/>
+  <path d="M0 457h800" stroke="#6e9d84" stroke-width="10"/>
+  <text x="400" y="495" fill="#244c45" font-family="Arial,sans-serif" font-size="21" text-anchor="middle">Property photo unavailable</text>
+</svg>

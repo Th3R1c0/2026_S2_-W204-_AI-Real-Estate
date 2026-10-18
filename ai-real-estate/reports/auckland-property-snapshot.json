@@ -1,0 +1,3282 @@
+{
+  "collectedAt": "2026-10-18T08:01:23.913Z",
+  "houses": [
+    {
+      "address": "59 Israel Avenue, Clover Park, Auckland",
+      "bedrooms": 3,
+      "bathrooms": 1,
+      "landArea": 601,
+      "historicalCv": 630000,
+      "addressId": 1227030,
+      "sources": {
+        "RealEstate": {
+          "status": "matched",
+          "url": "https://www.realestate.co.nz/property/59-israel-avenue-clover-park-manukau-city-auckland/6666665lc",
+          "estimate": {
+            "low": "$730,000",
+            "medium": "$768,000",
+            "high": "$800,000"
+          },
+          "data": {}
+        },
+        "OneRoof": {
+          "status": "matched",
+          "url": "https://www.oneroof.co.nz/property/auckland/clover-park/59-israel-avenue/GZPOl",
+          "estimate": {
+            "low": "$665K",
+            "medium": "$780K",
+            "high": "$895K"
+          }
+        },
+        "Homes": {
+          "status": "matched",
+          "url": "https://homes.co.nz/address/auckland/clover-park/59-israel-avenue/qnr00",
+          "estimate": {
+            "low": "$720K",
+            "medium": "$765K",
+            "high": "$810K"
+          }
+        },
+        "TradeMe": {
+          "status": "unverified",
+          "url": "https://www.trademe.co.nz/a/property/insights/profile/f573bbfd-5b16-469e-9bf3-3d33311d79e2"
+        },
+        "QV": {
+          "status": "error",
+          "error": "HTTP 404 from /api/get-qv-url"
+        },
+        "PropertyValue": {
+          "status": "matched",
+          "url": "https://www.propertyvalue.co.nz/auckland/manukau-city/clover-park-2023/59-israel-avenue-clover-park-auckland-2023-8691326",
+          "estimate": {
+            "low": "$750K",
+            "medium": "$775K",
+            "high": "$800K"
+          },
+          "data": {
+            "capitalValue": "$830,000",
+            "landValue": "$620,000",
+            "improvementValue": "$210,000",
+            "valuationDate": "01-05-2024"
+          }
+        }
+      },
+      "latitude": -36.97893236578944,
+      "longitude": 174.8926272667074
+    },
+    {
+      "address": "54 Kelmarna Avenue, Ponsonby, Auckland",
+      "bedrooms": 3,
+      "bathrooms": 1,
+      "landArea": 531,
+      "historicalCv": 2525000,
+      "addressId": 1590347,
+      "sources": {
+        "RealEstate": {
+          "status": "matched",
+          "url": "https://www.realestate.co.nz/property/54-kelmarna-avenue-ponsonby-auckland-city-auckland/1tx9zzhnc",
+          "estimate": {
+            "low": "$2,381,000",
+            "medium": "$2,672,000",
+            "high": "$2,942,000"
+          },
+          "data": {}
+        },
+        "OneRoof": {
+          "status": "wrong_address",
+          "url": "https://www.oneroof.co.nz/property/auckland/ponsonby/39-kelmarna-avenue/6GGdS"
+        },
+        "Homes": {
+          "status": "matched",
+          "url": "https://homes.co.nz/address/auckland/ponsonby/54-kelmarna-avenue/eVMOX",
+          "estimate": {
+            "low": "$2.79M",
+            "medium": "$2.97M",
+            "high": "$3.14M"
+          }
+        },
+        "TradeMe": {
+          "status": "unverified",
+          "url": "https://www.trademe.co.nz/a/property/insights/profile/ce2abea3-c3dd-4812-b7ff-50edb911b056"
+        },
+        "QV": {
+          "status": "error",
+          "error": "HTTP 404 from /api/get-qv-url"
+        },
+        "PropertyValue": {
+          "status": "matched",
+          "url": "https://www.propertyvalue.co.nz/auckland/auckland/ponsonby-1011/54-kelmarna-avenue-ponsonby-auckland-1011-5184935",
+          "estimate": {
+            "low": "$2.80M",
+            "medium": "$2.90M",
+            "high": "$3.00M"
+          },
+          "data": {
+            "lastSold": "Last Sold on 24 Jul 2020 for $2,540,000",
+            "capitalValue": "$3,000,000",
+            "landValue": "$2,300,000",
+            "improvementValue": "$700,000",
+            "valuationDate": "01-05-2024"
+          }
+        }
+      },
+      "latitude": -36.84924281579133,
+      "longitude": 174.73436013330465
+    },
+    {
+      "address": "39 Rawhiti Road, One Tree Hill, Auckland",
+      "bedrooms": 3,
+      "bathrooms": 2,
+      "landArea": 1024,
+      "historicalCv": 1400000,
+      "addressId": 1160726,
+      "sources": {
+        "RealEstate": {
+          "status": "matched",
+          "url": "https://www.realestate.co.nz/property/39-rawhiti-road-one-tree-hill-auckland-city-auckland/w7hprq72c",
+          "estimate": {
+            "low": "$1,305,000",
+            "medium": "$1,476,000",
+            "high": "$1,622,000"
+          },
+          "data": {}
+        },
+        "OneRoof": {
+          "status": "matched",
+          "url": "https://www.oneroof.co.nz/property/auckland/one-tree-hill/39-rawhiti-road/vrKhV",
+          "estimate": {
+            "low": "$1.19M",
+            "medium": "$1.45M",
+            "high": "$1.71M"
+          }
+        },
+        "Homes": {
+          "status": "matched",
+          "url": "https://homes.co.nz/address/auckland/one-tree-hill/39-rawhiti-road/XKw7N",
+          "estimate": {
+            "low": "$1.6M",
+            "medium": "$1.7M",
+            "high": "$1.8M"
+          }
+        },
+        "TradeMe": {
+          "status": "unverified",
+          "url": "https://www.trademe.co.nz/a/property/insights/profile/d7e55e77-4952-4f4a-9584-a9d90b184c1e"
+        },
+        "QV": {
+          "status": "error",
+          "error": "HTTP 404 from /api/get-qv-url"
+        },
+        "PropertyValue": {
+          "status": "matched",
+          "url": "https://www.propertyvalue.co.nz/auckland/auckland/one-tree-hill-1061/39-rawhiti-road-one-tree-hill-auckland-1061-4357656",
+          "estimate": {
+            "low": null,
+            "medium": null,
+            "high": null
+          },
+          "data": {
+            "lastSold": "Last Sold on 30 Jun 2020 for $1,404,000",
+            "capitalValue": "$1,700,000",
+            "landValue": "$1,625,000",
+            "improvementValue": "$75,000",
+            "valuationDate": "01-05-2024"
+          }
+        }
+      },
+      "latitude": -36.907868082390586,
+      "longitude": 174.7959140000056
+    },
+    {
+      "address": "17b Tawa Crescent, Manurewa, Auckland",
+      "bedrooms": 3,
+      "bathrooms": 2,
+      "landArea": 80,
+      "historicalCv": 475000,
+      "addressId": 1888990,
+      "sources": {
+        "RealEstate": {
+          "status": "matched",
+          "url": "https://www.realestate.co.nz/property/17b-tawa-crescent-manurewa-manukau-city-auckland/gck1txp9c",
+          "estimate": {
+            "low": "$504,000",
+            "medium": "$540,000",
+            "high": "$583,000"
+          },
+          "data": {}
+        },
+        "OneRoof": {
+          "status": "matched",
+          "url": "https://www.oneroof.co.nz/property/auckland/manurewa/17b-tawa-crescent/5ylm1",
+          "estimate": {
+            "low": "$480K",
+            "medium": "$580K",
+            "high": "$680K"
+          }
+        },
+        "Homes": {
+          "status": "matched",
+          "url": "https://homes.co.nz/address/auckland/manurewa/17b-tawa-crescent/YljNM",
+          "estimate": {
+            "low": "$505K",
+            "medium": "$540K",
+            "high": "$570K"
+          }
+        },
+        "TradeMe": {
+          "status": "unverified",
+          "url": "https://www.trademe.co.nz/a/property/insights/profile/9ca29076-c9de-4b37-95af-109785baebe5"
+        },
+        "QV": {
+          "status": "error",
+          "error": "HTTP 404 from /api/get-qv-url"
+        },
+        "PropertyValue": {
+          "status": "matched",
+          "url": "https://www.propertyvalue.co.nz/auckland/manukau-city/manurewa-2102/17b-tawa-crescent-manurewa-auckland-2102-3221974",
+          "estimate": {
+            "low": "$500K",
+            "medium": "$525K",
+            "high": "$550K"
+          },
+          "data": {
+            "lastSold": "Last Sold on 2 Nov 2020 for $546,000",
+            "capitalValue": "$540,000",
+            "landValue": "$440,000",
+            "improvementValue": "$100,000",
+            "valuationDate": "01-05-2024"
+          }
+        }
+      },
+      "latitude": -37.03338146578892,
+      "longitude": 174.89787236670747
+    },
+    {
+      "address": "39a Keegan Drive, Massey, Auckland",
+      "bedrooms": 4,
+      "bathrooms": 2,
+      "landArea": 204,
+      "historicalCv": 660000,
+      "addressId": 2198971,
+      "sources": {
+        "RealEstate": {
+          "status": "matched",
+          "url": "https://www.realestate.co.nz/property/39a-keegan-drive-massey-waitakere-city-auckland/M9Tq6gwXk",
+          "estimate": {
+            "low": "$734,000",
+            "medium": "$772,000",
+            "high": "$812,000"
+          },
+          "data": {}
+        },
+        "OneRoof": {
+          "status": "matched",
+          "url": "https://www.oneroof.co.nz/property/auckland/massey/39a-keegan-drive/TRZDF",
+          "estimate": {
+            "low": "$700K",
+            "medium": "$775K",
+            "high": "$855K"
+          }
+        },
+        "Homes": {
+          "status": "matched",
+          "url": "https://homes.co.nz/address/auckland/massey/39a-keegan-drive/Mp175",
+          "estimate": {
+            "low": "$740K",
+            "medium": "$790K",
+            "high": "$835K"
+          }
+        },
+        "TradeMe": {
+          "status": "unverified",
+          "url": "https://www.trademe.co.nz/a/property/insights/profile/1f47d26b-a62c-45da-92c2-4d7dff3c9bed"
+        },
+        "QV": {
+          "status": "wrong_address",
+          "url": "https://www.qv.co.nz/property-search/property-details/3202524/",
+          "pageTitle": "39 Keegan Drive, Massey - QV"
+        },
+        "PropertyValue": {
+          "status": "matched",
+          "url": "https://www.propertyvalue.co.nz/auckland/waitakere-city/massey-0614/39a-keegan-drive-massey-auckland-0614-62728016",
+          "estimate": {
+            "low": "$800K",
+            "medium": "$850K",
+            "high": "$900K"
+          },
+          "data": {
+            "lastSold": "Last Sold on 8 Aug 2020 for $880,000",
+            "capitalValue": "$810,000",
+            "landValue": "$295,000",
+            "improvementValue": "$515,000",
+            "valuationDate": "01-05-2024"
+          }
+        }
+      },
+      "latitude": -36.84601939869166,
+      "longitude": 174.6208305252033
+    },
+    {
+      "address": "39c Keegan Drive, Massey, Auckland",
+      "bedrooms": 4,
+      "bathrooms": 2,
+      "landArea": 170,
+      "historicalCv": 900000,
+      "addressId": 2198973,
+      "sources": {
+        "RealEstate": {
+          "status": "matched",
+          "url": "https://www.realestate.co.nz/property/39c-keegan-drive-massey-waitakere-city-auckland/RPhFCgwXk",
+          "estimate": {
+            "low": "$743,000",
+            "medium": "$775,000",
+            "high": "$808,000"
+          },
+          "data": {}
+        },
+        "OneRoof": {
+          "status": "matched",
+          "url": "https://www.oneroof.co.nz/property/auckland/massey/39c-keegan-drive/1Fp3e",
+          "estimate": {
+            "low": "$705K",
+            "medium": "$785K",
+            "high": "$860K"
+          }
+        },
+        "Homes": {
+          "status": "matched",
+          "url": "https://homes.co.nz/address/auckland/massey/39c-keegan-drive/ApYbD",
+          "estimate": {
+            "low": "$745K",
+            "medium": "$790K",
+            "high": "$840K"
+          }
+        },
+        "TradeMe": {
+          "status": "unverified",
+          "url": "https://www.trademe.co.nz/a/property/insights/profile/628d45db-9bc5-4f2a-959c-d6c032a4e43d"
+        },
+        "QV": {
+          "status": "wrong_address",
+          "url": "https://www.qv.co.nz/property-search/property-details/3202524/",
+          "pageTitle": "39 Keegan Drive, Massey - QV"
+        },
+        "PropertyValue": {
+          "status": "matched",
+          "url": "https://www.propertyvalue.co.nz/auckland/waitakere-city/massey-0614/39c-keegan-drive-massey-auckland-0614-62728522",
+          "estimate": {
+            "low": "$750K",
+            "medium": "$775K",
+            "high": "$800K"
+          },
+          "data": {
+            "lastSold": "Last Sold on 21 Oct 2021 for $1,015,000",
+            "capitalValue": "$820,000",
+            "landValue": "$270,000",
+            "improvementValue": "$550,000",
+            "valuationDate": "01-05-2024"
+          }
+        }
+      },
+      "latitude": -36.846131223091646,
+      "longitude": 174.6207587713033
+    },
+    {
+      "address": "39b Keegan Drive, Massey, Auckland",
+      "bedrooms": 4,
+      "bathrooms": 2,
+      "landArea": 170,
+      "historicalCv": 660000,
+      "addressId": 2198972,
+      "sources": {
+        "RealEstate": {
+          "status": "matched",
+          "url": "https://www.realestate.co.nz/property/39b-keegan-drive-massey-waitakere-city-auckland/Pn5X8gwXk",
+          "estimate": {
+            "low": "$742,000",
+            "medium": "$776,000",
+            "high": "$809,000"
+          },
+          "data": {}
+        },
+        "OneRoof": {
+          "status": "matched",
+          "url": "https://www.oneroof.co.nz/property/auckland/massey/39b-keegan-drive/93evm",
+          "estimate": {
+            "low": "$690K",
+            "medium": "$765K",
+            "high": "$840K"
+          }
+        },
+        "Homes": {
+          "status": "matched",
+          "url": "https://homes.co.nz/address/auckland/massey/39b-keegan-drive/ZpVwL",
+          "estimate": {
+            "low": "$740K",
+            "medium": "$785K",
+            "high": "$835K"
+          }
+        },
+        "TradeMe": {
+          "status": "unverified",
+          "url": "https://www.trademe.co.nz/a/property/insights/profile/51688bf2-3881-459f-aab9-935ee8a25a0c"
+        },
+        "QV": {
+          "status": "wrong_address",
+          "url": "https://www.qv.co.nz/property-search/property-details/3202524/",
+          "pageTitle": "39 Keegan Drive, Massey - QV"
+        },
+        "PropertyValue": {
+          "status": "matched",
+          "url": "https://www.propertyvalue.co.nz/auckland/waitakere-city/massey-0614/39b-keegan-drive-massey-auckland-0614-62728445",
+          "estimate": {
+            "low": "$750K",
+            "medium": "$775K",
+            "high": "$800K"
+          },
+          "data": {
+            "lastSold": "Last Sold on 23 Jun 2020 for $840,000",
+            "capitalValue": "$820,000",
+            "landValue": "$270,000",
+            "improvementValue": "$550,000",
+            "valuationDate": "01-05-2024"
+          }
+        }
+      },
+      "latitude": -36.84607997029166,
+      "longitude": 174.6207951142033
+    },
+    {
+      "address": "9 Menear Lane, Hillcrest, Auckland",
+      "bedrooms": 3,
+      "bathrooms": 1,
+      "landArea": 637,
+      "historicalCv": 920000,
+      "addressId": 1072218,
+      "sources": {
+        "RealEstate": {
+          "status": "matched",
+          "url": "https://www.realestate.co.nz/property/9-menear-lane-hillcrest-north-shore-city-auckland/f91q9rdvc",
+          "estimate": {
+            "low": "$997,000",
+            "medium": "$1,067,000",
+            "high": "$1,139,000"
+          },
+          "data": {}
+        },
+        "OneRoof": {
+          "status": "matched",
+          "url": "https://www.oneroof.co.nz/property/auckland/hillcrest/9-menear-lane/VzaPu",
+          "estimate": {
+            "low": "$940K",
+            "medium": "$1.07M",
+            "high": "$1.19M"
+          }
+        },
+        "Homes": {
+          "status": "matched",
+          "url": "https://homes.co.nz/address/auckland/hillcrest/9-menear-lane/jwKwo",
+          "estimate": {
+            "low": "$955K",
+            "medium": "$1.02M",
+            "high": "$1.08M"
+          }
+        },
+        "TradeMe": {
+          "status": "unverified",
+          "url": "https://www.trademe.co.nz/a/property/insights/profile/a335e466-14c3-494a-ae55-608add5064f9"
+        },
+        "QV": {
+          "status": "matched",
+          "url": "https://www.qv.co.nz/property-search/property-details/1572778/",
+          "pageTitle": "9 Menear Lane, Hillcrest - QV",
+          "estimate": {
+            "low": null,
+            "medium": "$1.01M",
+            "high": null
+          }
+        },
+        "PropertyValue": {
+          "status": "matched",
+          "url": "https://www.propertyvalue.co.nz/auckland/north-shore-city/hillcrest-0627/9-menear-lane-hillcrest-auckland-0627-9068484",
+          "estimate": {
+            "low": "$1.00M",
+            "medium": "$1.05M",
+            "high": "$1.10M"
+          },
+          "data": {
+            "lastSold": "Last Sold on 27 Oct 2020 for $915,000",
+            "capitalValue": "$1,100,000",
+            "landValue": "$900,000",
+            "improvementValue": "$200,000",
+            "valuationDate": "01-05-2024"
+          }
+        }
+      },
+      "latitude": -36.79260048239191,
+      "longitude": 174.72729890000457
+    },
+    {
+      "address": "53a Kimber Hall Avenue, Mount Roskill, Auckland",
+      "bedrooms": 3,
+      "bathrooms": 1,
+      "landArea": 138,
+      "historicalCv": 1200000,
+      "addressId": 2217603,
+      "sources": {
+        "RealEstate": {
+          "status": "matched",
+          "url": "https://www.realestate.co.nz/property/53a-kimber-hall-avenue-mount-roskill-auckland-city-auckland/8mN47dBXk",
+          "estimate": {
+            "low": "$865,000",
+            "medium": "$915,000",
+            "high": "$972,000"
+          },
+          "data": {}
+        },
+        "OneRoof": {
+          "status": "matched",
+          "url": "https://www.oneroof.co.nz/property/auckland/mount-roskill/53a-kimber-hall-avenue/I7aeU",
+          "estimate": {
+            "low": null,
+            "medium": null,
+            "high": null
+          }
+        },
+        "Homes": {
+          "status": "matched",
+          "url": "https://homes.co.nz/address/auckland/mount-roskill/53a-kimber-hall-avenue/J0poL",
+          "estimate": {
+            "low": "$825K",
+            "medium": "$880K",
+            "high": "$930K"
+          }
+        },
+        "TradeMe": {
+          "status": "unverified",
+          "url": "https://www.trademe.co.nz/a/property/insights/profile/34ab4d45-90d1-4f2f-a114-36a099dac031"
+        },
+        "QV": {
+          "status": "matched",
+          "url": "https://www.qv.co.nz/property-search/property-details/3231781/",
+          "pageTitle": "53A Kimber Hall Avenue, Mount Roskill - QV",
+          "estimate": {
+            "low": null,
+            "medium": "$840K",
+            "high": null
+          }
+        },
+        "PropertyValue": {
+          "status": "matched",
+          "url": "https://www.propertyvalue.co.nz/auckland/auckland/mount-roskill-1041/53a-kimber-hall-avenue-mount-roskill-auckland-1041-62753389",
+          "estimate": {
+            "low": "$900K",
+            "medium": "$950K",
+            "high": "$1.00M"
+          },
+          "data": {
+            "lastSold": "Last Sold on 10 Mar 2022 for $1,050,000",
+            "capitalValue": "$980,000",
+            "landValue": "$540,000",
+            "improvementValue": "$440,000",
+            "valuationDate": "01-05-2024"
+          }
+        }
+      },
+      "latitude": -36.91857689639073,
+      "longitude": 174.71780844080448
+    },
+    {
+      "address": "109 Aberley Road, Schnapper Rock, Auckland",
+      "bedrooms": 5,
+      "bathrooms": 4,
+      "landArea": 732,
+      "historicalCv": 1800000,
+      "addressId": 1429769,
+      "sources": {
+        "RealEstate": {
+          "status": "matched",
+          "url": "https://www.realestate.co.nz/property/109-aberley-road-schnapper-rock-north-shore-city-auckland/65g2y4g0",
+          "estimate": {
+            "low": "$1,784,000",
+            "medium": "$1,871,000",
+            "high": "$1,975,000"
+          },
+          "data": {}
+        },
+        "OneRoof": {
+          "status": "matched",
+          "url": "https://www.oneroof.co.nz/property/auckland/schnapper-rock/109-aberley-road/5Tfvg",
+          "estimate": {
+            "low": "$1.77M",
+            "medium": "$2M",
+            "high": "$2.23M"
+          }
+        },
+        "Homes": {
+          "status": "matched",
+          "url": "https://homes.co.nz/address/auckland/schnapper-rock/109-aberley-road/JY872",
+          "estimate": {
+            "low": "$1.9M",
+            "medium": "$2.02M",
+            "high": "$2.14M"
+          }
+        },
+        "TradeMe": {
+          "status": "unverified",
+          "url": "https://www.trademe.co.nz/a/property/insights/profile/593f4ff3-69c1-43de-ad10-26a8ae5d446b"
+        },
+        "QV": {
+          "status": "matched",
+          "url": "https://www.qv.co.nz/property-search/property-details/2433441/",
+          "pageTitle": "109 Aberley Road, Schnapper Rock - QV",
+          "estimate": {
+            "low": null,
+            "medium": "$1.84M",
+            "high": null
+          }
+        },
+        "PropertyValue": {
+          "status": "matched",
+          "url": "https://www.propertyvalue.co.nz/auckland/north-shore-city/schnapper-rock-0632/109-aberley-road-schnapper-rock-auckland-0632-8399965",
+          "estimate": {
+            "low": "$1.80M",
+            "medium": "$1.90M",
+            "high": "$2.00M"
+          },
+          "data": {
+            "lastSold": "Last Sold on 5 Jul 2020 for $1,650,000",
+            "capitalValue": "$1,900,000",
+            "landValue": "$1,025,000",
+            "improvementValue": "$875,000",
+            "valuationDate": "01-05-2024"
+          }
+        }
+      },
+      "latitude": -36.75070149909243,
+      "longitude": 174.67944875000396
+    },
+    {
+      "address": "19 Kenley Place, Avondale, Auckland",
+      "bedrooms": 4,
+      "bathrooms": 2,
+      "landArea": 799,
+      "historicalCv": 1145000,
+      "addressId": 1011445,
+      "sources": {
+        "RealEstate": {
+          "status": "matched",
+          "url": "https://www.realestate.co.nz/property/19-kenley-place-avondale-auckland-city-auckland/gldx30lnc",
+          "estimate": {
+            "low": "$1,338,000",
+            "medium": "$1,482,000",
+            "high": "$1,595,000"
+          },
+          "data": {}
+        },
+        "OneRoof": {
+          "status": "matched",
+          "url": "https://www.oneroof.co.nz/property/auckland/avondale/19-kenley-place/5NgZH",
+          "estimate": {
+            "low": "$1.29M",
+            "medium": "$1.52M",
+            "high": "$1.74M"
+          }
+        },
+        "Homes": {
+          "status": "matched",
+          "url": "https://homes.co.nz/address/auckland/avondale/19-kenley-place/0WPG9",
+          "estimate": {
+            "low": "$1.4M",
+            "medium": "$1.49M",
+            "high": "$1.58M"
+          }
+        },
+        "TradeMe": {
+          "status": "unverified",
+          "url": "https://www.trademe.co.nz/a/property/insights/profile/0dd0c7f7-6fda-4e62-95b3-acad55c8e285"
+        },
+        "QV": {
+          "status": "matched",
+          "url": "https://www.qv.co.nz/property-search/property-details/147809/",
+          "pageTitle": "19 Kenley Place, Avondale - QV",
+          "estimate": {
+            "low": null,
+            "medium": "$1.50M",
+            "high": null
+          }
+        },
+        "PropertyValue": {
+          "status": "matched",
+          "url": "https://www.propertyvalue.co.nz/auckland/auckland/avondale-1026/19-kenley-place-avondale-auckland-1026-8494629",
+          "estimate": {
+            "low": "$1.50M",
+            "medium": "$1.55M",
+            "high": "$1.60M"
+          },
+          "data": {
+            "lastSold": "Last Sold on 27 Jun 2020 for $1,505,000",
+            "capitalValue": "$1,550,000",
+            "landValue": "$1,025,000",
+            "improvementValue": "$525,000",
+            "valuationDate": "01-05-2024"
+          }
+        }
+      },
+      "latitude": -36.8897524157911,
+      "longitude": 174.6747592500039
+    },
+    {
+      "address": "27 Stottholm Road, Titirangi, Auckland",
+      "bedrooms": 3,
+      "bathrooms": 1,
+      "landArea": 1105,
+      "historicalCv": 920000,
+      "addressId": 1014115,
+      "sources": {
+        "RealEstate": {
+          "status": "matched",
+          "url": "https://www.realestate.co.nz/property/27-stottholm-road-titirangi-waitakere-city-auckland/18l1k6c8c",
+          "estimate": {
+            "low": "$962,000",
+            "medium": "$1,046,000",
+            "high": "$1,140,000"
+          },
+          "data": {}
+        },
+        "OneRoof": {
+          "status": "matched",
+          "url": "https://www.oneroof.co.nz/property/auckland/titirangi/27-stottholm-road/gK4hV",
+          "estimate": {
+            "low": "$920K",
+            "medium": "$1.04M",
+            "high": "$1.16M"
+          }
+        },
+        "Homes": {
+          "status": "matched",
+          "url": "https://homes.co.nz/address/auckland/titirangi/27-stottholm-road/8NejM",
+          "estimate": {
+            "low": "$990K",
+            "medium": "$1.05M",
+            "high": "$1.12M"
+          }
+        },
+        "TradeMe": {
+          "status": "unverified",
+          "url": "https://www.trademe.co.nz/a/property/insights/profile/9afd38f7-c975-4a11-8001-25d1a27c4467"
+        },
+        "QV": {
+          "status": "matched",
+          "url": "https://www.qv.co.nz/property-search/property-details/1640532/",
+          "pageTitle": "27 Stottholm Road, Titirangi - QV",
+          "estimate": {
+            "low": null,
+            "medium": "$1.07M",
+            "high": null
+          }
+        },
+        "PropertyValue": {
+          "status": "matched",
+          "url": "https://www.propertyvalue.co.nz/auckland/waitakere-city/titirangi-0604/27-stottholm-road-titirangi-auckland-0604-6929297",
+          "estimate": {
+            "low": "$1.00M",
+            "medium": "$1.05M",
+            "high": "$1.10M"
+          },
+          "data": {
+            "lastSold": "Last Sold on 18 Jul 2020 for $1,070,000",
+            "capitalValue": "$1,150,000",
+            "landValue": "$1,050,000",
+            "improvementValue": "$100,000",
+            "valuationDate": "01-05-2024"
+          }
+        }
+      },
+      "latitude": -36.92852969909075,
+      "longitude": 174.66959905000382
+    },
+    {
+      "address": "71 First Avenue, Kingsland, Auckland",
+      "bedrooms": 3,
+      "bathrooms": 1,
+      "landArea": 463,
+      "historicalCv": 1500000,
+      "addressId": 1096372,
+      "sources": {
+        "RealEstate": {
+          "status": "matched",
+          "url": "https://www.realestate.co.nz/property/71-first-avenue-kingsland-auckland-city-auckland/jrcdtmzdc",
+          "estimate": {
+            "low": "$1,335,000",
+            "medium": "$1,443,000",
+            "high": "$1,561,000"
+          },
+          "data": {}
+        },
+        "OneRoof": {
+          "status": "matched",
+          "url": "https://www.oneroof.co.nz/property/auckland/kingsland/71-first-avenue/9UH9G",
+          "estimate": {
+            "low": "$1.24M",
+            "medium": "$1.42M",
+            "high": "$1.6M"
+          }
+        },
+        "Homes": {
+          "status": "matched",
+          "url": "https://homes.co.nz/address/auckland/kingsland/71-first-avenue/rZ1R",
+          "estimate": {
+            "low": "$1.4M",
+            "medium": "$1.49M",
+            "high": "$1.58M"
+          }
+        },
+        "TradeMe": {
+          "status": "unverified",
+          "url": "https://www.trademe.co.nz/a/property/insights/profile/df354964-a41b-483f-9fed-037ffe3d8800"
+        },
+        "QV": {
+          "status": "error",
+          "error": "HTTP 404 from /api/get-qv-url"
+        },
+        "PropertyValue": {
+          "status": "matched",
+          "url": "https://www.propertyvalue.co.nz/auckland/auckland/kingsland-1021/71-first-avenue-kingsland-auckland-1021-2715251",
+          "estimate": {
+            "low": "$1.50M",
+            "medium": "$1.55M",
+            "high": "$1.60M"
+          },
+          "data": {
+            "lastSold": "Last Sold on 14 Jul 2020 for $1,435,000",
+            "capitalValue": "$1,600,000",
+            "landValue": "$1,375,000",
+            "improvementValue": "$225,000",
+            "valuationDate": "01-05-2024"
+          }
+        }
+      },
+      "latitude": -36.87222013239112,
+      "longitude": 174.73863395000475
+    },
+    {
+      "address": "17 Dalwhinnie Parade, Highland Park, Auckland",
+      "bedrooms": 3,
+      "bathrooms": 2,
+      "landArea": 681,
+      "historicalCv": 1100000,
+      "addressId": 1255401,
+      "sources": {
+        "RealEstate": {
+          "status": "matched",
+          "url": "https://www.realestate.co.nz/property/17-dalwhinnie-parade-highland-park-manukau-city-auckland/fbtwkvs9",
+          "estimate": {
+            "low": "$1,367,000",
+            "medium": "$1,507,000",
+            "high": "$1,663,000"
+          },
+          "data": {}
+        },
+        "OneRoof": {
+          "status": "matched",
+          "url": "https://www.oneroof.co.nz/property/auckland/highland-park/17-dalwhinnie-parade/yyFVJ",
+          "estimate": {
+            "low": "$1.4M",
+            "medium": "$1.55M",
+            "high": null
+          }
+        },
+        "Homes": {
+          "status": "matched",
+          "url": "https://homes.co.nz/address/auckland/highland-park/17-dalwhinnie-parade/K8LB",
+          "estimate": {
+            "low": "$1.52M",
+            "medium": "$1.62M",
+            "high": "$1.71M"
+          }
+        },
+        "TradeMe": {
+          "status": "unverified",
+          "url": "https://www.trademe.co.nz/a/property/insights/profile/16538eea-a95d-41f6-ab1b-9bbbdb250107"
+        },
+        "QV": {
+          "status": "error",
+          "error": "HTTP 404 from /api/get-qv-url"
+        },
+        "PropertyValue": {
+          "status": "matched",
+          "url": "https://www.propertyvalue.co.nz/auckland/manukau-city/highland-park-2010/17-dalwhinnie-parade-highland-park-auckland-2010-9060429",
+          "estimate": {
+            "low": "$1.60M",
+            "medium": "$1.70M",
+            "high": "$1.80M"
+          },
+          "data": {
+            "lastSold": "Last Sold on 25 Jun 2020 for $1,150,000",
+            "capitalValue": "$1,725,000",
+            "landValue": "$1,075,000",
+            "improvementValue": "$650,000",
+            "valuationDate": "01-05-2024"
+          }
+        }
+      },
+      "latitude": -36.90152413239007,
+      "longitude": 174.91588485000784
+    },
+    {
+      "address": "72 Stonefields Avenue, Stonefields, Auckland",
+      "bedrooms": 2,
+      "bathrooms": 1,
+      "landArea": 106,
+      "historicalCv": 1020000,
+      "addressId": 1741920,
+      "sources": {
+        "RealEstate": {
+          "status": "matched",
+          "url": "https://www.realestate.co.nz/property/72-stonefields-avenue-stonefields-auckland-city-auckland/j4fg5kdyd",
+          "estimate": {
+            "low": "$975,000",
+            "medium": "$1,038,000",
+            "high": "$1,078,000"
+          },
+          "data": {}
+        },
+        "OneRoof": {
+          "status": "matched",
+          "url": "https://www.oneroof.co.nz/property/auckland/stonefields/72-stonefields-avenue/gE3sV",
+          "estimate": {
+            "low": "$910K",
+            "medium": "$1.01M",
+            "high": "$1.11M"
+          }
+        },
+        "Homes": {
+          "status": "matched",
+          "url": "https://homes.co.nz/address/auckland/stonefields/72-stonefields-avenue/kRLW",
+          "estimate": {
+            "low": "$965K",
+            "medium": "$1.02M",
+            "high": "$1.09M"
+          }
+        },
+        "TradeMe": {
+          "status": "unverified",
+          "url": "https://www.trademe.co.nz/a/property/insights/profile/2d7fbd10-0873-4183-a5ca-de17b2c953b7"
+        },
+        "QV": {
+          "status": "wrong_address",
+          "url": "https://www.qv.co.nz/property-search/property-details/2723408/",
+          "pageTitle": "72 Bluegrey Avenue, Stonefields, Auckland - QV"
+        },
+        "PropertyValue": {
+          "status": "matched",
+          "url": "https://www.propertyvalue.co.nz/auckland/auckland/stonefields-1072/72-stonefields-avenue-stonefields-auckland-1072-16898614",
+          "estimate": {
+            "low": "$900K",
+            "medium": "$950K",
+            "high": "$1.00M"
+          },
+          "data": {
+            "lastSold": "Last Sold on 8 Jul 2020 for $970,492",
+            "capitalValue": "$1,075,000",
+            "landValue": "$810,000",
+            "improvementValue": "$265,000",
+            "valuationDate": "01-05-2024"
+          }
+        }
+      },
+      "latitude": -36.88791061579058,
+      "longitude": 174.84341156670644
+    },
+    {
+      "address": "62 Richardson Road, Mount Albert, Auckland",
+      "bedrooms": 3,
+      "bathrooms": 1,
+      "landArea": 713,
+      "historicalCv": 1150000,
+      "addressId": 1046114,
+      "sources": {
+        "RealEstate": {
+          "status": "matched",
+          "url": "https://www.realestate.co.nz/property/62-richardson-road-mount-albert-auckland-city-auckland/82ltqbv3c",
+          "estimate": {
+            "low": "$978,000",
+            "medium": "$1,070,000",
+            "high": "$1,152,000"
+          },
+          "data": {}
+        },
+        "OneRoof": {
+          "status": "matched",
+          "url": "https://www.oneroof.co.nz/property/auckland/mount-albert/62-richardson-road/PC85y",
+          "estimate": {
+            "low": "$1.05M",
+            "medium": "$1.18M",
+            "high": "$1.32M"
+          }
+        },
+        "Homes": {
+          "status": "matched",
+          "url": "https://homes.co.nz/address/auckland/mount-albert/62-richardson-road/L10RX",
+          "estimate": {
+            "low": "$1.1M",
+            "medium": "$1.17M",
+            "high": "$1.24M"
+          }
+        },
+        "TradeMe": {
+          "status": "unverified",
+          "url": "https://www.trademe.co.nz/a/property/insights/profile/57b97f70-d920-41ad-a29a-0e42efaf3013"
+        },
+        "QV": {
+          "status": "error",
+          "error": "HTTP 404 from /api/get-qv-url"
+        },
+        "PropertyValue": {
+          "status": "matched",
+          "url": "https://www.propertyvalue.co.nz/auckland/auckland/mount-albert-1025/62-richardson-road-mount-albert-auckland-1025-62820827",
+          "estimate": {
+            "low": "$1.00M",
+            "medium": "$1.05M",
+            "high": "$1.10M"
+          },
+          "data": {
+            "lastSold": "Last Sold on 20 Nov 2021 for $1,653,000",
+            "capitalValue": "$1,100,000",
+            "landValue": "$820,000",
+            "improvementValue": "$280,000",
+            "valuationDate": "01-05-2024"
+          }
+        }
+      },
+      "latitude": -36.89236867049098,
+      "longitude": 174.71406923110445
+    },
+    {
+      "address": "47b Comins Crescent, Mission Bay, Auckland",
+      "bedrooms": 3,
+      "bathrooms": 2,
+      "landArea": 211,
+      "historicalCv": 1600000,
+      "addressId": 1884590,
+      "sources": {
+        "RealEstate": {
+          "status": "matched",
+          "url": "https://www.realestate.co.nz/property/47b-comins-crescent-mission-bay-auckland-city-auckland/cmnh4kn8",
+          "estimate": {
+            "low": "$1,300,000",
+            "medium": "$1,447,000",
+            "high": "$1,560,000"
+          },
+          "data": {}
+        },
+        "OneRoof": {
+          "status": "matched",
+          "url": "https://www.oneroof.co.nz/property/auckland/mission-bay/47b-comins-crescent/G2f0C",
+          "estimate": {
+            "low": null,
+            "medium": null,
+            "high": null
+          }
+        },
+        "Homes": {
+          "status": "matched",
+          "url": "https://homes.co.nz/address/auckland/mission-bay/47b-comins-crescent/aPra",
+          "estimate": {
+            "low": "$1.6M",
+            "medium": "$1.7M",
+            "high": "$1.8M"
+          }
+        },
+        "TradeMe": {
+          "status": "unverified",
+          "url": "https://www.trademe.co.nz/a/property/insights/profile/c20fb5c2-a70d-4da1-903a-74331b2bdcec"
+        },
+        "QV": {
+          "status": "error",
+          "error": "HTTP 404 from /api/get-qv-url"
+        },
+        "PropertyValue": {
+          "status": "matched",
+          "url": "https://www.propertyvalue.co.nz/auckland/auckland/mission-bay-1071/47b-comins-crescent-mission-bay-auckland-1071-3579564",
+          "estimate": {
+            "low": "$1.50M",
+            "medium": "$1.55M",
+            "high": "$1.60M"
+          },
+          "data": {
+            "lastSold": "Last Sold on 2 Jul 2020 for $1,310,000",
+            "capitalValue": "$1,700,000",
+            "landValue": "$1,350,000",
+            "improvementValue": "$350,000",
+            "valuationDate": "01-05-2024"
+          }
+        }
+      },
+      "latitude": -36.85406716579094,
+      "longitude": 174.83483991670624
+    },
+    {
+      "address": "26 Fairholme Avenue, Epsom, Auckland",
+      "bedrooms": 3,
+      "bathrooms": 2,
+      "landArea": 402,
+      "historicalCv": 1280000,
+      "addressId": 1134592,
+      "sources": {
+        "RealEstate": {
+          "status": "matched",
+          "url": "https://www.realestate.co.nz/property/26-fairholme-avenue-epsom-auckland-city-auckland/g9xcmncdc",
+          "estimate": {
+            "low": "$1,242,000",
+            "medium": "$1,345,000",
+            "high": "$1,455,000"
+          },
+          "data": {}
+        },
+        "OneRoof": {
+          "status": "matched",
+          "url": "https://www.oneroof.co.nz/property/auckland/epsom/26-fairholme-avenue/0U2Yt",
+          "estimate": {
+            "low": "$1.19M",
+            "medium": "$1.36M",
+            "high": "$1.53M"
+          }
+        },
+        "Homes": {
+          "status": "matched",
+          "url": "https://homes.co.nz/address/auckland/epsom/26-fairholme-avenue/8ZAEx",
+          "estimate": {
+            "low": "$1.33M",
+            "medium": "$1.41M",
+            "high": "$1.5M"
+          }
+        },
+        "TradeMe": {
+          "status": "unverified",
+          "url": "https://www.trademe.co.nz/a/property/insights/profile/73d17716-8130-4570-86ce-c00713529b79"
+        },
+        "QV": {
+          "status": "matched",
+          "url": "https://www.qv.co.nz/property-search/property-details/211829/",
+          "pageTitle": "26 Fairholme Avenue, Epsom - QV",
+          "estimate": {
+            "low": null,
+            "medium": "$1.21M",
+            "high": null
+          }
+        },
+        "PropertyValue": {
+          "status": "matched",
+          "url": "https://www.propertyvalue.co.nz/auckland/auckland/epsom-1023/26-fairholme-avenue-epsom-auckland-1023-8794034",
+          "estimate": {
+            "low": "$1.30M",
+            "medium": "$1.35M",
+            "high": "$1.40M"
+          },
+          "data": {
+            "lastSold": "Last Sold on 1 Jul 2020 for $1,495,000",
+            "capitalValue": "$1,375,000",
+            "landValue": "$1,100,000",
+            "improvementValue": "$275,000",
+            "valuationDate": "01-05-2024"
+          }
+        }
+      },
+      "latitude": -36.903163406990714,
+      "longitude": 174.76845001550518
+    },
+    {
+      "address": "24 Fairholme Avenue, Epsom, Auckland",
+      "bedrooms": 3,
+      "bathrooms": 1,
+      "landArea": 883,
+      "historicalCv": 2150000,
+      "addressId": 1134568,
+      "sources": {
+        "RealEstate": {
+          "status": "matched",
+          "url": "https://www.realestate.co.nz/property/24-fairholme-avenue-epsom-auckland-city-auckland/9r4dlncdc",
+          "estimate": {
+            "low": "$1,837,000",
+            "medium": "$2,109,000",
+            "high": "$2,336,000"
+          },
+          "data": {}
+        },
+        "OneRoof": {
+          "status": "matched",
+          "url": "https://www.oneroof.co.nz/property/auckland/epsom/24-fairholme-avenue/sltul",
+          "estimate": {
+            "low": "$1.92M",
+            "medium": "$2.3M",
+            "high": "$2.68M"
+          }
+        },
+        "Homes": {
+          "status": "matched",
+          "url": "https://homes.co.nz/address/auckland/epsom/24-fairholme-avenue/WKR0K",
+          "estimate": {
+            "low": "$2.08M",
+            "medium": "$2.21M",
+            "high": "$2.34M"
+          }
+        },
+        "TradeMe": {
+          "status": "unverified",
+          "url": "https://www.trademe.co.nz/a/property/insights/profile/303ce448-3a60-4162-a63f-e0dbbf78f7d7"
+        },
+        "QV": {
+          "status": "matched",
+          "url": "https://www.qv.co.nz/property-search/property-details/211803/",
+          "pageTitle": "24 Fairholme Avenue, Epsom - QV",
+          "estimate": {
+            "low": null,
+            "medium": "$2.32M",
+            "high": null
+          }
+        },
+        "PropertyValue": {
+          "status": "matched",
+          "url": "https://www.propertyvalue.co.nz/auckland/auckland/epsom-1023/24-fairholme-avenue-epsom-auckland-1023-8794033",
+          "estimate": {
+            "low": "$2.20M",
+            "medium": "$2.30M",
+            "high": "$2.40M"
+          },
+          "data": {
+            "lastSold": "Last Sold on 12 Jun 2020 for $2,000,100",
+            "capitalValue": "$2,375,000",
+            "landValue": "$2,175,000",
+            "improvementValue": "$200,000",
+            "valuationDate": "01-05-2024"
+          }
+        }
+      },
+      "latitude": -36.90323439909072,
+      "longitude": 174.7686515500052
+    },
+    {
+      "address": "4 Fairholme Avenue, Epsom, Auckland",
+      "bedrooms": 5,
+      "bathrooms": 3,
+      "landArea": 883,
+      "historicalCv": 2425000,
+      "addressId": 1134840,
+      "sources": {
+        "RealEstate": {
+          "status": "error",
+          "error": "HTTP 404 from /api/get-realestate-url"
+        },
+        "OneRoof": {
+          "status": "wrong_address",
+          "url": "https://www.oneroof.co.nz/property/auckland/epsom/23-fairholme-avenue/cyyWg"
+        },
+        "Homes": {
+          "status": "matched",
+          "url": "https://homes.co.nz/address/auckland/epsom/4-fairholme-avenue/z4Qoz",
+          "estimate": {
+            "low": "$3.07M",
+            "medium": "$3.26M",
+            "high": "$3.46M"
+          }
+        },
+        "TradeMe": {
+          "status": "unverified",
+          "url": "https://www.trademe.co.nz/a/property/insights/profile/9ca2039b-99b3-47eb-b84c-087ab5ef1ddb"
+        },
+        "QV": {
+          "status": "wrong_address",
+          "url": "https://www.qv.co.nz/property-search/property-details/211788/",
+          "pageTitle": "4 Fairholme Avenue, Epsom, Auckland - QV"
+        },
+        "PropertyValue": {
+          "status": "matched",
+          "url": "https://www.propertyvalue.co.nz/auckland/auckland/epsom-1023/4-fairholme-avenue-epsom-auckland-1023-8794007",
+          "estimate": {
+            "low": "$3.00M",
+            "medium": "$3.13M",
+            "high": "$3.25M"
+          },
+          "data": {
+            "lastSold": "Last Sold on 9 Nov 2020 for $3,100,000",
+            "capitalValue": "$3,200,000",
+            "landValue": "$2,175,000",
+            "improvementValue": "$1,025,000",
+            "valuationDate": "01-05-2024"
+          }
+        }
+      },
+      "latitude": -36.903665032390705,
+      "longitude": 174.77075371670523
+    },
+    {
+      "address": "19b Hendry Avenue, Hillsborough, Auckland",
+      "bedrooms": 4,
+      "bathrooms": 3,
+      "landArea": 388,
+      "historicalCv": 1300000,
+      "addressId": 1128082,
+      "sources": {
+        "RealEstate": {
+          "status": "matched",
+          "url": "https://www.realestate.co.nz/property/19b-hendry-avenue-hillsborough-auckland-city-auckland/jnw6m52jc",
+          "estimate": {
+            "low": "$1,227,000",
+            "medium": "$1,305,000",
+            "high": "$1,390,000"
+          },
+          "data": {}
+        },
+        "OneRoof": {
+          "status": "matched",
+          "url": "https://www.oneroof.co.nz/property/auckland/hillsborough/19b-hendry-avenue/JlBgN",
+          "estimate": {
+            "low": "$1.15M",
+            "medium": "$1.3M",
+            "high": "$1.45M"
+          }
+        },
+        "Homes": {
+          "status": "matched",
+          "url": "https://homes.co.nz/address/auckland/hillsborough/19b-hendry-avenue/KEYxG",
+          "estimate": {
+            "low": "$1.22M",
+            "medium": "$1.29M",
+            "high": "$1.37M"
+          }
+        },
+        "TradeMe": {
+          "status": "unverified",
+          "url": "https://www.trademe.co.nz/a/property/insights/profile/5c1e74da-4730-4818-9c3b-5f8d12b8167e"
+        },
+        "QV": {
+          "status": "error",
+          "error": "HTTP 404 from /api/get-qv-url"
+        },
+        "PropertyValue": {
+          "status": "matched",
+          "url": "https://www.propertyvalue.co.nz/auckland/auckland/hillsborough-1042/19b-hendry-avenue-hillsborough-auckland-1042-9073336",
+          "estimate": {
+            "low": "$1.20M",
+            "medium": "$1.25M",
+            "high": "$1.30M"
+          },
+          "data": {
+            "lastSold": "Last Sold on 20 Jun 2020 for $1,200,000",
+            "capitalValue": "$1,300,000",
+            "landValue": "$750,000",
+            "improvementValue": "$550,000",
+            "valuationDate": "01-05-2024"
+          }
+        }
+      },
+      "latitude": -36.918899315790604,
+      "longitude": 174.76032488330503
+    },
+    {
+      "address": "52a Sunnyside Road, Sunnyvale, Auckland",
+      "bedrooms": 3,
+      "bathrooms": 2,
+      "landArea": 1102,
+      "historicalCv": 930000,
+      "addressId": 991783,
+      "sources": {
+        "RealEstate": {
+          "status": "matched",
+          "url": "https://www.realestate.co.nz/property/52a-sunnyside-road-sunnyvale-waitakere-city-auckland/65g2y4p8c",
+          "estimate": {
+            "low": "$801,000",
+            "medium": "$853,000",
+            "high": "$903,000"
+          },
+          "data": {}
+        },
+        "OneRoof": {
+          "status": "matched",
+          "url": "https://www.oneroof.co.nz/property/auckland/sunnyvale/52a-sunnyside-road/PtEOH",
+          "estimate": {
+            "low": "$850K",
+            "medium": "$940K",
+            "high": "$1.04M"
+          }
+        },
+        "Homes": {
+          "status": "matched",
+          "url": "https://homes.co.nz/address/auckland/sunnyvale/52a-sunnyside-road/XKAwN",
+          "estimate": {
+            "low": "$855K",
+            "medium": "$910K",
+            "high": "$965K"
+          }
+        },
+        "TradeMe": {
+          "status": "unverified",
+          "url": "https://www.trademe.co.nz/a/property/insights/profile/c0057792-5f8b-43a1-ad75-3d79ea7a39db"
+        },
+        "QV": {
+          "status": "error",
+          "error": "HTTP 404 from /api/get-qv-url"
+        },
+        "PropertyValue": {
+          "status": "matched",
+          "url": "https://www.propertyvalue.co.nz/auckland/waitakere-city/sunnyvale-0612/52a-sunnyside-road-sunnyvale-auckland-0612-6279986",
+          "estimate": {
+            "low": "$900K",
+            "medium": "$950K",
+            "high": "$1.00M"
+          },
+          "data": {
+            "lastSold": "Last Sold on 18 Nov 2020 for $885,000",
+            "capitalValue": "$1,000,000",
+            "landValue": "$750,000",
+            "improvementValue": "$250,000",
+            "valuationDate": "01-05-2024"
+          }
+        }
+      },
+      "latitude": -36.89713961579112,
+      "longitude": 174.63817005000348
+    },
+    {
+      "address": "21 Overton Road, Papatoetoe, Auckland",
+      "bedrooms": 3,
+      "bathrooms": 1,
+      "landArea": 809,
+      "historicalCv": 930000,
+      "addressId": 1210387,
+      "sources": {
+        "RealEstate": {
+          "status": "matched",
+          "url": "https://www.realestate.co.nz/property/21-overton-road-papatoetoe-manukau-city-auckland/j59y3rczc",
+          "estimate": {
+            "low": "$739,000",
+            "medium": "$777,000",
+            "high": "$807,000"
+          },
+          "data": {}
+        },
+        "OneRoof": {
+          "status": "matched",
+          "url": "https://www.oneroof.co.nz/property/auckland/papatoetoe/21-overton-road/JblD3",
+          "estimate": {
+            "low": "$735K",
+            "medium": "$820K",
+            "high": "$900K"
+          }
+        },
+        "Homes": {
+          "status": "matched",
+          "url": "https://homes.co.nz/address/auckland/papatoetoe/21-overton-road/aB1AV5",
+          "estimate": {
+            "low": "$755K",
+            "medium": "$795K",
+            "high": "$830K"
+          }
+        },
+        "TradeMe": {
+          "status": "unverified",
+          "url": "https://www.trademe.co.nz/a/property/insights/profile/b1e5f9b5-8267-4614-8a23-b0c8b5edee29"
+        },
+        "QV": {
+          "status": "wrong_address",
+          "url": "https://www.qv.co.nz/property-search/property-details/195708/",
+          "pageTitle": "1/33 Overton Road, Papatoetoe - QV"
+        },
+        "PropertyValue": {
+          "status": "matched",
+          "url": "https://www.propertyvalue.co.nz/auckland/manukau-city/papatoetoe-2025/21-overton-road-papatoetoe-auckland-2025-63019038",
+          "estimate": {
+            "low": "$750K",
+            "medium": "$775K",
+            "high": "$800K"
+          },
+          "data": {
+            "lastSold": "Last Sold on 5 Aug 2025 for $810,000",
+            "capitalValue": "$810,000",
+            "landValue": "$560,000",
+            "improvementValue": "$250,000",
+            "valuationDate": "01-05-2024"
+          }
+        }
+      },
+      "latitude": -36.97111130488965,
+      "longitude": 174.8696406886069
+    },
+    {
+      "address": "1a Herd Road, Hillsborough, Auckland",
+      "bedrooms": 2,
+      "bathrooms": 1,
+      "landArea": 1108,
+      "historicalCv": 1225000,
+      "addressId": 1128090,
+      "sources": {
+        "RealEstate": {
+          "status": "matched",
+          "url": "https://www.realestate.co.nz/property/1a-herd-road-hillsborough-auckland-city-auckland/0000005jc",
+          "estimate": {
+            "low": "$1,104,000",
+            "medium": "$1,206,000",
+            "high": "$1,337,000"
+          },
+          "data": {}
+        },
+        "OneRoof": {
+          "status": "matched",
+          "url": "https://www.oneroof.co.nz/property/auckland/hillsborough/1a-herd-road/pbPd7",
+          "estimate": {
+            "low": "$1.15M",
+            "medium": "$1.3M",
+            "high": "$1.45M"
+          }
+        },
+        "Homes": {
+          "status": "matched",
+          "url": "https://homes.co.nz/address/auckland/hillsborough/1a-herd-road/JM8pQ",
+          "estimate": {
+            "low": "$1.13M",
+            "medium": "$1.2M",
+            "high": "$1.27M"
+          }
+        },
+        "TradeMe": {
+          "status": "unverified",
+          "url": "https://www.trademe.co.nz/a/property/insights/profile/a9cf8722-005e-4d7e-a40c-256ef895268d"
+        },
+        "QV": {
+          "status": "wrong_address",
+          "url": "https://www.qv.co.nz/property-search/property-details/213126/",
+          "pageTitle": "34 Herd Road, Hillsborough - QV"
+        },
+        "PropertyValue": {
+          "status": "matched",
+          "url": "https://www.propertyvalue.co.nz/auckland/auckland/hillsborough-1042/1a-herd-road-hillsborough-auckland-1042-9073496",
+          "estimate": {
+            "low": "$1.30M",
+            "medium": "$1.35M",
+            "high": "$1.40M"
+          },
+          "data": {
+            "lastSold": "Last Sold on 30 Jun 2020 for $975,000",
+            "capitalValue": "$1,400,000",
+            "landValue": "$1,150,000",
+            "improvementValue": "$250,000",
+            "valuationDate": "01-05-2024"
+          }
+        }
+      },
+      "latitude": -36.916188632390636,
+      "longitude": 174.75970333330505
+    },
+    {
+      "address": "15 Harapaki Road, Meadowbank, Auckland",
+      "bedrooms": 5,
+      "bathrooms": 3,
+      "landArea": 613,
+      "historicalCv": 1925000,
+      "addressId": 1176702,
+      "sources": {
+        "RealEstate": {
+          "status": "matched",
+          "url": "https://www.realestate.co.nz/property/15-harapaki-road-meadowbank-auckland-city-auckland/psgrm37hc",
+          "estimate": {
+            "low": "$2,670,000",
+            "medium": "$2,865,000",
+            "high": "$3,087,000"
+          },
+          "data": {}
+        },
+        "OneRoof": {
+          "status": "matched",
+          "url": "https://www.oneroof.co.nz/property/auckland/meadowbank/15-harapaki-road/AVuw2",
+          "estimate": {
+            "low": "$2.5M",
+            "medium": "$2.86M",
+            "high": "$3.21M"
+          }
+        },
+        "Homes": {
+          "status": "matched",
+          "url": "https://homes.co.nz/address/auckland/meadowbank/15-harapaki-road/RgPRE",
+          "estimate": {
+            "low": "$2.86M",
+            "medium": "$3.04M",
+            "high": "$3.22M"
+          }
+        },
+        "TradeMe": {
+          "status": "unverified",
+          "url": "https://www.trademe.co.nz/a/property/insights/profile/702eee5a-581c-402b-9dbf-004c1d5b9444"
+        },
+        "QV": {
+          "status": "matched",
+          "url": "https://www.qv.co.nz/property-search/property-details/168118/",
+          "pageTitle": "15 Harapaki Road, Meadowbank - QV",
+          "estimate": {
+            "low": null,
+            "medium": "$2.67M",
+            "high": null
+          }
+        },
+        "PropertyValue": {
+          "status": "matched",
+          "url": "https://www.propertyvalue.co.nz/auckland/auckland/meadowbank-1072/15-harapaki-road-meadowbank-auckland-1072-3467072",
+          "estimate": {
+            "low": "$2.80M",
+            "medium": "$2.90M",
+            "high": "$3.00M"
+          },
+          "data": {
+            "capitalValue": "$2,925,000",
+            "landValue": "$1,575,000",
+            "improvementValue": "$1,350,000",
+            "valuationDate": "01-05-2024"
+          }
+        }
+      },
+      "latitude": -36.86994666579081,
+      "longitude": 174.82511706670607
+    },
+    {
+      "address": "25c Pleasant Street, Onehunga, Auckland",
+      "bedrooms": 3,
+      "bathrooms": 1,
+      "landArea": 758,
+      "historicalCv": 990000,
+      "addressId": 1135964,
+      "sources": {
+        "RealEstate": {
+          "status": "matched",
+          "url": "https://www.realestate.co.nz/property/25c-pleasant-street-onehunga-auckland-city-auckland/tx9zz870c",
+          "estimate": {
+            "low": "$973,000",
+            "medium": "$1,059,000",
+            "high": "$1,155,000"
+          },
+          "data": {}
+        },
+        "OneRoof": {
+          "status": "matched",
+          "url": "https://www.oneroof.co.nz/property/auckland/onehunga/25c-pleasant-street/FsRrf",
+          "estimate": {
+            "low": "$935K",
+            "medium": "$1.06M",
+            "high": "$1.18M"
+          }
+        },
+        "Homes": {
+          "status": "matched",
+          "url": "https://homes.co.nz/address/auckland/onehunga/25c-pleasant-street/wl5bl",
+          "estimate": {
+            "low": "$1.04M",
+            "medium": "$1.11M",
+            "high": "$1.18M"
+          }
+        },
+        "TradeMe": {
+          "status": "unverified",
+          "url": "https://www.trademe.co.nz/a/property/insights/profile/4de36f2d-cf1e-418c-9718-2948676faab4"
+        },
+        "QV": {
+          "status": "matched",
+          "url": "https://www.qv.co.nz/property-search/property-details/3209914/",
+          "pageTitle": "25C Pleasant Street, Onehunga - QV",
+          "estimate": {
+            "low": null,
+            "medium": "$1.06M",
+            "high": null
+          }
+        },
+        "PropertyValue": {
+          "status": "matched",
+          "url": "https://www.propertyvalue.co.nz/auckland/auckland/onehunga-1061/25c-pleasant-street-onehunga-auckland-1061-62734725",
+          "estimate": {
+            "low": "$1.00M",
+            "medium": "$1.05M",
+            "high": "$1.10M"
+          },
+          "data": {
+            "capitalValue": "$1,150,000",
+            "landValue": "$1,100,000",
+            "improvementValue": "$50,000",
+            "valuationDate": "01-05-2024"
+          }
+        }
+      },
+      "latitude": -36.919839329790555,
+      "longitude": 174.77230277410524
+    },
+    {
+      "address": "21b Marr Road, Manurewa, Auckland",
+      "bedrooms": 3,
+      "bathrooms": 2,
+      "landArea": 126,
+      "historicalCv": 630000,
+      "addressId": 1871960,
+      "sources": {
+        "RealEstate": {
+          "status": "matched",
+          "url": "https://www.realestate.co.nz/property/21b-marr-road-manurewa-manukau-city-auckland/n5n5n50sc",
+          "estimate": {
+            "low": "$665,000",
+            "medium": "$706,000",
+            "high": "$742,000"
+          },
+          "data": {}
+        },
+        "OneRoof": {
+          "status": "matched",
+          "url": "https://www.oneroof.co.nz/property/auckland/manurewa/21b-marr-road/hbkZ0",
+          "estimate": {
+            "low": "$690K",
+            "medium": "$780K",
+            "high": "$870K"
+          }
+        },
+        "Homes": {
+          "status": "matched",
+          "url": "https://homes.co.nz/address/auckland/manurewa/21b-marr-road/Qnx4z",
+          "estimate": {
+            "low": "$640K",
+            "medium": "$680K",
+            "high": "$720K"
+          }
+        },
+        "TradeMe": {
+          "status": "unverified",
+          "url": "https://www.trademe.co.nz/a/property/insights/profile/f9d682eb-3917-4463-82ec-b7ed28dc00b3"
+        },
+        "QV": {
+          "status": "error",
+          "error": "HTTP 404 from /api/get-qv-url"
+        },
+        "PropertyValue": {
+          "status": "matched",
+          "url": "https://www.propertyvalue.co.nz/auckland/manukau-city/manurewa-2102/21b-marr-road-manurewa-auckland-2102-3213581",
+          "estimate": {
+            "low": "$750K",
+            "medium": "$775K",
+            "high": "$800K"
+          },
+          "data": {
+            "lastSold": "Last Sold on 18 Apr 2024 for $830,000",
+            "capitalValue": "$780,000",
+            "landValue": "$360,000",
+            "improvementValue": "$420,000",
+            "valuationDate": "01-05-2024"
+          }
+        }
+      },
+      "latitude": -37.015244634389184,
+      "longitude": 174.88047374480715
+    },
+    {
+      "address": "13 Sandringham Road, Mount Eden, Auckland",
+      "bedrooms": 3,
+      "bathrooms": 1,
+      "landArea": 615,
+      "historicalCv": 1575000,
+      "addressId": 1112895,
+      "sources": {
+        "RealEstate": {
+          "status": "matched",
+          "url": "https://www.realestate.co.nz/property/13-sandringham-road-mount-eden-auckland-city-auckland/svtpg4m5c",
+          "estimate": {
+            "low": "$1,653,000",
+            "medium": "$1,762,000",
+            "high": "$1,881,000"
+          },
+          "data": {}
+        },
+        "OneRoof": {
+          "status": "matched",
+          "url": "https://www.oneroof.co.nz/property/auckland/mount-eden/13-sandringham-road/PoZeM",
+          "estimate": {
+            "low": "$1.57M",
+            "medium": "$1.78M",
+            "high": "$1.98M"
+          }
+        },
+        "Homes": {
+          "status": "matched",
+          "url": "https://homes.co.nz/address/auckland/mount-eden/13-sandringham-road/Dgg40",
+          "estimate": {
+            "low": "$1.76M",
+            "medium": "$1.88M",
+            "high": "$1.99M"
+          }
+        },
+        "TradeMe": {
+          "status": "unverified",
+          "url": "https://www.trademe.co.nz/a/property/insights/profile/60509233-4a0b-498a-b39c-61f0495fc858"
+        },
+        "QV": {
+          "status": "error",
+          "error": "HTTP 404 from /api/get-qv-url"
+        },
+        "PropertyValue": {
+          "status": "matched",
+          "url": "https://www.propertyvalue.co.nz/auckland/auckland/mount-eden-1024/13-sandringham-road-mount-eden-auckland-1024-3787032",
+          "estimate": {
+            "low": "$2.00M",
+            "medium": "$2.10M",
+            "high": "$2.20M"
+          },
+          "data": {
+            "lastSold": "Last Sold on 10 Jun 2020 for $1,880,000",
+            "capitalValue": "$1,950,000",
+            "landValue": "$1,600,000",
+            "improvementValue": "$350,000",
+            "valuationDate": "01-05-2024"
+          }
+        }
+      },
+      "latitude": -36.87282191579109,
+      "longitude": 174.74597735000484
+    },
+    {
+      "address": "40 Goodwood Drive, Goodwood Heights, Auckland",
+      "bedrooms": 4,
+      "bathrooms": 2,
+      "landArea": 756,
+      "historicalCv": 1050000,
+      "addressId": 1238199,
+      "sources": {
+        "RealEstate": {
+          "status": "matched",
+          "url": "https://www.realestate.co.nz/property/40-goodwood-drive-goodwood-heights-manukau-city-auckland/zf3y08ygc",
+          "estimate": {
+            "low": "$1,073,000",
+            "medium": "$1,136,000",
+            "high": "$1,202,000"
+          },
+          "data": {}
+        },
+        "OneRoof": {
+          "status": "matched",
+          "url": "https://www.oneroof.co.nz/property/auckland/goodwood-heights/40-goodwood-drive/O3Gj4",
+          "estimate": {
+            "low": "$1.04M",
+            "medium": "$1.15M",
+            "high": "$1.27M"
+          }
+        },
+        "Homes": {
+          "status": "matched",
+          "url": "https://homes.co.nz/address/auckland/goodwood-heights/40-goodwood-drive/N4a8n",
+          "estimate": {
+            "low": "$1.05M",
+            "medium": "$1.11M",
+            "high": "$1.18M"
+          }
+        },
+        "TradeMe": {
+          "status": "unverified",
+          "url": "https://www.trademe.co.nz/a/property/insights/profile/0e07da3c-d13c-4649-a077-4c99090e5770"
+        },
+        "QV": {
+          "status": "matched",
+          "url": "https://www.qv.co.nz/property-search/property-details/1650618/",
+          "pageTitle": "40 Goodwood Drive, Goodwood Heights - QV",
+          "estimate": {
+            "low": null,
+            "medium": "$1.15M",
+            "high": null
+          }
+        },
+        "PropertyValue": {
+          "status": "matched",
+          "url": "https://www.propertyvalue.co.nz/auckland/manukau-city/goodwood-heights-2105/40-goodwood-drive-goodwood-heights-auckland-2105-8925409",
+          "estimate": {
+            "low": "$1.10M",
+            "medium": "$1.15M",
+            "high": "$1.20M"
+          },
+          "data": {
+            "lastSold": "Last Sold on 24 Sep 2020 for $1,151,000",
+            "capitalValue": "$1,175,000",
+            "landValue": "$770,000",
+            "improvementValue": "$405,000",
+            "valuationDate": "01-05-2024"
+          }
+        }
+      },
+      "latitude": -36.99313098238926,
+      "longitude": 174.90361660000755
+    },
+    {
+      "address": "160 Gowing Drive, Meadowbank, Auckland",
+      "bedrooms": 3,
+      "bathrooms": 1,
+      "landArea": 431,
+      "historicalCv": 940000,
+      "addressId": 1183072,
+      "sources": {
+        "RealEstate": {
+          "status": "matched",
+          "url": "https://www.realestate.co.nz/property/160-gowing-drive-meadowbank-auckland-city-auckland/rpqv2d3gc",
+          "estimate": {
+            "low": "$1,179,000",
+            "medium": "$1,281,000",
+            "high": "$1,372,000"
+          },
+          "data": {}
+        },
+        "OneRoof": {
+          "status": "matched",
+          "url": "https://www.oneroof.co.nz/property/auckland/meadowbank/160-gowing-drive/tansI",
+          "estimate": {
+            "low": "$1.17M",
+            "medium": "$1.32M",
+            "high": "$1.47M"
+          }
+        },
+        "Homes": {
+          "status": "matched",
+          "url": "https://homes.co.nz/address/auckland/meadowbank/160-gowing-drive/VlV2o",
+          "estimate": {
+            "low": "$1.29M",
+            "medium": "$1.38M",
+            "high": "$1.46M"
+          }
+        },
+        "TradeMe": {
+          "status": "unverified",
+          "url": "https://www.trademe.co.nz/a/property/insights/profile/e65630f9-a14f-4bd1-9bca-220b598602ad"
+        },
+        "QV": {
+          "status": "wrong_address",
+          "url": "https://www.qv.co.nz/property-search/property-details/2024086/",
+          "pageTitle": "160A Gowing Drive, Meadowbank - QV"
+        },
+        "PropertyValue": {
+          "status": "matched",
+          "url": "https://www.propertyvalue.co.nz/auckland/auckland/meadowbank-1072/160-gowing-drive-meadowbank-auckland-1072-3466742",
+          "estimate": {
+            "low": "$1.30M",
+            "medium": "$1.35M",
+            "high": "$1.40M"
+          },
+          "data": {
+            "lastSold": "Last Sold on 24 Jun 2020 for $1,250,000",
+            "capitalValue": "$1,350,000",
+            "landValue": "$1,150,000",
+            "improvementValue": "$200,000",
+            "valuationDate": "01-05-2024"
+          }
+        }
+      },
+      "latitude": -36.86895201579077,
+      "longitude": 174.84022701670636
+    },
+    {
+      "address": "4 Helios Place, Titirangi, Auckland",
+      "bedrooms": 4,
+      "bathrooms": 2,
+      "landArea": 3648,
+      "historicalCv": 1520000,
+      "addressId": 994221,
+      "sources": {
+        "RealEstate": {
+          "status": "matched",
+          "url": "https://www.realestate.co.nz/property/4-helios-place-titirangi-waitakere-city-auckland/03h65g0jc",
+          "estimate": {
+            "low": "$1,443,000",
+            "medium": "$1,551,000",
+            "high": "$1,668,000"
+          },
+          "data": {}
+        },
+        "OneRoof": {
+          "status": "matched",
+          "url": "https://www.oneroof.co.nz/property/auckland/titirangi/4-helios-place/K82kO",
+          "estimate": {
+            "low": "$1.48M",
+            "medium": "$1.67M",
+            "high": "$1.86M"
+          }
+        },
+        "Homes": {
+          "status": "matched",
+          "url": "https://homes.co.nz/address/auckland/titirangi/4-helios-place/yRL4V",
+          "estimate": {
+            "low": "$1.59M",
+            "medium": "$1.7M",
+            "high": "$1.8M"
+          }
+        },
+        "TradeMe": {
+          "status": "unverified",
+          "url": "https://www.trademe.co.nz/a/property/insights/profile/5bec3a96-0d6c-4429-a741-61e9ef157a41"
+        },
+        "QV": {
+          "status": "matched",
+          "url": "https://www.qv.co.nz/property-search/property-details/1637717/",
+          "pageTitle": "4 Helios Place, Titirangi - QV",
+          "estimate": {
+            "low": null,
+            "medium": "$1.59M",
+            "high": null
+          }
+        },
+        "PropertyValue": {
+          "status": "matched",
+          "url": "https://www.propertyvalue.co.nz/auckland/waitakere-city/titirangi-0604/4-helios-place-titirangi-auckland-0604-6919522",
+          "estimate": {
+            "low": "$1.60M",
+            "medium": "$1.70M",
+            "high": "$1.80M"
+          },
+          "data": {
+            "lastSold": "Last Sold on 27 Jun 2020 for $1,655,000",
+            "capitalValue": "$1,700,000",
+            "landValue": "$800,000",
+            "improvementValue": "$900,000",
+            "valuationDate": "01-05-2024"
+          }
+        }
+      },
+      "latitude": -36.9508816157906,
+      "longitude": 174.64112466670355
+    },
+    {
+      "address": "1 Landing Road, Titirangi, Auckland",
+      "bedrooms": 4,
+      "bathrooms": 3,
+      "landArea": 3177,
+      "historicalCv": 1400000,
+      "addressId": 994185,
+      "sources": {
+        "RealEstate": {
+          "status": "matched",
+          "url": "https://www.realestate.co.nz/property/1-landing-road-titirangi-waitakere-city-auckland/b3b3b34pc",
+          "estimate": {
+            "low": "$1,367,000",
+            "medium": "$1,468,000",
+            "high": "$1,577,000"
+          },
+          "data": {}
+        },
+        "OneRoof": {
+          "status": "matched",
+          "url": "https://www.oneroof.co.nz/property/auckland/titirangi/1-landing-road/EFxwb",
+          "estimate": {
+            "low": "$1.32M",
+            "medium": "$1.49M",
+            "high": "$1.66M"
+          }
+        },
+        "Homes": {
+          "status": "matched",
+          "url": "https://homes.co.nz/address/auckland/titirangi/1-landing-road/25Kq",
+          "estimate": {
+            "low": "$1.51M",
+            "medium": "$1.61M",
+            "high": "$1.7M"
+          }
+        },
+        "TradeMe": {
+          "status": "unverified",
+          "url": "https://www.trademe.co.nz/a/property/insights/profile/05552eb3-925e-4219-9920-79375f27fbfc"
+        },
+        "QV": {
+          "status": "matched",
+          "url": "https://www.qv.co.nz/property-search/property-details/2394999/",
+          "pageTitle": "1 Landing Road, Titirangi - QV",
+          "estimate": {
+            "low": null,
+            "medium": "$1.47M",
+            "high": null
+          }
+        },
+        "PropertyValue": {
+          "status": "matched",
+          "url": "https://www.propertyvalue.co.nz/auckland/waitakere-city/titirangi-0604/1-landing-road-titirangi-auckland-0604-6923340",
+          "estimate": {
+            "low": "$1.50M",
+            "medium": "$1.55M",
+            "high": "$1.60M"
+          },
+          "data": {
+            "lastSold": "Last Sold on 8 Jul 2020 for $1,400,000",
+            "capitalValue": "$1,550,000",
+            "landValue": "$800,000",
+            "improvementValue": "$750,000",
+            "valuationDate": "01-05-2024"
+          }
+        }
+      },
+      "latitude": -36.94964363239062,
+      "longitude": 174.64325401670354
+    },
+    {
+      "address": "20 Eversleigh Road, Belmont, Auckland",
+      "bedrooms": 3,
+      "bathrooms": 2,
+      "landArea": 481,
+      "historicalCv": 1325000,
+      "addressId": 1145983,
+      "sources": {
+        "RealEstate": {
+          "status": "matched",
+          "url": "https://www.realestate.co.nz/property/20-eversleigh-road-belmont-north-shore-city-auckland/sgrm356cc",
+          "estimate": {
+            "low": "$1,259,000",
+            "medium": "$1,362,000",
+            "high": "$1,467,000"
+          },
+          "data": {}
+        },
+        "OneRoof": {
+          "status": "matched",
+          "url": "https://www.oneroof.co.nz/property/auckland/belmont/20-eversleigh-road/qIcVP",
+          "estimate": {
+            "low": "$1.26M",
+            "medium": "$1.42M",
+            "high": "$1.59M"
+          }
+        },
+        "Homes": {
+          "status": "matched",
+          "url": "https://homes.co.nz/address/auckland/belmont/20-eversleigh-road/9lg1A",
+          "estimate": {
+            "low": "$1.42M",
+            "medium": "$1.51M",
+            "high": "$1.6M"
+          }
+        },
+        "TradeMe": {
+          "status": "unverified",
+          "url": "https://www.trademe.co.nz/a/property/insights/profile/60cef70c-c303-4bc8-a482-a7099caab557"
+        },
+        "QV": {
+          "status": "matched",
+          "url": "https://www.qv.co.nz/property-search/property-details/2527337/",
+          "pageTitle": "20 Eversleigh Road, Belmont - QV",
+          "estimate": {
+            "low": null,
+            "medium": "$1.34M",
+            "high": null
+          }
+        },
+        "PropertyValue": {
+          "status": "matched",
+          "url": "https://www.propertyvalue.co.nz/auckland/north-shore-city/belmont-0622/20-eversleigh-road-belmont-auckland-0622-8544887",
+          "estimate": {
+            "low": "$1.40M",
+            "medium": "$1.45M",
+            "high": "$1.50M"
+          },
+          "data": {
+            "lastSold": "Last Sold on 5 Jul 2020 for $1,320,000",
+            "capitalValue": "$1,400,000",
+            "landValue": "$1,150,000",
+            "improvementValue": "$250,000",
+            "valuationDate": "01-05-2024"
+          }
+        }
+      },
+      "latitude": -36.80223433239162,
+      "longitude": 174.78541913330542
+    },
+    {
+      "address": "34a Ascot Avenue, Remuera, Auckland",
+      "bedrooms": 3,
+      "bathrooms": 1,
+      "landArea": 279,
+      "historicalCv": 1220000,
+      "addressId": 1158388,
+      "sources": {
+        "RealEstate": {
+          "status": "matched",
+          "url": "https://www.realestate.co.nz/property/34a-ascot-avenue-remuera-auckland-city-auckland/cb2ly261",
+          "estimate": {
+            "low": "$1,113,000",
+            "medium": "$1,217,000",
+            "high": "$1,318,000"
+          },
+          "data": {}
+        },
+        "OneRoof": {
+          "status": "matched",
+          "url": "https://www.oneroof.co.nz/property/auckland/remuera/34a-ascot-avenue/ysGUI",
+          "estimate": {
+            "low": "$1.02M",
+            "medium": "$1.16M",
+            "high": "$1.31M"
+          }
+        },
+        "Homes": {
+          "status": "matched",
+          "url": "https://homes.co.nz/address/auckland/remuera/34a-ascot-avenue/l5959",
+          "estimate": {
+            "low": "$1.17M",
+            "medium": "$1.24M",
+            "high": "$1.31M"
+          }
+        },
+        "TradeMe": {
+          "status": "unverified",
+          "url": "https://www.trademe.co.nz/a/property/insights/profile/f8d3aeb3-5b0c-40ca-bee1-17030efe932f"
+        },
+        "QV": {
+          "status": "error",
+          "error": "HTTP 404 from /api/get-qv-url"
+        },
+        "PropertyValue": {
+          "status": "matched",
+          "url": "https://www.propertyvalue.co.nz/auckland/auckland/remuera-1050/34a-ascot-avenue-remuera-auckland-1050-5545887",
+          "estimate": {
+            "low": "$1.20M",
+            "medium": "$1.25M",
+            "high": "$1.30M"
+          },
+          "data": {
+            "lastSold": "Last Sold on 24 Jun 2020 for $1,285,000",
+            "capitalValue": "$1,250,000",
+            "landValue": "$1,100,000",
+            "improvementValue": "$150,000",
+            "valuationDate": "01-05-2024"
+          }
+        }
+      },
+      "latitude": -36.88396268239077,
+      "longitude": 174.80257600000576
+    },
+    {
+      "address": "31 Rapallo Place, Farm Cove, Auckland",
+      "bedrooms": 4,
+      "bathrooms": 2,
+      "landArea": 1037,
+      "historicalCv": 1400000,
+      "addressId": 1222525,
+      "sources": {
+        "RealEstate": {
+          "status": "matched",
+          "url": "https://www.realestate.co.nz/property/31-rapallo-place-farm-cove-manukau-city-auckland/kr703h22c",
+          "estimate": {
+            "low": "$1,688,000",
+            "medium": "$1,792,000",
+            "high": "$1,965,000"
+          },
+          "data": {}
+        },
+        "OneRoof": {
+          "status": "matched",
+          "url": "https://www.oneroof.co.nz/property/auckland/farm-cove/31-rapallo-place/JdWqE",
+          "estimate": {
+            "low": "$1.44M",
+            "medium": "$1.72M",
+            "high": "$2M"
+          }
+        },
+        "Homes": {
+          "status": "matched",
+          "url": "https://homes.co.nz/address/auckland/farm-cove/31-rapallo-place/Vlx4b",
+          "estimate": {
+            "low": "$1.59M",
+            "medium": "$1.69M",
+            "high": "$1.79M"
+          }
+        },
+        "TradeMe": {
+          "status": "unverified",
+          "url": "https://www.trademe.co.nz/a/property/insights/profile/5b2e7408-e561-4c89-97dd-9cd7e57d0bcf"
+        },
+        "QV": {
+          "status": "matched",
+          "url": "https://www.qv.co.nz/property-search/property-details/1688059/",
+          "pageTitle": "31 Rapallo Place, Farm Cove - QV",
+          "estimate": {
+            "low": null,
+            "medium": "$1.78M",
+            "high": null
+          }
+        },
+        "PropertyValue": {
+          "status": "matched",
+          "url": "https://www.propertyvalue.co.nz/auckland/manukau-city/farm-cove-2012/31-rapallo-place-farm-cove-auckland-2012-8816579",
+          "estimate": {
+            "low": "$1.80M",
+            "medium": "$1.90M",
+            "high": "$2.00M"
+          },
+          "data": {
+            "lastSold": "Last Sold on 10 Jun 2026 for $1,660,000",
+            "capitalValue": "$2,000,000",
+            "landValue": "$1,570,000",
+            "improvementValue": "$430,000",
+            "valuationDate": "01-05-2024"
+          }
+        }
+      },
+      "latitude": -36.894933206090265,
+      "longitude": 174.89378775420738
+    },
+    {
+      "address": "37b Kelvin Road, Remuera, Auckland",
+      "bedrooms": 4,
+      "bathrooms": 3,
+      "landArea": 202,
+      "historicalCv": 1340000,
+      "addressId": 1880323,
+      "sources": {
+        "RealEstate": {
+          "status": "matched",
+          "url": "https://www.realestate.co.nz/property/37b-kelvin-road-remuera-auckland-city-auckland/nn7d6kjnc",
+          "estimate": {
+            "low": "$1,462,000",
+            "medium": "$1,551,000",
+            "high": "$1,668,000"
+          },
+          "data": {}
+        },
+        "OneRoof": {
+          "status": "matched",
+          "url": "https://www.oneroof.co.nz/property/auckland/remuera/37b-kelvin-road/tNKoy",
+          "estimate": {
+            "low": "$1.39M",
+            "medium": "$1.57M",
+            "high": "$1.75M"
+          }
+        },
+        "Homes": {
+          "status": "matched",
+          "url": "https://homes.co.nz/address/auckland/remuera/37b-kelvin-road/YB45",
+          "estimate": {
+            "low": "$1.5M",
+            "medium": "$1.59M",
+            "high": "$1.69M"
+          }
+        },
+        "TradeMe": {
+          "status": "unverified",
+          "url": "https://www.trademe.co.nz/a/property/insights/profile/9ac95db6-5562-46ce-bc15-3c85a42625b4"
+        },
+        "QV": {
+          "status": "error",
+          "error": "HTTP 404 from /api/get-qv-url"
+        },
+        "PropertyValue": {
+          "status": "matched",
+          "url": "https://www.propertyvalue.co.nz/auckland/auckland/remuera-1050/37b-kelvin-road-remuera-auckland-1050-5554456",
+          "estimate": {
+            "low": "$1.60M",
+            "medium": "$1.70M",
+            "high": "$1.80M"
+          },
+          "data": {
+            "lastSold": "Last Sold on 8 Jul 2020 for $1,726,000",
+            "capitalValue": "$1,625,000",
+            "landValue": "$960,000",
+            "improvementValue": "$665,000",
+            "valuationDate": "01-05-2024"
+          }
+        }
+      },
+      "latitude": -36.87635599909078,
+      "longitude": 174.81903595000597
+    },
+    {
+      "address": "46 Waiatarua Road, Remuera, Auckland",
+      "bedrooms": 4,
+      "bathrooms": 2,
+      "landArea": 1031,
+      "historicalCv": 2450000,
+      "addressId": 1171522,
+      "sources": {
+        "RealEstate": {
+          "status": "matched",
+          "url": "https://www.realestate.co.nz/property/46-waiatarua-road-remuera-auckland-city-auckland/fxznyt6dd",
+          "estimate": {
+            "low": "$2,940,000",
+            "medium": "$3,199,000",
+            "high": "$3,550,000"
+          },
+          "data": {}
+        },
+        "OneRoof": {
+          "status": "matched",
+          "url": "https://www.oneroof.co.nz/property/auckland/remuera/46-waiatarua-road/MqlJ7",
+          "estimate": {
+            "low": "$2.56M",
+            "medium": "$3.01M",
+            "high": "$3.46M"
+          }
+        },
+        "Homes": {
+          "status": "matched",
+          "url": "https://homes.co.nz/address/auckland/remuera/46-waiatarua-road/BBWRp",
+          "estimate": {
+            "low": "$3.08M",
+            "medium": "$3.27M",
+            "high": "$3.46M"
+          }
+        },
+        "TradeMe": {
+          "status": "unverified",
+          "url": "https://www.trademe.co.nz/a/property/insights/profile/045a2eb3-0205-4742-ac6b-1ce91bac6718"
+        },
+        "QV": {
+          "status": "wrong_address",
+          "url": "https://www.qv.co.nz/property-search/property-details/167430/",
+          "pageTitle": "46A Waiatarua Road, Remuera - QV"
+        },
+        "PropertyValue": {
+          "status": "matched",
+          "url": "https://www.propertyvalue.co.nz/auckland/auckland/remuera-1050/46-waiatarua-road-remuera-auckland-1050-5577045",
+          "estimate": {
+            "low": "$3.00M",
+            "medium": "$3.13M",
+            "high": "$3.25M"
+          },
+          "data": {
+            "lastSold": "Last Sold on 11 Aug 2020 for $2,450,000",
+            "capitalValue": "$3,400,000",
+            "landValue": "$2,525,000",
+            "improvementValue": "$875,000",
+            "valuationDate": "01-05-2024"
+          }
+        }
+      },
+      "latitude": -36.87605688239078,
+      "longitude": 174.819992316706
+    },
+    {
+      "address": "6 Dorendia Place, Clendon Park, Auckland",
+      "bedrooms": 3,
+      "bathrooms": 1,
+      "landArea": 602,
+      "historicalCv": 530000,
+      "addressId": 1204990,
+      "sources": {
+        "RealEstate": {
+          "status": "matched",
+          "url": "https://www.realestate.co.nz/property/6-dorendia-place-clendon-park-manukau-city-auckland/t6ww5rnbc",
+          "estimate": {
+            "low": "$645,000",
+            "medium": "$682,000",
+            "high": "$713,000"
+          },
+          "data": {}
+        },
+        "OneRoof": {
+          "status": "matched",
+          "url": "https://www.oneroof.co.nz/property/auckland/clendon-park/6-dorendia-place/jUQZ5",
+          "estimate": {
+            "low": "$580K",
+            "medium": "$695K",
+            "high": "$810K"
+          }
+        },
+        "Homes": {
+          "status": "matched",
+          "url": "https://homes.co.nz/address/auckland/clendon-park/6-dorendia-place/9nbxJ",
+          "estimate": {
+            "low": "$680K",
+            "medium": "$720K",
+            "high": "$765K"
+          }
+        },
+        "TradeMe": {
+          "status": "unverified",
+          "url": "https://www.trademe.co.nz/a/property/insights/profile/8682f44a-2c27-48fd-9cb0-ce2c37a53498"
+        },
+        "QV": {
+          "status": "error",
+          "error": "HTTP 404 from /api/get-qv-url"
+        },
+        "PropertyValue": {
+          "status": "matched",
+          "url": "https://www.propertyvalue.co.nz/auckland/manukau-city/clendon-park-2103/6-dorendia-place-clendon-park-auckland-2103-8682872",
+          "estimate": {
+            "low": "$650K",
+            "medium": "$675K",
+            "high": "$700K"
+          },
+          "data": {
+            "lastSold": "Last Sold on 3 Aug 2020 for $513,043",
+            "capitalValue": "$730,000",
+            "landValue": "$640,000",
+            "improvementValue": "$90,000",
+            "valuationDate": "01-05-2024"
+          }
+        }
+      },
+      "latitude": -37.02514161578916,
+      "longitude": 174.86296871670677
+    },
+    {
+      "address": "70 Rimu Street, New Lynn, Auckland",
+      "bedrooms": 3,
+      "bathrooms": 1,
+      "landArea": 475,
+      "historicalCv": 810000,
+      "addressId": 1012082,
+      "sources": {
+        "RealEstate": {
+          "status": "matched",
+          "url": "https://www.realestate.co.nz/property/70-rimu-street-new-lynn-waitakere-city-auckland/tsy9vm23c",
+          "estimate": {
+            "low": "$857,000",
+            "medium": "$904,000",
+            "high": "$960,000"
+          },
+          "data": {}
+        },
+        "OneRoof": {
+          "status": "matched",
+          "url": "https://www.oneroof.co.nz/property/auckland/new-lynn/70-rimu-street/gUuSH",
+          "estimate": {
+            "low": "$785K",
+            "medium": "$870K",
+            "high": "$960K"
+          }
+        },
+        "Homes": {
+          "status": "matched",
+          "url": "https://homes.co.nz/address/auckland/new-lynn/70-rimu-street/zQ1gJ",
+          "estimate": {
+            "low": "$865K",
+            "medium": "$920K",
+            "high": "$975K"
+          }
+        },
+        "TradeMe": {
+          "status": "unverified",
+          "url": "https://www.trademe.co.nz/a/property/insights/profile/27ce2d5e-5b0c-43f1-854b-22bb609cb5a0"
+        },
+        "QV": {
+          "status": "matched",
+          "url": "https://www.qv.co.nz/property-search/property-details/2645647/",
+          "pageTitle": "70 Rimu Street, New Lynn - QV",
+          "estimate": {
+            "low": null,
+            "medium": "$870K",
+            "high": null
+          }
+        },
+        "PropertyValue": {
+          "status": "matched",
+          "url": "https://www.propertyvalue.co.nz/auckland/waitakere-city/new-lynn-0600/70-rimu-street-new-lynn-auckland-0600-4051208",
+          "estimate": {
+            "low": "$800K",
+            "medium": "$850K",
+            "high": "$900K"
+          },
+          "data": {
+            "lastSold": "Last Sold on 24 Jun 2020 for $800,000",
+            "capitalValue": "$880,000",
+            "landValue": "$600,000",
+            "improvementValue": "$280,000",
+            "valuationDate": "01-05-2024"
+          }
+        }
+      },
+      "latitude": -36.903663215790985,
+      "longitude": 174.6686832500038
+    },
+    {
+      "address": "52 Easton Park Parade, Glenfield, Auckland",
+      "bedrooms": 3,
+      "bathrooms": 1,
+      "landArea": 736,
+      "historicalCv": 1170000,
+      "addressId": 1054690,
+      "sources": {
+        "RealEstate": {
+          "status": "matched",
+          "url": "https://www.realestate.co.nz/property/52-easton-park-parade-glenfield-north-shore-city-auckland/2tsy9v6bc",
+          "estimate": {
+            "low": "$914,000",
+            "medium": "$967,000",
+            "high": "$1,028,000"
+          },
+          "data": {}
+        },
+        "OneRoof": {
+          "status": "matched",
+          "url": "https://www.oneroof.co.nz/property/auckland/glenfield/52-easton-park-parade/fHN8o",
+          "estimate": {
+            "low": "$870K",
+            "medium": "$980K",
+            "high": "$1.1M"
+          }
+        },
+        "Homes": {
+          "status": "matched",
+          "url": "https://homes.co.nz/address/auckland/glenfield/52-easton-park-parade/A7a7a",
+          "estimate": {
+            "low": "$900K",
+            "medium": "$960K",
+            "high": "$1.02M"
+          }
+        },
+        "TradeMe": {
+          "status": "unverified",
+          "url": "https://www.trademe.co.nz/a/property/insights/profile/37730615-143e-4faa-aaf7-f148919af257"
+        },
+        "QV": {
+          "status": "error",
+          "error": "HTTP 404 from /api/get-qv-url"
+        },
+        "PropertyValue": {
+          "status": "matched",
+          "url": "https://www.propertyvalue.co.nz/auckland/north-shore-city/glenfield-0629/52-easton-park-parade-glenfield-auckland-0629-5918143",
+          "estimate": {
+            "low": "$900K",
+            "medium": "$950K",
+            "high": "$1.00M"
+          },
+          "data": {
+            "lastSold": "Last Sold on 20 Jul 2020 for $959,000",
+            "capitalValue": "$1,000,000",
+            "landValue": "$800,000",
+            "improvementValue": "$200,000",
+            "valuationDate": "01-05-2024"
+          }
+        }
+      },
+      "latitude": -36.77813164909209,
+      "longitude": 174.7152935833044
+    },
+    {
+      "address": "5a Abbotts Way, Remuera, Auckland",
+      "bedrooms": 5,
+      "bathrooms": 3,
+      "landArea": 245,
+      "historicalCv": 1240000,
+      "addressId": 1654820,
+      "sources": {
+        "RealEstate": {
+          "status": "matched",
+          "url": "https://www.realestate.co.nz/property/5a-abbotts-way-remuera-auckland-city-auckland/hrhrhrd0",
+          "estimate": {
+            "low": "$1,496,000",
+            "medium": "$1,598,000",
+            "high": "$1,765,000"
+          },
+          "data": {}
+        },
+        "OneRoof": {
+          "status": "matched",
+          "url": "https://www.oneroof.co.nz/property/auckland/remuera/5a-abbotts-way/k1xyT",
+          "estimate": {
+            "low": "$1.49M",
+            "medium": "$1.7M",
+            "high": "$1.92M"
+          }
+        },
+        "Homes": {
+          "status": "matched",
+          "url": "https://homes.co.nz/address/auckland/remuera/5a-abbotts-way/YOPAP",
+          "estimate": {
+            "low": "$1.62M",
+            "medium": "$1.72M",
+            "high": "$1.82M"
+          }
+        },
+        "TradeMe": {
+          "status": "unverified",
+          "url": "https://www.trademe.co.nz/a/property/insights/profile/ced5b27b-1ce4-4b04-b2ba-856567a472cd"
+        },
+        "QV": {
+          "status": "wrong_address",
+          "url": "https://www.qv.co.nz/property-search/property-details/171502/",
+          "pageTitle": "5 Abbotts Way, Remuera - QV"
+        },
+        "PropertyValue": {
+          "status": "matched",
+          "url": "https://www.propertyvalue.co.nz/auckland/auckland/remuera-1050/5a-abbotts-way-remuera-auckland-1050-5543310",
+          "estimate": {
+            "low": "$1.60M",
+            "medium": "$1.70M",
+            "high": "$1.80M"
+          },
+          "data": {
+            "lastSold": "Last Sold on 18 Jul 2020 for $1,500,000",
+            "capitalValue": "$1,775,000",
+            "landValue": "$870,000",
+            "improvementValue": "$905,000",
+            "valuationDate": "01-05-2024"
+          }
+        }
+      },
+      "latitude": -36.888886265790696,
+      "longitude": 174.81259536670586
+    },
+    {
+      "address": "10 Sussex Street, Grey Lynn, Auckland",
+      "bedrooms": 4,
+      "bathrooms": 3,
+      "landArea": 480,
+      "historicalCv": 2275000,
+      "addressId": 1111934,
+      "sources": {
+        "RealEstate": {
+          "status": "matched",
+          "url": "https://www.realestate.co.nz/property/10-sussex-street-grey-lynn-auckland-city-auckland/6gylgjt8c",
+          "estimate": {
+            "low": "$2,701,000",
+            "medium": "$2,936,000",
+            "high": "$3,254,000"
+          },
+          "data": {}
+        },
+        "OneRoof": {
+          "status": "matched",
+          "url": "https://www.oneroof.co.nz/property/auckland/grey-lynn/10-sussex-street/4beWN",
+          "estimate": {
+            "low": "$2.47M",
+            "medium": "$2.96M",
+            "high": "$3.44M"
+          }
+        },
+        "Homes": {
+          "status": "matched",
+          "url": "https://homes.co.nz/address/auckland/grey-lynn/10-sussex-street/YlAPV",
+          "estimate": {
+            "low": "$2.95M",
+            "medium": "$3.14M",
+            "high": "$3.32M"
+          }
+        },
+        "TradeMe": {
+          "status": "unverified",
+          "url": "https://www.trademe.co.nz/a/property/insights/profile/182df008-ba6e-4946-991d-d59da7a9ea4f"
+        },
+        "QV": {
+          "status": "matched",
+          "url": "https://www.qv.co.nz/property-search/property-details/139974/",
+          "pageTitle": "10 Sussex Street, Grey Lynn - QV",
+          "estimate": {
+            "low": null,
+            "medium": "$2.91M",
+            "high": null
+          }
+        },
+        "PropertyValue": {
+          "status": "matched",
+          "url": "https://www.propertyvalue.co.nz/auckland/auckland/grey-lynn-1021/10-sussex-street-grey-lynn-auckland-1021-8958978",
+          "estimate": {
+            "low": "$2.80M",
+            "medium": "$2.90M",
+            "high": "$3.00M"
+          },
+          "data": {
+            "capitalValue": "$3,050,000",
+            "landValue": "$2,125,000",
+            "improvementValue": "$925,000",
+            "valuationDate": "01-05-2024"
+          }
+        }
+      },
+      "latitude": -36.862465049091156,
+      "longitude": 174.74747375000487
+    },
+    {
+      "address": "50b Camp Road, Mount Wellington, Auckland",
+      "bedrooms": 4,
+      "bathrooms": 2,
+      "landArea": 377,
+      "historicalCv": 850000,
+      "addressId": 2164368,
+      "sources": {
+        "RealEstate": {
+          "status": "matched",
+          "url": "https://www.realestate.co.nz/property/50b-camp-road-mount-wellington-auckland-city-auckland/26v0ntgmk",
+          "estimate": {
+            "low": "$944,000",
+            "medium": "$1,006,000",
+            "high": "$1,082,000"
+          },
+          "data": {}
+        },
+        "OneRoof": {
+          "status": "matched",
+          "url": "https://www.oneroof.co.nz/property/auckland/mount-wellington/50b-camp-road/Zyi0c",
+          "estimate": {
+            "low": "$910K",
+            "medium": "$1.03M",
+            "high": "$1.15M"
+          }
+        },
+        "Homes": {
+          "status": "matched",
+          "url": "https://homes.co.nz/address/auckland/mount-wellington/50b-camp-road/AvXbX",
+          "estimate": {
+            "low": "$1.04M",
+            "medium": "$1.1M",
+            "high": "$1.17M"
+          }
+        },
+        "TradeMe": {
+          "status": "unverified",
+          "url": "https://www.trademe.co.nz/a/property/insights/profile/613c19da-2010-46c8-aa87-e076c4f4d371"
+        },
+        "QV": {
+          "status": "error",
+          "error": "HTTP 404 from /api/get-qv-url"
+        },
+        "PropertyValue": {
+          "status": "matched",
+          "url": "https://www.propertyvalue.co.nz/auckland/auckland/mount-wellington-1062/50b-camp-road-mount-wellington-auckland-1062-62705504",
+          "estimate": {
+            "low": "$1.00M",
+            "medium": "$1.05M",
+            "high": "$1.10M"
+          },
+          "data": {
+            "lastSold": "Last Sold on 9 Jul 2020 for $1,200,000",
+            "capitalValue": "$1,000,000",
+            "landValue": "$530,000",
+            "improvementValue": "$470,000",
+            "valuationDate": "01-05-2024"
+          }
+        }
+      },
+      "latitude": -36.93149206609015,
+      "longitude": 174.8467226623065
+    },
+    {
+      "address": "68 Walters Road, Mount Wellington, Auckland",
+      "bedrooms": 3,
+      "bathrooms": 1,
+      "landArea": 688,
+      "historicalCv": 780000,
+      "addressId": 1192428,
+      "sources": {
+        "RealEstate": {
+          "status": "matched",
+          "url": "https://www.realestate.co.nz/property/68-walters-road-mount-wellington-auckland-city-auckland/5sjc990fd",
+          "estimate": {
+            "low": "$1,071,000",
+            "medium": "$1,189,000",
+            "high": "$1,336,000"
+          },
+          "data": {}
+        },
+        "OneRoof": {
+          "status": "matched",
+          "url": "https://www.oneroof.co.nz/property/auckland/mount-wellington/68-walters-road/GUmcI",
+          "estimate": {
+            "low": "$1.13M",
+            "medium": "$1.28M",
+            "high": "$1.43M"
+          }
+        },
+        "Homes": {
+          "status": "matched",
+          "url": "https://homes.co.nz/address/auckland/mount-wellington/68-walters-road/QkrXE",
+          "estimate": {
+            "low": "$1.17M",
+            "medium": "$1.25M",
+            "high": "$1.32M"
+          }
+        },
+        "TradeMe": {
+          "status": "unverified",
+          "url": "https://www.trademe.co.nz/a/property/insights/profile/858166f5-cab5-40f8-a3c6-8a5aff9ea8f2"
+        },
+        "QV": {
+          "status": "error",
+          "error": "HTTP 404 from /api/get-qv-url"
+        },
+        "PropertyValue": {
+          "status": "matched",
+          "url": "https://www.propertyvalue.co.nz/auckland/auckland/mount-wellington-1062/68-walters-road-mount-wellington-auckland-1062-4539097",
+          "estimate": {
+            "low": "$1.30M",
+            "medium": "$1.35M",
+            "high": "$1.40M"
+          },
+          "data": {
+            "lastSold": "Last Sold on 23 Jun 2020 for $970,000",
+            "capitalValue": "$1,400,000",
+            "landValue": "$1,275,000",
+            "improvementValue": "$125,000",
+            "valuationDate": "01-05-2024"
+          }
+        }
+      },
+      "latitude": -36.93137777089012,
+      "longitude": 174.84753043160651
+    },
+    {
+      "address": "32 Red Hills Road, Massey, Auckland",
+      "bedrooms": 6,
+      "bathrooms": 3,
+      "landArea": 10557,
+      "historicalCv": 1945000,
+      "addressId": 962499,
+      "sources": {
+        "RealEstate": {
+          "status": "matched",
+          "url": "https://www.realestate.co.nz/property/32-red-hills-road-massey-waitakere-city-auckland/fqwyxsb3c",
+          "estimate": {
+            "low": "$1,690,000",
+            "medium": "$1,863,000",
+            "high": "$2,025,000"
+          },
+          "data": {}
+        },
+        "OneRoof": {
+          "status": "matched",
+          "url": "https://www.oneroof.co.nz/property/auckland/massey/32-red-hills-road/mBEPo",
+          "estimate": {
+            "low": "$1.63M",
+            "medium": "$1.84M",
+            "high": "$2.05M"
+          }
+        },
+        "Homes": {
+          "status": "matched",
+          "url": "https://homes.co.nz/address/auckland/massey/32-red-hills-road/b4kNk",
+          "estimate": {
+            "low": "$1.94M",
+            "medium": "$2.06M",
+            "high": "$2.18M"
+          }
+        },
+        "TradeMe": {
+          "status": "unverified",
+          "url": "https://www.trademe.co.nz/a/property/insights/profile/40dc9db4-0b50-4d5c-8391-c45eaadb504c"
+        },
+        "QV": {
+          "status": "matched",
+          "url": "https://www.qv.co.nz/property-search/property-details/2739111/",
+          "pageTitle": "32 Red Hills Road, Massey - QV",
+          "estimate": {
+            "low": null,
+            "medium": null,
+            "high": null
+          }
+        },
+        "PropertyValue": {
+          "status": "matched",
+          "url": "https://www.propertyvalue.co.nz/auckland/waitakere-city/massey-0614/32-red-hills-road-massey-auckland-0614-15356310",
+          "estimate": {
+            "low": "$2.00M",
+            "medium": "$2.10M",
+            "high": "$2.20M"
+          },
+          "data": {
+            "lastSold": "Last Sold on 26 Jul 2020 for $2,100,000",
+            "capitalValue": "$2,000,000",
+            "landValue": "$1,175,000",
+            "improvementValue": "$825,000",
+            "valuationDate": "01-05-2024"
+          }
+        }
+      },
+      "latitude": -36.83938418239176,
+      "longitude": 174.59030815000298
+    },
+    {
+      "address": "41 Ballarat Street, Ellerslie, Auckland",
+      "bedrooms": 2,
+      "bathrooms": 1,
+      "landArea": 405,
+      "historicalCv": 1000000,
+      "addressId": 1172239,
+      "sources": {
+        "RealEstate": {
+          "status": "matched",
+          "url": "https://www.realestate.co.nz/property/41-ballarat-street-ellerslie-auckland-city-auckland/k7s8mxz2",
+          "estimate": {
+            "low": "$913,000",
+            "medium": "$1,003,000",
+            "high": "$1,102,000"
+          },
+          "data": {}
+        },
+        "OneRoof": {
+          "status": "matched",
+          "url": "https://www.oneroof.co.nz/property/auckland/ellerslie/41-ballarat-street/MheAx",
+          "estimate": {
+            "low": "$925K",
+            "medium": "$1.03M",
+            "high": "$1.13M"
+          }
+        },
+        "Homes": {
+          "status": "matched",
+          "url": "https://homes.co.nz/address/auckland/ellerslie/41-ballarat-street/GKnXv",
+          "estimate": {
+            "low": "$1.05M",
+            "medium": "$1.12M",
+            "high": "$1.19M"
+          }
+        },
+        "TradeMe": {
+          "status": "unverified",
+          "url": "https://www.trademe.co.nz/a/property/insights/profile/720ec931-4b01-4442-a983-c485d58e596f"
+        },
+        "QV": {
+          "status": "wrong_address",
+          "url": "https://www.qv.co.nz/property-search/property-details/184058/",
+          "pageTitle": "40 Ballarat Street, Ellerslie - QV"
+        },
+        "PropertyValue": {
+          "status": "matched",
+          "url": "https://www.propertyvalue.co.nz/auckland/auckland/ellerslie-1051/41-ballarat-street-ellerslie-auckland-1051-8781866",
+          "estimate": {
+            "low": "$1.10M",
+            "medium": "$1.15M",
+            "high": "$1.20M"
+          },
+          "data": {
+            "lastSold": "Last Sold on 15 Jul 2020 for $1,156,000",
+            "capitalValue": "$1,125,000",
+            "landValue": "$960,000",
+            "improvementValue": "$165,000",
+            "valuationDate": "01-05-2024"
+          }
+        }
+      },
+      "latitude": -36.89483309909058,
+      "longitude": 174.8243367333061
+    },
+    {
+      "address": "17a Foxlaw Street, Randwick Park, Auckland",
+      "bedrooms": 3,
+      "bathrooms": 2,
+      "landArea": 561,
+      "historicalCv": 710000,
+      "addressId": 1434891,
+      "sources": {
+        "RealEstate": {
+          "status": "matched",
+          "url": "https://www.realestate.co.nz/property/17a-foxlaw-street-randwick-park-manukau-city-auckland/l5xw1dgfc",
+          "estimate": {
+            "low": "$832,000",
+            "medium": "$857,000",
+            "high": "$891,000"
+          },
+          "data": {}
+        },
+        "OneRoof": {
+          "status": "matched",
+          "url": "https://www.oneroof.co.nz/property/auckland/randwick-park/17a-foxlaw-street/4c7S3",
+          "estimate": {
+            "low": "$775K",
+            "medium": "$860K",
+            "high": "$950K"
+          }
+        },
+        "Homes": {
+          "status": "matched",
+          "url": "https://homes.co.nz/address/auckland/randwick-park/17a-foxlaw-street/en2Lx",
+          "estimate": {
+            "low": "$820K",
+            "medium": "$875K",
+            "high": "$925K"
+          }
+        },
+        "TradeMe": {
+          "status": "unverified",
+          "url": "https://www.trademe.co.nz/a/property/insights/profile/9409a242-d3cb-47aa-8818-c1296c178910"
+        },
+        "QV": {
+          "status": "error",
+          "error": "HTTP 404 from /api/get-qv-url"
+        },
+        "PropertyValue": {
+          "status": "matched",
+          "url": "https://www.propertyvalue.co.nz/auckland/manukau-city/randwick-park-2105/17a-foxlaw-street-randwick-park-auckland-2105-5383240",
+          "estimate": {
+            "low": "$800K",
+            "medium": "$850K",
+            "high": "$900K"
+          },
+          "data": {
+            "lastSold": "Last Sold on 7 Jun 2020 for $775,000",
+            "capitalValue": "$890,000",
+            "landValue": "$700,000",
+            "improvementValue": "$190,000",
+            "valuationDate": "01-05-2024"
+          }
+        }
+      },
+      "latitude": -37.022337749088905,
+      "longitude": 174.92085646670793
+    },
+    {
+      "address": "30 Kuaka Drive, Takanini, Auckland",
+      "bedrooms": 4,
+      "bathrooms": 2,
+      "landArea": 255,
+      "historicalCv": 810000,
+      "addressId": 1629626,
+      "sources": {
+        "RealEstate": {
+          "status": "matched",
+          "url": "https://www.realestate.co.nz/property/30-kuaka-drive-takanini-papakura-auckland/jpmcx7smd",
+          "estimate": {
+            "low": "$822,000",
+            "medium": "$865,000",
+            "high": "$900,000"
+          },
+          "data": {}
+        },
+        "OneRoof": {
+          "status": "matched",
+          "url": "https://www.oneroof.co.nz/property/auckland/takanini/30-kuaka-drive/Q2ruu",
+          "estimate": {
+            "low": "$775K",
+            "medium": "$860K",
+            "high": "$945K"
+          }
+        },
+        "Homes": {
+          "status": "matched",
+          "url": "https://homes.co.nz/address/auckland/takanini/30-kuaka-drive/k9PZo",
+          "estimate": {
+            "low": "$815K",
+            "medium": "$865K",
+            "high": "$920K"
+          }
+        },
+        "TradeMe": {
+          "status": "unverified",
+          "url": "https://www.trademe.co.nz/a/property/insights/profile/15d7b973-8ed9-4c37-b134-5c8402f89596"
+        },
+        "QV": {
+          "status": "wrong_address",
+          "url": "https://www.qv.co.nz/property-search/property-details/3252841/",
+          "pageTitle": "123 Kuaka Drive, Takanini - QV"
+        },
+        "PropertyValue": {
+          "status": "error",
+          "error": "HTTP 404 from /api/get-propertyvalue-url"
+        }
+      },
+      "latitude": -37.041364965788624,
+      "longitude": 174.93492943330824
+    },
+    {
+      "address": "627b Manukau Road, Epsom, Auckland",
+      "bedrooms": 3,
+      "bathrooms": 2,
+      "landArea": 251,
+      "historicalCv": 1300000,
+      "addressId": 1737289,
+      "sources": {
+        "RealEstate": {
+          "status": "matched",
+          "url": "https://www.realestate.co.nz/property/627b-manukau-road-epsom-auckland-city-auckland/smzt50p8j",
+          "estimate": {
+            "low": "$1,385,000",
+            "medium": "$1,482,000",
+            "high": "$1,610,000"
+          },
+          "data": {}
+        },
+        "OneRoof": {
+          "status": "matched",
+          "url": "https://www.oneroof.co.nz/property/auckland/epsom/627b-manukau-road/OxOoP",
+          "estimate": {
+            "low": "$1.3M",
+            "medium": "$1.48M",
+            "high": "$1.67M"
+          }
+        },
+        "Homes": {
+          "status": "error",
+          "error": "HTTP 400 from /api/get-homes-url"
+        },
+        "TradeMe": {
+          "status": "error",
+          "error": "HTTP 400 from /api/get-trademe-url"
+        },
+        "QV": {
+          "status": "error",
+          "error": "HTTP 404 from /api/get-qv-url"
+        },
+        "PropertyValue": {
+          "status": "matched",
+          "url": "https://www.propertyvalue.co.nz/auckland/auckland/epsom-1023/627b-manukau-road-epsom-auckland-1023-17227420",
+          "estimate": {
+            "low": "$1.40M",
+            "medium": "$1.45M",
+            "high": "$1.50M"
+          },
+          "data": {
+            "lastSold": "Last Sold on 25 Jun 2020 for $1,445,000",
+            "capitalValue": "$1,500,000",
+            "landValue": "$900,000",
+            "improvementValue": "$600,000",
+            "valuationDate": "01-05-2024"
+          }
+        }
+      },
+      "latitude": -36.90478816579068,
+      "longitude": 174.77397160000527
+    },
+    {
+      "address": "18 Coolaghy Drive, Flat Bush, Auckland",
+      "bedrooms": 5,
+      "bathrooms": 3,
+      "landArea": 420,
+      "historicalCv": 1250000,
+      "addressId": 1598028,
+      "sources": {
+        "RealEstate": {
+          "status": "matched",
+          "url": "https://www.realestate.co.nz/property/18-coolaghy-drive-flat-bush-manukau-city-auckland/04cq4nrmd",
+          "estimate": {
+            "low": "$1,273,000",
+            "medium": "$1,319,000",
+            "high": "$1,361,000"
+          },
+          "data": {}
+        },
+        "OneRoof": {
+          "status": "matched",
+          "url": "https://www.oneroof.co.nz/property/auckland/flat-bush/18-coolaghy-drive/hI84e",
+          "estimate": {
+            "low": "$1.21M",
+            "medium": "$1.35M",
+            "high": "$1.48M"
+          }
+        },
+        "Homes": {
+          "status": "matched",
+          "url": "https://homes.co.nz/address/auckland/flat-bush/18-coolaghy-drive/EYwrx",
+          "estimate": {
+            "low": "$1.3M",
+            "medium": "$1.39M",
+            "high": "$1.47M"
+          }
+        },
+        "TradeMe": {
+          "status": "unverified",
+          "url": "https://www.trademe.co.nz/a/property/insights/profile/bcbda421-eddd-4b10-a0dc-5f6b5c39c014"
+        },
+        "QV": {
+          "status": "error",
+          "error": "HTTP 404 from /api/get-qv-url"
+        },
+        "PropertyValue": {
+          "status": "matched",
+          "url": "https://www.propertyvalue.co.nz/auckland/manukau-city/flat-bush-2019/18-coolaghy-drive-flat-bush-auckland-2019-14730067",
+          "estimate": {
+            "low": "$1.30M",
+            "medium": "$1.35M",
+            "high": "$1.40M"
+          },
+          "data": {
+            "lastSold": "Last Sold on 25 Jun 2020 for $1,240,000",
+            "capitalValue": "$1,400,000",
+            "landValue": "$760,000",
+            "improvementValue": "$640,000",
+            "valuationDate": "01-05-2024"
+          }
+        }
+      },
+      "latitude": -36.97179574908938,
+      "longitude": 174.9187267500079
+    }
+  ]
+}
