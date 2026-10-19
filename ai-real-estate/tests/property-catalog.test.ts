@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 const db = vi.hoisted(() => ({
   getPropertiesByStatus: vi.fn(),
   getComparableSales: vi.fn(),
+  getAucklandSchoolOptions: vi.fn(),
 }));
 
 vi.mock("../lib/db/properties", () => db);
@@ -15,6 +16,7 @@ const previousDatabaseUrl = process.env.DATABASE_URL;
 beforeEach(() => {
   db.getPropertiesByStatus.mockReset();
   db.getComparableSales.mockReset();
+  db.getAucklandSchoolOptions.mockReset();
 });
 
 afterEach(() => {

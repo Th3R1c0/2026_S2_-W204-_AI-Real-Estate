@@ -44,11 +44,15 @@ export type PropertySource = {
 };
 
 export type SchoolZone = {
-  schoolId: number;
-  schoolName: string;
-  schoolType: string;
+  schoolId?: number;
+  schoolName?: string;
+  schoolType?: string;
   zoneName?: string;
   zoneType?: string;
+  name?: string;
+  type?: string;
+  distanceKm?: number;
+  isInZone?: boolean;
 };
 
 export type NearbySchool = {
@@ -146,6 +150,19 @@ export type Property = {
   pastSales?: PastSale[];
   valuationHistory?: ValuationRecord[];
   notifications?: PropertyNotification[];
+};
+
+export type ComparableSale = {
+  property: Pick<
+    Property,
+    "id" | "address" | "bedrooms" | "floorArea" | "price" | "soldDate"
+  >;
+  distanceKm: number;
+};
+
+export type ComparableSalesResult = {
+  comps: ComparableSale[];
+  averagePrice: number;
 };
 
 export type PropertyFilters = {

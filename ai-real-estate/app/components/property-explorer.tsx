@@ -18,6 +18,7 @@ import {
 } from "../../lib/flood-hazards";
 import type {
   ArchitecturalStyle,
+  ComparableSalesResult,
   FloodHazardType,
   NumericCriterion,
   NumericSearchField,
@@ -846,15 +847,42 @@ function DetailDialog({
   const [nearbySchoolType, setNearbySchoolType] = useState("");
   const [radius, setRadius] = useState(2);
   const [months, setMonths] = useState(6);
-  const compResult = useMemo(
+  const fallbackCompResult = useMemo(
     () =>
       findComparableSales(property, comparableSales, {
         radiusKm: radius,
         months,
         asOf: new Date("2026-09-18T00:00:00Z"),
       }),
-    [property, comparableSales, radius, months]
+    [property, comparableSales, radius, months],
   );
+  const [postgisComps, setPostgisComps] = useState<ComparableSalesResult | null>(null);
+
+  useEffect(() => {
+    if (tab !== "comps") return;
+    const controller = new AbortController();
+    const params = new URLSearchParams({
+      propertyKey: property.id,
+      radiusKm: String(radius),
+      months: String(months),
+    });
+
+    fetch(`/api/comparable-sales?${params}`, { signal: controller.signal })
+      .then(async (res) => {
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data && Array.isArray(data.comps)) {
+          setPostgisComps(data);
+        }
+      })
+      .catch(() => {
+        // Gracefully fallback to client-side calculations
+      });
+
+    return () => controller.abort();
+  }, [tab, property.id, radius, months]);
+
+  const compResult = postgisComps ?? fallbackCompResult;
   const historyData = useMemo(() => generateValuationHistory(property), [property]);
   const sunlightScore =
     property.sunlightHours === undefined
@@ -1080,7 +1108,23 @@ function DetailDialog({
             <div className="tool-panel">
               <div className="tool-heading">
                 <div>
-                  <p className="eyebrow">Recent market evidence</p>
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                    <p className="eyebrow" style={{ margin: 0 }}>Recent market evidence</p>
+                    {postgisComps && (
+                      <span
+                        style={{
+                          fontSize: "0.7rem",
+                          fontWeight: 700,
+                          background: "var(--sage, #dce8da)",
+                          color: "var(--forest, #285e4a)",
+                          padding: "0.15rem 0.45rem",
+                          borderRadius: "4px",
+                        }}
+                      >
+                        PostGIS Spatial Query
+                      </span>
+                    )}
+                  </div>
                   <h3>Nearby comparable sales</h3>
                 </div>
                 <div className="average-pill">

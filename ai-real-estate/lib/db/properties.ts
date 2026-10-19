@@ -1,6 +1,6 @@
 import "server-only";
 
-import { desc, eq, inArray, sql } from "drizzle-orm";
+import { and, desc, eq, gte, inArray, ne, sql } from "drizzle-orm";
 import { getDb } from ".";
 import {
   address,
@@ -19,6 +19,7 @@ import {
 } from "./schema";
 import type {
   ArchitecturalStyle,
+  ComparableSalesResult,
   FloodRisk,
   NearbySchool,
   Property,
@@ -508,4 +509,101 @@ export async function getComparableSales(): Promise<Property[]> {
     const sale = saleByKey.get(property.id);
     return sale ? [{ ...property, price: sale.soldPrice, soldDate: sale.soldDate }] : [];
   });
+}
+
+export async function getNearbyComparableSales(
+  propertyKey: string,
+  radiusKm: number,
+  months: number,
+): Promise<ComparableSalesResult> {
+  const db = getDb();
+  const [target] = await db
+    .select({
+      propertyId: propertyTable.propertyId,
+      propertyType: propertyDetails.propertyType,
+      bedrooms: propertyDetails.bedrooms,
+      floorArea: propertyDetails.floorArea,
+      latitude: address.latitude,
+      longitude: address.longitude,
+    })
+    .from(propertyTable)
+    .innerJoin(address, eq(address.propertyId, propertyTable.propertyId))
+    .innerJoin(propertyDetails, eq(propertyDetails.propertyId, propertyTable.propertyId))
+    .where(eq(propertyTable.demoKey, propertyKey))
+    .limit(1);
+
+  if (!target) return { comps: [], averagePrice: 0 };
+
+  const nearbyRows = await db
+    .selectDistinctOn([propertyTable.propertyId], {
+      propertyId: propertyTable.propertyId,
+      demoKey: propertyTable.demoKey,
+      soldDate: propertySales.soldDate,
+      distanceKm: sql<number>`
+        ST_Distance(
+          ST_SetSRID(ST_MakePoint(${address.longitude}::double precision, ${address.latitude}::double precision), 4326)::geography,
+          ST_SetSRID(ST_MakePoint(${target.longitude}::double precision, ${target.latitude}::double precision), 4326)::geography
+        ) / 1000.0
+      `.as("distance_km"),
+    })
+    .from(propertyTable)
+    .innerJoin(address, eq(address.propertyId, propertyTable.propertyId))
+    .innerJoin(propertyDetails, eq(propertyDetails.propertyId, propertyTable.propertyId))
+    .innerJoin(propertySales, eq(propertySales.propertyId, propertyTable.propertyId))
+    .where(
+      and(
+        eq(propertyTable.status, "sold"),
+        ne(propertyTable.propertyId, target.propertyId),
+        eq(propertyDetails.propertyType, target.propertyType),
+        sql`ABS(${propertyDetails.bedrooms} - ${target.bedrooms}) <= 1`,
+        sql`ABS(${propertyDetails.floorArea} - ${target.floorArea})
+          / NULLIF(${target.floorArea}::numeric, 0::numeric) <= 0.35`,
+        gte(
+          propertySales.soldDate,
+          sql`CURRENT_DATE - make_interval(months => ${months})`,
+        ),
+        sql`ST_DWithin(
+          ST_SetSRID(ST_MakePoint(${address.longitude}::double precision, ${address.latitude}::double precision), 4326)::geography,
+          ST_SetSRID(ST_MakePoint(${target.longitude}::double precision, ${target.latitude}::double precision), 4326)::geography,
+          ${radiusKm * 1000}
+        )`,
+      ),
+    )
+    .orderBy(propertyTable.propertyId, desc(propertySales.soldDate));
+
+  const soldProperties = await getComparableSales();
+  const propertyById = new Map(
+    soldProperties.map((property) => [property.id, property]),
+  );
+  const comps = nearbyRows
+    .flatMap((row) => {
+      const property = propertyById.get(row.demoKey ?? String(row.propertyId));
+      return property
+        ? [
+            {
+              property: {
+                id: property.id,
+                address: property.address,
+                bedrooms: property.bedrooms,
+                floorArea: property.floorArea,
+                price: property.price,
+                soldDate: property.soldDate,
+              },
+              distanceKm: Number(row.distanceKm),
+            },
+          ]
+        : [];
+    })
+    .sort(
+      (a, b) =>
+        new Date(b.property.soldDate!).getTime() -
+        new Date(a.property.soldDate!).getTime(),
+    );
+
+  return {
+    comps,
+    averagePrice: comps.length
+      ? Math.round(comps.reduce((sum, { property }) => sum + property.price, 0) / comps.length)
+      : 0,
+  };
 }

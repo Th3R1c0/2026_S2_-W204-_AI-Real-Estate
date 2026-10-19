@@ -160,7 +160,7 @@ export function matchCatalogDetails(query: string, properties: Property[]): Prop
     .sort((a, b) => b.length - a.length);
   const address = addresses.find((value) => lower.includes(value.toLowerCase()));
   const schoolNames = Array.from(new Set(properties.flatMap(({ schoolZones }) =>
-    schoolZones?.map(({ name }) => name) ?? [],
+    schoolZones?.map((z) => z.name ?? z.schoolName).filter((n): n is string => Boolean(n)) ?? [],
   ))).sort((a, b) => b.length - a.length);
   const schoolZoneName = /\b(?:zone|catchment|in-zone)\b/i.test(query)
     ? schoolNames.find((name) => lower.includes(name.toLowerCase()))
