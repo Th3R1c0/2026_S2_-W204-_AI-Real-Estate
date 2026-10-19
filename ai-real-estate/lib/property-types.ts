@@ -73,6 +73,8 @@ export type SchoolZone = {
 
 export type NearbySchool = {
   schoolId: number;
+  latitude?: number;
+  longitude?: number;
   name: string;
   orgType: string;
   distanceKm: number;

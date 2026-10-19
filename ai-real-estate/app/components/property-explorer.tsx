@@ -1,39 +1,93 @@
 "use client";
+import { Slider } from "@/components/ui/slider";
+import { Input } from "@/components/ui/input";
 
 import Image from "next/image";
+import {
+  House,
+  Heart,
+  Search,
+  X,
+  SlidersHorizontal,
+  CalendarDays,
+  LayoutGrid,
+  Building2,
+  Fence,
+  Trees,
+  Sparkles,
+  Sun,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import {
+  Collapsible,
+  CollapsibleTrigger,
+  CollapsibleContent,
+} from "@/components/ui/collapsible";
+import {
+  Accordion,
+  AccordionItem,
+  AccordionTrigger,
+  AccordionContent,
+} from "@/components/ui/accordion";
+import { Field, FieldLabel, FieldGroup } from "@/components/ui/field";
+import { NativeSelect } from "@/components/ui/native-select";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+  InputGroupButton,
+} from "@/components/ui/input-group";
+import { Spinner } from "@/components/ui/spinner";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+import {
+  Table,
+  TableHeader,
+  TableHead,
+  TableBody,
+  TableRow,
+  TableCell,
+} from "@/components/ui/table";
+import {
+  Empty,
+  EmptyHeader,
+  EmptyTitle,
+  EmptyDescription,
+} from "@/components/ui/empty";
+import { cn } from "@/lib/utils";
+import { propertyPhotos } from "@/lib/property-photos";
+import SiteHeader from "./site-header";
+import { PropertyGridSkeleton } from "./property-skeleton";
+
 import Link from "next/link";
-import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  FormEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import MortgageCalculator from "./mortgage-calculator";
-import PropertyNotes from "./property-notes";
-import PropertyLocationMap from "./property-location-map";
 import { useAccountWorkspace } from "./account-workspace-provider";
 
-import {
-  filterProperties,
-  findComparableSales,
-  generateValuationHistory,
-} from "../../lib/property-engine";
-import {
-  describeFloodHazards,
-  floodHazardDisclaimer,
-  floodHazardOptions,
-} from "../../lib/flood-hazards";
+import { filterProperties } from "../../lib/property-engine";
+import { floodHazardOptions } from "../../lib/flood-hazards";
 import type {
   ArchitecturalStyle,
-  ComparableSalesResult,
   FloodHazardType,
   NumericCriterion,
   NumericSearchField,
   Property,
   PropertyFilters,
-  PropertySource,
-  PropertySourceField,
   PropertyType,
   SchoolOption,
 } from "../../lib/property-types";
 import { SCHOOL_NEARBY_RADIUS_METRES } from "../../lib/school-data";
 import {
-  commuteStorageKey,
   readSavedLocations,
   straightLineDistanceKm,
   type SavedLocation,
@@ -54,28 +108,13 @@ type PropertyExplorerProps = {
   aiSearch?: (query: string) => Promise<AiSearchResult>;
 };
 
-type DetailTab =
-  | "overview"
-  | "flood"
-  | "comps"
-  | "family"
-  | "commute"
-  | "mortgage"
-  | "history"
-  | "notes";
-type CommuteMode = "driving" | "transit" | "bicycling" | "walking";
-type SourceSelection = {
-  source: PropertySource;
-  field: PropertySourceField;
-  property: Property;
-};
-
-const sourceFieldLabels: Record<PropertySourceField, string> = {
-  address: "address",
-  price: "indicative value",
-  bedrooms: "bedrooms",
-  bathrooms: "bathrooms",
-  landArea: "land area",
+const typeIcons = {
+  Villa: House,
+  Townhouse: Building2,
+  Apartment: Building2,
+  House,
+  "Lifestyle block": Trees,
+  Section: Fence,
 };
 
 const propertyTypes: PropertyType[] = [
@@ -112,15 +151,24 @@ const numericFilterLabels: Record<NumericSearchField, string> = {
   capitalValue: "Capital value",
 };
 
-function formatNumericFilter(field: NumericSearchField, range: NumericCriterion): string {
+function formatNumericFilter(
+  field: NumericSearchField,
+  range: NumericCriterion,
+): string {
   const format = (value: number) => {
-    if (field === "estimatedWeeklyRent" || field === "capitalValue") return formatMoney(value);
-    if (field === "landArea" || field === "floorArea") return `${numberFormatter.format(value)} m²`;
+    if (field === "estimatedWeeklyRent" || field === "capitalValue")
+      return formatMoney(value);
+    if (field === "landArea" || field === "floorArea")
+      return `${numberFormatter.format(value)} m²`;
     if (field === "sunlightHours") return `${value} hours`;
     return numberFormatter.format(value);
   };
   const label = numericFilterLabels[field];
-  if (range.min !== undefined && range.max !== undefined && range.min === range.max) {
+  if (
+    range.min !== undefined &&
+    range.max !== undefined &&
+    range.min === range.max
+  ) {
     return `${label}: ${format(range.min)}`;
   }
   if (range.min !== undefined && range.max !== undefined) {
@@ -131,205 +179,8 @@ function formatNumericFilter(field: NumericSearchField, range: NumericCriterion)
   return label;
 }
 
-let nextLocationLookupAt = 0;
-const commuteModes: Array<{ id: CommuteMode; label: string }> = [
-  { id: "driving", label: "Driving" },
-  { id: "transit", label: "Public transport" },
-  { id: "bicycling", label: "Cycling" },
-  { id: "walking", label: "Walking" },
-];
-
 function formatMoney(value: number) {
   return moneyFormatter.format(value).replace("NZ", "");
-}
-
-function CommutePlanner({ property, destinations, setDestinations }: {
-  property: Property;
-  destinations: SavedLocation[];
-  setDestinations: React.Dispatch<React.SetStateAction<SavedLocation[]>>;
-}) {
-  const account = useAccountWorkspace();
-  const [mode, setMode] = useState<CommuteMode>("driving");
-  const [locatingIndex, setLocatingIndex] = useState<number | null>(null);
-  const [locationError, setLocationError] = useState("");
-
-  function updateDestination(index: number, field: "name" | "address", value: string) {
-    setDestinations((current) =>
-      current.map((destination, currentIndex) =>
-        currentIndex === index ? {
-          ...destination,
-          [field]: value,
-          ...(field === "address" ? { latitude: undefined, longitude: undefined } : {}),
-        } : destination,
-      ),
-    );
-  }
-
-  async function locateDestination(index: number) {
-    const destination = destinations[index];
-    if (!destination?.address.trim()) return;
-    setLocatingIndex(index);
-    setLocationError("");
-    try {
-      const query = new URL("https://nominatim.openstreetmap.org/search");
-      query.searchParams.set("q", destination.address.trim());
-      query.searchParams.set("format", "jsonv2");
-      query.searchParams.set("countrycodes", "nz");
-      query.searchParams.set("limit", "1");
-      const waitMs = Math.max(0, nextLocationLookupAt - Date.now());
-      nextLocationLookupAt = Date.now() + waitMs + 1000;
-      if (waitMs) await new Promise((resolve) => setTimeout(resolve, waitMs));
-      const response = await fetch(query.toString());
-      if (!response.ok) throw new Error("Location lookup failed. Try again.");
-      const result: unknown = await response.json();
-      const first = Array.isArray(result) ? result[0] : null;
-      const latitude = Number(first?.lat);
-      const longitude = Number(first?.lon);
-      if (!first || !Number.isFinite(latitude) || !Number.isFinite(longitude)) {
-        throw new Error("Address not found. Try a more specific address.");
-      }
-      setDestinations((current) => current.map((item) => item.id === destination.id && item.address === destination.address
-        ? { ...item, latitude, longitude }
-        : item));
-    } catch (error) {
-      setLocationError(error instanceof Error ? error.message : "Location lookup failed.");
-    } finally {
-      setLocatingIndex(null);
-    }
-  }
-
-  return (
-    <div className="commute-panel">
-      <div className="tool-heading">
-        <div>
-          <p className="eyebrow">Your regular journeys</p>
-          <h3>Saved locations</h3>
-        </div>
-        <span className="commute-count">{destinations.length}/3 saved</span>
-      </div>
-      <div aria-label="Travel mode" className="commute-modes" role="group">
-        {commuteModes.map(({ id, label }) => (
-          <button
-            aria-pressed={mode === id}
-            className={mode === id ? "active" : ""}
-            key={id}
-            onClick={() => setMode(id)}
-            type="button"
-          >
-            {label}
-          </button>
-        ))}
-      </div>
-      {destinations.length ? (
-        <div className="commute-list">
-          {destinations.map((destination, index) => {
-            const mapsUrl = new URL("https://www.google.com/maps/dir/");
-            mapsUrl.searchParams.set("api", "1");
-            mapsUrl.searchParams.set("origin", `${property.latitude},${property.longitude}`);
-            mapsUrl.searchParams.set("destination", destination.address);
-            mapsUrl.searchParams.set("travelmode", mode);
-
-            return (
-              <div className="commute-destination" key={index}>
-                <label>
-                  <span>Destination name</span>
-                  <input
-                    aria-label={`Name for destination ${index + 1}`}
-                    onChange={(event) => updateDestination(index, "name", event.target.value)}
-                    placeholder="e.g. Work"
-                    value={destination.name}
-                  />
-                </label>
-                <label>
-                  <span>Address</span>
-                  <input
-                    aria-label={`Address for destination ${index + 1}`}
-                    onChange={(event) => updateDestination(index, "address", event.target.value)}
-                    placeholder="Enter a street address"
-                    value={destination.address}
-                  />
-                </label>
-                <button
-                  className="commute-add"
-                  disabled={!destination.address.trim() || locatingIndex !== null}
-                  onClick={() => locateDestination(index)}
-                  type="button"
-                >
-                  {locatingIndex === index ? "Finding…" : destination.latitude === undefined ? "Find on map" : "Update map pin"}
-                </button>
-                {destination.address.trim() ? (
-                  <a href={mapsUrl.toString()} rel="noreferrer" target="_blank">
-                    Open directions
-                  </a>
-                ) : (
-                  <span className="commute-prompt">Enter an address to open directions</span>
-                )}
-                <button
-                  aria-label={`Remove destination ${index + 1}`}
-                  className="commute-remove"
-                  onClick={() =>
-                    setDestinations((current) =>
-                      current.filter((_, currentIndex) => currentIndex !== index),
-                    )
-                  }
-                  type="button"
-                >
-                  Remove
-                </button>
-              </div>
-            );
-          })}
-        </div>
-      ) : (
-        <p className="commute-empty">Add a workplace, family home, or other regular destination.</p>
-      )}
-      <button
-        className="commute-add"
-        disabled={destinations.length >= 3}
-        onClick={() => setDestinations((current) => [...current, { id: crypto.randomUUID(), name: "", address: "" }])}
-        type="button"
-      >
-        Add destination
-      </button>
-      {locationError && <p role="alert">{locationError}</p>}
-      <p className="disclaimer">
-        {account?.status === "signedIn"
-          ? "Saved privately to your account."
-          : "Saved on this device."} Address lookup and map tiles use OpenStreetMap;
-        Google Maps opens route directions. Distances shown here are straight-line estimates.
-      </p>
-    </div>
-  );
-}
-
-function SourceCitations({
-  property,
-  field,
-  onOpen,
-}: {
-  property: Property;
-  field: PropertySourceField;
-  onOpen: (source: PropertySource, field: PropertySourceField) => void;
-}) {
-  const sources = property.sources?.filter((source) => source.fields.includes(field)) ?? [];
-
-  if (!sources.length) return null;
-
-  return (
-    <span className="source-citations">
-      {sources.map((source, index) => (
-        <button
-          aria-label={`View source ${index + 1} for ${sourceFieldLabels[field]}`}
-          className="source-citation"
-          key={source.id}
-          onClick={() => onOpen(source, field)}
-          type="button"
-        >
-          [{index + 1}]
-        </button>
-      ))}
-    </span>
-  );
 }
 
 async function searchWithApi(query: string): Promise<AiSearchResult> {
@@ -349,272 +200,73 @@ async function searchWithApi(query: string): Promise<AiSearchResult> {
   return result;
 }
 
-function Icon({ name, size = 18 }: { name: string; size?: number }) {
-  const paths: Record<string, React.ReactNode> = {
-    search: (
-      <>
-        <circle cx="11" cy="11" r="7" />
-        <path d="m20 20-4-4" />
-      </>
-    ),
-    sparkle: (
-      <>
-        <path d="m12 3 1.25 3.75L17 8l-3.75 1.25L12 13l-1.25-3.75L7 8l3.75-1.25L12 3Z" />
-        <path d="m5 14 .7 2.3L8 17l-2.3.7L5 20l-.7-2.3L2 17l2.3-.7L5 14Z" />
-      </>
-    ),
-    sliders: (
-      <>
-        <path d="M4 6h7M15 6h5M4 12h2M10 12h10M4 18h9M17 18h3" />
-        <circle cx="13" cy="6" r="2" />
-        <circle cx="8" cy="12" r="2" />
-        <circle cx="15" cy="18" r="2" />
-      </>
-    ),
-    bed: (
-      <>
-        <path d="M4 12V7M4 10h16a2 2 0 0 1 2 2v5H2v-3a2 2 0 0 1 2-2Z" />
-        <path d="M7 10V7h5a2 2 0 0 1 2 2v1M2 20v-3M22 20v-3" />
-      </>
-    ),
-    bath: (
-      <>
-        <path d="M3 12h18v2a5 5 0 0 1-5 5H8a5 5 0 0 1-5-5v-2ZM7 12V5a2 2 0 0 1 4 0" />
-        <path d="M7 19v2M17 19v2" />
-      </>
-    ),
-    ruler: (
-      <>
-        <path d="m4 17 13-13 3 3L7 20l-3-3Z" />
-        <path d="m14 7 3 3M11 10l2 2M8 13l3 3" />
-      </>
-    ),
-    sun: (
-      <>
-        <circle cx="12" cy="12" r="4" />
-        <path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.65 17.65l1.42 1.42M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.65 6.35l1.42-1.42" />
-      </>
-    ),
-    compare: (
-      <>
-        <path d="M8 3 4 7l4 4M4 7h16M16 21l4-4-4-4M20 17H4" />
-      </>
-    ),
-    map: (
-      <>
-        <path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3V6Z" />
-        <path d="M9 3v15M15 6v15" />
-      </>
-    ),
-    close: (
-      <>
-        <path d="M6 6l12 12M18 6 6 18" />
-      </>
-    ),
-    arrow: (
-      <>
-        <path d="M5 12h14M14 7l5 5-5 5" />
-      </>
-    ),
-    house: (
-      <>
-        <path d="m3 11 9-8 9 8" />
-        <path d="M5 10v10h14V10M9 20v-6h6v6" />
-      </>
-    ),
-    heart: (
-      <>
-        <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.04 3 5.5l7 7Z" />
-      </>
-    ),
-    bell: (
-      <>
-        <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
-        <path d="M10.33 21a1.94 1.94 0 0 0 3.34 0" />
-      </>
-    ),
-  };
-
-  return (
-    <svg
-      aria-hidden="true"
-      className="icon"
-      fill="none"
-      height={size}
-      viewBox="0 0 24 24"
-      width={size}
-      stroke="currentColor"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth="1.8"
-    >
-      {paths[name]}
-    </svg>
-  );
-}
-
 function PropertyCard({
   property,
   selected,
   isSaved,
   onCompare,
   onSave,
-  onOpen,
-  onOpenSource,
+  eager = false,
 }: {
   property: Property;
   selected: boolean;
   isSaved: boolean;
   onCompare: () => void;
   onSave: () => void;
-  onOpen: () => void;
-  onOpenSource: (source: PropertySource, field: PropertySourceField) => void;
+  eager?: boolean;
 }) {
-  const photos = useMemo(
-    () =>
-      Array.from(
-        new Set([property.image, ...(property.photoGallery ?? [])].filter(Boolean)),
-      ),
-    [property.image, property.photoGallery],
-  );
-  const [photoIndex, setPhotoIndex] = useState(0);
-  const activePhoto = photos[photoIndex] ?? property.image;
-  const nextOpenHome = property.openHomes?.[0];
-
   return (
     <article className="property-card">
-      <div className="property-media">
-        <Link
-          href={`/properties/${property.id}`}
-          className="property-media-link"
-          aria-label={`Open property page for ${property.address}`}
-        >
+      <Link
+        className="property-card-link"
+        href={`/properties/${encodeURIComponent(property.id)}`}
+        aria-label={`View details for ${property.address}`}
+      >
+        <div className="property-media">
           <Image
             alt={property.imageAlt}
             className="property-image"
             fill
-            sizes="(max-width: 720px) 100vw, (max-width: 1200px) 50vw, 380px"
-            src={activePhoto}
+            loading={eager ? "eager" : "lazy"}
+            sizes="(max-width: 540px) 100vw, (max-width: 900px) 50vw, (max-width: 1200px) 33vw, 25vw"
+            src={propertyPhotos(property)[0]}
           />
-        </Link>
-        {property.architecturalStyle ? (
-          <span className="style-badge">{property.architecturalStyle}</span>
-        ) : null}
-        {photos.length > 1 && (
-          <>
-            <button
-              aria-label={`Previous photo for ${property.address}`}
-              className="card-carousel-btn card-carousel-prev"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                setPhotoIndex((curr) => (curr - 1 + photos.length) % photos.length);
-              }}
-              type="button"
-            >
-              ‹
-            </button>
-            <button
-              aria-label={`Next photo for ${property.address}`}
-              className="card-carousel-btn card-carousel-next"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                setPhotoIndex((curr) => (curr + 1) % photos.length);
-              }}
-              type="button"
-            >
-              ›
-            </button>
-            <span className="card-photo-counter">
-              {photoIndex + 1} / {photos.length}
-            </span>
-          </>
-        )}
-        <button
-          aria-label={isSaved ? `Remove ${property.address} from saved listings` : `Save ${property.address}`}
-          className={`save-button ${isSaved ? "is-saved" : ""}`}
-          onClick={onSave}
-          type="button"
-        >
-          <Icon name="heart" size={18} />
-        </button>
-        <label className={`compare-check ${selected ? "is-selected" : ""}`}>
-          <input
-            aria-label={`Compare ${property.address}`}
-            checked={selected}
-            onChange={onCompare}
-            type="checkbox"
-          />
-          <Icon name="compare" size={15} />
-          Compare
-        </label>
-      </div>
-      <div className="property-body">
-        <div className="property-heading">
-          <div style={{ minWidth: 0, flex: 1 }}>
-            <div className="property-location-row">
-              <p className="property-location">
-                {property.suburb}, {property.city} · {property.propertyType}
-              </p>
-            </div>
-            <h3>
-              <Link href={`/properties/${property.id}`} className="property-title-link">
-                {property.address}
-              </Link>
-              <SourceCitations field="address" onOpen={onOpenSource} property={property} />
-            </h3>
-            <p className="property-price">
-              {formatMoney(property.price)}
-              <SourceCitations field="price" onOpen={onOpenSource} property={property} />
-              {property.saleMethod ? (
-                <span className="property-sale-method">{property.saleMethod}</span>
-              ) : null}
-            </p>
-          </div>
-          {property.floodHazards?.length ? (
-            <span className="flood-hazard-badge">Mapped flood hazard</span>
-          ) : property.floodHazards !== undefined ? (
-            <span className="flood-safe-badge">No flood hazard</span>
-          ) : null}
         </div>
-        {nextOpenHome ? (
-          <div className="card-open-home-banner">
-            📅 Open Home: {nextOpenHome.label}
-          </div>
-        ) : null}
-        <div className="property-specs" aria-label="Property features">
-          <span>
-            <Icon name="bed" size={17} />
-            {property.bedrooms} beds
-            <SourceCitations field="bedrooms" onOpen={onOpenSource} property={property} />
-          </span>
-          <span>
-            <Icon name="bath" size={17} />
-            {property.bathrooms} baths
-            <SourceCitations field="bathrooms" onOpen={onOpenSource} property={property} />
-          </span>
-          <span>
-            <Icon name="ruler" size={17} />
+        <div className="property-body">
+          <h3>{property.address}</h3>
+          <p className="property-location">
+            {property.suburb}, {property.city}
+          </p>
+          <p className="property-specs">
+            {property.bedrooms} beds · {property.bathrooms} baths ·{" "}
             {numberFormatter.format(property.landArea)} m²
-            <SourceCitations field="landArea" onOpen={onOpenSource} property={property} />
-          </span>
+          </p>
+          <p className="property-price">{formatMoney(property.price)}</p>
         </div>
-        <div className="card-footer">
-          <Link href={`/properties/${property.id}`} className="card-page-link">
-            View property page ↗
-          </Link>
-          <button
-            aria-label={`View details for ${property.address}`}
-            className="icon-button"
-            onClick={onOpen}
-            style={{ marginLeft: "auto" }}
-            type="button"
-          >
-            <Icon name="arrow" />
-          </button>
-        </div>
-      </div>
+      </Link>
+      <Button
+        variant="outline"
+        size="icon"
+        aria-label={
+          isSaved
+            ? `Remove ${property.address} from saved listings`
+            : `Save ${property.address}`
+        }
+        aria-pressed={isSaved}
+        className={cn("save-button", isSaved && "is-saved")}
+        onClick={onSave}
+        type="button"
+      >
+        <Heart />
+      </Button>
+      <label className={cn("compare-check", selected && "is-selected")}>
+        <Checkbox
+          aria-label={`Compare ${property.address}`}
+          checked={selected}
+          onCheckedChange={onCompare}
+        />
+        <span>Compare</span>
+      </label>
     </article>
   );
 }
@@ -623,94 +275,78 @@ function SavedListingsDialog({
   savedProperties,
   onClose,
   onRemoveSave,
-  onOpenDetail,
 }: {
   savedProperties: Property[];
   onClose: () => void;
   onRemoveSave: (id: string) => void;
-  onOpenDetail: (id: string) => void;
 }) {
   return (
-    <div className="modal-backdrop" role="presentation">
-      <section
+    <Dialog
+      open
+      onOpenChange={(open) => {
+        if (!open) onClose();
+      }}
+    >
+      <DialogContent
+        className="saved-modal"
         aria-label="Saved listings dashboard"
-        aria-modal="true"
-        className="modal comparison-modal"
-        role="dialog"
-        style={{ maxWidth: "720px" }}
+        aria-labelledby={undefined}
+        aria-describedby={undefined}
       >
-        <div className="modal-header">
-          <div>
-            <p className="eyebrow">Your Shortlist</p>
-            <h2>Saved Listings ({savedProperties.length})</h2>
-          </div>
-          <button
-            aria-label="Close saved listings"
-            className="icon-button"
-            onClick={onClose}
-            type="button"
-          >
-            <Icon name="close" />
-          </button>
-        </div>
-        <div className="comparison-scroll" style={{ padding: "1rem 0" }}>
-          {savedProperties.length > 0 ? (
-            <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-              {savedProperties.map((prop) => (
-                <div
-                  key={prop.id}
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    padding: "0.75rem",
-                    border: "1px solid var(--border-color, #e5e7eb)",
-                    borderRadius: "8px",
-                  }}
+        <DialogTitle>
+          Saved homes{" "}
+          <span className="text-muted-foreground">
+            ({savedProperties.length})
+          </span>
+        </DialogTitle>
+        {savedProperties.length ? (
+          <div className="saved-home-list">
+            {savedProperties.map((property) => (
+              <div className="saved-home-row" key={property.id}>
+                <Link
+                  className="saved-home-link"
+                  href={`/properties/${encodeURIComponent(property.id)}`}
                 >
-                  <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
-                    <div style={{ position: "relative", width: "60px", height: "60px", borderRadius: "6px", overflow: "hidden" }}>
-                      <Image alt={prop.imageAlt} fill sizes="60px" src={prop.image} />
-                    </div>
-                    <div>
-                      <strong>{prop.address}</strong>
-                      <p style={{ margin: "0.2rem 0", fontSize: "0.85rem", opacity: 0.8 }}>
-                        {prop.suburb} · {formatMoney(prop.price)}
-                      </p>
-                    </div>
+                  <div className="saved-home-photo">
+                    <Image
+                      src={propertyPhotos(property)[0]}
+                      alt={property.imageAlt}
+                      fill
+                      sizes="72px"
+                    />
                   </div>
-                  <div style={{ display: "flex", gap: "0.5rem" }}>
-                    <button
-                      className="button"
-                      onClick={() => {
-                        onClose();
-                        onOpenDetail(prop.id);
-                      }}
-                      type="button"
-                      style={{ padding: "0.4rem 0.8rem", fontSize: "0.85rem", cursor: "pointer" }}
-                    >
-                      View
-                    </button>
-                    <button
-                      className="button"
-                      onClick={() => onRemoveSave(prop.id)}
-                      type="button"
-                      style={{ padding: "0.4rem 0.8rem", fontSize: "0.85rem", background: "#fee2e2", color: "#b91c1c", border: "none", cursor: "pointer", borderRadius: "4px" }}
-                    >
-                      Remove
-                    </button>
+                  <div>
+                    <strong>{property.address}</strong>
+                    <p>
+                      {property.suburb} · {formatMoney(property.price)}
+                    </p>
                   </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="empty-inline" style={{ textAlign: "center", padding: "2rem" }}>
-              <p>You haven&apos;t saved any listings yet. Click the heart icon on any property card to save it here.</p>
-            </div>
-          )}
-        </div>
-      </section>
-    </div>
+                </Link>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  aria-label={`Remove ${property.address} from saved listings`}
+                  onClick={() => onRemoveSave(property.id)}
+                  type="button"
+                >
+                  <X />
+                </Button>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <Empty>
+            <EmptyHeader>
+              <Heart />
+              <EmptyTitle>No saved homes yet</EmptyTitle>
+              <EmptyDescription>
+                Tap a heart to keep a home here.
+              </EmptyDescription>
+            </EmptyHeader>
+          </Empty>
+        )}
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -724,785 +360,172 @@ function ComparisonDialog({
   onRemove: (id: string) => void;
 }) {
   const [highlight, setHighlight] = useState(false);
-  const values = {
-    Price: properties.map(({ price }) => formatMoney(price)),
-    Bedrooms: properties.map(({ bedrooms }) => String(bedrooms)),
-    Bathrooms: properties.map(({ bathrooms }) => String(bathrooms)),
-    "Land area": properties.map(({ landArea }) => `${numberFormatter.format(landArea)} m²`),
-    "Built in": properties.map(({ yearBuilt }) => yearBuilt ? String(yearBuilt) : "Unknown"),
-    Style: properties.map(({ architecturalStyle }) => architecturalStyle ?? "N/A"),
-    "Mapped flood hazards": properties.map(({ floodHazards }) =>
-      floodHazards === undefined
-        ? "Not synced"
-        : floodHazards.length
-          ? floodHazardOptions
-              .filter(({ type }) => floodHazards.some((hazard) => hazard.type === type))
-              .map(({ label }) => label)
-              .join(", ")
-          : "No mapped intersection",
-    ),
-    "Open home": properties.map(({ openHomes }) =>
-      openHomes?.length ? openHomes[0].label : "By appointment",
-    ),
-  };
-
-  return (
-    <div className="modal-backdrop" role="presentation">
-      <section
-        aria-label="Property comparison"
-        aria-modal="true"
-        className="modal comparison-modal"
-        role="dialog"
-      >
-        <div className="modal-header">
-          <div>
-            <p className="eyebrow">Side-by-side view</p>
-            <h2>Compare your shortlist</h2>
-          </div>
-          <button
-            aria-label="Close comparison"
-            className="icon-button"
-            onClick={onClose}
-            type="button"
-          >
-            <Icon name="close" />
-          </button>
-        </div>
-        <div className="comparison-toolbar">
-          <p>{properties.length} homes selected</p>
-          <label className="switch-label">
-            <input
-              checked={highlight}
-              onChange={(event) => setHighlight(event.target.checked)}
-              type="checkbox"
-            />
-            Highlight differences
-          </label>
-        </div>
-        <div className="comparison-scroll">
-          <div
-            className="comparison-grid"
-            style={{
-              gridTemplateColumns: `150px repeat(${properties.length}, minmax(190px, 1fr))`,
-            }}
-          >
-            <div />
-            {properties.map((property) => (
-              <div className="compare-property-head" key={property.id}>
-                <button
-                  aria-label={`Remove ${property.address}`}
-                  className="remove-button"
-                  onClick={() => onRemove(property.id)}
-                  type="button"
-                >
-                  <Icon name="close" size={14} />
-                </button>
-                <div className="compare-thumb">
-                  <Image alt={property.imageAlt} fill sizes="200px" src={property.image} />
-                </div>
-                <strong>{property.address}</strong>
-                <span>{property.suburb}</span>
-              </div>
-            ))}
-            {Object.entries(values).flatMap(([label, row]) => {
-              const different = new Set(row).size > 1;
-              return [
-                <div className="compare-label" key={`${label}-label`}>
-                  {label}
-                </div>,
-                ...row.map((value, index) => (
-                  <div
-                    className={highlight && different ? "compare-value is-different" : "compare-value"}
-                    key={`${label}-${properties[index]?.id}`}
-                  >
-                    {value}
-                  </div>
-                )),
-              ];
-            })}
-          </div>
-        </div>
-      </section>
-    </div>
-  );
-}
-
-function DetailDialog({
-  property,
-  comparableSales,
-  destinations,
-  setDestinations,
-  isSaved,
-  onSave,
-  onClose,
-  onOpenSource,
-}: {
-  property: Property;
-  comparableSales: Property[];
-  destinations: SavedLocation[];
-  setDestinations: React.Dispatch<React.SetStateAction<SavedLocation[]>>;
-  isSaved: boolean;
-  onSave: () => void;
-  onClose: () => void;
-  onOpenSource: (source: PropertySource, field: PropertySourceField) => void;
-}) {
-  const [tab, setTab] = useState<DetailTab>("overview");
-  const [showSavedLocations, setShowSavedLocations] = useState(true);
-  const [nearbySchoolType, setNearbySchoolType] = useState("");
-  const [radius, setRadius] = useState(2);
-  const [months, setMonths] = useState(6);
-  const fallbackCompResult = useMemo(
-    () =>
-      findComparableSales(property, comparableSales, {
-        radiusKm: radius,
-        months,
-        asOf: new Date("2026-09-18T00:00:00Z"),
-      }),
-    [property, comparableSales, radius, months],
-  );
-  const [postgisComps, setPostgisComps] = useState<ComparableSalesResult | null>(null);
-
-  useEffect(() => {
-    if (tab !== "comps") return;
-    const controller = new AbortController();
-    const params = new URLSearchParams({
-      propertyKey: property.id,
-      radiusKm: String(radius),
-      months: String(months),
-    });
-
-    fetch(`/api/comparable-sales?${params}`, { signal: controller.signal })
-      .then(async (res) => {
-        if (!res.ok) return;
-        const data = await res.json();
-        if (data && Array.isArray(data.comps)) {
-          setPostgisComps(data);
-        }
-      })
-      .catch(() => {
-        // Gracefully fallback to client-side calculations
-      });
-
-    return () => controller.abort();
-  }, [tab, property.id, radius, months]);
-
-  const compResult = postgisComps ?? fallbackCompResult;
-  const historyData = useMemo(() => generateValuationHistory(property), [property]);
-  const nearbySchoolTypes = Array.from(
-    new Set((property.nearbySchools ?? []).map(({ orgType }) => orgType)),
-  ).sort((a, b) => a.localeCompare(b));
-  const visibleNearbySchools = (property.nearbySchools ?? []).filter(
-    (school) => !nearbySchoolType || school.orgType === nearbySchoolType,
-  );
-  const tabs: Array<{ id: DetailTab; label: string }> = [
-    { id: "overview", label: "Overview" },
-    { id: "flood", label: "Flood risk" },
-    { id: "comps", label: "Comparable sales" },
-    { id: "family", label: "Schools" },
-    { id: "commute", label: "Commute" },
-    { id: "mortgage", label: "Mortgage" },
-    { id: "history", label: "Market History" },
-    { id: "notes", label: "My Notes" },
+  const rows: [string, string[]][] = [
+    ["Price", properties.map((property) => formatMoney(property.price))],
+    ["Bedrooms", properties.map((property) => String(property.bedrooms))],
+    ["Bathrooms", properties.map((property) => String(property.bathrooms))],
+    [
+      "Floor area",
+      properties.map((property) =>
+        property.floorArea
+          ? `${numberFormatter.format(property.floorArea)} m²`
+          : "Not provided",
+      ),
+    ],
+    [
+      "Land area",
+      properties.map(
+        (property) => `${numberFormatter.format(property.landArea)} m²`,
+      ),
+    ],
+    [
+      "Parking",
+      properties.map((property) =>
+        property.parkingSpaces !== undefined
+          ? String(property.parkingSpaces)
+          : "Not provided",
+      ),
+    ],
+    [
+      "Built in",
+      properties.map((property) =>
+        property.yearBuilt ? String(property.yearBuilt) : "Unknown",
+      ),
+    ],
+    [
+      "Style",
+      properties.map(
+        (property) => property.architecturalStyle ?? "Not provided",
+      ),
+    ],
+    [
+      "Ownership",
+      properties.map((property) => property.ownershipType ?? "Not provided"),
+    ],
+    [
+      "Flood mapping",
+      properties.map((property) =>
+        property.floodHazards === undefined
+          ? "Not synced"
+          : property.floodHazards.length
+            ? floodHazardOptions
+                .filter(({ type }) =>
+                  property.floodHazards?.some((hazard) => hazard.type === type),
+                )
+                .map(({ label }) => label)
+                .join(", ")
+            : "No mapped intersection",
+      ),
+    ],
+    [
+      "Walkability",
+      properties.map((property) =>
+        property.walkability?.score !== undefined
+          ? `${property.walkability.score}/100`
+          : "Not provided",
+      ),
+    ],
   ];
-
   return (
-    <div className="modal-backdrop detail-backdrop" role="presentation">
-      <section
-        aria-label="Property details"
-        aria-modal="true"
-        className="modal detail-modal"
-        role="dialog"
+    <Dialog
+      open
+      onOpenChange={(open) => {
+        if (!open) onClose();
+      }}
+    >
+      <DialogContent
+        className="comparison-modal"
+        aria-label="Property comparison"
+        aria-labelledby={undefined}
+        aria-describedby={undefined}
       >
-        <div className="detail-hero">
-          <Image
-            alt={property.imageAlt}
-            fill
-            priority
-            sizes="(max-width: 800px) 100vw, 720px"
-            src={property.image}
-          />
-          <button
-            aria-label="Close property details"
-            className="icon-button modal-close"
-            onClick={onClose}
-            type="button"
-          >
-            <Icon name="close" />
-          </button>
-          <button
-            aria-label={isSaved ? "Remove from saved listings" : "Save property"}
-            onClick={onSave}
-            type="button"
-            style={{
-              position: "absolute",
-              top: "16px",
-              right: "60px",
-              background: isSaved ? "#ef4444" : "rgba(0,0,0,0.6)",
-              border: "none",
-              borderRadius: "50%",
-              width: "40px",
-              height: "40px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: "#fff",
-              cursor: "pointer",
-              zIndex: 3,
-            }}
-          >
-            <Icon name="heart" size={20} />
-          </button>
-          <div className="detail-hero-copy">
-            <span>
-              {property.propertyType} · {property.architecturalStyle ?? "Style not provided"}
-            </span>
-            <h2>{property.address}</h2>
-            <p>
-              {property.suburb}, {property.city}
-            </p>
-          </div>
-        </div>
-        <nav aria-label="Property detail sections" className="detail-tabs">
-          {tabs.map(({ id, label }) => (
-            <button
-              className={tab === id ? "active" : ""}
-              key={id}
-              onClick={() => setTab(id)}
-              type="button"
-            >
-              {label}
-            </button>
-          ))}
-        </nav>
-        <div className="detail-content">
-          {tab === "overview" && (
-            <div className="overview-panel">
-              <div className="overview-price">
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12, flexWrap: "wrap" }}>
-                  <div>
-                    <p>{property.saleMethod || "Indicative price"}</p>
-                    <strong>
-                      {formatMoney(property.price)}
-                      <SourceCitations field="price" onOpen={onOpenSource} property={property} />
-                    </strong>
-                  </div>
-                  <Link href={`/properties/${property.id}`} className="open-full-page-link">
-                    Open dedicated property page ↗
-                  </Link>
-                </div>
-              </div>
-              {property.openHomes && property.openHomes.length > 0 && (
-                <div className="detail-open-homes-card">
-                  <strong>📅 Upcoming Open Homes</strong>
-                  <ul>
-                    {property.openHomes.map((oh, idx) => (
-                      <li key={`${oh.date}-${oh.startTime}-${idx}`}>{oh.label}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-              <div className="stat-grid">
-                <div>
-                  <Icon name="bed" />
-                  <strong>{property.bedrooms}</strong>
-                  <span>Bedrooms</span>
-                  <SourceCitations field="bedrooms" onOpen={onOpenSource} property={property} />
-                </div>
-                <div>
-                  <Icon name="bath" />
-                  <strong>{property.bathrooms}</strong>
-                  <span>Bathrooms</span>
-                  <SourceCitations field="bathrooms" onOpen={onOpenSource} property={property} />
-                </div>
-                <div>
-                  <Icon name="ruler" />
-                  <strong>{numberFormatter.format(property.landArea)} m²</strong>
-                  <span>Land area</span>
-                  <SourceCitations field="landArea" onOpen={onOpenSource} property={property} />
-                </div>
-                <div>
-                  <Icon name="house" />
-                  <strong>{property.yearBuilt || "Unknown"}</strong>
-                  <span>Year built</span>
-                </div>
-              </div>
-              <section className="listing-agent-card" aria-label="Listing agent and contact">
-                <div>
-                  <p className="eyebrow">Real estate agent</p>
-                  {property.listingAgent ? (
-                    <>
-                      <h3>{property.listingAgent.name}</h3>
-                      <div className="listing-agent-actions">
-                        {property.listingAgent.phone && <a href={`tel:${property.listingAgent.phone}`}>Call {property.listingAgent.phone}</a>}
-                        {property.listingAgent.email && <a href={`mailto:${property.listingAgent.email}`}>Email agent</a>}
-                        <a href={property.listingAgent.contactUrl} target="_blank" rel="noopener noreferrer">Enquire on {property.listingAgent.source} ↗</a>
-                      </div>
-                    </>
-                  ) : (
-                    <p>Agent details unavailable.</p>
-                  )}
-                </div>
-              </section>
-              {property.imageSourceUrl ? (
-                <div style={{ marginTop: 18, fontSize: 13 }}>
-                  <a href={property.imageSourceUrl} target="_blank" rel="noopener noreferrer">Photo source ↗</a>
-                  {property.photoGallery && property.photoGallery.length > 1 ? <span> · {property.photoGallery.length} source photo URLs</span> : null}
-                </div>
-              ) : null}
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 12, marginTop: 18 }}>
-                {property.floorArea > 0 ? <div><strong>{property.floorArea} m²</strong><br /><span>Floor area</span></div> : null}
-                {property.parkingSpaces ? <div><strong>{property.parkingSpaces}</strong><br /><span>Parking spaces</span></div> : null}
-                {property.capitalValue ? <div><strong>{formatMoney(property.capitalValue)}</strong><br /><span>Capital value</span></div> : null}
-                {property.ownershipType ? <div><strong>{property.ownershipType}</strong><br /><span>Ownership</span></div> : null}
-                {property.estimatedWeeklyRent ? <div><strong>{formatMoney(property.estimatedWeeklyRent)} / week</strong><br /><span>Estimated rent</span></div> : null}
-              </div>
-              {property.photoGallery && property.photoGallery.length > 1 ? (
-                <div style={{ display: "flex", gap: 8, overflowX: "auto", marginTop: 18, paddingBottom: 6 }}>
-                  {property.photoGallery.slice(0, 12).map((url) => <a href={url} key={url} target="_blank" rel="noopener noreferrer" aria-label="Open source photo"><Image src={url} alt={`${property.address} source photo`} width={140} height={95} style={{ objectFit: "cover", borderRadius: 8 }} /></a>)}
-                </div>
-              ) : null}
-              <div style={{ marginTop: 22 }}>
-                <strong>Map position</strong>
-                <p style={{ fontSize: 13 }}>{property.latitude.toFixed(6)}, {property.longitude.toFixed(6)} · LINZ NZ Addresses</p>
-                <label className="saved-location-toggle">
-                  <input checked={showSavedLocations} onChange={(event) => setShowSavedLocations(event.target.checked)} type="checkbox" />
-                  Show saved locations
-                </label>
-                <PropertyLocationMap
-                  address={property.address}
-                  latitude={property.latitude}
-                  longitude={property.longitude}
-                  locations={showSavedLocations ? destinations : []}
+        <DialogTitle>Compare your shortlist</DialogTitle>
+        {properties.length ? (
+          <>
+            <div className="comparison-toolbar">
+              <span>{properties.length} homes selected</span>
+              <label className="switch-label">
+                <Checkbox
+                  checked={highlight}
+                  onCheckedChange={(checked) => setHighlight(checked === true)}
                 />
-                {showSavedLocations && (
-                  <ul className="saved-location-distances">
-                    {destinations.filter((location) => location.latitude !== undefined && location.longitude !== undefined)
-                      .map((location) => (
-                        <li key={location.id}>
-                          {location.name || location.address} · {straightLineDistanceKm(
-                            property.latitude, property.longitude, location.latitude!, location.longitude!,
-                          ).toFixed(1)} km straight-line
-                        </li>
-                      ))}
-                  </ul>
-                )}
-                <a href={`https://www.openstreetmap.org/?mlat=${property.latitude}&mlon=${property.longitude}#map=17/${property.latitude}/${property.longitude}`} target="_blank" rel="noopener noreferrer">Open larger map ↗</a>
-              </div>
+                Highlight differences
+              </label>
             </div>
-          )}
-
-          {tab === "flood" && (
-            <div className="flood-risk-panel">
-              <div className="tool-heading">
-                <div>
-                  <p className="eyebrow">Auckland Council mapped layers</p>
-                  <h3>Flood hazard information</h3>
-                </div>
-              </div>
-              {property.floodHazards === undefined ? (
-                <p>
-                  Auckland Council flood data has not been synced for this property yet.
-                </p>
-              ) : property.floodHazards.length === 0 ? (
-                <p>
-                  No imported Auckland Council flood-hazard layers intersect this property&apos;s
-                  mapped location.
-                </p>
-              ) : (
-                <>
-                  <ul className="flood-hazard-list">
-                    {floodHazardOptions
-                      .filter(({ type }) =>
-                        property.floodHazards?.some((hazard) => hazard.type === type),
-                      )
-                      .map(({ type, label }) => (
-                        <li key={type}>{label}</li>
-                      ))}
-                  </ul>
-                  <p>{describeFloodHazards(property.floodHazards)}</p>
-                  <p className="flood-data-disclaimer">{floodHazardDisclaimer}</p>
-                </>
-              )}
-            </div>
-          )}
-
-          {tab === "comps" && (
-            <div className="tool-panel">
-              <div className="tool-heading">
-                <div>
-                  <p className="eyebrow" style={{ margin: 0 }}>Recent market evidence</p>
-                  <h3>Nearby comparable sales</h3>
-                </div>
-                <div className="average-pill">
-                  {compResult.averagePrice ? `${formatMoney(compResult.averagePrice)} average` : "No average"}
-                </div>
-              </div>
-              <div className="range-grid">
-                <label>
-                  Search radius <strong>{radius} km</strong>
-                  <input
-                    aria-label="Search radius"
-                    max="10"
-                    min="1"
-                    onChange={(event) => setRadius(Number(event.target.value))}
-                    type="range"
-                    value={radius}
-                  />
-                </label>
-                <label>
-                  Sale timeframe <strong>{months} months</strong>
-                  <input
-                    aria-label="Sale timeframe"
-                    max="12"
-                    min="3"
-                    onChange={(event) => setMonths(Number(event.target.value))}
-                    step="3"
-                    type="range"
-                    value={months}
-                  />
-                </label>
-              </div>
-              <div className="comp-list">
-                {compResult.comps.length ? (
-                  compResult.comps.map(({ property: comp, distanceKm }) => (
-                    <article className="comp-row" key={comp.id}>
-                      <div>
-                        <strong>{comp.address}</strong>
-                        <span>
-                          {comp.bedrooms} bed · {comp.floorArea} m² · {distanceKm.toFixed(1)} km away
-                        </span>
-                      </div>
-                      <div>
-                        <strong>{formatMoney(comp.price)}</strong>
-                        <span>
-                          Sold{" "}
-                          {new Date(comp.soldDate!).toLocaleDateString("en-NZ", {
-                            month: "short",
-                            year: "numeric",
-                          })}
-                        </span>
-                      </div>
-                    </article>
-                  ))
-                ) : (
-                  <div className="empty-inline">
-                    No similar sales fit this radius and timeframe. Try widening either control.
-                  </div>
-                )}
-              </div>
-              <p className="disclaimer">
-                Comparable sales are based on recent nearby sales records and are not a registered valuation.
-              </p>
-            </div>
-          )}
-
-          {tab === "family" && (
-            <div className="family-panel" style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
-
-              {property.schoolDataSynced ? (
-                <>
-                  <p className="disclaimer" role="note">
-                    <strong>School-zone matches are approximate.</strong> Ministry of Education
-                    boundaries have limited resolution and alignment accuracy, so results may be
-                    inaccurate. Confirm enrolment eligibility with the school or Ministry.
-                  </p>
-                  <div>
-                    <h4 style={{ marginBottom: "0.25rem", fontWeight: "600" }}>
-                      Nearby schools within {SCHOOL_NEARBY_RADIUS_METRES / 1000} km
-                    </h4>
-                    {nearbySchoolTypes.length > 0 && (
-                      <label className="field-label" htmlFor="nearby-school-type">
-                        Filter nearby schools by type
-                        <select
-                          id="nearby-school-type"
-                          onChange={(event) => setNearbySchoolType(event.target.value)}
-                          value={nearbySchoolType}
-                        >
-                          <option value="">All school types</option>
-                          {nearbySchoolTypes.map((type) => (
-                            <option key={type} value={type}>{type}</option>
-                          ))}
-                        </select>
-                      </label>
-                    )}
-                    {visibleNearbySchools.length ? (
-                      <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", marginTop: "0.5rem" }}>
-                        {visibleNearbySchools.map((school) => {
-                          const matchingZone = property.schoolZones?.find(
-                            (zone) => zone.schoolId === school.schoolId,
-                          );
-                          return (
-                            <div
-                              key={school.schoolId}
-                              style={{
-                                padding: "0.75rem",
-                                border: "1px solid var(--border-color, #e5e7eb)",
-                                borderRadius: "6px",
-                              }}
-                            >
-                              <strong>{school.name}</strong>
-                              <span style={{ display: "block", fontSize: "0.85rem", opacity: 0.8 }}>
-                                {school.orgType} · {school.distanceKm.toFixed(2)} km away
-                              </span>
-                              <small style={{ display: "block", marginTop: "0.25rem", opacity: 0.7 }}>
-                                {!school.hasEnrolmentZone
-                                  ? "No enrolment zone published"
-                                  : !school.hasZoneGeometry
-                                    ? "Enrolment scheme listed, but zone geometry is unavailable"
-                                  : matchingZone
-                                    ? "This property is in the mapped school zone"
-                                    : "This property is not in the mapped school zone"}
-                              </small>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    ) : (
-                      <p style={{ opacity: 0.7, fontSize: "0.9rem" }}>
-                        {nearbySchoolType
-                          ? `No ${nearbySchoolType} schools are mapped within ${SCHOOL_NEARBY_RADIUS_METRES / 1000} km.`
-                          : `No schools are mapped within ${SCHOOL_NEARBY_RADIUS_METRES / 1000} km.`}
-                      </p>
-                    )}
-                  </div>
-                  <div>
-                    <h4 style={{ marginBottom: "0.75rem", fontWeight: "600" }}>
-                      School zones containing this property
-                    </h4>
-                    {property.schoolZones?.length ? (
-                      <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-                        {property.schoolZones.map((zone) => (
-                          <div key={`${zone.schoolId}-${zone.zoneName ?? zone.zoneType ?? ""}`}>
-                            <strong>{zone.schoolName}</strong>
-                            <span style={{ display: "block", fontSize: "0.85rem", opacity: 0.8 }}>
-                              {[
-                                zone.zoneName && zone.zoneName !== zone.schoolName
-                                  ? zone.zoneName
-                                  : undefined,
-                                zone.zoneType || zone.schoolType,
-                              ]
-                                .filter(Boolean)
-                                .join(" · ")}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <p style={{ opacity: 0.7, fontSize: "0.9rem" }}>
-                        No imported school zone contains this property.
-                      </p>
-                    )}
-                  </div>
-                </>
-              ) : property.schoolZones?.length ? (
-                <div>
-                  <h4 style={{ marginBottom: "0.75rem", fontWeight: "600" }}>School Catchments</h4>
-                  <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-                    {property.schoolZones.map((school, index) => {
-                      const name = school.name ?? school.schoolName ?? "School";
-                      const type = school.type ?? school.schoolType ?? school.zoneType ?? "";
-                      const isInZone = school.isInZone ?? true;
-                      return (
-                        <div
-                          key={`${school.schoolId ?? name}-${index}`}
-                          style={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            alignItems: "center",
-                            padding: "0.75rem",
-                            border: "1px solid var(--border-color, #e5e7eb)",
-                            borderRadius: "6px",
-                          }}
-                        >
-                          <div>
-                            <strong>{name}</strong>
-                            <span style={{ display: "block", fontSize: "0.8rem", opacity: 0.7 }}>
-                              {[type, school.distanceKm !== undefined ? `${school.distanceKm} km away` : undefined]
-                                .filter(Boolean)
-                                .join(" · ")}
-                            </span>
-                          </div>
-                          <span
-                            className={`badge ${isInZone ? "badge-success" : "badge-outline"}`}
-                            style={{ fontSize: "0.75rem" }}
+            <Table className="comparison-table">
+              <TableHeader>
+                <TableRow>
+                  <TableHead scope="col">Your shortlist</TableHead>
+                  {properties.map((property) => (
+                    <TableHead scope="col" key={property.id}>
+                      <div className="compare-property-head">
+                        <div className="compare-thumb">
+                          <Image
+                            alt={property.imageAlt}
+                            fill
+                            sizes="220px"
+                            src={propertyPhotos(property)[0]}
+                          />
+                          <Button
+                            variant="outline"
+                            size="icon-sm"
+                            aria-label={`Remove ${property.address}`}
+                            onClick={() => onRemove(property.id)}
+                            type="button"
                           >
-                            {isInZone ? "In Zone" : "Out of Zone"}
-                          </span>
+                            <X />
+                          </Button>
                         </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              ) : (
-                <p style={{ opacity: 0.7, fontSize: "0.9rem" }}>
-                  Auckland school data has not been imported yet.
-                </p>
-              )}
-            </div>
-          )}
-
-          {tab === "mortgage" && (
-            <div className="mortgage-panel">
-              <MortgageCalculator defaultPrice={property.price} />
-            </div>
-          )}
-          {tab === "commute" && <CommutePlanner destinations={destinations} property={property} setDestinations={setDestinations} />}
-          {tab === "history" && (
-            <div className="tool-panel" style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
-              <div className="tool-heading">
-                <div>
-                  <p className="eyebrow">Appreciation & Valuations</p>
-                  <h3>Historical Market Valuation</h3>
-                </div>
-              </div>
-
-              <div>
-                <h4 style={{ marginBottom: "0.75rem", fontWeight: "600" }}>Past Sale History</h4>
-                <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-                  {historyData.pastSales.length === 0 && <p>No verified past sales are available for this property.</p>}
-                  {historyData.pastSales.map((sale, i) => (
-                    <div
-                      key={i}
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                        padding: "0.85rem 1rem",
-                        border: "1px solid var(--border-color, #e5e7eb)",
-                        borderRadius: "8px",
-                        background: "rgba(0,0,0,0.01)",
-                      }}
-                    >
-                      <div>
-                        <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
-                          <strong>{formatMoney(sale.price)}</strong>
-                          <span style={{ fontSize: "0.75rem", padding: "0.1rem 0.4rem", borderRadius: "4px", background: "#f3f4f6", color: "#374151" }}>
-                            {sale.saleType}
-                          </span>
-                        </div>
-                        <p style={{ margin: "0.2rem 0 0 0", fontSize: "0.85rem", opacity: 0.75 }}>
-                          Sold on {sale.date} · Source: {sale.source}
-                        </p>
+                        <Link
+                          href={`/properties/${encodeURIComponent(property.id)}`}
+                        >
+                          {property.address}
+                        </Link>
+                        <span>{property.suburb}</span>
                       </div>
-                    </div>
+                    </TableHead>
                   ))}
-                </div>
-              </div>
-
-              <div>
-                <h4 style={{ marginBottom: "0.75rem", fontWeight: "600" }}>Automated Valuation History (CV / AVM)</h4>
-                <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-                  {historyData.valuationHistory.length === 0 && <p>No historical valuation series is available for this property.</p>}
-                  {historyData.valuationHistory.map((rec, i) => (
-                    <div
-                      key={i}
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                        padding: "0.75rem 1rem",
-                        border: "1px solid var(--border-color, #e5e7eb)",
-                        borderRadius: "6px",
-                      }}
-                    >
-                      <div>
-                        <span style={{ fontWeight: "600", marginRight: "1rem" }}>{rec.date}</span>
-                        <span style={{ fontSize: "0.85rem", opacity: 0.75 }}>{rec.source}</span>
-                      </div>
-                      <strong>{formatMoney(rec.value)}</strong>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <p className="disclaimer">
-                Only supplied sale and valuation records appear here; no history is inferred from the current estimate.
-              </p>
-            </div>
-          )}
-          {tab === "notes" && (
-            <div className="notes-panel" style={{ padding: "0.5rem 0" }}>
-              <PropertyNotes propertyId={property.id} propertyTitle={property.address} />
-            </div>
-          )}
-        </div>
-      </section>
-    </div>
-  );
-}
-
-function SourceDetailsDialog({
-  selection,
-  onClose,
-}: {
-  selection: SourceSelection;
-  onClose: () => void;
-}) {
-  const { field, property, source } = selection;
-  const claimValue = {
-    address: property.address,
-    price: formatMoney(property.price),
-    bedrooms: String(property.bedrooms),
-    bathrooms: String(property.bathrooms),
-    landArea: `${numberFormatter.format(property.landArea)} m²`,
-  }[field];
-
-  return (
-    <div className="modal-backdrop source-backdrop" role="presentation">
-      <section
-        aria-label="Source details"
-        aria-modal="true"
-        className="modal source-modal"
-        role="dialog"
-      >
-        <div className="modal-header">
-          <div>
-            <p className="eyebrow">Reference for {sourceFieldLabels[field]}</p>
-            <h2>{source.title}</h2>
-          </div>
-          <button
-            aria-label="Close source details"
-            className="icon-button"
-            onClick={onClose}
-            type="button"
-          >
-            <Icon name="close" />
-          </button>
-        </div>
-        <div className="source-content">
-          <dl className="source-claim">
-            <div>
-              <dt>Property claim</dt>
-              <dd>{claimValue}</dd>
-            </div>
-            <div>
-              <dt>Property</dt>
-              <dd>{property.address}</dd>
-            </div>
-          </dl>
-          <div className="source-publication">
-            <p className="eyebrow">Published by {source.publisher}</p>
-            <p>{source.reference}</p>
-          </div>
-          <div className="source-material">
-            <h3>Reference material</h3>
-            <blockquote>{source.material}</blockquote>
-          </div>
-          <a className="source-link" href={source.url} rel="noreferrer" target="_blank">
-            Open original source <Icon name="arrow" size={16} />
-          </a>
-          <p className="source-caveat">
-            This is a one-time research snapshot. Website estimates and historical council values are not current asking prices or confirmed sale prices.
-          </p>
-        </div>
-      </section>
-    </div>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {rows.map(([label, values]) => (
+                  <TableRow key={label}>
+                    <TableHead scope="row">{label}</TableHead>
+                    {values.map((value, index) => (
+                      <TableCell
+                        className={cn(
+                          highlight &&
+                            new Set(values).size > 1 &&
+                            "is-different",
+                        )}
+                        key={properties[index].id}
+                      >
+                        {value}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </>
+        ) : (
+          <Empty>
+            <EmptyHeader>
+              <EmptyTitle>No homes selected</EmptyTitle>
+              <EmptyDescription>
+                Select at least two homes to compare.
+              </EmptyDescription>
+            </EmptyHeader>
+            <Button onClick={onClose}>Browse homes</Button>
+          </Empty>
+        )}
+      </DialogContent>
+    </Dialog>
   );
 }
 
 export default function PropertyExplorer({
   properties,
-  comparableSales,
   schoolOptions = [],
   schoolDataSynced = false,
   aiSearch = searchWithApi,
@@ -1510,7 +533,6 @@ export default function PropertyExplorer({
   const [filters, setFilters] = useState<PropertyFilters>({});
   const [query, setQuery] = useState("");
   const [aiMessage, setAiMessage] = useState("");
-  const [aiSource, setAiSource] = useState<"jev" | "gemini" | "local" | null>(null);
   const [isSearching, setIsSearching] = useState(false);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [savedIds, setSavedIds] = useState<string[]>([]);
@@ -1521,99 +543,131 @@ export default function PropertyExplorer({
   const [maxSavedLocationDistance, setMaxSavedLocationDistance] = useState(5);
   const [comparisonOpen, setComparisonOpen] = useState(false);
   const [savedModalOpen, setSavedModalOpen] = useState(false);
-  const [detailId, setDetailId] = useState<string | null>(null);
-  const [sourceSelection, setSourceSelection] = useState<SourceSelection | null>(null);
+  const [moreFiltersOpen, setMoreFiltersOpen] = useState(false);
   const account = useAccountWorkspace();
   const accountStatus = account?.status;
 
   useEffect(() => {
-    if (account && account.status !== "signedIn" && account.status !== "guest") return;
-    if (account?.status === "signedIn") {
-      destinationsRef.current = account.workspace.destinations;
-      savedIdsRef.current = account.workspace.savedPropertyIds;
-      setDestinations(account.workspace.destinations);
-      setSavedIds(account.workspace.savedPropertyIds);
+    if (account && account.status !== "signedIn" && account.status !== "guest")
+      return;
+    let active = true;
+    queueMicrotask(() => {
+      if (!active) return;
+      if (account?.status === "signedIn") {
+        destinationsRef.current = account.workspace.destinations;
+        savedIdsRef.current = account.workspace.savedPropertyIds;
+        setDestinations(account.workspace.destinations);
+        setSavedIds(account.workspace.savedPropertyIds);
 
-      // Auto-migrate local guest data into account if account is newly initialized
-      try {
-        const localDestinations = readSavedLocations();
-        if (account.workspace.destinations.length === 0 && localDestinations.length > 0) {
-          destinationsRef.current = localDestinations;
-          setDestinations(localDestinations);
-          void account.save("destinations", localDestinations);
-        }
-      } catch {}
-
-      try {
-        const raw = localStorage.getItem("haven_saved_property_ids");
-        if (raw) {
-          const parsed = JSON.parse(raw);
-          const localSaved = Array.isArray(parsed) ? parsed.filter((id): id is string => typeof id === "string") : [];
-          if (account.workspace.savedPropertyIds.length === 0 && localSaved.length > 0) {
-            savedIdsRef.current = localSaved;
-            setSavedIds(localSaved);
-            void account.save("savedPropertyIds", localSaved);
+        // Auto-migrate local guest data into account if account is newly initialized
+        try {
+          const localDestinations = readSavedLocations();
+          if (
+            account.workspace.destinations.length === 0 &&
+            localDestinations.length > 0
+          ) {
+            destinationsRef.current = localDestinations;
+            setDestinations(localDestinations);
+            void account.save("destinations", localDestinations);
           }
-        }
-      } catch {}
-    } else {
-      const localDestinations = readSavedLocations();
-      destinationsRef.current = localDestinations;
-      setDestinations(localDestinations);
-      try {
-        const saved = JSON.parse(localStorage.getItem("haven_saved_property_ids") ?? "[]");
-        const localSaved = Array.isArray(saved) ? saved.filter((id): id is string => typeof id === "string") : [];
-        savedIdsRef.current = localSaved;
-        setSavedIds(localSaved);
-      } catch { savedIdsRef.current = []; setSavedIds([]); }
-    }
-  // Hydrate only when the signed-in identity changes; workspace writes must not reset local edits.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [accountStatus, account?.user?.userId]);
+        } catch {}
 
-  function persistDestinations(update: React.SetStateAction<SavedLocation[]>) {
-    const next = typeof update === "function" ? update(destinationsRef.current) : update;
-    destinationsRef.current = next;
-    setDestinations(next);
-    if (account?.status === "signedIn") void account.save("destinations", next);
-    else if (!account || account.status === "guest") {
-      try { localStorage.setItem(commuteStorageKey, JSON.stringify(next)); } catch { }
-    }
-  }
+        try {
+          const raw = localStorage.getItem("haven_saved_property_ids");
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            const localSaved = Array.isArray(parsed)
+              ? parsed.filter((id): id is string => typeof id === "string")
+              : [];
+            if (
+              account.workspace.savedPropertyIds.length === 0 &&
+              localSaved.length > 0
+            ) {
+              savedIdsRef.current = localSaved;
+              setSavedIds(localSaved);
+              void account.save("savedPropertyIds", localSaved);
+            }
+          }
+        } catch {}
+      } else {
+        const localDestinations = readSavedLocations();
+        destinationsRef.current = localDestinations;
+        setDestinations(localDestinations);
+        try {
+          const saved = JSON.parse(
+            localStorage.getItem("haven_saved_property_ids") ?? "[]",
+          );
+          const localSaved = Array.isArray(saved)
+            ? saved.filter((id): id is string => typeof id === "string")
+            : [];
+          savedIdsRef.current = localSaved;
+          setSavedIds(localSaved);
+        } catch {
+          savedIdsRef.current = [];
+          setSavedIds([]);
+        }
+      }
+    });
+    return () => {
+      active = false;
+    };
+    // Hydrate only when the signed-in identity changes; workspace writes must not reset local edits.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [accountStatus, account?.user?.userId]);
 
   function persistSavedIds(next: string[]) {
     savedIdsRef.current = next;
     setSavedIds(next);
-    if (account?.status === "signedIn") void account.save("savedPropertyIds", next);
+    if (account?.status === "signedIn")
+      void account.save("savedPropertyIds", next);
     else if (!account || account.status === "guest") {
-      try { localStorage.setItem("haven_saved_property_ids", JSON.stringify(next)); } catch { }
+      try {
+        localStorage.setItem("haven_saved_property_ids", JSON.stringify(next));
+      } catch {}
     }
   }
 
-  const selectedDestination = destinations.find((destination) =>
-    destination.id === selectedDestinationId &&
-    destination.latitude !== undefined && destination.longitude !== undefined,
+  const selectedDestination = destinations.find(
+    (destination) =>
+      destination.id === selectedDestinationId &&
+      destination.latitude !== undefined &&
+      destination.longitude !== undefined,
   );
   const filteredProperties = useMemo(() => {
     const matches = filterProperties(properties, filters);
     if (!selectedDestination) return matches;
-    return matches.filter((property) => straightLineDistanceKm(
-      property.latitude, property.longitude,
-      selectedDestination.latitude!, selectedDestination.longitude!,
-    ) <= maxSavedLocationDistance);
+    return matches.filter(
+      (property) =>
+        straightLineDistanceKm(
+          property.latitude,
+          property.longitude,
+          selectedDestination.latitude!,
+          selectedDestination.longitude!,
+        ) <= maxSavedLocationDistance,
+    );
   }, [properties, filters, selectedDestination, maxSavedLocationDistance]);
-  const selectedProperties = properties.filter(({ id }) => selectedIds.includes(id));
-  const savedProperties = properties.filter(({ id }) => savedIds.includes(id));
-  const detailProperty = properties.find(({ id }) => id === detailId);
-  const hasFilters = Object.keys(filters).length > 0 || !!selectedDestination;
+  const selectedProperties = useMemo(
+    () => properties.filter(({ id }) => selectedIds.includes(id)),
+    [properties, selectedIds],
+  );
+  const savedProperties = useMemo(
+    () => properties.filter(({ id }) => savedIds.includes(id)),
+    [properties, savedIds],
+  );
+  const hasFilters =
+    Object.values(filters).some((value) => {
+      if (value === undefined || value === false || value === "") return false;
+      if (Array.isArray(value)) return value.length > 0;
+      if (typeof value === "object") return Object.values(value).some(Boolean);
+      return true;
+    }) || !!selectedDestination;
   const schoolTypes = Array.from(
     new Set(schoolOptions.map(({ orgType }) => orgType)),
   ).sort((a, b) => a.localeCompare(b));
-  const selectableSchools = schoolOptions.filter(
-    (school) =>
-      filters.schoolSearchMode === "zone"
-        ? school.hasZoneGeometry === true
-        : school.hasCoordinates !== false,
+  const selectableSchools = schoolOptions.filter((school) =>
+    filters.schoolSearchMode === "zone"
+      ? school.hasZoneGeometry === true
+      : school.hasCoordinates !== false,
   );
 
   useEffect(() => {
@@ -1652,9 +706,17 @@ export default function PropertyExplorer({
         orientation: p.orientation,
       }));
 
-      if (accountStatus === "signedIn") localStorage.removeItem("haven_saved_properties");
-      else if (!accountStatus || accountStatus === "guest") localStorage.setItem("haven_saved_properties", JSON.stringify(summarySaved));
-      localStorage.setItem("haven_compared_properties", JSON.stringify(summaryCompared));
+      if (accountStatus === "signedIn")
+        localStorage.removeItem("haven_saved_properties");
+      else if (!accountStatus || accountStatus === "guest")
+        localStorage.setItem(
+          "haven_saved_properties",
+          JSON.stringify(summarySaved),
+        );
+      localStorage.setItem(
+        "haven_compared_properties",
+        JSON.stringify(summaryCompared),
+      );
 
       window.dispatchEvent(
         new CustomEvent("haven_properties_context_updated", {
@@ -1674,7 +736,9 @@ export default function PropertyExplorer({
   const availableLocations = useMemo(() => {
     return Array.from(
       new Set(
-        properties.flatMap(({ suburb, city }) => [suburb, city].filter(Boolean)),
+        properties.flatMap(({ suburb, city }) =>
+          [suburb, city].filter(Boolean),
+        ),
       ),
     ).sort();
   }, [properties]);
@@ -1685,7 +749,7 @@ export default function PropertyExplorer({
       if (!q) {
         setFilters({});
         setAiMessage("");
-        setAiSource(null);
+
         setIsSearching(false);
         return;
       }
@@ -1697,12 +761,12 @@ export default function PropertyExplorer({
         if (seq === searchSeqRef.current) {
           setFilters(result.filters);
           setAiMessage(result.message);
-          setAiSource(result.source);
         }
       } catch {
         if (seq === searchSeqRef.current) {
-          setAiMessage("Search is temporarily unavailable. Please try the filters below.");
-          setAiSource(null);
+          setAiMessage(
+            "Search is temporarily unavailable. Please try the filters below.",
+          );
         }
       } finally {
         if (seq === searchSeqRef.current) {
@@ -1722,7 +786,7 @@ export default function PropertyExplorer({
     if (!value.trim()) {
       setFilters({});
       setAiMessage("");
-      setAiSource(null);
+
       setIsSearching(false);
       return;
     }
@@ -1731,14 +795,6 @@ export default function PropertyExplorer({
     debounceTimerRef.current = setTimeout(() => {
       runSearch(value);
     }, 350);
-  };
-
-  const handlePromptClick = (prompt: string) => {
-    setQuery(prompt);
-    if (debounceTimerRef.current) {
-      clearTimeout(debounceTimerRef.current);
-    }
-    runSearch(prompt);
   };
 
   function togglePropertyType(type: PropertyType) {
@@ -1755,7 +811,10 @@ export default function PropertyExplorer({
       const nextStyles = styles.includes(style)
         ? styles.filter((item) => item !== style)
         : [...styles, style];
-      return { ...current, architecturalStyles: nextStyles.length ? nextStyles : undefined };
+      return {
+        ...current,
+        architecturalStyles: nextStyles.length ? nextStyles : undefined,
+      };
     });
   }
 
@@ -1764,7 +823,7 @@ export default function PropertyExplorer({
     setSelectedDestinationId("");
     setQuery("");
     setAiMessage("");
-    setAiSource(null);
+
     setIsSearching(false);
     if (debounceTimerRef.current) {
       clearTimeout(debounceTimerRef.current);
@@ -1784,13 +843,19 @@ export default function PropertyExplorer({
 
   function toggleCompare(id: string) {
     setSelectedIds((current) =>
-      current.includes(id) ? current.filter((item) => item !== id) : [...current, id]
+      current.includes(id)
+        ? current.filter((item) => item !== id)
+        : [...current, id],
     );
   }
 
   function toggleSave(id: string) {
     const current = savedIdsRef.current;
-    persistSavedIds(current.includes(id) ? current.filter((item) => item !== id) : [...current, id]);
+    persistSavedIds(
+      current.includes(id)
+        ? current.filter((item) => item !== id)
+        : [...current, id],
+    );
   }
 
   async function submitAiSearch(event: FormEvent) {
@@ -1805,883 +870,1108 @@ export default function PropertyExplorer({
     await runSearch(query);
   }
 
-  if (account?.status === "loading" || account?.status === "error") {
-    return (
-      <main className="site-shell" style={{ padding: "4rem 2rem", textAlign: "center" }}>
-        <p role={account.status === "error" ? "alert" : undefined}>
-          {account.status === "error" ? account.error : "Loading your account..."}
-        </p>
-        {account.status === "error" && (
-          <button
-            type="button"
-            onClick={() => void account.refresh()}
-            style={{ marginTop: "1rem", padding: "0.5rem 1.25rem", borderRadius: "999px", background: "var(--forest, #2d5a43)", color: "#fff", border: "none", cursor: "pointer" }}
-          >
-            Retry
-          </button>
-        )}
-      </main>
-    );
-  }
-
   return (
     <div className="site-shell">
-      <header className="site-header">
-        <a className="brand" href="#top" aria-label="Haven home">
-          <span className="brand-mark">
-            <Icon name="house" size={20} />
-          </span>
-          <span>
-            haven<span className="brand-dot">.</span>
-          </span>
-        </a>
-
-        <nav aria-label="Main navigation" className="main-nav">
-          <a className="active" href="#discover">
-            Discover
-          </a>
-          <a href="#how-it-works">How it works</a>
-          <a href="/profile">
-            {account?.status === "signedIn" && account.user ? `Account (${account.user.username})` : "Profile"}
-          </a>
-        </nav>
-
-        <div className="header-actions">
-          <button
-            className="shortlist-button"
-            onClick={() => setSavedModalOpen(true)}
-            type="button"
-          >
-            <Icon name="heart" size={17} />
-            Saved Homes ({savedIds.length})
-          </button>
-
-          <button
-            className="shortlist-button"
-            disabled={selectedIds.length < 2}
-            onClick={() => setComparisonOpen(true)}
-            type="button"
-          >
-            <Icon name="compare" size={17} />
-            {selectedIds.length >= 2 ? `Compare ${selectedIds.length} homes` : "Compare homes"}
-          </button>
-        </div>
-      </header>
-
+      <SiteHeader>
+        <Button
+          variant="ghost"
+          className="saved-homes-nav"
+          onClick={() => setSavedModalOpen(true)}
+          type="button"
+        >
+          <Heart data-icon="inline-start" />
+          Saved Homes <Badge variant="secondary">{savedIds.length}</Badge>
+        </Button>
+      </SiteHeader>
       <main id="top">
         <section className="hero-section">
-          <div className="hero-grid" />
           <div className="hero-copy">
-            <div className="hero-kicker">
-              <span>
-                <Icon name="sparkle" size={14} />
-              </span>
-              AI-powered property discovery
-            </div>
+            <p className="hero-location">Auckland, New Zealand</p>
             <h1>
-              Find more than a house. <em>Find your fit.</em>
+              Find your kind of <em>home.</em>
             </h1>
-            <p>
-              Explore 40 real Auckland listings with verified photos, open home times, Auckland Council flood hazard checks, and school zones.
-            </p>
             <form className="ai-search" onSubmit={submitAiSearch}>
-              <span className="ai-search-icon">
-                <Icon name="sparkle" size={21} />
-              </span>
-              <label className="sr-only" htmlFor="ai-property-search">
-                Describe your ideal property
-              </label>
-              <div className="ai-search-input-wrap">
-                <input
-                  aria-label="Describe your ideal property"
-                  id="ai-property-search"
-                  onChange={(event) => handleQueryChange(event.target.value)}
-                  placeholder="Try “north-facing 3-bedroom villa in Ponsonby under $2.5m”"
-                  value={query}
-                />
-                {query && (
-                  <button
-                    aria-label="Clear search query"
-                    className="ai-search-clear"
-                    onClick={() => handleQueryChange("")}
-                    type="button"
-                  >
-                    ×
-                  </button>
-                )}
-              </div>
-              <button aria-label="Search" className="ai-search-submit" type="submit">
-                <span>{isSearching ? "Searching…" : "Search"}</span>
-                <Icon name="arrow" size={17} />
-              </button>
+              <Field>
+                <FieldLabel className="sr-only" htmlFor="ai-property-search">
+                  Describe your ideal property
+                </FieldLabel>
+                <InputGroup className="search-input-group">
+                  <InputGroupAddon>
+                    <Search />
+                  </InputGroupAddon>
+                  <InputGroupInput
+                    id="ai-property-search"
+                    aria-label="Describe your ideal property"
+                    placeholder="A sunny villa in Ponsonby under $2.5m…"
+                    value={query}
+                    onChange={(event) => handleQueryChange(event.target.value)}
+                  />
+                  <InputGroupAddon align="inline-end">
+                    {query && (
+                      <InputGroupButton
+                        size="icon-sm"
+                        aria-label="Clear search query"
+                        onClick={() => handleQueryChange("")}
+                      >
+                        <X />
+                      </InputGroupButton>
+                    )}
+                    <Button type="submit" aria-label="Search">
+                      {isSearching ? (
+                        <Spinner data-icon="inline-start" />
+                      ) : (
+                        <Search data-icon="inline-start" />
+                      )}
+                      <span>Search</span>
+                    </Button>
+                  </InputGroupAddon>
+                </InputGroup>
+              </Field>
             </form>
-            <div className="prompt-row">
-              <span>Try asking:</span>
-              {[
-                "North-facing character villa",
-                "Modernist under $1.5m",
-                "Homes in flood plains",
-                "Open homes this weekend",
-              ].map((prompt) => (
-                <button key={prompt} onClick={() => handlePromptClick(prompt)} type="button">
-                  {prompt}
-                </button>
-              ))}
-            </div>
             {aiMessage && (
               <div className="ai-response" role="status">
-                <Icon name="sparkle" size={16} />
+                <Sparkles />
                 <span>{aiMessage}</span>
-                {aiSource && (
-                  <small>
-                    {aiSource === "jev"
-                      ? "TypeSafe Jev interpreted"
-                      : aiSource === "gemini"
-                        ? "Gemini interpreted"
-                        : "Local search"}
-                  </small>
-                )}
               </div>
             )}
           </div>
         </section>
 
         <section className="discover-section" id="discover">
-          {/* Airbnb-Style Horizontal Top Filter Bar Above Pricing & Listings */}
-          <div className="airbnb-filter-bar" role="region" aria-label="Property search filters">
-            <div className="airbnb-category-row">
-              <div className="type-grid">
-                {propertyTypes.map((type) => (
-                  <button
-                    aria-label={type}
-                    className={filters.propertyTypes?.includes(type) ? "selected" : ""}
-                    key={type}
-                    onClick={() => togglePropertyType(type)}
+          <Collapsible
+            open={moreFiltersOpen}
+            onOpenChange={setMoreFiltersOpen}
+            className="airbnb-filter-bar"
+            role="region"
+            aria-label="Property search filters"
+          >
+            <div className="filter-category-row">
+              <ToggleGroup
+                aria-label="Property type"
+                className="type-grid"
+                type="single"
+                value={filters.propertyTypes?.[0] ?? "all"}
+                onValueChange={(value) => {
+                  setFilters((current) => ({
+                    ...current,
+                    propertyTypes:
+                      value && value !== "all"
+                        ? [value as PropertyType]
+                        : undefined,
+                  }));
+                  setAiMessage("");
+                }}
+              >
+                <ToggleGroupItem value="all">
+                  <LayoutGrid data-icon="inline-start" />
+                  All homes
+                </ToggleGroupItem>
+                {propertyTypes.map((type) => {
+                  const TypeIcon = typeIcons[type];
+                  return (
+                    <ToggleGroupItem value={type} key={type} aria-label={type}>
+                      <TypeIcon data-icon="inline-start" />
+                      {type}
+                    </ToggleGroupItem>
+                  );
+                })}
+              </ToggleGroup>
+              <Button
+                variant={filters.hasOpenHome ? "secondary" : "ghost"}
+                aria-pressed={!!filters.hasOpenHome}
+                onClick={() =>
+                  setFilters((current) => ({
+                    ...current,
+                    hasOpenHome: current.hasOpenHome ? undefined : true,
+                  }))
+                }
+                type="button"
+              >
+                <CalendarDays data-icon="inline-start" />
+                Open homes
+              </Button>
+            </div>
+            <FieldGroup className="basic-filters">
+              <Field>
+                <FieldLabel htmlFor="location-select">
+                  Location / Suburb
+                </FieldLabel>
+                <NativeSelect
+                  id="location-select"
+                  value={filters.location ?? ""}
+                  onChange={(event) =>
+                    setFilters((current) => ({
+                      ...current,
+                      location: event.target.value || undefined,
+                    }))
+                  }
+                >
+                  <option value="">Anywhere in Auckland</option>
+                  {availableLocations.map((location) => (
+                    <option key={location} value={location}>
+                      {location}
+                    </option>
+                  ))}
+                </NativeSelect>
+              </Field>
+              <Field>
+                <FieldLabel htmlFor="quick-budget">Max price</FieldLabel>
+                <NativeSelect
+                  id="quick-budget"
+                  value={filters.maxPrice ?? ""}
+                  onChange={(event) =>
+                    setFilters((current) => ({
+                      ...current,
+                      maxPrice: Number(event.target.value) || undefined,
+                    }))
+                  }
+                >
+                  <option value="">Any price</option>
+                  {[
+                    750000, 1000000, 1500000, 2000000, 2500000, 3000000,
+                    5000000,
+                  ].map((price) => (
+                    <option key={price} value={price}>
+                      {formatMoney(price)}
+                    </option>
+                  ))}
+                  {filters.maxPrice &&
+                    ![
+                      750000, 1000000, 1500000, 2000000, 2500000, 3000000,
+                      5000000,
+                    ].includes(filters.maxPrice) && (
+                      <option value={filters.maxPrice}>
+                        {formatMoney(filters.maxPrice)}
+                      </option>
+                    )}
+                </NativeSelect>
+              </Field>
+              <Field>
+                <FieldLabel>Bedrooms</FieldLabel>
+                <ToggleGroup
+                  aria-label="Bedrooms"
+                  type="single"
+                  spacing={0}
+                  value={filters.bedrooms ? String(filters.bedrooms) : "any"}
+                  onValueChange={(value) =>
+                    setFilters((current) => ({
+                      ...current,
+                      bedrooms: Number(value) || undefined,
+                    }))
+                  }
+                >
+                  <ToggleGroupItem value="any">Any</ToggleGroupItem>
+                  {[1, 2, 3, 4, 5].map((count) => (
+                    <ToggleGroupItem
+                      key={count}
+                      value={String(count)}
+                      aria-label={`${count} bed${count > 1 ? "s" : ""}`}
+                    >
+                      {count}
+                    </ToggleGroupItem>
+                  ))}
+                </ToggleGroup>
+              </Field>
+              <div className="more-filter-actions">
+                <CollapsibleTrigger asChild>
+                  <Button variant="outline" type="button">
+                    <SlidersHorizontal data-icon="inline-start" />
+                    {moreFiltersOpen ? "Fewer filters" : "More filters"}
+                  </Button>
+                </CollapsibleTrigger>
+                {(hasFilters || query) && (
+                  <Button
+                    variant="ghost"
+                    onClick={clearFilters}
+                    aria-label="Clear all filters"
                     type="button"
                   >
-                    <Icon name="house" size={18} />
-                    {type}
-                  </button>
-                ))}
-              </div>
-
-              <div className="airbnb-quick-toggles">
-                <button
-                  className={`pill-button ${filters.hasOpenHome ? "selected" : ""}`}
-                  onClick={() =>
-                    setFilters((curr) => ({
-                      ...curr,
-                      hasOpenHome: curr.hasOpenHome ? undefined : true,
-                    }))
-                  }
-                  type="button"
-                >
-                  📅 Open homes
-                </button>
-
-                <label className="north-check">
-                  <input
-                    checked={filters.northFacingOnly ?? false}
-                    onChange={(event) =>
-                      setFilters((current) => ({
-                        ...current,
-                        northFacingOnly: event.target.checked || undefined,
-                      }))
-                    }
-                    type="checkbox"
-                  />
-                  <Icon name="sun" size={16} />
-                  <span>
-                    <strong>North-facing only</strong>
-                  </span>
-                </label>
-
-                {(hasFilters || query) && (
-                  <button className="clear-filters-btn" onClick={clearFilters} type="button">
-                    Clear all filters
-                  </button>
+                    Reset
+                  </Button>
                 )}
               </div>
-            </div>
-
-            {/* Primary Controls Row Above Pricing */}
-            <div className="airbnb-primary-filters-grid">
-              {/* Location */}
-              <div className="filter-card-box">
-                <label className="field-label" htmlFor="location-select">
-                  Location / Suburb
-                </label>
-                <select
-                  id="location-select"
-                  onChange={(e) =>
-                    setFilters((curr) => ({
-                      ...curr,
-                      location: e.target.value || undefined,
-                    }))
-                  }
-                  value={filters.location ?? ""}
-                >
-                  <option value="">All Auckland / Anywhere</option>
-                  {availableLocations.map((loc) => (
-                    <option key={loc} value={loc}>
-                      {loc}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Mapped Flood Hazard */}
-              <div className="filter-card-box">
-                <label className="field-label" htmlFor="flood-hazard">
-                  Mapped flood hazard
-                </label>
-                <select
-                  id="flood-hazard"
-                  onChange={(event) => {
-                    const value = event.target.value;
-                    setFilters((current) => {
-                      const next = { ...current };
-                      delete next.floodHazardTypes;
-                      delete next.noMappedFloodHazard;
-                      if (value === "any_mapped") {
-                        next.floodHazardTypes = floodHazardOptions.map(({ type }) => type);
-                      } else if (value === "none") {
-                        next.noMappedFloodHazard = true;
-                      } else if (value) {
-                        next.floodHazardTypes = [value as FloodHazardType];
-                      }
-                      return next;
-                    });
-                  }}
-                  value={
-                    filters.noMappedFloodHazard
-                      ? "none"
-                      : filters.floodHazardTypes?.length === floodHazardOptions.length
-                        ? "any_mapped"
-                        : filters.floodHazardTypes?.[0] ?? ""
-                  }
-                >
-                  <option value="">Any flood hazard</option>
-                  <option value="any_mapped">Any mapped flood hazard</option>
-                  <option value="none">No mapped flood hazard</option>
-                  {floodHazardOptions.map(({ type, label }) => (
-                    <option key={type} value={type}>
-                      {label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Price & Budget */}
-              <div className="filter-card-box filter-card-wide">
-                <span className="field-label">Price & Budget</span>
-                <div className="pill-grid">
-                  {[
-                    { label: "Any", max: undefined },
-                    { label: "< $1M", max: 1_000_000 },
-                    { label: "< $1.5M", max: 1_500_000 },
-                    { label: "< $2M", max: 2_000_000 },
-                    { label: "< $2.5M", max: 2_500_000 },
-                  ].map(({ label, max }) => (
-                    <button
-                      className={`pill-button ${filters.maxPrice === max && !filters.minPrice ? "selected" : ""}`}
-                      key={label}
-                      onClick={() =>
-                        setFilters((curr) => ({
-                          ...curr,
-                          maxPrice: curr.maxPrice === max ? undefined : max,
-                          minPrice: undefined,
-                        }))
-                      }
-                      type="button"
-                    >
-                      {label}
-                    </button>
-                  ))}
-                </div>
-                <div className="year-fields" style={{ paddingBottom: 0, marginTop: 8 }}>
-                  <label>
-                    Min price ($)
-                    <input
-                      inputMode="numeric"
-                      onChange={(e) => {
-                        const val = Number(e.target.value.replace(/[^0-9]/g, "")) || undefined;
-                        setFilters((curr) => ({ ...curr, minPrice: val }));
-                      }}
-                      placeholder="e.g. 750,000"
-                      value={filters.minPrice ? filters.minPrice.toLocaleString("en-NZ") : ""}
-                    />
-                  </label>
-                  <label>
-                    Max price ($)
-                    <input
-                      inputMode="numeric"
-                      onChange={(e) => {
-                        const val = Number(e.target.value.replace(/[^0-9]/g, "")) || undefined;
-                        setFilters((curr) => ({ ...curr, maxPrice: val }));
-                      }}
-                      placeholder="e.g. 1,500,000"
-                      value={filters.maxPrice ? filters.maxPrice.toLocaleString("en-NZ") : ""}
-                    />
-                  </label>
-                </div>
-              </div>
-
-              {/* Bedrooms & Bathrooms */}
-              <div className="filter-card-box filter-card-wide">
-                <span className="field-label">Bedrooms & Bathrooms</span>
-                <div className="pill-grid">
-                  {[
-                    { label: "Any", val: undefined },
-                    { label: "1 bed", val: 1 },
-                    { label: "2 beds", val: 2 },
-                    { label: "3 beds", val: 3 },
-                    { label: "4 beds", val: 4 },
-                    { label: "5+ beds", val: 5 },
-                  ].map(({ label, val }) => (
-                    <button
-                      className={`pill-button ${filters.bedrooms === val ? "selected" : ""}`}
-                      key={label}
-                      onClick={() =>
-                        setFilters((curr) => ({
-                          ...curr,
-                          bedrooms: curr.bedrooms === val ? undefined : val,
-                        }))
-                      }
-                      type="button"
-                    >
-                      {label}
-                    </button>
-                  ))}
-                </div>
-                <div className="pill-grid" style={{ marginTop: 8 }}>
-                  {[1, 2, 3, 4].map((count) => (
-                    <button
-                      className={`pill-button ${filters.numericCriteria?.bathrooms?.min === count && filters.numericCriteria?.bathrooms?.max === count ? "selected" : ""}`}
-                      key={count}
-                      onClick={() => setFilters((current) => ({
+            </FieldGroup>
+            <CollapsibleContent>
+              <FieldGroup className="advanced-filters">
+                <Field>
+                  <FieldLabel>Price range</FieldLabel>{" "}
+                  <div
+                    className="year-fields"
+                    style={{ paddingBottom: 0, marginTop: 8 }}
+                  >
+                    <label>
+                      Min price ($)
+                      <Input
+                        inputMode="numeric"
+                        onChange={(e) => {
+                          const val =
+                            Number(e.target.value.replace(/[^0-9]/g, "")) ||
+                            undefined;
+                          setFilters((curr) => ({ ...curr, minPrice: val }));
+                        }}
+                        placeholder="e.g. 750,000"
+                        value={
+                          filters.minPrice
+                            ? filters.minPrice.toLocaleString("en-NZ")
+                            : ""
+                        }
+                      />
+                    </label>
+                    <label>
+                      Max price ($)
+                      <Input
+                        inputMode="numeric"
+                        onChange={(e) => {
+                          const val =
+                            Number(e.target.value.replace(/[^0-9]/g, "")) ||
+                            undefined;
+                          setFilters((curr) => ({ ...curr, maxPrice: val }));
+                        }}
+                        placeholder="e.g. 1,500,000"
+                        value={
+                          filters.maxPrice
+                            ? filters.maxPrice.toLocaleString("en-NZ")
+                            : ""
+                        }
+                      />
+                    </label>
+                  </div>
+                </Field>
+                <Field>
+                  <FieldLabel>Bathrooms</FieldLabel>
+                  <ToggleGroup
+                    aria-label="Bathrooms"
+                    type="single"
+                    value={String(
+                      filters.numericCriteria?.bathrooms?.min ?? "",
+                    )}
+                    onValueChange={(value) =>
+                      setFilters((current) => ({
                         ...current,
                         numericCriteria: {
                           ...current.numericCriteria,
-                          bathrooms: { min: count, max: count },
+                          bathrooms: value
+                            ? { min: Number(value), max: Number(value) }
+                            : undefined,
                         },
-                      }))}
-                      type="button"
-                    >
-                      {count} bath{count === 1 ? "" : "s"}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Secondary Specialist Filters Row Above Listings */}
-            <div className="airbnb-secondary-filters-grid">
-              {/* Architecture & Building Age */}
-              <details className="filter-details filter-card-box">
-                <summary>
-                  Architecture & Era
-                  {filters.architecturalStyles?.length ? (
-                    <span>{filters.architecturalStyles.length}</span>
-                  ) : null}
-                </summary>
-                <div className="check-list">
-                  {architecturalStyles.map((style) => (
-                    <label key={style}>
-                      <input
-                        checked={filters.architecturalStyles?.includes(style) ?? false}
-                        onChange={() => toggleStyle(style)}
-                        type="checkbox"
-                      />
-                      <span>{style}</span>
-                    </label>
-                  ))}
-                </div>
-                <div className="year-fields" style={{ paddingBottom: 12 }}>
-                  <label>
-                    Built from
-                    <input
-                      inputMode="numeric"
-                      onChange={(event) =>
+                      }))
+                    }
+                  >
+                    {[1, 2, 3, 4].map((count) => (
+                      <ToggleGroupItem
+                        key={count}
+                        value={String(count)}
+                        aria-label={`${count} bath${count > 1 ? "s" : ""}`}
+                      >
+                        {count}
+                      </ToggleGroupItem>
+                    ))}
+                  </ToggleGroup>{" "}
+                  <label className="north-check">
+                    <Checkbox
+                      checked={filters.northFacingOnly ?? false}
+                      onCheckedChange={(checked) =>
                         setFilters((current) => ({
                           ...current,
-                          yearBuiltFrom: Number(event.target.value) || undefined,
+                          northFacingOnly: checked === true || undefined,
                         }))
                       }
-                      placeholder="1900"
-                      value={filters.yearBuiltFrom ?? ""}
                     />
+                    <Sun />
+                    <span>
+                      <strong>North-facing only</strong>
+                    </span>
                   </label>
-                  <label>
-                    Built to
-                    <input
-                      inputMode="numeric"
-                      onChange={(event) =>
-                        setFilters((current) => ({
-                          ...current,
-                          yearBuiltTo: Number(event.target.value) || undefined,
-                        }))
-                      }
-                      placeholder="2026"
-                      value={filters.yearBuiltTo ?? ""}
-                    />
+                </Field>
+                {/* Mapped Flood Hazard */}
+                <div className="filter-card-box">
+                  <label className="field-label" htmlFor="flood-hazard">
+                    Mapped flood hazard
                   </label>
+                  <NativeSelect
+                    id="flood-hazard"
+                    onChange={(event) => {
+                      const value = event.target.value;
+                      setFilters((current) => {
+                        const next = { ...current };
+                        delete next.floodHazardTypes;
+                        delete next.noMappedFloodHazard;
+                        if (value === "any_mapped") {
+                          next.floodHazardTypes = floodHazardOptions.map(
+                            ({ type }) => type,
+                          );
+                        } else if (value === "none") {
+                          next.noMappedFloodHazard = true;
+                        } else if (value) {
+                          next.floodHazardTypes = [value as FloodHazardType];
+                        }
+                        return next;
+                      });
+                    }}
+                    value={
+                      filters.noMappedFloodHazard
+                        ? "none"
+                        : filters.floodHazardTypes?.length ===
+                            floodHazardOptions.length
+                          ? "any_mapped"
+                          : (filters.floodHazardTypes?.[0] ?? "")
+                    }
+                  >
+                    <option value="">Any flood hazard</option>
+                    <option value="any_mapped">Any mapped flood hazard</option>
+                    <option value="none">No mapped flood hazard</option>
+                    {floodHazardOptions.map(({ type, label }) => (
+                      <option key={type} value={type}>
+                        {label}
+                      </option>
+                    ))}
+                  </NativeSelect>
                 </div>
-              </details>
 
-              {/* Schools & Enrolment Zones */}
-              <details className="filter-details filter-card-box">
-                <summary>Schools & Catchments</summary>
-                <label className="north-check" style={{ margin: "4px 0 10px" }}>
-                  <input
-                    checked={filters.inZoneOnly ?? false}
+                {/* Architecture & Building Age */}
+                <Accordion type="multiple">
+                  <AccordionItem value="filters">
+                    <AccordionTrigger>
+                      Architecture & Era
+                      {filters.architecturalStyles?.length ? (
+                        <span>{filters.architecturalStyles.length}</span>
+                      ) : null}
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      <div className="check-list">
+                        {architecturalStyles.map((style) => (
+                          <label key={style}>
+                            <Checkbox
+                              checked={
+                                filters.architecturalStyles?.includes(style) ??
+                                false
+                              }
+                              onCheckedChange={() => toggleStyle(style)}
+                            />
+                            <span>{style}</span>
+                          </label>
+                        ))}
+                      </div>
+                      <div
+                        className="year-fields"
+                        style={{ paddingBottom: 12 }}
+                      >
+                        <label>
+                          Built from
+                          <Input
+                            inputMode="numeric"
+                            onChange={(event) =>
+                              setFilters((current) => ({
+                                ...current,
+                                yearBuiltFrom:
+                                  Number(event.target.value) || undefined,
+                              }))
+                            }
+                            placeholder="1900"
+                            value={filters.yearBuiltFrom ?? ""}
+                          />
+                        </label>
+                        <label>
+                          Built to
+                          <Input
+                            inputMode="numeric"
+                            onChange={(event) =>
+                              setFilters((current) => ({
+                                ...current,
+                                yearBuiltTo:
+                                  Number(event.target.value) || undefined,
+                              }))
+                            }
+                            placeholder="2026"
+                            value={filters.yearBuiltTo ?? ""}
+                          />
+                        </label>
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
+
+                {/* Schools & Enrolment Zones */}
+                <Accordion type="multiple">
+                  <AccordionItem value="filters">
+                    <AccordionTrigger>Schools & Catchments</AccordionTrigger>
+                    <AccordionContent>
+                      <label
+                        className="north-check"
+                        style={{ margin: "4px 0 10px" }}
+                      >
+                        <Checkbox
+                          checked={filters.inZoneOnly ?? false}
+                          onCheckedChange={(checked) =>
+                            setFilters((curr) => ({
+                              ...curr,
+                              inZoneOnly: checked === true || undefined,
+                            }))
+                          }
+                        />
+                        <span>
+                          <strong>Inside mapped school zone</strong>
+                        </span>
+                      </label>
+                      {schoolDataSynced ? (
+                        <div
+                          className="compact-select-stack"
+                          style={{ paddingBottom: 12 }}
+                        >
+                          <label
+                            className="field-label"
+                            htmlFor="nearby-school-type-filter"
+                          >
+                            Nearby school type (within{" "}
+                            {SCHOOL_NEARBY_RADIUS_METRES / 1000} km)
+                            <NativeSelect
+                              id="nearby-school-type-filter"
+                              value={filters.nearbySchoolType ?? ""}
+                              onChange={(event) =>
+                                setFilters((current) => ({
+                                  ...current,
+                                  nearbySchoolType:
+                                    event.target.value || undefined,
+                                }))
+                              }
+                            >
+                              <option value="">Any type</option>
+                              {schoolTypes.map((type) => (
+                                <option key={type} value={type}>
+                                  {type}
+                                </option>
+                              ))}
+                            </NativeSelect>
+                          </label>
+                          <label
+                            className="field-label"
+                            htmlFor="school-search-mode"
+                          >
+                            Search by school
+                            <NativeSelect
+                              id="school-search-mode"
+                              value={filters.schoolSearchMode ?? "nearby"}
+                              onChange={(event) =>
+                                setFilters((current) => ({
+                                  ...current,
+                                  schoolId: undefined,
+                                  schoolSearchMode: event.target.value as
+                                    "zone" | "nearby",
+                                }))
+                              }
+                            >
+                              <option value="nearby">
+                                Within {SCHOOL_NEARBY_RADIUS_METRES / 1000} km
+                                of the school
+                              </option>
+                              <option value="zone">
+                                Inside the school&apos;s enrolment zone
+                              </option>
+                            </NativeSelect>
+                          </label>
+                          <label
+                            className="field-label"
+                            htmlFor="school-search-id"
+                          >
+                            School
+                            <NativeSelect
+                              id="school-search-id"
+                              value={filters.schoolId ?? ""}
+                              onChange={(event) =>
+                                setFilters((current) => ({
+                                  ...current,
+                                  schoolId: event.target.value
+                                    ? Number(event.target.value)
+                                    : undefined,
+                                }))
+                              }
+                            >
+                              <option value="">Choose a school</option>
+                              {selectableSchools.map((school) => (
+                                <option
+                                  key={school.schoolId}
+                                  value={school.schoolId}
+                                >
+                                  {school.name} — {school.orgType}
+                                </option>
+                              ))}
+                            </NativeSelect>
+                          </label>
+                        </div>
+                      ) : (
+                        <p
+                          style={{
+                            opacity: 0.7,
+                            fontSize: "0.8rem",
+                            margin: "0 0 12px",
+                          }}
+                        >
+                          School zone filters active on pre-mapped catchments.
+                        </p>
+                      )}
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
+
+                {/* Saved Location Proximity */}
+                <div className="filter-card-box">
+                  <label
+                    className="field-label"
+                    htmlFor="saved-location-select"
+                  >
+                    Search near saved location
+                  </label>
+                  <NativeSelect
+                    id="saved-location-select"
+                    onChange={(event) =>
+                      setSelectedDestinationId(event.target.value)
+                    }
+                    value={selectedDestination?.id ?? ""}
+                  >
+                    <option value="">Any location</option>
+                    {destinations
+                      .filter(
+                        (destination) =>
+                          destination.latitude !== undefined &&
+                          destination.longitude !== undefined,
+                      )
+                      .map((destination) => (
+                        <option key={destination.id} value={destination.id}>
+                          {destination.name || destination.address}
+                        </option>
+                      ))}
+                  </NativeSelect>
+                  <label
+                    className="field-label"
+                    htmlFor="saved-location-distance"
+                    style={{ marginTop: 8 }}
+                  >
+                    Maximum distance
+                  </label>
+                  <NativeSelect
+                    id="saved-location-distance"
+                    onChange={(event) =>
+                      setMaxSavedLocationDistance(Number(event.target.value))
+                    }
+                    value={maxSavedLocationDistance}
+                  >
+                    {[2, 5, 10, 20].map((distance) => (
+                      <option key={distance} value={distance}>
+                        {distance} km
+                      </option>
+                    ))}
+                  </NativeSelect>
+                </div>
+
+                {/* Commute & Transport */}
+                <div className="filter-card-box">
+                  <label className="field-label" htmlFor="max-commute">
+                    Max commute time:{" "}
+                    <strong>{filters.maxCommuteTimeMinutes ?? 45} mins</strong>
+                  </label>
+                  <Slider
+                    id="max-commute"
+                    aria-label="Maximum commute time"
+                    min={10}
+                    max={60}
+                    step={5}
+                    value={[filters.maxCommuteTimeMinutes ?? 45]}
+                    onValueChange={([value]) =>
+                      setFilters((current) => ({
+                        ...current,
+                        maxCommuteTimeMinutes: value,
+                      }))
+                    }
+                  />
+                  <label
+                    className="field-label"
+                    htmlFor="commute-mode"
+                    style={{ marginTop: 8 }}
+                  >
+                    Transport Mode
+                  </label>
+                  <NativeSelect
+                    id="commute-mode"
+                    value={filters.commuteMode ?? "driving"}
                     onChange={(e) =>
                       setFilters((curr) => ({
                         ...curr,
-                        inZoneOnly: e.target.checked || undefined,
+                        commuteMode: e.target.value
+                          ? (e.target.value as
+                              "driving" | "transit" | "walking")
+                          : undefined,
                       }))
                     }
-                    type="checkbox"
-                  />
-                  <span>
-                    <strong>Inside mapped school zone</strong>
-                  </span>
-                </label>
-                {schoolDataSynced ? (
-                  <div className="compact-select-stack" style={{ paddingBottom: 12 }}>
-                    <label className="field-label" htmlFor="nearby-school-type-filter">
-                      Nearby school type (within {SCHOOL_NEARBY_RADIUS_METRES / 1000} km)
-                      <select
-                        id="nearby-school-type-filter"
-                        value={filters.nearbySchoolType ?? ""}
-                        onChange={(event) =>
-                          setFilters((current) => ({
-                            ...current,
-                            nearbySchoolType: event.target.value || undefined,
-                          }))
-                        }
-                      >
-                        <option value="">Any type</option>
-                        {schoolTypes.map((type) => (
-                          <option key={type} value={type}>{type}</option>
-                        ))}
-                      </select>
-                    </label>
-                    <label className="field-label" htmlFor="school-search-mode">
-                      Search by school
-                      <select
-                        id="school-search-mode"
-                        value={filters.schoolSearchMode ?? "nearby"}
-                        onChange={(event) =>
-                          setFilters((current) => ({
-                            ...current,
-                            schoolId: undefined,
-                            schoolSearchMode: event.target.value as "zone" | "nearby",
-                          }))
-                        }
-                      >
-                        <option value="nearby">Within {SCHOOL_NEARBY_RADIUS_METRES / 1000} km of the school</option>
-                        <option value="zone">Inside the school&apos;s enrolment zone</option>
-                      </select>
-                    </label>
-                    <label className="field-label" htmlFor="school-search-id">
-                      School
-                      <select
-                        id="school-search-id"
-                        value={filters.schoolId ?? ""}
-                        onChange={(event) =>
-                          setFilters((current) => ({
-                            ...current,
-                            schoolId: event.target.value ? Number(event.target.value) : undefined,
-                          }))
-                        }
-                      >
-                        <option value="">Choose a school</option>
-                        {selectableSchools.map((school) => (
-                          <option key={school.schoolId} value={school.schoolId}>
-                            {school.name} — {school.orgType}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
-                  </div>
-                ) : (
-                  <p style={{ opacity: 0.7, fontSize: "0.8rem", margin: "0 0 12px" }}>
-                    School zone filters active on pre-mapped catchments.
-                  </p>
-                )}
-              </details>
-
-              {/* Saved Location Proximity */}
-              <div className="filter-card-box">
-                <label className="field-label" htmlFor="saved-location-select">
-                  Search near saved location
-                </label>
-                <select
-                  id="saved-location-select"
-                  onChange={(event) => setSelectedDestinationId(event.target.value)}
-                  value={selectedDestination?.id ?? ""}
-                >
-                  <option value="">Any location</option>
-                  {destinations
-                    .filter((destination) => destination.latitude !== undefined && destination.longitude !== undefined)
-                    .map((destination) => (
-                      <option key={destination.id} value={destination.id}>
-                        {destination.name || destination.address}
-                      </option>
-                    ))}
-                </select>
-                <label className="field-label" htmlFor="saved-location-distance" style={{ marginTop: 8 }}>
-                  Maximum distance
-                </label>
-                <select
-                  id="saved-location-distance"
-                  onChange={(event) => setMaxSavedLocationDistance(Number(event.target.value))}
-                  value={maxSavedLocationDistance}
-                >
-                  {[2, 5, 10, 20].map((distance) => (
-                    <option key={distance} value={distance}>
-                      {distance} km
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Commute & Transport */}
-              <div className="filter-card-box">
-                <label className="field-label" htmlFor="max-commute">
-                  Max commute time: <strong>{filters.maxCommuteTimeMinutes ?? 45} mins</strong>
-                </label>
-                <input
-                  id="max-commute"
-                  max="60"
-                  min="10"
-                  step="5"
-                  type="range"
-                  onChange={(e) =>
-                    setFilters((curr) => ({
-                      ...curr,
-                      maxCommuteTimeMinutes: Number(e.target.value) || undefined,
-                    }))
-                  }
-                  value={filters.maxCommuteTimeMinutes ?? 45}
-                  style={{ width: "100%" }}
-                />
-                <label className="field-label" htmlFor="commute-mode" style={{ marginTop: 8 }}>
-                  Transport Mode
-                </label>
-                <select
-                  id="commute-mode"
-                  value={filters.commuteMode ?? "driving"}
-                  onChange={(e) =>
-                    setFilters((curr) => ({
-                      ...curr,
-                      commuteMode: e.target.value ? (e.target.value as "driving" | "transit" | "walking") : undefined,
-                    }))
-                  }
-                >
-                  <option value="driving">Driving</option>
-                  <option value="transit">Public Transit</option>
-                  <option value="walking">Walking</option>
-                </select>
-              </div>
-            </div>
-          </div>
+                  >
+                    <option value="driving">Driving</option>
+                    <option value="transit">Public Transit</option>
+                    <option value="walking">Walking</option>
+                  </NativeSelect>
+                </div>
+              </FieldGroup>
+            </CollapsibleContent>
+          </Collapsible>
 
           <div className="results-panel">
             <div className="results-header">
               <div>
-                <p className="eyebrow">Curated for your criteria</p>
                 <h2>
                   {filteredProperties.length}{" "}
-                  {filteredProperties.length === 1 ? "property" : "properties"} found
+                  {filteredProperties.length === 1 ? "property" : "properties"}{" "}
+                  found
                 </h2>
                 {hasFilters && (
                   <div className="active-filter-chips">
                     {selectedDestination && (
                       <span className="filter-chip">
-                        Within {maxSavedLocationDistance} km of {selectedDestination.name || selectedDestination.address}
-                        <button aria-label="Remove saved location filter" className="filter-chip-remove" onClick={() => setSelectedDestinationId("")} type="button">×</button>
+                        Within {maxSavedLocationDistance} km of{" "}
+                        {selectedDestination.name ||
+                          selectedDestination.address}
+                        <Button
+                          variant="ghost"
+                          aria-label="Remove saved location filter"
+                          className="filter-chip-remove"
+                          onClick={() => setSelectedDestinationId("")}
+                          type="button"
+                        >
+                          ×
+                        </Button>
                       </span>
                     )}
                     {filters.location && (
                       <span className="filter-chip">
                         📍 {filters.location}
-                        <button
+                        <Button
+                          variant="ghost"
                           aria-label={`Remove location ${filters.location}`}
                           className="filter-chip-remove"
-                          onClick={() => setFilters((curr) => ({ ...curr, location: undefined }))}
+                          onClick={() =>
+                            setFilters((curr) => ({
+                              ...curr,
+                              location: undefined,
+                            }))
+                          }
                           type="button"
                         >
                           ×
-                        </button>
+                        </Button>
                       </span>
                     )}
                     {filters.propertyTypes?.map((t) => (
                       <span className="filter-chip" key={t}>
                         {t}
-                        <button
+                        <Button
+                          variant="ghost"
                           aria-label={`Remove property type ${t}`}
                           className="filter-chip-remove"
                           onClick={() => togglePropertyType(t)}
                           type="button"
                         >
                           ×
-                        </button>
+                        </Button>
                       </span>
                     ))}
                     {filters.architecturalStyles?.map((s) => (
                       <span className="filter-chip" key={s}>
                         {s}
-                        <button
+                        <Button
+                          variant="ghost"
                           aria-label={`Remove style ${s}`}
                           className="filter-chip-remove"
                           onClick={() => toggleStyle(s)}
                           type="button"
                         >
                           ×
-                        </button>
+                        </Button>
                       </span>
                     ))}
                     {filters.floodHazardTypes?.length ? (
                       <span className="filter-chip">
-                        {filters.floodHazardTypes.length === floodHazardOptions.length
+                        {filters.floodHazardTypes.length ===
+                        floodHazardOptions.length
                           ? "Any mapped flood hazard"
-                          : floodHazardOptions.find(({ type }) => type === filters.floodHazardTypes?.[0])?.label}
-                        <button
-                          aria-label={`Remove flood hazard ${filters.floodHazardTypes.length === floodHazardOptions.length
-                            ? "Any mapped flood hazard"
-                            : floodHazardOptions.find(({ type }) => type === filters.floodHazardTypes?.[0])?.label}`}
+                          : floodHazardOptions.find(
+                              ({ type }) =>
+                                type === filters.floodHazardTypes?.[0],
+                            )?.label}
+                        <Button
+                          variant="ghost"
+                          aria-label={`Remove flood hazard ${
+                            filters.floodHazardTypes.length ===
+                            floodHazardOptions.length
+                              ? "Any mapped flood hazard"
+                              : floodHazardOptions.find(
+                                  ({ type }) =>
+                                    type === filters.floodHazardTypes?.[0],
+                                )?.label
+                          }`}
                           className="filter-chip-remove"
-                          onClick={() => setFilters((curr) => ({ ...curr, floodHazardTypes: undefined }))}
+                          onClick={() =>
+                            setFilters((curr) => ({
+                              ...curr,
+                              floodHazardTypes: undefined,
+                            }))
+                          }
                           type="button"
                         >
                           ×
-                        </button>
+                        </Button>
                       </span>
                     ) : null}
                     {filters.noMappedFloodHazard && (
                       <span className="filter-chip">
                         No mapped flood hazard
-                        <button
+                        <Button
+                          variant="ghost"
                           aria-label="Remove no mapped flood hazard filter"
                           className="filter-chip-remove"
-                          onClick={() => setFilters((curr) => ({ ...curr, noMappedFloodHazard: undefined }))}
+                          onClick={() =>
+                            setFilters((curr) => ({
+                              ...curr,
+                              noMappedFloodHazard: undefined,
+                            }))
+                          }
                           type="button"
                         >
                           ×
-                        </button>
+                        </Button>
                       </span>
                     )}
                     {filters.hasOpenHome && (
                       <span className="filter-chip">
                         📅 Open homes
-                        <button
+                        <Button
+                          variant="ghost"
                           aria-label="Remove open home filter"
                           className="filter-chip-remove"
-                          onClick={() => setFilters((curr) => ({ ...curr, hasOpenHome: undefined }))}
+                          onClick={() =>
+                            setFilters((curr) => ({
+                              ...curr,
+                              hasOpenHome: undefined,
+                            }))
+                          }
                           type="button"
                         >
                           ×
-                        </button>
+                        </Button>
                       </span>
                     )}
                     {filters.maxPrice !== undefined && (
                       <span className="filter-chip">
-                        ≤ ${filters.maxPrice >= 1_000_000 ? (filters.maxPrice / 1_000_000).toFixed(1) + "M" : (filters.maxPrice / 1_000).toFixed(0) + "k"}
-                        <button
+                        ≤ $
+                        {filters.maxPrice >= 1_000_000
+                          ? (filters.maxPrice / 1_000_000).toFixed(1) + "M"
+                          : (filters.maxPrice / 1_000).toFixed(0) + "k"}
+                        <Button
+                          variant="ghost"
                           aria-label="Remove max price filter"
                           className="filter-chip-remove"
-                          onClick={() => setFilters((curr) => ({ ...curr, maxPrice: undefined }))}
+                          onClick={() =>
+                            setFilters((curr) => ({
+                              ...curr,
+                              maxPrice: undefined,
+                            }))
+                          }
                           type="button"
                         >
                           ×
-                        </button>
+                        </Button>
                       </span>
                     )}
                     {filters.minPrice !== undefined && (
                       <span className="filter-chip">
-                        ≥ ${filters.minPrice >= 1_000_000 ? (filters.minPrice / 1_000_000).toFixed(1) + "M" : (filters.minPrice / 1_000).toFixed(0) + "k"}
-                        <button
+                        ≥ $
+                        {filters.minPrice >= 1_000_000
+                          ? (filters.minPrice / 1_000_000).toFixed(1) + "M"
+                          : (filters.minPrice / 1_000).toFixed(0) + "k"}
+                        <Button
+                          variant="ghost"
                           aria-label="Remove min price filter"
                           className="filter-chip-remove"
-                          onClick={() => setFilters((curr) => ({ ...curr, minPrice: undefined }))}
+                          onClick={() =>
+                            setFilters((curr) => ({
+                              ...curr,
+                              minPrice: undefined,
+                            }))
+                          }
                           type="button"
                         >
                           ×
-                        </button>
+                        </Button>
                       </span>
                     )}
                     {filters.bedrooms !== undefined && (
                       <span className="filter-chip">
                         {filters.bedrooms} bed{filters.bedrooms > 1 ? "s" : ""}
-                        <button
+                        <Button
+                          variant="ghost"
                           aria-label="Remove bedroom filter"
                           className="filter-chip-remove"
-                          onClick={() => setFilters((curr) => ({ ...curr, bedrooms: undefined }))}
+                          onClick={() =>
+                            setFilters((curr) => ({
+                              ...curr,
+                              bedrooms: undefined,
+                            }))
+                          }
                           type="button"
                         >
                           ×
-                        </button>
+                        </Button>
                       </span>
                     )}
-                    {Object.entries(filters.numericCriteria ?? {}).map(([field, range]) => (
-                      <span className="filter-chip" key={field}>
-                        {formatNumericFilter(field as NumericSearchField, range)}
-                        <button
-                          aria-label={`Remove ${numericFilterLabels[field as NumericSearchField].toLowerCase()} filter`}
-                          className="filter-chip-remove"
-                          onClick={() => removeNumericFilter(field as NumericSearchField)}
-                          type="button"
-                        >
-                          ×
-                        </button>
-                      </span>
-                    ))}
+                    {Object.entries(filters.numericCriteria ?? {}).map(
+                      ([field, range]) => (
+                        <span className="filter-chip" key={field}>
+                          {formatNumericFilter(
+                            field as NumericSearchField,
+                            range,
+                          )}
+                          <Button
+                            variant="ghost"
+                            aria-label={`Remove ${numericFilterLabels[field as NumericSearchField].toLowerCase()} filter`}
+                            className="filter-chip-remove"
+                            onClick={() =>
+                              removeNumericFilter(field as NumericSearchField)
+                            }
+                            type="button"
+                          >
+                            ×
+                          </Button>
+                        </span>
+                      ),
+                    )}
                     {filters.orientations?.map((orientation) => (
                       <span className="filter-chip" key={orientation}>
                         {orientation}-facing
-                        <button
+                        <Button
+                          variant="ghost"
                           aria-label={`Remove ${orientation.toLowerCase()} facing filter`}
                           className="filter-chip-remove"
-                          onClick={() => setFilters((current) => ({ ...current, orientations: undefined }))}
+                          onClick={() =>
+                            setFilters((current) => ({
+                              ...current,
+                              orientations: undefined,
+                            }))
+                          }
                           type="button"
-                        >×</button>
+                        >
+                          ×
+                        </Button>
                       </span>
                     ))}
                     {filters.ownershipTypes?.map((ownership) => (
                       <span className="filter-chip" key={ownership}>
                         {ownership}
-                        <button
+                        <Button
+                          variant="ghost"
                           aria-label={`Remove ${ownership.toLowerCase()} ownership filter`}
                           className="filter-chip-remove"
-                          onClick={() => setFilters((current) => ({ ...current, ownershipTypes: undefined }))}
+                          onClick={() =>
+                            setFilters((current) => ({
+                              ...current,
+                              ownershipTypes: undefined,
+                            }))
+                          }
                           type="button"
-                        >×</button>
+                        >
+                          ×
+                        </Button>
                       </span>
                     ))}
                     {filters.northFacingOnly && (
                       <span className="filter-chip">
                         ☀️ North-facing
-                        <button
+                        <Button
+                          variant="ghost"
                           aria-label="Remove north facing filter"
                           className="filter-chip-remove"
-                          onClick={() => setFilters((curr) => ({ ...curr, northFacingOnly: undefined }))}
+                          onClick={() =>
+                            setFilters((curr) => ({
+                              ...curr,
+                              northFacingOnly: undefined,
+                            }))
+                          }
                           type="button"
                         >
                           ×
-                        </button>
+                        </Button>
                       </span>
                     )}
                     {filters.inZoneOnly && (
                       <span className="filter-chip">
                         🎓 School zone
-                        <button
+                        <Button
+                          variant="ghost"
                           aria-label="Remove school zone filter"
                           className="filter-chip-remove"
-                          onClick={() => setFilters((curr) => ({ ...curr, inZoneOnly: undefined }))}
+                          onClick={() =>
+                            setFilters((curr) => ({
+                              ...curr,
+                              inZoneOnly: undefined,
+                            }))
+                          }
                           type="button"
                         >
                           ×
-                        </button>
+                        </Button>
                       </span>
                     )}
                     {filters.schoolZoneName && (
                       <span className="filter-chip">
                         🎓 {filters.schoolZoneName} zone
-                        <button
+                        <Button
+                          variant="ghost"
                           aria-label="Remove school zone name filter"
                           className="filter-chip-remove"
-                          onClick={() => setFilters((current) => ({ ...current, schoolZoneName: undefined }))}
+                          onClick={() =>
+                            setFilters((current) => ({
+                              ...current,
+                              schoolZoneName: undefined,
+                            }))
+                          }
                           type="button"
-                        >×</button>
+                        >
+                          ×
+                        </Button>
                       </span>
                     )}
                     {filters.yearBuiltFrom !== undefined && (
                       <span className="filter-chip">
                         Built from {filters.yearBuiltFrom}
-                        <button
+                        <Button
+                          variant="ghost"
                           aria-label="Remove built from filter"
                           className="filter-chip-remove"
-                          onClick={() => setFilters((current) => ({ ...current, yearBuiltFrom: undefined }))}
+                          onClick={() =>
+                            setFilters((current) => ({
+                              ...current,
+                              yearBuiltFrom: undefined,
+                            }))
+                          }
                           type="button"
-                        >×</button>
+                        >
+                          ×
+                        </Button>
                       </span>
                     )}
                     {filters.yearBuiltTo !== undefined && (
                       <span className="filter-chip">
                         Built to {filters.yearBuiltTo}
-                        <button
+                        <Button
+                          variant="ghost"
                           aria-label="Remove built to filter"
                           className="filter-chip-remove"
-                          onClick={() => setFilters((current) => ({ ...current, yearBuiltTo: undefined }))}
+                          onClick={() =>
+                            setFilters((current) => ({
+                              ...current,
+                              yearBuiltTo: undefined,
+                            }))
+                          }
                           type="button"
-                        >×</button>
+                        >
+                          ×
+                        </Button>
                       </span>
                     )}
                     {filters.maxCommuteTimeMinutes !== undefined && (
                       <span className="filter-chip">
                         ⏱️ Commute ≤ {filters.maxCommuteTimeMinutes}m
-                        <button
+                        <Button
+                          variant="ghost"
                           aria-label="Remove commute filter"
                           className="filter-chip-remove"
-                          onClick={() => setFilters((curr) => ({ ...curr, maxCommuteTimeMinutes: undefined }))}
+                          onClick={() =>
+                            setFilters((curr) => ({
+                              ...curr,
+                              maxCommuteTimeMinutes: undefined,
+                            }))
+                          }
                           type="button"
                         >
                           ×
-                        </button>
+                        </Button>
                       </span>
                     )}
                     {filters.commuteDestination && (
                       <span className="filter-chip">
                         To {filters.commuteDestination}
-                        <button
+                        <Button
+                          variant="ghost"
                           aria-label="Remove commute destination filter"
                           className="filter-chip-remove"
-                          onClick={() => setFilters((current) => ({ ...current, commuteDestination: undefined }))}
+                          onClick={() =>
+                            setFilters((current) => ({
+                              ...current,
+                              commuteDestination: undefined,
+                            }))
+                          }
                           type="button"
-                        >×</button>
+                        >
+                          ×
+                        </Button>
                       </span>
                     )}
                     {filters.commuteMode && (
                       <span className="filter-chip">
                         By {filters.commuteMode}
-                        <button
+                        <Button
+                          variant="ghost"
                           aria-label="Remove commute mode filter"
                           className="filter-chip-remove"
-                          onClick={() => setFilters((current) => ({ ...current, commuteMode: undefined }))}
+                          onClick={() =>
+                            setFilters((current) => ({
+                              ...current,
+                              commuteMode: undefined,
+                            }))
+                          }
                           type="button"
-                        >×</button>
+                        >
+                          ×
+                        </Button>
                       </span>
                     )}
-                    <button
+                    <Button
+                      variant="ghost"
                       className="filter-chip-remove"
                       onClick={clearFilters}
-                      style={{ color: "var(--forest)", fontSize: "11px", fontWeight: 700, padding: "3px 6px" }}
+                      style={{
+                        color: "var(--forest)",
+                        fontSize: "11px",
+                        fontWeight: 700,
+                        padding: "3px 6px",
+                      }}
                       type="button"
                     >
                       Clear all
-                    </button>
+                    </Button>
                   </div>
                 )}
               </div>
-              <div className="view-note">
-                <span className="live-dot" />
-                Filters update instantly
-              </div>
             </div>
-            {filteredProperties.length ? (
+            {account?.status === "loading" ? (
+              <PropertyGridSkeleton />
+            ) : account?.status === "error" ? (
+              <Alert variant="destructive">
+                <AlertTitle>Couldn’t load your account</AlertTitle>
+                <AlertDescription>
+                  {account.error}
+                  <Button
+                    variant="outline"
+                    onClick={() => void account.refresh()}
+                  >
+                    Retry
+                  </Button>
+                </AlertDescription>
+              </Alert>
+            ) : filteredProperties.length ? (
               <div className="property-grid">
-                {filteredProperties.map((property) => (
+                {filteredProperties.map((property, index) => (
                   <PropertyCard
+                    eager={index < 4}
                     key={property.id}
                     isSaved={savedIds.includes(property.id)}
                     onCompare={() => toggleCompare(property.id)}
                     onSave={() => toggleSave(property.id)}
-                    onOpen={() => setDetailId(property.id)}
-                    onOpenSource={(source, field) =>
-                      setSourceSelection({ source, field, property })
-                    }
                     property={property}
                     selected={selectedIds.includes(property.id)}
                   />
@@ -2690,13 +1980,16 @@ export default function PropertyExplorer({
             ) : (
               <div className="empty-state">
                 <span>
-                  <Icon name="search" size={28} />
+                  <Search />
                 </span>
                 <h3>No matching listings were found</h3>
-                <p>Try widening your location, budget, style or specialist filters.</p>
-                <button onClick={clearFilters} type="button">
+                <p>
+                  Try widening your location, budget, style or specialist
+                  filters.
+                </p>
+                <Button variant="ghost" onClick={clearFilters} type="button">
                   Reset filters
-                </button>
+                </Button>
               </div>
             )}
           </div>
@@ -2705,37 +1998,14 @@ export default function PropertyExplorer({
         {/* Standalone Mortgage Calculator Section on Home Screen */}
         <section className="calculator-section" id="calculator">
           <div className="section-title">
-            <p className="eyebrow">Finance Estimator</p>
-            <h2>Mortgage Repayment Calculator</h2>
-            <p>Explore estimated repayments and compare two fixed-rate loan options.</p>
+            <h2>Make the numbers work</h2>
+            <p>
+              Explore estimated repayments and compare two fixed-rate loan
+              options.
+            </p>
           </div>
           <div className="calculator-container">
             <MortgageCalculator defaultPrice={1250000} />
-          </div>
-        </section>
-
-        <section className="how-section" id="how-it-works">
-          <p className="eyebrow">Search differently</p>
-          <h2>Details the big portals leave buried.</h2>
-          <div className="how-grid">
-            <article>
-              <span>01</span>
-              <Icon name="sparkle" />
-              <h3>Ask naturally</h3>
-              <p>Describe the home you want in plain language. Gemini translates it into precise property filters.</p>
-            </article>
-            <article>
-              <span>02</span>
-              <Icon name="sun" />
-              <h3>See what matters</h3>
-              <p>Explore architecture, flood bands, age and aspect in one calm workspace.</p>
-            </article>
-            <article>
-              <span>03</span>
-              <Icon name="compare" />
-              <h3>Decide with context</h3>
-              <p>Compare homes, recent nearby sales and repayments without losing your shortlist.</p>
-            </article>
           </div>
         </section>
       </main>
@@ -2744,7 +2014,6 @@ export default function PropertyExplorer({
       {savedModalOpen && (
         <SavedListingsDialog
           onClose={() => setSavedModalOpen(false)}
-          onOpenDetail={(id) => setDetailId(id)}
           onRemoveSave={(id) => toggleSave(id)}
           savedProperties={savedProperties}
         />
@@ -2754,44 +2023,61 @@ export default function PropertyExplorer({
       {comparisonOpen && (
         <ComparisonDialog
           onClose={() => setComparisonOpen(false)}
-          onRemove={(id) => setSelectedIds((curr) => curr.filter((item) => item !== id))}
+          onRemove={(id) =>
+            setSelectedIds((curr) => curr.filter((item) => item !== id))
+          }
           properties={selectedProperties}
         />
       )}
 
-      {/* Property Detail Modal */}
-      {detailProperty && (
-        <DetailDialog
-          comparableSales={comparableSales}
-          destinations={destinations}
-          setDestinations={persistDestinations}
-          isSaved={savedIds.includes(detailProperty.id)}
-          onClose={() => setDetailId(null)}
-          onSave={() => toggleSave(detailProperty.id)}
-          onOpenSource={(source, field) =>
-            setSourceSelection({ source, field, property: detailProperty })
-          }
-          property={detailProperty}
-        />
+      {!!selectedProperties.length && (
+        <section className="compare-tray" aria-label="Your comparison">
+          <div className="compare-tray-homes">
+            {selectedProperties.map((property) => (
+              <Badge variant="secondary" key={property.id}>
+                {property.address}
+                <Button
+                  size="icon-xs"
+                  variant="ghost"
+                  aria-label={`Remove ${property.address} from comparison`}
+                  onClick={() => toggleCompare(property.id)}
+                  type="button"
+                >
+                  <X />
+                </Button>
+              </Badge>
+            ))}
+          </div>
+          <div className="compare-tray-actions">
+            <Button
+              variant="ghost"
+              onClick={() => setSelectedIds([])}
+              type="button"
+            >
+              Clear
+            </Button>
+            <Button
+              disabled={selectedIds.length < 2}
+              onClick={() => setComparisonOpen(true)}
+              type="button"
+            >
+              {selectedIds.length < 2
+                ? "Select one more"
+                : `Compare ${selectedIds.length} homes`}
+            </Button>
+          </div>
+        </section>
       )}
-
-      {sourceSelection && (
-        <SourceDetailsDialog
-          onClose={() => setSourceSelection(null)}
-          selection={sourceSelection}
-        />
-      )}
-
       <footer>
         <a className="brand footer-brand" href="#top">
           <span className="brand-mark">
-            <Icon name="house" size={18} />
+            <House />
           </span>
           <span>
             haven<span className="brand-dot">.</span>
           </span>
         </a>
-        <p>Smarter property discovery for Aotearoa</p>
+        <p>Find your place in Aotearoa.</p>
       </footer>
     </div>
   );

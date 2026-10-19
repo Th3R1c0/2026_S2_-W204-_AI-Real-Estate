@@ -1,5 +1,13 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
+import { Empty, EmptyHeader, EmptyTitle } from "@/components/ui/empty";
+
 import React, { useState, useEffect } from "react";
 import { useAccountWorkspace } from "./account-workspace-provider";
 
@@ -35,17 +43,21 @@ export default function UserNotes() {
         try {
           const saved = localStorage.getItem(storageKey);
           setNotes(saved ? JSON.parse(saved) : []);
-        } catch (e) { console.error("Failed to parse general user notes:", e); }
+        } catch (e) {
+          console.error("Failed to parse general user notes:", e);
+        }
       }
       setMounted(true);
     });
-    return () => { active = false; };
+    return () => {
+      active = false;
+    };
   }, [accountStatus, accountUserId, accountNotes]);
 
   const saveToStorage = (updatedNotes: UserNote[]) => {
     setNotes(updatedNotes);
     if (account?.status === "signedIn") {
-      void account.save("generalNotes", updatedNotes).then(ok => {
+      void account.save("generalNotes", updatedNotes).then((ok) => {
         if (!ok) setNotes(account.workspace.generalNotes);
       });
       return;
@@ -91,272 +103,139 @@ export default function UserNotes() {
     if (!editTitle.trim() || !editContent.trim()) return;
     saveToStorage(
       notes.map((note) =>
-        note.id === id ? { ...note, title: editTitle.trim(), content: editContent.trim() } : note
-      )
+        note.id === id
+          ? { ...note, title: editTitle.trim(), content: editContent.trim() }
+          : note,
+      ),
     );
     setEditingId(null);
   };
 
-  if (!mounted || account?.status === "loading" || account?.status === "error") {
-    return <div style={{ padding: "2rem 0", color: "var(--muted, #6b7280)" }}>Loading notes...</div>;
-  }
-
-  return (
-    <div className="user-notes-container" style={{ maxWidth: "680px", margin: "0 auto", padding: "1rem 0" }}>
-      {account?.error && <p role="alert">{account.error}</p>}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: "1.25rem",
-        }}
-      >
-        <div>
-          <h3 style={{ margin: 0, fontSize: "1.25rem", fontWeight: 700, color: "var(--ink-deep, #0e241d)" }}>
-            General Account Notes
-          </h3>
-          <p style={{ margin: "0.2rem 0 0 0", fontSize: "0.85rem", color: "var(--muted, #6f7d76)" }}>
-            Keep track of suburbs, finance contacts, or general property search criteria.
-          </p>
-        </div>
-        <span
-          style={{
-            fontSize: "0.8rem",
-            fontWeight: 600,
-            background: "var(--sage, #dce8da)",
-            color: "var(--forest, #285e4a)",
-            padding: "0.25rem 0.65rem",
-            borderRadius: "999px",
-          }}
-        >
-          {notes.length} {notes.length === 1 ? "note" : "notes"}
-        </span>
+  if (!mounted || account?.status === "loading")
+    return (
+      <div role="status" aria-label="Loading notes">
+        <Skeleton className="h-5 w-40" />
+        <Skeleton className="mt-4 h-24 w-full" />
       </div>
-
-      <form
-        onSubmit={handleAddNote}
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          gap: "0.75rem",
-          marginBottom: "2rem",
-          background: "var(--white, #fff)",
-          padding: "1.25rem",
-          borderRadius: "12px",
-          border: "1px solid var(--line, #dfe4dc)",
-          boxShadow: "var(--shadow-soft, 0 8px 30px rgba(21, 48, 39, 0.05))",
-        }}
-      >
-        <input
-          aria-label="Note title"
-          type="text"
-          placeholder="Note title (e.g., Preferred Suburbs or Solicitor Details)"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          style={{
-            padding: "0.65rem 0.85rem",
-            borderRadius: "8px",
-            border: "1px solid var(--line, #dfe4dc)",
-            fontSize: "0.95rem",
-            background: "var(--paper, #fcfcf8)",
-          }}
-        />
-        <textarea
-          aria-label="Note content"
-          placeholder="Write your note here..."
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          rows={3}
-          style={{
-            padding: "0.65rem 0.85rem",
-            borderRadius: "8px",
-            border: "1px solid var(--line, #dfe4dc)",
-            fontSize: "0.95rem",
-            background: "var(--paper, #fcfcf8)",
-            resize: "vertical",
-            fontFamily: "inherit",
-          }}
-        />
-        <div style={{ display: "flex", justifyContent: "flex-end" }}>
-          <button
-            type="submit"
-            disabled={!title.trim() || !content.trim()}
-            style={{
-              padding: "0.6rem 1.25rem",
-              background: !title.trim() || !content.trim() ? "var(--muted, #9ca3af)" : "var(--forest, #285e4a)",
-              color: "var(--white, #fff)",
-              border: "none",
-              borderRadius: "8px",
-              fontWeight: 600,
-              fontSize: "0.9rem",
-              cursor: !title.trim() || !content.trim() ? "not-allowed" : "pointer",
-              transition: "all 0.15s ease",
-            }}
-          >
+    );
+  if (account?.status === "error") return <p role="alert">{account.error}</p>;
+  return (
+    <section className="user-notes-container">
+      {account?.error && <p role="alert">{account.error}</p>}
+      <div className="notes-heading">
+        <div>
+          <h3>General notes</h3>
+          <p>A little space for your search.</p>
+        </div>
+        <Badge variant="secondary">
+          {notes.length} {notes.length === 1 ? "note" : "notes"}
+        </Badge>
+      </div>
+      <form className="note-form" onSubmit={handleAddNote}>
+        <FieldGroup>
+          <Field>
+            <FieldLabel className="sr-only" htmlFor="note-title">
+              Note title
+            </FieldLabel>
+            <Input
+              id="note-title"
+              aria-label="Note title"
+              placeholder="Note title"
+              value={title}
+              onChange={(event) => setTitle(event.target.value)}
+            />
+          </Field>
+          <Field>
+            <FieldLabel className="sr-only" htmlFor="note-content">
+              Note content
+            </FieldLabel>
+            <Textarea
+              id="note-content"
+              aria-label="Note content"
+              placeholder="Write your note here…"
+              value={content}
+              onChange={(event) => setContent(event.target.value)}
+              rows={3}
+            />
+          </Field>
+        </FieldGroup>
+        <div className="note-form-footer">
+          <Button type="submit" disabled={!title.trim() || !content.trim()}>
             Add General Note
-          </button>
+          </Button>
         </div>
       </form>
-
-      <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+      <div className="notes-list">
         {notes.length === 0 ? (
-          <div
-            style={{
-              textAlign: "center",
-              padding: "2.5rem 1rem",
-              background: "var(--cream, #f4f2e9)",
-              borderRadius: "12px",
-              border: "1px dashed var(--line, #dfe4dc)",
-            }}
-          >
-            <p style={{ margin: 0, fontWeight: 600, color: "var(--ink, #18332b)" }}>No general notes yet</p>
-            <p style={{ margin: "0.35rem 0 0 0", fontSize: "0.85rem", color: "var(--muted, #6f7d76)" }}>
-              Add your first note above to save thoughts and preferences for your property search.
-            </p>
-          </div>
+          <Empty>
+            <EmptyHeader>
+              <EmptyTitle>No general notes yet</EmptyTitle>
+            </EmptyHeader>
+          </Empty>
         ) : (
           notes.map((note) => (
-            <div
-              key={note.id}
-              style={{
-                padding: "1.25rem",
-                border: "1px solid var(--line, #dfe4dc)",
-                borderRadius: "12px",
-                background: "var(--white, #fff)",
-                boxShadow: "0 2px 8px rgba(0,0,0,0.03)",
-              }}
-            >
+            <article key={note.id} className="note-row">
               {editingId === note.id ? (
-                <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-                  <input
+                <div className="notes-edit">
+                  <Input
                     aria-label="Edit note title"
-                    type="text"
                     value={editTitle}
-                    onChange={(e) => setEditTitle(e.target.value)}
-                    style={{
-                      padding: "0.55rem 0.75rem",
-                      borderRadius: "6px",
-                      border: "1px solid var(--forest, #285e4a)",
-                      fontSize: "0.95rem",
-                    }}
+                    onChange={(event) => setEditTitle(event.target.value)}
                   />
-                  <textarea
+                  <Textarea
                     aria-label="Edit note content"
                     value={editContent}
-                    onChange={(e) => setEditContent(e.target.value)}
+                    onChange={(event) => setEditContent(event.target.value)}
                     rows={3}
-                    style={{
-                      padding: "0.55rem 0.75rem",
-                      borderRadius: "6px",
-                      border: "1px solid var(--forest, #285e4a)",
-                      fontSize: "0.95rem",
-                      fontFamily: "inherit",
-                    }}
                   />
-                  <div style={{ display: "flex", gap: "0.5rem", justifyContent: "flex-end" }}>
-                    <button
+                  <div className="note-actions">
+                    <Button
+                      variant="outline"
                       onClick={() => setEditingId(null)}
                       type="button"
-                      style={{
-                        padding: "0.4rem 0.85rem",
-                        background: "var(--paper, #fcfcf8)",
-                        border: "1px solid var(--line, #dfe4dc)",
-                        borderRadius: "6px",
-                        fontSize: "0.85rem",
-                        cursor: "pointer",
-                      }}
                     >
                       Cancel
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                       onClick={() => handleSaveEdit(note.id)}
                       type="button"
-                      style={{
-                        padding: "0.4rem 0.85rem",
-                        background: "var(--forest, #285e4a)",
-                        color: "var(--white, #fff)",
-                        border: "none",
-                        borderRadius: "6px",
-                        fontWeight: 600,
-                        fontSize: "0.85rem",
-                        cursor: "pointer",
-                      }}
+                      disabled={!editTitle.trim() || !editContent.trim()}
                     >
                       Save
-                    </button>
+                    </Button>
                   </div>
                 </div>
               ) : (
                 <>
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "flex-start",
-                      marginBottom: "0.5rem",
-                    }}
-                  >
-                    <h4 style={{ margin: 0, fontSize: "1.05rem", fontWeight: 700, color: "var(--ink-deep, #0e241d)" }}>
-                      {note.title}
-                    </h4>
-                    <span style={{ fontSize: "0.75rem", color: "var(--muted, #6f7d76)" }}>{note.createdAt}</span>
+                  <div className="note-row-header">
+                    <h4>{note.title}</h4>
+                    <time className="note-date">{note.createdAt}</time>
                   </div>
-                  <p
-                    style={{
-                      margin: "0 0 1rem 0",
-                      whiteSpace: "pre-wrap",
-                      fontSize: "0.92rem",
-                      lineHeight: 1.5,
-                      color: "var(--ink, #18332b)",
-                    }}
-                  >
-                    {note.content}
-                  </p>
-                  <div
-                    style={{
-                      display: "flex",
-                      gap: "1rem",
-                      fontSize: "0.85rem",
-                      borderTop: "1px solid var(--line, #dfe4dc)",
-                      paddingTop: "0.6rem",
-                    }}
-                  >
-                    <button
+                  <p className="note-content">{note.content}</p>
+                  <div className="note-actions">
+                    <Button
+                      variant="ghost"
+                      size="sm"
                       onClick={() => handleStartEdit(note)}
                       type="button"
-                      style={{
-                        background: "none",
-                        border: "none",
-                        color: "var(--forest, #285e4a)",
-                        fontWeight: 600,
-                        cursor: "pointer",
-                        padding: 0,
-                      }}
                     >
                       Edit
-                    </button>
-                    <button
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      size="sm"
                       onClick={() => handleDelete(note.id)}
                       type="button"
-                      style={{
-                        background: "none",
-                        border: "none",
-                        color: "var(--danger, #bd684f)",
-                        fontWeight: 600,
-                        cursor: "pointer",
-                        padding: 0,
-                      }}
                     >
                       Delete
-                    </button>
+                    </Button>
                   </div>
                 </>
               )}
-            </div>
+            </article>
           ))
         )}
       </div>
-    </div>
+    </section>
   );
 }

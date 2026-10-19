@@ -7,7 +7,10 @@ import { calculateMortgage } from "../lib/mortgage-calculation";
 
 describe("mortgage calculation", () => {
   it("matches a published $100,000, 4%, 30-year example", () => {
-    expect(calculateMortgage(100_000, 4, 30)?.monthlyPayment).toBeCloseTo(477.42, 2);
+    expect(calculateMortgage(100_000, 4, 30)?.monthlyPayment).toBeCloseTo(
+      477.42,
+      2,
+    );
   });
 
   it("repays a zero-interest loan in equal instalments", () => {
@@ -28,15 +31,28 @@ describe("mortgage comparison", () => {
   it("shows two editable loans and updates only the edited loan", async () => {
     const user = userEvent.setup();
     render(<MortgageCalculator defaultPrice={100_000} />);
-    await user.click(screen.getByRole("button", { name: /compare loans/i }));
+    await user.click(screen.getByRole("radio", { name: /compare loans/i }));
 
     const options = screen.getAllByTestId("loan-option");
     expect(options).toHaveLength(2);
-    const firstBefore = within(options[0]).getByTestId("loan-repayment").textContent;
-    const secondBefore = within(options[1]).getByTestId("loan-repayment").textContent;
-    await user.clear(within(options[0]).getByRole("spinbutton", { name: /interest rate/i }));
-    await user.type(within(options[0]).getByRole("spinbutton", { name: /interest rate/i }), "8");
-    expect(within(options[0]).getByTestId("loan-repayment").textContent).not.toBe(firstBefore);
-    expect(within(options[1]).getByTestId("loan-repayment").textContent).toBe(secondBefore);
+    const firstBefore = within(options[0]).getByTestId(
+      "loan-repayment",
+    ).textContent;
+    const secondBefore = within(options[1]).getByTestId(
+      "loan-repayment",
+    ).textContent;
+    await user.clear(
+      within(options[0]).getByRole("spinbutton", { name: /interest rate/i }),
+    );
+    await user.type(
+      within(options[0]).getByRole("spinbutton", { name: /interest rate/i }),
+      "8",
+    );
+    expect(
+      within(options[0]).getByTestId("loan-repayment").textContent,
+    ).not.toBe(firstBefore);
+    expect(within(options[1]).getByTestId("loan-repayment").textContent).toBe(
+      secondBefore,
+    );
   });
 });

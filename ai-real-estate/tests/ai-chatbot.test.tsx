@@ -12,7 +12,8 @@ describe("AIChatbot component (TDD)", () => {
         return {
           ok: true,
           json: async () => ({
-            reply: "Haven helps you discover homes by architectural style, flood risk, and sunlight.",
+            reply:
+              "Haven helps you discover homes by architectural style, flood risk, and sunlight.",
             source: "gemini",
           }),
         };
@@ -27,21 +28,29 @@ describe("AIChatbot component (TDD)", () => {
 
   it("renders the floating trigger button in closed state", () => {
     render(<AIChatbot />);
-    const triggerBtn = screen.getByRole("button", { name: /open ai chat|ask haven ai/i });
+    const triggerBtn = screen.getByRole("button", {
+      name: /open ai chat|ask haven ai/i,
+    });
     expect(triggerBtn).toBeInTheDocument();
-    expect(screen.queryByRole("dialog", { name: /haven ai assistant/i })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("dialog", { name: /haven ai assistant/i }),
+    ).not.toBeInTheDocument();
   });
 
   it("opens the chat panel when the trigger button is clicked", async () => {
     const user = userEvent.setup();
     render(<AIChatbot />);
 
-    const triggerBtn = screen.getByRole("button", { name: /open ai chat|ask haven ai/i });
+    const triggerBtn = screen.getByRole("button", {
+      name: /open ai chat|ask haven ai/i,
+    });
     await user.click(triggerBtn);
 
     const dialog = screen.getByRole("dialog", { name: /haven ai assistant/i });
     expect(dialog).toBeInTheDocument();
-    expect(screen.getByText(/kia ora|hello! i'm your haven ai assistant/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/kia ora|hello! i'm your haven ai assistant/i),
+    ).toBeInTheDocument();
   });
 
   it("sends a message and displays the response", async () => {
@@ -49,7 +58,9 @@ describe("AIChatbot component (TDD)", () => {
     render(<AIChatbot />);
 
     // Open chat
-    await user.click(screen.getByRole("button", { name: /open ai chat|ask haven ai/i }));
+    await user.click(
+      screen.getByRole("button", { name: /open ai chat|ask haven ai/i }),
+    );
 
     const input = screen.getByRole("textbox", { name: /ask a question/i });
     const sendBtn = screen.getByRole("button", { name: /send/i });
@@ -58,9 +69,13 @@ describe("AIChatbot component (TDD)", () => {
     await user.click(sendBtn);
 
     await waitFor(() => {
-      expect(screen.getByText(/tell me about architectural styles/i)).toBeInTheDocument();
       expect(
-        screen.getByText(/haven helps you discover homes by architectural style/i),
+        screen.getByText(/tell me about architectural styles/i),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText(
+          /haven helps you discover homes by architectural style/i,
+        ),
       ).toBeInTheDocument();
     });
   });
@@ -69,13 +84,19 @@ describe("AIChatbot component (TDD)", () => {
     const user = userEvent.setup();
     render(<AIChatbot />);
 
-    await user.click(screen.getByRole("button", { name: /open ai chat|ask haven ai/i }));
+    await user.click(
+      screen.getByRole("button", { name: /open ai chat|ask haven ai/i }),
+    );
 
-    const suggestion = screen.getByRole("button", { name: /what is a lim report\?/i });
+    const suggestion = screen.getByRole("button", {
+      name: /what is a lim report\?/i,
+    });
     await user.click(suggestion);
 
     await waitFor(() => {
-      expect(screen.getAllByText(/what is a lim report\?/i).length).toBeGreaterThanOrEqual(2);
+      expect(
+        screen.getAllByText(/what is a lim report\?/i).length,
+      ).toBeGreaterThanOrEqual(2);
     });
   });
 
@@ -83,13 +104,19 @@ describe("AIChatbot component (TDD)", () => {
     const user = userEvent.setup();
     render(<AIChatbot />);
 
-    await user.click(screen.getByRole("button", { name: /open ai chat|ask haven ai/i }));
-    expect(screen.getByRole("dialog", { name: /haven ai assistant/i })).toBeInTheDocument();
+    await user.click(
+      screen.getByRole("button", { name: /open ai chat|ask haven ai/i }),
+    );
+    expect(
+      screen.getByRole("dialog", { name: /haven ai assistant/i }),
+    ).toBeInTheDocument();
 
     const closeBtn = screen.getByRole("button", { name: /close chat/i });
     await user.click(closeBtn);
 
-    expect(screen.queryByRole("dialog", { name: /haven ai assistant/i })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("dialog", { name: /haven ai assistant/i }),
+    ).not.toBeInTheDocument();
   });
 
   it("displays context indicator and sends property context when compared homes exist", async () => {
@@ -97,16 +124,19 @@ describe("AIChatbot component (TDD)", () => {
       message?: string;
       context?: { comparedProperties?: Array<{ address: string }> };
     } | null = null;
-    global.fetch = vi.fn().mockImplementation(async (_url: string, init?: RequestInit) => {
-      capturedBody = JSON.parse(String(init?.body));
-      return {
-        ok: true,
-        json: async () => ({
-          reply: "Both homes look great. Hardington Street has better sunlight.",
-          source: "gemini",
-        }),
-      };
-    });
+    global.fetch = vi
+      .fn()
+      .mockImplementation(async (_url: string, init?: RequestInit) => {
+        capturedBody = JSON.parse(String(init?.body));
+        return {
+          ok: true,
+          json: async () => ({
+            reply:
+              "Both homes look great. Hardington Street has better sunlight.",
+            source: "gemini",
+          }),
+        };
+      });
 
     const mockCompared = [
       {
@@ -134,13 +164,17 @@ describe("AIChatbot component (TDD)", () => {
     const user = userEvent.setup();
     render(<AIChatbot initialComparedProperties={mockCompared} />);
 
-    await user.click(screen.getByRole("button", { name: /open ai chat|ask haven ai/i }));
+    await user.click(
+      screen.getByRole("button", { name: /open ai chat|ask haven ai/i }),
+    );
 
     // Verify context indicator banner is displayed
-    expect(screen.getByText(/context active: 2 compared/i)).toBeInTheDocument();
+    expect(screen.getByText(/2 compared/i)).toBeInTheDocument();
 
     // Verify dynamic suggestion button appears
-    const compareSuggestion = screen.getByRole("button", { name: /compare my selected homes/i });
+    const compareSuggestion = screen.getByRole("button", {
+      name: /compare my selected homes/i,
+    });
     expect(compareSuggestion).toBeInTheDocument();
     await user.click(compareSuggestion);
 
@@ -150,7 +184,9 @@ describe("AIChatbot component (TDD)", () => {
         context?: { comparedProperties?: Array<{ address: string }> };
       };
       expect(body?.context?.comparedProperties).toHaveLength(2);
-      expect(body?.context?.comparedProperties?.[0].address).toBe("2/30 Hardington Street");
+      expect(body?.context?.comparedProperties?.[0].address).toBe(
+        "2/30 Hardington Street",
+      );
       expect(screen.getByText(/both homes look great/i)).toBeInTheDocument();
     });
   });
@@ -159,7 +195,9 @@ describe("AIChatbot component (TDD)", () => {
     const user = userEvent.setup();
     render(<AIChatbot />);
 
-    await user.click(screen.getByRole("button", { name: /open ai chat|ask haven ai/i }));
+    await user.click(
+      screen.getByRole("button", { name: /open ai chat|ask haven ai/i }),
+    );
 
     const input = screen.getByRole("textbox", { name: /ask a question/i });
     const sendBtn = screen.getByRole("button", { name: /send/i });
@@ -169,7 +207,9 @@ describe("AIChatbot component (TDD)", () => {
     await user.click(sendBtn);
 
     await waitFor(() => {
-      expect(screen.getByText(/first question: tell me about lim/i)).toBeInTheDocument();
+      expect(
+        screen.getByText(/first question: tell me about lim/i),
+      ).toBeInTheDocument();
     });
 
     // Question 2
@@ -177,8 +217,12 @@ describe("AIChatbot component (TDD)", () => {
     await user.click(sendBtn);
 
     await waitFor(() => {
-      expect(screen.getByText(/first question: tell me about lim/i)).toBeInTheDocument();
-      expect(screen.getByText(/second question: how about flood risk\?/i)).toBeInTheDocument();
+      expect(
+        screen.getByText(/first question: tell me about lim/i),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText(/second question: how about flood risk\?/i),
+      ).toBeInTheDocument();
     });
   });
 
@@ -191,7 +235,9 @@ describe("AIChatbot component (TDD)", () => {
     const user = userEvent.setup();
     render(<AIChatbot />);
 
-    await user.click(screen.getByRole("button", { name: /open ai chat|ask haven ai/i }));
+    await user.click(
+      screen.getByRole("button", { name: /open ai chat|ask haven ai/i }),
+    );
 
     const input = screen.getByRole("textbox", { name: /ask a question/i });
     const sendBtn = screen.getByRole("button", { name: /send/i });
@@ -200,18 +246,26 @@ describe("AIChatbot component (TDD)", () => {
     await user.click(sendBtn);
 
     await waitFor(() => {
-      expect(screen.getByText(/service is currently unavailable\. please try again\./i)).toBeInTheDocument();
+      expect(
+        screen.getByText(
+          /service is currently unavailable\. please try again\./i,
+        ),
+      ).toBeInTheDocument();
     });
   });
 
-  it("displays 'Powered by Gemini' in the header and removes source tags from message bubbles", async () => {
+  it("shows the assistant identity without repeated provider tags", async () => {
     const user = userEvent.setup();
     render(<AIChatbot />);
 
-    await user.click(screen.getByRole("button", { name: /open ai chat|ask haven ai/i }));
+    await user.click(
+      screen.getByRole("button", { name: /open ai chat|ask haven ai/i }),
+    );
 
     // Header has Powered by Gemini
-    expect(screen.getByText("Powered by Gemini")).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Haven AI Assistant" }),
+    ).toBeInTheDocument();
     expect(screen.queryByText("Online Helpdesk")).not.toBeInTheDocument();
 
     // Source tags are not in message bubbles
@@ -229,9 +283,11 @@ describe("AIChatbot component (TDD)", () => {
     }));
 
     const user = userEvent.setup();
-    const { container } = render(<AIChatbot />);
+    render(<AIChatbot />);
 
-    await user.click(screen.getByRole("button", { name: /open ai chat|ask haven ai/i }));
+    await user.click(
+      screen.getByRole("button", { name: /open ai chat|ask haven ai/i }),
+    );
 
     const input = screen.getByRole("textbox", { name: /ask a question/i });
     const sendBtn = screen.getByRole("button", { name: /send/i });
@@ -241,14 +297,15 @@ describe("AIChatbot component (TDD)", () => {
 
     await waitFor(() => {
       expect(screen.getByText("$232,000")).toBeInTheDocument();
-      const boldElement = container.querySelector("strong");
+      const boldElement = screen.getByRole("dialog").querySelector("strong");
       expect(boldElement).not.toBeNull();
       expect(boldElement?.textContent).toBe("$232,000");
     });
   });
 
   it("loads user-specific chat history when signed in and isolates from guest users", async () => {
-    const { AccountWorkspaceProvider } = await import("../app/components/account-workspace-provider");
+    const { AccountWorkspaceProvider } =
+      await import("../app/components/account-workspace-provider");
     global.fetch = vi.fn().mockImplementation(async (url: string) => {
       if (typeof url === "string" && url.includes("/api/account/workspace")) {
         return {
@@ -261,8 +318,16 @@ describe("AIChatbot component (TDD)", () => {
               propertyNotes: {},
               destinations: [],
               chatHistory: [
-                { role: "user", text: "My private historical question", time: "10:15" },
-                { role: "model", text: "My private historical answer", time: "10:16" },
+                {
+                  role: "user",
+                  text: "My private historical question",
+                  time: "10:15",
+                },
+                {
+                  role: "model",
+                  text: "My private historical answer",
+                  time: "10:16",
+                },
               ],
             },
           }),
@@ -275,12 +340,18 @@ describe("AIChatbot component (TDD)", () => {
     render(
       <AccountWorkspaceProvider>
         <AIChatbot />
-      </AccountWorkspaceProvider>
+      </AccountWorkspaceProvider>,
     );
 
-    await user.click(await screen.findByRole("button", { name: /open ai chat|ask haven ai/i }));
-    expect(await screen.findByText("My private historical question")).toBeInTheDocument();
-    expect(screen.getByText("My private historical answer")).toBeInTheDocument();
+    await user.click(
+      await screen.findByRole("button", { name: /open ai chat|ask haven ai/i }),
+    );
+    expect(
+      await screen.findByText("My private historical question"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("My private historical answer"),
+    ).toBeInTheDocument();
   });
 
   it("allows uploading a LIM PDF report, shows badge, sends context, and allows removal", async () => {
@@ -289,34 +360,42 @@ describe("AIChatbot component (TDD)", () => {
       context?: { limReport?: { filename: string; text: string } };
     } | null = null;
 
-    global.fetch = vi.fn().mockImplementation(async (url: string, init?: RequestInit) => {
-      if (typeof url === "string" && url.includes("/api/chatbot/upload-lim")) {
-        return {
-          ok: true,
-          json: async () => ({
-            filename: "12-queen-street-lim.pdf",
-            pageCount: 4,
-            text: "Auckland Council LIM: Consents approved, no flood plain.",
-          }),
-        };
-      }
-      if (typeof url === "string" && url.includes("/api/chatbot")) {
-        capturedBody = JSON.parse(String(init?.body));
-        return {
-          ok: true,
-          json: async () => ({
-            reply: "LIM analysis: Building consents are approved with Code Compliance Certificates.",
-            source: "gemini",
-          }),
-        };
-      }
-      return { ok: false, status: 404 };
-    });
+    global.fetch = vi
+      .fn()
+      .mockImplementation(async (url: string, init?: RequestInit) => {
+        if (
+          typeof url === "string" &&
+          url.includes("/api/chatbot/upload-lim")
+        ) {
+          return {
+            ok: true,
+            json: async () => ({
+              filename: "12-queen-street-lim.pdf",
+              pageCount: 4,
+              text: "Auckland Council LIM: Consents approved, no flood plain.",
+            }),
+          };
+        }
+        if (typeof url === "string" && url.includes("/api/chatbot")) {
+          capturedBody = JSON.parse(String(init?.body));
+          return {
+            ok: true,
+            json: async () => ({
+              reply:
+                "LIM analysis: Building consents are approved with Code Compliance Certificates.",
+              source: "gemini",
+            }),
+          };
+        }
+        return { ok: false, status: 404 };
+      });
 
     const user = userEvent.setup();
     render(<AIChatbot />);
 
-    await user.click(screen.getByRole("button", { name: /open ai chat|ask haven ai/i }));
+    await user.click(
+      screen.getByRole("button", { name: /open ai chat|ask haven ai/i }),
+    );
 
     const fileInput = screen.getByLabelText(/upload lim report file/i);
     const testFile = new File(["%PDF-sample"], "12-queen-street-lim.pdf", {
@@ -328,12 +407,14 @@ describe("AIChatbot component (TDD)", () => {
     // Verify LIM badge is visible
     await waitFor(() => {
       expect(screen.getByText("12-queen-street-lim.pdf")).toBeInTheDocument();
-      expect(screen.getByText("(4 pgs)")).toBeInTheDocument();
+      expect(screen.getByText("4 pages")).toBeInTheDocument();
     });
 
     // Verify LIM quick suggestion prompt appears
     expect(
-      screen.getByRole("button", { name: /summarize key findings in this lim/i })
+      screen.getByRole("button", {
+        name: /summarize key findings in this lim/i,
+      }),
     ).toBeInTheDocument();
 
     // Send a message and check that context.limReport is passed in request
@@ -344,16 +425,23 @@ describe("AIChatbot component (TDD)", () => {
 
     await waitFor(() => {
       expect(capturedBody).toBeDefined();
-      expect(capturedBody?.context?.limReport?.filename).toBe("12-queen-street-lim.pdf");
-      expect(capturedBody?.context?.limReport?.text).toContain("Consents approved");
-      expect(screen.getByText(/building consents are approved/i)).toBeInTheDocument();
+      expect(capturedBody?.context?.limReport?.filename).toBe(
+        "12-queen-street-lim.pdf",
+      );
+      expect(capturedBody?.context?.limReport?.text).toContain(
+        "Consents approved",
+      );
+      expect(
+        screen.getByText(/building consents are approved/i),
+      ).toBeInTheDocument();
     });
 
     // Test removing the LIM report
-    const removeBtn = screen.getByRole("button", { name: /remove lim report/i });
+    const removeBtn = screen.getByRole("button", {
+      name: /remove lim report/i,
+    });
     await user.click(removeBtn);
 
-    expect(screen.queryByText("(4 pgs)")).not.toBeInTheDocument();
+    expect(screen.queryByText("4 pages")).not.toBeInTheDocument();
   });
 });
-

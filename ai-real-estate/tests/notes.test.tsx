@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -15,7 +15,9 @@ describe("Notes and Profile Components", () => {
   describe("UserNotes", () => {
     it("renders empty state initially", async () => {
       render(<UserNotes />);
-      expect(await screen.findByText(/No general notes yet/i)).toBeInTheDocument();
+      expect(
+        await screen.findByText(/No general notes yet/i),
+      ).toBeInTheDocument();
       expect(screen.getByText(/0 notes/i)).toBeInTheDocument();
     });
 
@@ -25,17 +27,28 @@ describe("Notes and Profile Components", () => {
 
       const titleInput = await screen.findByPlaceholderText(/Note title/i);
       const contentInput = screen.getByPlaceholderText(/Write your note here/i);
-      const submitButton = screen.getByRole("button", { name: /Add General Note/i });
+      const submitButton = screen.getByRole("button", {
+        name: /Add General Note/i,
+      });
 
       await user.type(titleInput, "Auckland Suburbs to Watch");
-      await user.type(contentInput, "Check out Grey Lynn and Onehunga auctions.");
+      await user.type(
+        contentInput,
+        "Check out Grey Lynn and Onehunga auctions.",
+      );
       await user.click(submitButton);
 
-      expect(await screen.findByText("Auckland Suburbs to Watch")).toBeInTheDocument();
-      expect(screen.getByText("Check out Grey Lynn and Onehunga auctions.")).toBeInTheDocument();
+      expect(
+        await screen.findByText("Auckland Suburbs to Watch"),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText("Check out Grey Lynn and Onehunga auctions."),
+      ).toBeInTheDocument();
       expect(screen.getByText(/1 note/i)).toBeInTheDocument();
 
-      const stored = JSON.parse(localStorage.getItem("general_user_notes") || "[]");
+      const stored = JSON.parse(
+        localStorage.getItem("general_user_notes") || "[]",
+      );
       expect(stored).toHaveLength(1);
       expect(stored[0].title).toBe("Auckland Suburbs to Watch");
     });
@@ -50,7 +63,7 @@ describe("Notes and Profile Components", () => {
             content: "Original Content",
             createdAt: "19 Oct 2026",
           },
-        ])
+        ]),
       );
 
       const user = userEvent.setup();
@@ -73,7 +86,9 @@ describe("Notes and Profile Components", () => {
       expect(await screen.findByText("Updated Title")).toBeInTheDocument();
       expect(screen.getByText("Updated Content")).toBeInTheDocument();
 
-      const stored = JSON.parse(localStorage.getItem("general_user_notes") || "[]");
+      const stored = JSON.parse(
+        localStorage.getItem("general_user_notes") || "[]",
+      );
       expect(stored[0].title).toBe("Updated Title");
     });
 
@@ -87,7 +102,7 @@ describe("Notes and Profile Components", () => {
             content: "Going away soon",
             createdAt: "19 Oct 2026",
           },
-        ])
+        ]),
       );
 
       const user = userEvent.setup();
@@ -101,7 +116,9 @@ describe("Notes and Profile Components", () => {
         expect(screen.queryByText("Delete Me")).not.toBeInTheDocument();
       });
 
-      const stored = JSON.parse(localStorage.getItem("general_user_notes") || "[]");
+      const stored = JSON.parse(
+        localStorage.getItem("general_user_notes") || "[]",
+      );
       expect(stored).toHaveLength(0);
     });
   });
@@ -112,14 +129,16 @@ describe("Notes and Profile Components", () => {
         <PropertyNotes
           propertyId="prop-123"
           propertyTitle="123 Queen Street, Auckland"
-        />
+        />,
       );
 
       expect(
-        await screen.findByText(/My Notes for 123 Queen Street, Auckland/i)
+        await screen.findByRole("region", {
+          name: "Notes for 123 Queen Street, Auckland",
+        }),
       ).toBeInTheDocument();
       expect(
-        screen.getByText(/No notes for this property yet/i)
+        screen.getByText(/No notes for this property yet/i),
       ).toBeInTheDocument();
     });
 
@@ -129,24 +148,37 @@ describe("Notes and Profile Components", () => {
         <PropertyNotes
           propertyId="prop-123"
           propertyTitle="123 Queen Street"
-        />
+        />,
       );
 
-      const inspectionTag = await screen.findByRole("button", { name: "Inspection" });
+      const inspectionTag = await screen.findByRole("radio", {
+        name: "Inspection",
+      });
       await user.click(inspectionTag);
 
       const textarea = screen.getByLabelText("Add note content");
-      const submitBtn = screen.getByRole("button", { name: /Save Property Note/i });
+      const submitBtn = screen.getByRole("button", {
+        name: /Save Property Note/i,
+      });
 
-      await user.type(textarea, "Roof looks newly painted, ask for code compliance certificate.");
+      await user.type(
+        textarea,
+        "Roof looks newly painted, ask for code compliance certificate.",
+      );
       await user.click(submitBtn);
 
       expect(
-        await screen.findByText("Roof looks newly painted, ask for code compliance certificate.")
+        await screen.findByText(
+          "Roof looks newly painted, ask for code compliance certificate.",
+        ),
       ).toBeInTheDocument();
-      expect(screen.getAllByText("Inspection").length).toBeGreaterThanOrEqual(2);
+      expect(screen.getAllByText("Inspection").length).toBeGreaterThanOrEqual(
+        2,
+      );
 
-      const stored = JSON.parse(localStorage.getItem("property_notes_prop-123") || "[]");
+      const stored = JSON.parse(
+        localStorage.getItem("property_notes_prop-123") || "[]",
+      );
       expect(stored).toHaveLength(1);
       expect(stored[0].category).toBe("Inspection");
       expect(stored[0].content).toContain("code compliance");
@@ -163,21 +195,27 @@ describe("Notes and Profile Components", () => {
             category: "Auction / Offer",
             createdAt: "19 Oct 2026",
           },
-        ])
+        ]),
       );
 
       const user = userEvent.setup();
       render(<PropertyNotes propertyId="prop-456" />);
 
-      expect(await screen.findByText("Check foundation before auction")).toBeInTheDocument();
+      expect(
+        await screen.findByText("Check foundation before auction"),
+      ).toBeInTheDocument();
       const deleteButton = screen.getByRole("button", { name: "Delete" });
       await user.click(deleteButton);
 
       await waitFor(() => {
-        expect(screen.queryByText("Check foundation before auction")).not.toBeInTheDocument();
+        expect(
+          screen.queryByText("Check foundation before auction"),
+        ).not.toBeInTheDocument();
       });
 
-      const stored = JSON.parse(localStorage.getItem("property_notes_prop-456") || "[]");
+      const stored = JSON.parse(
+        localStorage.getItem("property_notes_prop-456") || "[]",
+      );
       expect(stored).toHaveLength(0);
     });
   });
@@ -186,42 +224,54 @@ describe("Notes and Profile Components", () => {
     it("offers account registration and sign in instead of a demo identity", async () => {
       const user = userEvent.setup();
       render(<ProfilePage />);
-      await user.click(screen.getByRole("button", { name: /Account Management/i }));
-      expect(screen.getByRole("button", { name: /Create account/i })).toBeInTheDocument();
-      expect(screen.getByRole("button", { name: /Sign in/i })).toBeInTheDocument();
+      await user.click(await screen.findByRole("tab", { name: /^Account$/i }));
+      expect(
+        screen.getByRole("button", { name: /Create account/i }),
+      ).toBeInTheDocument();
+      expect(screen.getByRole("tab", { name: /Sign in/i })).toBeInTheDocument();
       expect(screen.queryByText("demo_buyer")).not.toBeInTheDocument();
     });
 
     it("registers a buyer and reports the signed-in account", async () => {
       const fetchStub = vi.fn().mockResolvedValue({
         ok: true,
-        json: async () => ({ user: { username: "morgan", email: "morgan@example.nz" } }),
+        json: async () => ({
+          user: { username: "morgan", email: "morgan@example.nz" },
+        }),
       });
       vi.stubGlobal("fetch", fetchStub);
       const user = userEvent.setup();
       render(<ProfilePage />);
-      await user.click(screen.getByRole("button", { name: /Account Management/i }));
+      await user.click(await screen.findByRole("tab", { name: /^Account$/i }));
       await user.type(screen.getByLabelText("Username"), "morgan");
       await user.type(screen.getByLabelText("Email"), "morgan@example.nz");
-      await user.type(screen.getByLabelText("Password"), "long-secret-password");
+      await user.type(
+        screen.getByLabelText("Password"),
+        "long-secret-password",
+      );
       await user.click(screen.getByRole("button", { name: "Create account" }));
-      expect(await screen.findByText(/Signed in as morgan/i)).toBeInTheDocument();
+      expect(
+        await screen.findByText(/Signed in as morgan/i),
+      ).toBeInTheDocument();
     });
     it("renders buyer workspace and switches tabs", async () => {
       const user = userEvent.setup();
       render(<ProfilePage />);
 
-      expect(screen.getByText(/Buyer Workspace/i)).toBeInTheDocument();
-      expect(screen.getByRole("heading", { name: /Account & Notes/i })).toBeInTheDocument();
+      expect(
+        screen.getByRole("heading", { name: /My workspace/i }),
+      ).toBeInTheDocument();
 
       // Default tab is General Notes
-      expect(await screen.findByText(/General Account Notes/i)).toBeInTheDocument();
+      expect(
+        await screen.findByRole("heading", { name: "General notes" }),
+      ).toBeInTheDocument();
 
       // Switch to Account Management tab
-      const accountTab = screen.getByRole("button", { name: /Account Management/i });
+      const accountTab = await screen.findByRole("tab", { name: /^Account$/i });
       await user.click(accountTab);
 
-      expect(screen.getByRole("heading", { name: /Your account/i })).toBeInTheDocument();
+      expect(accountTab).toHaveAttribute("aria-selected", "true");
       expect(screen.getByLabelText(/Email/i)).toBeInTheDocument();
     });
   });

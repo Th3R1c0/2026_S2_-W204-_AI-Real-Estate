@@ -171,6 +171,8 @@ async function getPropertySchoolData(
         if (distKm <= maxRadiusKm) {
           nearby.push({
             schoolId: school.schoolId,
+            latitude: sLat,
+            longitude: sLng,
             name: school.name,
             orgType: school.orgType,
             distanceKm: Math.round(distKm * 100) / 100,
