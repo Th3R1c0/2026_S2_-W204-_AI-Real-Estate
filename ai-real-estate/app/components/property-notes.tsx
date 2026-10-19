@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useAccountWorkspace } from "./account-workspace-provider";
 
 export interface PropertyNote {
   id: string;
@@ -32,25 +33,38 @@ export default function PropertyNotes({ propertyId, propertyTitle }: PropertyNot
   const [editContent, setEditContent] = useState("");
   const [editCategory, setEditCategory] = useState("General");
   const [mounted, setMounted] = useState(false);
+  const account = useAccountWorkspace();
+  const accountStatus = account?.status;
+  const accountUserId = account?.user?.userId;
+  const accountNotes = account?.workspace.propertyNotes;
 
   const storageKey = `property_notes_${propertyId}`;
 
   useEffect(() => {
-    setMounted(true);
-    try {
-      const saved = localStorage.getItem(storageKey);
-      if (saved) {
-        setNotes(JSON.parse(saved));
-      } else {
-        setNotes([]);
+    if (accountStatus === "loading" || accountStatus === "error") return;
+    let active = true;
+    queueMicrotask(() => {
+      if (!active) return;
+      if (accountStatus === "signedIn") setNotes(accountNotes?.[propertyId] ?? []);
+      else {
+        try {
+          const saved = localStorage.getItem(storageKey);
+          setNotes(saved ? JSON.parse(saved) : []);
+        } catch (e) { console.error("Failed to parse property notes:", e); }
       }
-    } catch (e) {
-      console.error("Failed to parse property notes:", e);
-    }
-  }, [storageKey]);
+      setMounted(true);
+    });
+    return () => { active = false; };
+  }, [storageKey, propertyId, accountStatus, accountUserId, accountNotes]);
 
   const saveToStorage = (updatedNotes: PropertyNote[]) => {
     setNotes(updatedNotes);
+    if (account?.status === "signedIn") {
+      void account.save("propertyNotes", { ...account.workspace.propertyNotes, [propertyId]: updatedNotes }).then(ok => {
+        if (!ok) setNotes(account.workspace.propertyNotes[propertyId] ?? []);
+      });
+      return;
+    }
     try {
       localStorage.setItem(storageKey, JSON.stringify(updatedNotes));
     } catch (e) {
@@ -104,18 +118,19 @@ export default function PropertyNotes({ propertyId, propertyTitle }: PropertyNot
     setEditingId(null);
   };
 
-  if (!mounted) {
+  if (!mounted || account?.status === "loading" || account?.status === "error") {
     return <div style={{ padding: "1.5rem 0", color: "var(--muted, #6b7280)" }}>Loading property notes...</div>;
   }
 
   return (
     <div className="property-notes-widget" style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+      {account?.error && <p role="alert">{account.error}</p>}
       <div className="tool-heading">
         <div>
           <p className="eyebrow">Private Buyer Notes</p>
           <h3 style={{ margin: 0 }}>My Notes {propertyTitle ? `for ${propertyTitle}` : ""}</h3>
           <p style={{ margin: "0.25rem 0 0 0", fontSize: "0.85rem", color: "var(--muted, #6f7d76)" }}>
-            Notes are saved privately to your browser for your due diligence and inspection visits.
+            {account?.status === "signedIn" ? "Notes are saved privately to your account." : "Notes are saved privately to your browser for your due diligence and inspection visits."}
           </p>
         </div>
         <span

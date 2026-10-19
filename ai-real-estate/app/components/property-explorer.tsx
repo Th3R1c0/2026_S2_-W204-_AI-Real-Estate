@@ -5,6 +5,7 @@ import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "re
 import MortgageCalculator from "./mortgage-calculator";
 import PropertyNotes from "./property-notes";
 import PropertyLocationMap from "./property-location-map";
+import { useAccountWorkspace } from "./account-workspace-provider";
 
 import {
   filterProperties,
@@ -1662,8 +1663,9 @@ export default function PropertyExplorer({
   const [isSearching, setIsSearching] = useState(false);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [savedIds, setSavedIds] = useState<string[]>([]);
+  const savedIdsRef = useRef<string[]>([]);
   const [destinations, setDestinations] = useState<SavedLocation[]>([]);
-  const [destinationsLoaded, setDestinationsLoaded] = useState(false);
+  const destinationsRef = useRef<SavedLocation[]>([]);
   const [selectedDestinationId, setSelectedDestinationId] = useState("");
   const [maxSavedLocationDistance, setMaxSavedLocationDistance] = useState(5);
   const [comparisonOpen, setComparisonOpen] = useState(false);
@@ -1671,21 +1673,54 @@ export default function PropertyExplorer({
   const [detailId, setDetailId] = useState<string | null>(null);
   const [sourceSelection, setSourceSelection] = useState<SourceSelection | null>(null);
   const [readNotificationIds, setReadNotificationIds] = useState<string[]>([]);
+  const account = useAccountWorkspace();
+  const accountStatus = account?.status;
 
   useEffect(() => {
+    if (account && account.status !== "signedIn" && account.status !== "guest") return;
     let active = true;
     queueMicrotask(() => {
       if (!active) return;
-      setDestinations(readSavedLocations());
-      setDestinationsLoaded(true);
+      if (account?.status === "signedIn") {
+        destinationsRef.current = account.workspace.destinations;
+        savedIdsRef.current = account.workspace.savedPropertyIds;
+        setDestinations(account.workspace.destinations);
+        setSavedIds(account.workspace.savedPropertyIds);
+      } else {
+        const localDestinations = readSavedLocations();
+        destinationsRef.current = localDestinations;
+        setDestinations(localDestinations);
+        try {
+          const saved = JSON.parse(localStorage.getItem("haven_saved_property_ids") ?? "[]");
+          const localSaved = Array.isArray(saved) ? saved.filter((id): id is string => typeof id === "string") : [];
+          savedIdsRef.current = localSaved;
+          setSavedIds(localSaved);
+        } catch { savedIdsRef.current = []; setSavedIds([]); }
+      }
     });
     return () => { active = false; };
-  }, []);
+  // Hydrate only when the signed-in identity changes; workspace writes must not reset local edits.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [accountStatus, account?.user?.userId]);
 
-  useEffect(() => {
-    if (!destinationsLoaded) return;
-    try { localStorage.setItem(commuteStorageKey, JSON.stringify(destinations)); } catch { }
-  }, [destinations, destinationsLoaded]);
+  function persistDestinations(update: React.SetStateAction<SavedLocation[]>) {
+    const next = typeof update === "function" ? update(destinationsRef.current) : update;
+    destinationsRef.current = next;
+    setDestinations(next);
+    if (account?.status === "signedIn") void account.save("destinations", next);
+    else if (!account || account.status === "guest") {
+      try { localStorage.setItem(commuteStorageKey, JSON.stringify(next)); } catch { }
+    }
+  }
+
+  function persistSavedIds(next: string[]) {
+    savedIdsRef.current = next;
+    setSavedIds(next);
+    if (account?.status === "signedIn") void account.save("savedPropertyIds", next);
+    else if (!account || account.status === "guest") {
+      try { localStorage.setItem("haven_saved_property_ids", JSON.stringify(next)); } catch { }
+    }
+  }
 
   const selectedDestination = destinations.find((destination) =>
     destination.id === selectedDestinationId &&
@@ -1761,7 +1796,8 @@ export default function PropertyExplorer({
         sunlightHours: p.sunlightHours,
       }));
 
-      localStorage.setItem("haven_saved_properties", JSON.stringify(summarySaved));
+      if (accountStatus === "signedIn") localStorage.removeItem("haven_saved_properties");
+      else if (!accountStatus || accountStatus === "guest") localStorage.setItem("haven_saved_properties", JSON.stringify(summarySaved));
       localStorage.setItem("haven_compared_properties", JSON.stringify(summaryCompared));
 
       window.dispatchEvent(
@@ -1773,7 +1809,7 @@ export default function PropertyExplorer({
         }),
       );
     } catch {}
-  }, [savedProperties, selectedProperties]);
+  }, [savedProperties, selectedProperties, accountStatus]);
 
   // Real-time search sequence and debounce management
   const searchSeqRef = useRef(0);
@@ -1897,9 +1933,8 @@ export default function PropertyExplorer({
   }
 
   function toggleSave(id: string) {
-    setSavedIds((current) =>
-      current.includes(id) ? current.filter((item) => item !== id) : [...current, id]
-    );
+    const current = savedIdsRef.current;
+    persistSavedIds(current.includes(id) ? current.filter((item) => item !== id) : [...current, id]);
   }
 
   function markNotificationRead(id: string) {
@@ -1921,6 +1956,10 @@ export default function PropertyExplorer({
   }
 
   const unreadCount = notifications.filter((n) => !n.read).length;
+
+  if (account?.status === "loading" || account?.status === "error") {
+    return <main className="site-shell"><p role={account.status === "error" ? "alert" : undefined}>{account.status === "error" ? account.error : "Loading your account..."}</p></main>;
+  }
 
   return (
     <div className="site-shell">
@@ -2941,6 +2980,7 @@ export default function PropertyExplorer({
         <DetailDialog
           comparableSales={comparableSales}
           destinations={destinations}
+          setDestinations={persistDestinations}
           isSaved={savedIds.includes(detailProperty.id)}
           onClose={() => setDetailId(null)}
           onSave={() => toggleSave(detailProperty.id)}
@@ -2948,7 +2988,6 @@ export default function PropertyExplorer({
             setSourceSelection({ source, field, property: detailProperty })
           }
           property={detailProperty}
-          setDestinations={setDestinations}
         />
       )}
 
