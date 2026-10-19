@@ -69,6 +69,7 @@ import { PropertyGridSkeleton } from "./property-skeleton";
 import Link from "next/link";
 import {
   FormEvent,
+  memo,
   useCallback,
   useEffect,
   useMemo,
@@ -204,7 +205,7 @@ async function searchWithApi(query: string): Promise<AiSearchResult> {
   return result;
 }
 
-function PropertyCard({
+const PropertyCard = memo(function PropertyCard({
   property,
   selected,
   isSaved,
@@ -215,10 +216,13 @@ function PropertyCard({
   property: Property;
   selected: boolean;
   isSaved: boolean;
-  onCompare: () => void;
-  onSave: () => void;
+  onCompare: (id: string) => void;
+  onSave: (id: string) => void;
   eager?: boolean;
 }) {
+  const handleCompare = useCallback(() => onCompare(property.id), [onCompare, property.id]);
+  const handleSave = useCallback(() => onSave(property.id), [onSave, property.id]);
+
   return (
     <article className="property-card">
       <Link
@@ -231,8 +235,9 @@ function PropertyCard({
             alt={property.imageAlt}
             className="property-image"
             fill
+            priority={eager}
             loading={eager ? "eager" : "lazy"}
-            sizes="(max-width: 540px) 100vw, (max-width: 900px) 50vw, (max-width: 1200px) 33vw, 25vw"
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 300px"
             src={propertyPhotos(property)[0]}
           />
         </div>
@@ -288,7 +293,7 @@ function PropertyCard({
         }
         aria-pressed={isSaved}
         className={cn("save-button", isSaved && "is-saved")}
-        onClick={onSave}
+        onClick={handleSave}
         type="button"
       >
         <Heart />
@@ -297,13 +302,13 @@ function PropertyCard({
         <Checkbox
           aria-label={`Compare ${property.address}`}
           checked={selected}
-          onCheckedChange={onCompare}
+          onCheckedChange={handleCompare}
         />
         <span>Compare</span>
       </label>
     </article>
   );
-}
+});
 
 function SavedListingsDialog({
   savedProperties,
@@ -649,17 +654,20 @@ export default function PropertyExplorer({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accountStatus, account?.user?.userId]);
 
-  function persistSavedIds(next: string[]) {
-    savedIdsRef.current = next;
-    setSavedIds(next);
-    if (account?.status === "signedIn")
-      void account.save("savedPropertyIds", next);
-    else if (!account || account.status === "guest") {
-      try {
-        localStorage.setItem("haven_saved_property_ids", JSON.stringify(next));
-      } catch {}
-    }
-  }
+  const persistSavedIds = useCallback(
+    (next: string[]) => {
+      savedIdsRef.current = next;
+      setSavedIds(next);
+      if (account?.status === "signedIn")
+        void account.save("savedPropertyIds", next);
+      else if (!account || account.status === "guest") {
+        try {
+          localStorage.setItem("haven_saved_property_ids", JSON.stringify(next));
+        } catch {}
+      }
+    },
+    [account],
+  );
 
   const selectedDestination = destinations.find(
     (destination) =>
@@ -766,6 +774,14 @@ export default function PropertyExplorer({
   // Real-time search sequence and debounce management
   const searchSeqRef = useRef(0);
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+    };
+  }, []);
 
   const availableLocations = useMemo(() => {
     return Array.from(
@@ -875,22 +891,25 @@ export default function PropertyExplorer({
     });
   }
 
-  function toggleCompare(id: string) {
+  const toggleCompare = useCallback((id: string) => {
     setSelectedIds((current) =>
       current.includes(id)
         ? current.filter((item) => item !== id)
         : [...current, id],
     );
-  }
+  }, []);
 
-  function toggleSave(id: string) {
-    const current = savedIdsRef.current;
-    persistSavedIds(
-      current.includes(id)
-        ? current.filter((item) => item !== id)
-        : [...current, id],
-    );
-  }
+  const toggleSave = useCallback(
+    (id: string) => {
+      const current = savedIdsRef.current;
+      persistSavedIds(
+        current.includes(id)
+          ? current.filter((item) => item !== id)
+          : [...current, id],
+      );
+    },
+    [persistSavedIds],
+  );
 
   async function submitAiSearch(event: FormEvent) {
     event.preventDefault();
@@ -2005,8 +2024,8 @@ export default function PropertyExplorer({
                     eager={index < 4}
                     key={property.id}
                     isSaved={savedIds.includes(property.id)}
-                    onCompare={() => toggleCompare(property.id)}
-                    onSave={() => toggleSave(property.id)}
+                    onCompare={toggleCompare}
+                    onSave={toggleSave}
                     property={property}
                     selected={selectedIds.includes(property.id)}
                   />

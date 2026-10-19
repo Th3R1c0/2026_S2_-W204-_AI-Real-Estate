@@ -71,9 +71,12 @@ export default function PropertyGallery({
                     : `${address}, photo ${photoIndex + 1}`
                 }
                 fill
+                priority={photoIndex === 0}
                 loading={photoIndex === 0 ? "eager" : "lazy"}
                 sizes={
-                  photoIndex === 0 ? "(max-width: 700px) 100vw, 50vw" : "25vw"
+                  photoIndex === 0
+                    ? "(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 660px"
+                    : "(max-width: 768px) 50vw, 330px"
                 }
                 src={photo}
               />

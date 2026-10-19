@@ -10,11 +10,19 @@ export function PropertyGridSkeleton() {
       aria-busy="true"
     >
       {Array.from({ length: 8 }, (_, index) => (
-        <div className="property-card-skeleton" key={index}>
-          <Skeleton className="aspect-[1.22] w-full rounded-2xl" />
-          <Skeleton className="mt-4 h-4 w-3/4" />
-          <Skeleton className="mt-2 h-3 w-1/2" />
-          <Skeleton className="mt-3 h-4 w-1/3" />
+        <div className="property-card property-card-skeleton" key={index}>
+          <div className="property-media">
+            <Skeleton className="h-full w-full rounded-[14px]" />
+          </div>
+          <div className="property-body">
+            <Skeleton className="h-4 w-3/4 rounded-sm" />
+            <Skeleton className="mt-1.5 h-3.5 w-1/2 rounded-sm" />
+            <Skeleton className="mt-3 h-3.5 w-2/3 rounded-sm" />
+            <div className="mt-2.5 flex items-center gap-2">
+              <Skeleton className="h-5 w-2/5 rounded-sm" />
+              <Skeleton className="h-4 w-16 rounded-sm" />
+            </div>
+          </div>
         </div>
       ))}
       <span className="sr-only">Loading homes…</span>
@@ -36,16 +44,24 @@ export function PropertyPageSkeleton() {
       <div className="property-page-header">
         <div className="flex-1">
           <p className="property-type-line">Auckland Residence</p>
-          <Skeleton className="h-9 w-2/3" />
-          <Skeleton className="mt-2 h-4 w-1/3" />
+          <Skeleton className="h-9 w-2/3 rounded-lg" />
+          <Skeleton className="mt-2 h-4 w-1/3 rounded-md" />
         </div>
         <div className="property-page-price-block">
           <span className="property-page-price-label">Indicative Value</span>
-          <Skeleton className="h-7 w-32" />
+          <Skeleton className="h-7 w-32 rounded-md" />
         </div>
       </div>
 
-      <Skeleton className="mb-8 h-[380px] w-full rounded-2xl" />
+      <div className="property-mosaic-section">
+        <div className="property-mosaic-grid">
+          <Skeleton className="mosaic-main-item h-full w-full" />
+          <Skeleton className="mosaic-sub-item h-full w-full" />
+          <Skeleton className="mosaic-sub-item h-full w-full" />
+          <Skeleton className="mosaic-sub-item h-full w-full" />
+          <Skeleton className="mosaic-sub-item h-full w-full" />
+        </div>
+      </div>
 
       <div className="property-page-columns">
         <div className="property-page-left">
@@ -64,7 +80,9 @@ export function PropertyPageSkeleton() {
             <div className="property-map-header">
               <h2>The neighbourhood</h2>
             </div>
-            <Skeleton className="h-[340px] w-full rounded-xl" />
+            <div className="property-location-map">
+              <Skeleton className="h-full w-full rounded-xl" />
+            </div>
           </section>
 
           <section className="property-section-block">
@@ -89,7 +107,7 @@ export function PropertyPageSkeleton() {
           <div className="property-sidebar-card">
             <div className="sidebar-open-homes">
               <h4>Open homes</h4>
-              <Skeleton className="h-12 w-full" />
+              <Skeleton className="h-12 w-full rounded-lg" />
             </div>
           </div>
         </aside>
