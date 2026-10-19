@@ -18,6 +18,6 @@ it("loads saved homes and locations from the signed-in buyer's workspace", async
   }) }));
   render(<AccountWorkspaceProvider><PropertyExplorer properties={aucklandProperties} comparableSales={[]} /></AccountWorkspaceProvider>);
   expect(await screen.findByRole("option", { name: "Sam's work" })).toBeInTheDocument();
-  expect(screen.getByRole("button", { name: /Alerts & Saved \(1\)/i })).toBeInTheDocument();
+  expect(screen.getByRole("button", { name: /Saved Homes \(1\)/i })).toBeInTheDocument();
   expect(screen.queryByRole("option", { name: "Other person's work" })).not.toBeInTheDocument();
 });

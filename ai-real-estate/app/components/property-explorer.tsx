@@ -10,7 +10,6 @@ import { useAccountWorkspace } from "./account-workspace-provider";
 import {
   filterProperties,
   findComparableSales,
-  generateSampleNotifications,
   generateValuationHistory,
 } from "../../lib/property-engine";
 import {
@@ -26,14 +25,18 @@ import type {
   NumericSearchField,
   Property,
   PropertyFilters,
-  PropertyNotification,
   PropertySource,
   PropertySourceField,
   PropertyType,
   SchoolOption,
 } from "../../lib/property-types";
 import { SCHOOL_NEARBY_RADIUS_METRES } from "../../lib/school-data";
-import { straightLineDistanceKm, type SavedLocation } from "../../lib/saved-locations";
+import {
+  commuteStorageKey,
+  readSavedLocations,
+  straightLineDistanceKm,
+  type SavedLocation,
+} from "../../lib/saved-locations";
 
 type AiSearchResult = {
   status: "ready" | "needs-clarification";
@@ -54,7 +57,6 @@ type DetailTab =
   | "overview"
   | "flood"
   | "comps"
-  | "sunlight"
   | "family"
   | "commute"
   | "mortgage"
@@ -127,24 +129,8 @@ function formatNumericFilter(field: NumericSearchField, range: NumericCriterion)
   if (range.max !== undefined) return `${label} ≤ ${format(range.max)}`;
   return label;
 }
-const commuteStorageKey = "ai-real-estate-commute-destinations";
+
 let nextLocationLookupAt = 0;
-function readSavedLocations(): SavedLocation[] {
-  try {
-    const parsed: unknown = JSON.parse(localStorage.getItem(commuteStorageKey) ?? "[]");
-    if (!Array.isArray(parsed)) return [];
-    return parsed.filter((item) => item && typeof item.name === "string" && typeof item.address === "string")
-      .slice(0, 3)
-      .map((item, index) => ({
-        id: typeof item.id === "string" ? item.id : `legacy-${index}`,
-        name: item.name,
-        address: item.address,
-        ...(Number.isFinite(item.latitude) && Number.isFinite(item.longitude)
-          ? { latitude: item.latitude, longitude: item.longitude }
-          : {}),
-      }));
-  } catch { return []; }
-}
 const commuteModes: Array<{ id: CommuteMode; label: string }> = [
   { id: "driving", label: "Driving" },
   { id: "transit", label: "Public transport" },
@@ -161,6 +147,7 @@ function CommutePlanner({ property, destinations, setDestinations }: {
   destinations: SavedLocation[];
   setDestinations: React.Dispatch<React.SetStateAction<SavedLocation[]>>;
 }) {
+  const account = useAccountWorkspace();
   const [mode, setMode] = useState<CommuteMode>("driving");
   const [locatingIndex, setLocatingIndex] = useState<number | null>(null);
   const [locationError, setLocationError] = useState("");
@@ -305,7 +292,9 @@ function CommutePlanner({ property, destinations, setDestinations }: {
       </button>
       {locationError && <p role="alert">{locationError}</p>}
       <p className="disclaimer">
-        Saved on this device. Address lookup and map tiles use OpenStreetMap;
+        {account?.status === "signedIn"
+          ? "Saved privately to your account."
+          : "Saved on this device."} Address lookup and map tiles use OpenStreetMap;
         Google Maps opens route directions. Distances shown here are straight-line estimates.
       </p>
     </div>
@@ -494,7 +483,7 @@ function PropertyCard({
           <span className="style-badge">{property.architecturalStyle}</span>
         ) : null}
         <button
-          aria-label={isSaved ? "Remove from saved listings" : "Save property"}
+          aria-label={isSaved ? `Remove ${property.address} from saved listings` : `Save ${property.address}`}
           className={`save-button ${isSaved ? "is-saved" : ""}`}
           onClick={onSave}
           type="button"
@@ -565,16 +554,11 @@ function PropertyCard({
           </span>
         </div>
         <div className="card-footer">
-          <div className="sun-chip">
-            <Icon name="sun" size={15} />
-            {property.sunlightHours === undefined
-              ? "Sunlight not provided"
-              : `${property.sunlightHours} hrs sunlight`}
-          </div>
           <button
             aria-label={`View details for ${property.address}`}
             className="icon-button"
             onClick={onOpen}
+            style={{ marginLeft: "auto" }}
             type="button"
           >
             <Icon name="arrow" />
@@ -587,25 +571,19 @@ function PropertyCard({
 
 function SavedListingsDialog({
   savedProperties,
-  notifications,
   onClose,
   onRemoveSave,
   onOpenDetail,
-  onMarkNotificationRead,
 }: {
   savedProperties: Property[];
-  notifications: PropertyNotification[];
   onClose: () => void;
   onRemoveSave: (id: string) => void;
   onOpenDetail: (id: string) => void;
-  onMarkNotificationRead: (id: string) => void;
 }) {
-  const [activeTab, setActiveTab] = useState<"listings" | "notifications">("listings");
-
   return (
     <div className="modal-backdrop" role="presentation">
       <section
-        aria-label="Saved listings and notifications dashboard"
+        aria-label="Saved listings dashboard"
         aria-modal="true"
         className="modal comparison-modal"
         role="dialog"
@@ -613,8 +591,8 @@ function SavedListingsDialog({
       >
         <div className="modal-header">
           <div>
-            <p className="eyebrow">Your Shortlist & Alerts</p>
-            <h2>Saved Listings & Notifications</h2>
+            <p className="eyebrow">Your Shortlist</p>
+            <h2>Saved Listings ({savedProperties.length})</h2>
           </div>
           <button
             aria-label="Close saved listings"
@@ -625,135 +603,60 @@ function SavedListingsDialog({
             <Icon name="close" />
           </button>
         </div>
-        <div className="comparison-toolbar" style={{ display: "flex", gap: "1rem" }}>
-          <button
-            className={`detail-tabs button ${activeTab === "listings" ? "active" : ""}`}
-            onClick={() => setActiveTab("listings")}
-            style={{
-              padding: "0.5rem 1rem",
-              fontWeight: activeTab === "listings" ? "bold" : "normal",
-              borderBottom: activeTab === "listings" ? "2px solid currentColor" : "none",
-              background: "none",
-              cursor: "pointer",
-            }}
-            type="button"
-          >
-            Saved Homes ({savedProperties.length})
-          </button>
-          <button
-            className={`detail-tabs button ${activeTab === "notifications" ? "active" : ""}`}
-            onClick={() => setActiveTab("notifications")}
-            style={{
-              padding: "0.5rem 1rem",
-              fontWeight: activeTab === "notifications" ? "bold" : "normal",
-              borderBottom: activeTab === "notifications" ? "2px solid currentColor" : "none",
-              background: "none",
-              cursor: "pointer",
-            }}
-            type="button"
-          >
-            Notifications ({notifications.filter((n) => !n.read).length} unread)
-          </button>
-        </div>
         <div className="comparison-scroll" style={{ padding: "1rem 0" }}>
-          {activeTab === "listings" ? (
-            savedProperties.length > 0 ? (
-              <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-                {savedProperties.map((prop) => (
-                  <div
-                    key={prop.id}
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      padding: "0.75rem",
-                      border: "1px solid var(--border-color, #e5e7eb)",
-                      borderRadius: "8px",
-                    }}
-                  >
-                    <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
-                      <div style={{ position: "relative", width: "60px", height: "60px", borderRadius: "6px", overflow: "hidden" }}>
-                        <Image alt={prop.imageAlt} fill sizes="60px" src={prop.image} />
-                      </div>
-                      <div>
-                        <strong>{prop.address}</strong>
-                        <p style={{ margin: "0.2rem 0", fontSize: "0.85rem", opacity: 0.8 }}>
-                          {prop.suburb} · {formatMoney(prop.price)}
-                        </p>
-                      </div>
+          {savedProperties.length > 0 ? (
+            <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+              {savedProperties.map((prop) => (
+                <div
+                  key={prop.id}
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    padding: "0.75rem",
+                    border: "1px solid var(--border-color, #e5e7eb)",
+                    borderRadius: "8px",
+                  }}
+                >
+                  <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
+                    <div style={{ position: "relative", width: "60px", height: "60px", borderRadius: "6px", overflow: "hidden" }}>
+                      <Image alt={prop.imageAlt} fill sizes="60px" src={prop.image} />
                     </div>
-                    <div style={{ display: "flex", gap: "0.5rem" }}>
-                      <button
-                        className="button"
-                        onClick={() => {
-                          onClose();
-                          onOpenDetail(prop.id);
-                        }}
-                        type="button"
-                        style={{ padding: "0.4rem 0.8rem", fontSize: "0.85rem", cursor: "pointer" }}
-                      >
-                        View
-                      </button>
-                      <button
-                        className="button"
-                        onClick={() => onRemoveSave(prop.id)}
-                        type="button"
-                        style={{ padding: "0.4rem 0.8rem", fontSize: "0.85rem", background: "#fee2e2", color: "#b91c1c", border: "none", cursor: "pointer", borderRadius: "4px" }}
-                      >
-                        Remove
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="empty-inline" style={{ textAlign: "center", padding: "2rem" }}>
-                <p>You haven&apos;t saved any listings yet. Click the heart icon on any property card to save it here.</p>
-              </div>
-            )
-          ) : (
-            notifications.length > 0 ? (
-              <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-                {notifications.map((notif) => (
-                  <div
-                    key={notif.id}
-                    style={{
-                      padding: "1rem",
-                      borderRadius: "8px",
-                      border: "1px solid var(--border-color, #e5e7eb)",
-                      background: notif.read ? "transparent" : "rgba(59, 130, 246, 0.05)",
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "flex-start",
-                    }}
-                  >
                     <div>
-                      <div style={{ display: "flex", gap: "0.5rem", alignItems: "center", marginBottom: "0.25rem" }}>
-                        <span style={{ fontSize: "0.75rem", fontWeight: "600", padding: "0.1rem 0.4rem", borderRadius: "4px", background: "#e0e7ff", color: "#3730a3" }}>
-                          {notif.type.replace("_", " ").toUpperCase()}
-                        </span>
-                        <small style={{ opacity: 0.7 }}>{notif.date}</small>
-                      </div>
-                      <h4 style={{ margin: "0.2rem 0", fontSize: "0.95rem" }}>{notif.title}</h4>
-                      <p style={{ margin: 0, fontSize: "0.85rem", opacity: 0.85 }}>{notif.message}</p>
+                      <strong>{prop.address}</strong>
+                      <p style={{ margin: "0.2rem 0", fontSize: "0.85rem", opacity: 0.8 }}>
+                        {prop.suburb} · {formatMoney(prop.price)}
+                      </p>
                     </div>
-                    {!notif.read && (
-                      <button
-                        onClick={() => onMarkNotificationRead(notif.id)}
-                        type="button"
-                        style={{ fontSize: "0.75rem", background: "none", border: "none", color: "#2563eb", cursor: "pointer", textDecoration: "underline" }}
-                      >
-                        Mark read
-                      </button>
-                    )}
                   </div>
-                ))}
-              </div>
-            ) : (
-              <div className="empty-inline" style={{ textAlign: "center", padding: "2rem" }}>
-                <p>No notifications at this time. Updates for your saved properties will appear here.</p>
-              </div>
-            )
+                  <div style={{ display: "flex", gap: "0.5rem" }}>
+                    <button
+                      className="button"
+                      onClick={() => {
+                        onClose();
+                        onOpenDetail(prop.id);
+                      }}
+                      type="button"
+                      style={{ padding: "0.4rem 0.8rem", fontSize: "0.85rem", cursor: "pointer" }}
+                    >
+                      View
+                    </button>
+                    <button
+                      className="button"
+                      onClick={() => onRemoveSave(prop.id)}
+                      type="button"
+                      style={{ padding: "0.4rem 0.8rem", fontSize: "0.85rem", background: "#fee2e2", color: "#b91c1c", border: "none", cursor: "pointer", borderRadius: "4px" }}
+                    >
+                      Remove
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="empty-inline" style={{ textAlign: "center", padding: "2rem" }}>
+              <p>You haven&apos;t saved any listings yet. Click the heart icon on any property card to save it here.</p>
+            </div>
           )}
         </div>
       </section>
@@ -787,9 +690,6 @@ function ComparisonDialog({
               .map(({ label }) => label)
               .join(", ")
           : "No mapped intersection",
-    ),
-    Sunlight: properties.map(({ sunlightHours }) =>
-      sunlightHours === undefined ? "N/A" : `${sunlightHours} hrs/day`
     ),
     Walkability: properties.map(({ walkability }) =>
       walkability?.score === undefined ? "N/A" : `${walkability.score}/100`
@@ -938,10 +838,6 @@ function DetailDialog({
 
   const compResult = postgisComps ?? fallbackCompResult;
   const historyData = useMemo(() => generateValuationHistory(property), [property]);
-  const sunlightScore =
-    property.sunlightHours === undefined
-      ? undefined
-      : Math.min(100, Math.round((property.sunlightHours / 9) * 100));
   const nearbySchoolTypes = Array.from(
     new Set((property.nearbySchools ?? []).map(({ orgType }) => orgType)),
   ).sort((a, b) => a.localeCompare(b));
@@ -952,7 +848,6 @@ function DetailDialog({
     { id: "overview", label: "Overview" },
     { id: "flood", label: "Flood risk" },
     { id: "comps", label: "Comparable sales" },
-    { id: "sunlight", label: "Sunlight" },
     { id: "family", label: "Schools & Walkability" },
     { id: "commute", label: "Commute" },
     { id: "mortgage", label: "Mortgage" },
@@ -1144,9 +1039,6 @@ function DetailDialog({
                             .map(({ label }) => label)
                             .join(", ")}`
                         : undefined,
-                      property.sunlightHours === undefined
-                        ? undefined
-                        : `${property.sunlightHours} estimated sunlight hours`,
                     ]
                       .filter(Boolean)
                       .join("; ") || "Additional property details are not available yet."}
@@ -1274,49 +1166,6 @@ function DetailDialog({
               <p className="disclaimer">
                 Demo comparable sales are indicative only and are not a registered valuation.
               </p>
-            </div>
-          )}
-
-          {tab === "sunlight" && (
-            <div className="sunlight-panel">
-              <div className="sun-orbit">
-                <div className="sun-core">
-                  <Icon name="sun" size={38} />
-                </div>
-              </div>
-              <div className="sunlight-copy">
-                <p className="eyebrow">Estimated daily exposure</p>
-                <h3>
-                  {property.sunlightHours === undefined
-                    ? "Sunlight estimate not provided"
-                    : `${property.sunlightHours} hours/day`}
-                </h3>
-                <p>
-                  {property.orientation
-                    ? `This ${property.orientation.toLowerCase()}-facing home has an indicative site profile.`
-                    : "Orientation information is not available for this property."}
-                  {sunlightScore === undefined
-                    ? ""
-                    : ` Its demo sunlight score is ${sunlightScore}/100.`}
-                </p>
-                {sunlightScore !== undefined && (
-                  <div className="score-track">
-                    <span style={{ width: `${sunlightScore}%` }} />
-                  </div>
-                )}
-                <div className="sun-facts">
-                  {property.orientation && (
-                    <span>
-                      <strong>{property.orientation}-facing</strong> primary aspect
-                    </span>
-                  )}
-                  {sunlightScore !== undefined && (
-                    <span>
-                      <strong>{sunlightScore}/100</strong> exposure score
-                    </span>
-                  )}
-                </div>
-              </div>
             </div>
           )}
 
@@ -1672,7 +1521,6 @@ export default function PropertyExplorer({
   const [savedModalOpen, setSavedModalOpen] = useState(false);
   const [detailId, setDetailId] = useState<string | null>(null);
   const [sourceSelection, setSourceSelection] = useState<SourceSelection | null>(null);
-  const [readNotificationIds, setReadNotificationIds] = useState<string[]>([]);
   const account = useAccountWorkspace();
   const accountStatus = account?.status;
 
@@ -1686,6 +1534,29 @@ export default function PropertyExplorer({
         savedIdsRef.current = account.workspace.savedPropertyIds;
         setDestinations(account.workspace.destinations);
         setSavedIds(account.workspace.savedPropertyIds);
+
+        // Auto-migrate local guest data into account if account is newly initialized
+        try {
+          const localDestinations = readSavedLocations();
+          if (account.workspace.destinations.length === 0 && localDestinations.length > 0) {
+            destinationsRef.current = localDestinations;
+            setDestinations(localDestinations);
+            void account.save("destinations", localDestinations);
+          }
+        } catch {}
+
+        try {
+          const raw = localStorage.getItem("haven_saved_property_ids");
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            const localSaved = Array.isArray(parsed) ? parsed.filter((id): id is string => typeof id === "string") : [];
+            if (account.workspace.savedPropertyIds.length === 0 && localSaved.length > 0) {
+              savedIdsRef.current = localSaved;
+              setSavedIds(localSaved);
+              void account.save("savedPropertyIds", localSaved);
+            }
+          }
+        } catch {}
       } else {
         const localDestinations = readSavedLocations();
         destinationsRef.current = localDestinations;
@@ -1748,16 +1619,6 @@ export default function PropertyExplorer({
         : school.hasCoordinates !== false,
   );
 
-  const notifications = useMemo(
-    () =>
-      generateSampleNotifications(savedProperties).map((notification) =>
-        readNotificationIds.includes(notification.id)
-          ? { ...notification, read: true }
-          : notification,
-      ),
-    [savedProperties, readNotificationIds],
-  );
-
   useEffect(() => {
     try {
       const summarySaved = savedProperties.map((p) => ({
@@ -1775,7 +1636,6 @@ export default function PropertyExplorer({
         architecturalStyle: p.architecturalStyle,
         floodHazards: p.floodHazards?.map(({ type }) => type),
         orientation: p.orientation,
-        sunlightHours: p.sunlightHours,
       }));
 
       const summaryCompared = selectedProperties.map((p) => ({
@@ -1793,7 +1653,6 @@ export default function PropertyExplorer({
         architecturalStyle: p.architecturalStyle,
         floodHazards: p.floodHazards?.map(({ type }) => type),
         orientation: p.orientation,
-        sunlightHours: p.sunlightHours,
       }));
 
       if (accountStatus === "signedIn") localStorage.removeItem("haven_saved_properties");
@@ -1937,12 +1796,6 @@ export default function PropertyExplorer({
     persistSavedIds(current.includes(id) ? current.filter((item) => item !== id) : [...current, id]);
   }
 
-  function markNotificationRead(id: string) {
-    setReadNotificationIds((current) =>
-      current.includes(id) ? current : [...current, id],
-    );
-  }
-
   async function submitAiSearch(event: FormEvent) {
     event.preventDefault();
     if (debounceTimerRef.current) {
@@ -1954,8 +1807,6 @@ export default function PropertyExplorer({
     }
     await runSearch(query);
   }
-
-  const unreadCount = notifications.filter((n) => !n.read).length;
 
   if (account?.status === "loading" || account?.status === "error") {
     return <main className="site-shell"><p role={account.status === "error" ? "alert" : undefined}>{account.status === "error" ? account.error : "Loading your account..."}</p></main>;
@@ -1988,31 +1839,9 @@ export default function PropertyExplorer({
             className="shortlist-button"
             onClick={() => setSavedModalOpen(true)}
             type="button"
-            style={{ position: "relative" }}
           >
-            <Icon name="bell" size={17} />
-            Alerts & Saved ({savedIds.length})
-            {unreadCount > 0 && (
-              <span
-                style={{
-                  position: "absolute",
-                  top: "-6px",
-                  right: "-6px",
-                  background: "#ef4444",
-                  color: "#fff",
-                  borderRadius: "50%",
-                  width: "20px",
-                  height: "20px",
-                  fontSize: "0.7rem",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontWeight: "bold",
-                }}
-              >
-                {unreadCount}
-              </span>
-            )}
+            <Icon name="heart" size={17} />
+            Saved Homes ({savedIds.length})
           </button>
 
           <button
@@ -2043,7 +1872,7 @@ export default function PropertyExplorer({
               <em>Find your fit.</em>
             </h1>
             <p>
-              Search homes the way you think—by architecture, sunlight, mapped flood hazards, building age and the details that actually matter.
+              Search homes the way you think—by architecture, mapped flood hazards, building age and the details that actually matter.
             </p>
             <form className="ai-search" onSubmit={submitAiSearch}>
               <span className="ai-search-icon">
@@ -2119,13 +1948,6 @@ export default function PropertyExplorer({
                 <span />
               </div>
               <div className="home-ground" />
-            </div>
-            <div className="hero-stat hero-stat-bottom">
-              <Icon name="sun" size={18} />
-              <div>
-                <strong>7.8 hrs</strong>
-                <span>daily sunlight</span>
-              </div>
             </div>
           </div>
         </section>
@@ -2398,7 +2220,7 @@ export default function PropertyExplorer({
                 <Icon name="sun" size={18} />
                 <span>
                   <strong>North-facing only</strong>
-                  <small>Higher sunlight potential</small>
+                  <small>Optimal aspect</small>
                 </span>
               </label>
             </details>
@@ -2943,7 +2765,7 @@ export default function PropertyExplorer({
               <span>02</span>
               <Icon name="sun" />
               <h3>See what matters</h3>
-              <p>Explore architecture, flood bands, age, aspect and estimated sunlight in one calm workspace.</p>
+              <p>Explore architecture, flood bands, age and aspect in one calm workspace.</p>
             </article>
             <article>
               <span>03</span>
@@ -2955,12 +2777,10 @@ export default function PropertyExplorer({
         </section>
       </main>
 
-      {/* Saved Listings & Notifications Modal */}
+      {/* Saved Listings Modal */}
       {savedModalOpen && (
         <SavedListingsDialog
-          notifications={notifications}
           onClose={() => setSavedModalOpen(false)}
-          onMarkNotificationRead={markNotificationRead}
           onOpenDetail={(id) => setDetailId(id)}
           onRemoveSave={(id) => toggleSave(id)}
           savedProperties={savedProperties}

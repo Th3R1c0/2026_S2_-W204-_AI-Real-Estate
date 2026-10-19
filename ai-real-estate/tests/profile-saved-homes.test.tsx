@@ -82,4 +82,50 @@ describe("ProfilePage Saved Homes & Notes", () => {
       expect.objectContaining({ method: "DELETE" })
     );
   });
+
+  it("renders Saved Locations tab with account destinations and allows removing", async () => {
+    const patchCalls: Array<{ field: string; value: unknown }> = [];
+    vi.stubGlobal("fetch", vi.fn().mockImplementation((url: string, init?: RequestInit) => {
+      if (typeof url === "string" && url.includes("/api/account/workspace")) {
+        if (init?.method === "PATCH") {
+          patchCalls.push(JSON.parse(init.body as string));
+          return Promise.resolve({ ok: true, json: async () => ({ ok: true }) });
+        }
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({
+            user: { userId: 1, username: "alex", email: "alex@example.nz" },
+            workspace: {
+              savedPropertyIds: [],
+              generalNotes: [],
+              propertyNotes: {},
+              destinations: [
+                { id: "loc-work", name: "HQ Office", address: "100 Queen St, Auckland", latitude: -36.848, longitude: 174.763 }
+              ],
+              chatHistory: [],
+            },
+          }),
+        });
+      }
+      return Promise.resolve({ ok: true, json: async () => ({}) });
+    }));
+
+    const user = userEvent.setup();
+    render(
+      <AccountWorkspaceProvider>
+        <ProfilePage />
+      </AccountWorkspaceProvider>
+    );
+
+    const locationsTab = await screen.findByRole("button", { name: /Saved Locations/i });
+    await user.click(locationsTab);
+
+    expect(await screen.findByText("HQ Office")).toBeInTheDocument();
+    expect(screen.getByText("100 Queen St, Auckland")).toBeInTheDocument();
+
+    const removeBtn = screen.getByRole("button", { name: /Remove/i });
+    await user.click(removeBtn);
+
+    expect(patchCalls.some(call => call.field === "destinations" && Array.isArray(call.value) && call.value.length === 0)).toBe(true);
+  });
 });
