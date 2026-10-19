@@ -1809,7 +1809,22 @@ export default function PropertyExplorer({
   }
 
   if (account?.status === "loading" || account?.status === "error") {
-    return <main className="site-shell"><p role={account.status === "error" ? "alert" : undefined}>{account.status === "error" ? account.error : "Loading your account..."}</p></main>;
+    return (
+      <main className="site-shell" style={{ padding: "4rem 2rem", textAlign: "center" }}>
+        <p role={account.status === "error" ? "alert" : undefined}>
+          {account.status === "error" ? account.error : "Loading your account..."}
+        </p>
+        {account.status === "error" && (
+          <button
+            type="button"
+            onClick={() => void account.refresh()}
+            style={{ marginTop: "1rem", padding: "0.5rem 1.25rem", borderRadius: "999px", background: "var(--forest, #2d5a43)", color: "#fff", border: "none", cursor: "pointer" }}
+          >
+            Retry
+          </button>
+        )}
+      </main>
+    );
   }
 
   return (

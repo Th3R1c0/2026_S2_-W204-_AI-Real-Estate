@@ -83,10 +83,10 @@ export async function logoutAccount(): Promise<void> {
 export async function getWorkspace(userId: number): Promise<BuyerWorkspace> {
   const [row] = await getDb().select().from(buyerWorkspaces).where(eq(buyerWorkspaces.userId, userId)).limit(1);
   return row ? {
-    savedPropertyIds: row.savedPropertyIds,
-    generalNotes: row.generalNotes,
-    propertyNotes: row.propertyNotes,
-    destinations: row.destinations,
+    savedPropertyIds: row.savedPropertyIds ?? [],
+    generalNotes: row.generalNotes ?? [],
+    propertyNotes: row.propertyNotes ?? {},
+    destinations: row.destinations ?? [],
     chatHistory: row.chatHistory ?? [],
   } : { ...emptyWorkspace };
 }
