@@ -45,8 +45,22 @@ export default function PropertyNotes({ propertyId, propertyTitle }: PropertyNot
     let active = true;
     queueMicrotask(() => {
       if (!active) return;
-      if (accountStatus === "signedIn") setNotes(accountNotes?.[propertyId] ?? []);
-      else {
+      if (accountStatus === "signedIn") {
+        const existingNotes = accountNotes?.[propertyId] ?? [];
+        if (existingNotes.length === 0) {
+          try {
+            const saved = localStorage.getItem(storageKey);
+            const localNotes = saved ? JSON.parse(saved) : [];
+            if (Array.isArray(localNotes) && localNotes.length > 0) {
+              setNotes(localNotes);
+              void account?.save("propertyNotes", { ...account?.workspace.propertyNotes, [propertyId]: localNotes });
+              setMounted(true);
+              return;
+            }
+          } catch {}
+        }
+        setNotes(existingNotes);
+      } else {
         try {
           const saved = localStorage.getItem(storageKey);
           setNotes(saved ? JSON.parse(saved) : []);

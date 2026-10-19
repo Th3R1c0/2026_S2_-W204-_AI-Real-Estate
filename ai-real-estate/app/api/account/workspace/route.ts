@@ -9,7 +9,8 @@ export async function GET() {
     const user = await getCurrentUser();
     if (!user) return Response.json({ error: "Sign in required." }, { status: 401 });
     return Response.json({ user, workspace: await getWorkspace(user.userId) }, { headers: { "Cache-Control": "no-store" } });
-  } catch {
+  } catch (error) {
+    console.error("[Workspace API GET error]:", error);
     return Response.json({ error: "Account service unavailable." }, { status: 503 });
   }
 }
@@ -27,7 +28,8 @@ export async function PATCH(request: Request) {
     if ("error" in change) return Response.json({ error: change.error }, { status: 400 });
     const workspace = await updateWorkspaceField(user.userId, change.field, change.value);
     return Response.json({ workspace });
-  } catch {
+  } catch (error) {
+    console.error("[Workspace API PATCH error]:", error);
     return Response.json({ error: "Account service unavailable." }, { status: 503 });
   }
 }

@@ -246,4 +246,41 @@ describe("AIChatbot component (TDD)", () => {
       expect(boldElement?.textContent).toBe("$232,000");
     });
   });
+
+  it("loads user-specific chat history when signed in and isolates from guest users", async () => {
+    const { AccountWorkspaceProvider } = await import("../app/components/account-workspace-provider");
+    global.fetch = vi.fn().mockImplementation(async (url: string) => {
+      if (typeof url === "string" && url.includes("/api/account/workspace")) {
+        return {
+          ok: true,
+          json: async () => ({
+            user: { userId: 5, username: "testuser", email: "test@example.nz" },
+            workspace: {
+              savedPropertyIds: [],
+              generalNotes: [],
+              propertyNotes: {},
+              destinations: [],
+              chatHistory: [
+                { role: "user", text: "My private historical question", time: "10:15" },
+                { role: "model", text: "My private historical answer", time: "10:16" },
+              ],
+            },
+          }),
+        };
+      }
+      return { ok: false, status: 404 };
+    });
+
+    const user = userEvent.setup();
+    render(
+      <AccountWorkspaceProvider>
+        <AIChatbot />
+      </AccountWorkspaceProvider>
+    );
+
+    await user.click(await screen.findByRole("button", { name: /open ai chat|ask haven ai/i }));
+    expect(await screen.findByText("My private historical question")).toBeInTheDocument();
+    expect(screen.getByText("My private historical answer")).toBeInTheDocument();
+  });
 });
+

@@ -2,16 +2,18 @@ import type { SavedLocation } from "../saved-locations";
 
 export type GeneralNote = { id: string; title: string; content: string; createdAt: string };
 export type BuyerPropertyNote = { id: string; propertyId: string; content: string; category?: string; createdAt: string };
+export type WorkspaceChatMessage = { role: "user" | "model"; text: string; time?: string };
 export type BuyerWorkspace = {
   savedPropertyIds: string[];
   generalNotes: GeneralNote[];
   propertyNotes: Record<string, BuyerPropertyNote[]>;
   destinations: SavedLocation[];
+  chatHistory: WorkspaceChatMessage[];
 };
 export type WorkspaceField = keyof BuyerWorkspace;
 
 export const emptyWorkspace: BuyerWorkspace = {
-  savedPropertyIds: [], generalNotes: [], propertyNotes: {}, destinations: [],
+  savedPropertyIds: [], generalNotes: [], propertyNotes: {}, destinations: [], chatHistory: [],
 };
 
 const isRecord = (value: unknown): value is Record<string, unknown> => !!value && typeof value === "object" && !Array.isArray(value);
@@ -34,6 +36,13 @@ function validLocation(value: unknown): value is SavedLocation {
       typeof longitude === "number" && Number.isFinite(longitude) && longitude >= -180 && longitude <= 180);
 }
 
+function validChatMessage(value: unknown): value is WorkspaceChatMessage {
+  return isRecord(value) &&
+    (value.role === "user" || value.role === "model") &&
+    shortText(value.text, 5000) &&
+    (value.time === undefined || shortText(value.time, 50));
+}
+
 export function validateWorkspaceChange(value: unknown): { error: string } | { field: WorkspaceField; value: BuyerWorkspace[WorkspaceField] } {
   if (!isRecord(value) || typeof value.field !== "string") return { error: "Invalid workspace change." };
   const content = value.value;
@@ -52,6 +61,9 @@ export function validateWorkspaceChange(value: unknown): { error: string } | { f
     case "destinations":
       return Array.isArray(content) && content.length <= 20 && content.every(validLocation)
         ? { field: value.field, value: content } : { error: "Invalid saved locations." };
+    case "chatHistory":
+      return Array.isArray(content) && content.length <= 100 && content.every(validChatMessage)
+        ? { field: value.field, value: content } : { error: "Invalid chat history." };
     default:
       return { error: "Unknown workspace field." };
   }

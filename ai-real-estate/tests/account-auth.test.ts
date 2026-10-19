@@ -14,4 +14,12 @@ describe("account credentials", () => {
     expect(await verifyPassword("correct horse battery staple", hash)).toBe(true);
     expect(await verifyPassword("wrong password", hash)).toBe(false);
   });
+
+  it("handles account deletion requests via DELETE with action=delete_account", async () => {
+    const { DELETE } = await import("../app/api/auth/route");
+    // Without active session, deletion returns 401 Unauthorized
+    const response = await DELETE(new Request("http://localhost:3000/api/auth?action=delete_account", { method: "DELETE" }));
+    expect(response.status).toBe(401);
+  });
 });
+

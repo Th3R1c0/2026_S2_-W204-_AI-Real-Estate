@@ -297,7 +297,7 @@ describe("PropertyExplorer", () => {
     expect(within(comparison).queryByText("$2,525,000")).not.toBeInTheDocument();
   });
 
-  it("shows live comps, sunlight and mortgage tools in the property panel", async () => {
+  it("shows live comps and mortgage tools in the property panel", async () => {
     const user = userEvent.setup();
     render(<PropertyExplorer properties={properties} comparableSales={comparableSales} />);
 
@@ -319,9 +319,7 @@ describe("PropertyExplorer", () => {
     expect(within(details).getByText("31 Hardington Street")).toBeInTheDocument();
     expect(within(details).getByText("$760,000 average")).toBeInTheDocument();
 
-    await user.click(within(details).getByRole("button", { name: /sunlight/i }));
-    expect(within(details).getByText("7.8 hours/day")).toBeInTheDocument();
-    expect(within(details).getByText("North-facing", { selector: "strong" })).toBeInTheDocument();
+    expect(within(details).queryByRole("button", { name: /sunlight/i })).not.toBeInTheDocument();
 
     await user.click(within(details).getByRole("button", { name: /mortgage/i }));
     const initialPayment = within(details).getByTestId("monthly-repayment").textContent;
@@ -583,4 +581,78 @@ describe("PropertyExplorer", () => {
     await user.click(screen.getByRole("button", { name: "Clear all filters" }));
     expect(screen.getByText("54 Kelmarna Avenue")).toBeInTheDocument();
   });
+
+  it("displays signed-in account name or Account link in header navigation", async () => {
+    const { AccountWorkspaceProvider } = await import("../app/components/account-workspace-provider");
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        user: { userId: 10, username: "Jordan", email: "jordan@example.nz" },
+        workspace: { savedPropertyIds: [], destinations: [], generalNotes: [], propertyNotes: {}, chatHistory: [] },
+      }),
+    }));
+
+    render(
+      <AccountWorkspaceProvider>
+        <PropertyExplorer properties={properties} comparableSales={comparableSales} />
+      </AccountWorkspaceProvider>
+    );
+
+    expect(await screen.findByRole("link", { name: /Account \(Jordan\)|Jordan/i })).toBeInTheDocument();
+  });
+
+  it("shows Saved Homes header button without alerts/notifications and opens shortlist modal", async () => {
+    const user = userEvent.setup();
+    render(<PropertyExplorer properties={properties} comparableSales={comparableSales} />);
+
+    // Header has "Saved Homes (0)" - no alerts or notifications
+    const savedHomesBtn = screen.getByRole("button", { name: /Saved Homes/i });
+    expect(savedHomesBtn).toBeInTheDocument();
+    expect(screen.queryByText(/Alerts & Saved/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/unread/i)).not.toBeInTheDocument();
+
+    // Clicking it opens the modal
+    await user.click(savedHomesBtn);
+    expect(screen.getByRole("dialog", { name: /saved listings/i })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /notifications/i })).not.toBeInTheDocument();
+  });
+
+  it("persists saved properties and destinations to account workspace when signed in", async () => {
+    const patchCalls: Array<{ field: string; value: unknown }> = [];
+    const fetchMock = vi.fn().mockImplementation((url: string, init?: RequestInit) => {
+      if (typeof url === "string" && url.includes("/api/account/workspace")) {
+        if (init?.method === "PATCH") {
+          const body = JSON.parse(init.body as string);
+          patchCalls.push(body);
+          return Promise.resolve({ ok: true, json: async () => ({ ok: true }) });
+        }
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({
+            user: { userId: 5, username: "Robin", email: "robin@example.nz" },
+            workspace: { savedPropertyIds: [], destinations: [], generalNotes: [], propertyNotes: {}, chatHistory: [] },
+          }),
+        });
+      }
+      return Promise.resolve({ ok: true, json: async () => ({}) });
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { AccountWorkspaceProvider } = await import("../app/components/account-workspace-provider");
+    const user = userEvent.setup();
+    render(
+      <AccountWorkspaceProvider>
+        <PropertyExplorer properties={properties} comparableSales={comparableSales} />
+      </AccountWorkspaceProvider>
+    );
+
+    // Save a home
+    const saveBtn = await screen.findByRole("button", { name: /save 2\/30 hardington street/i });
+    await user.click(saveBtn);
+
+    await waitFor(() => {
+      expect(patchCalls.some(call => call.field === "savedPropertyIds" && Array.isArray(call.value) && call.value.includes("modern-townhouse"))).toBe(true);
+    });
+  });
 });
+

@@ -3,7 +3,7 @@ import { createHash, randomBytes } from "node:crypto";
 import { and, eq, gt } from "drizzle-orm";
 import { cookies } from "next/headers";
 import { getDb } from "../db";
-import { buyerWorkspaces, userSessions, users } from "../db/schema";
+import { buyerWorkspaces, savedProperties, userSessions, users } from "../db/schema";
 import { hashPassword, validateRegistration, verifyPassword } from "./auth";
 import { emptyWorkspace, type BuyerWorkspace, type WorkspaceField } from "./workspace";
 
@@ -83,10 +83,11 @@ export async function logoutAccount(): Promise<void> {
 export async function getWorkspace(userId: number): Promise<BuyerWorkspace> {
   const [row] = await getDb().select().from(buyerWorkspaces).where(eq(buyerWorkspaces.userId, userId)).limit(1);
   return row ? {
-    savedPropertyIds: row.savedPropertyIds,
-    generalNotes: row.generalNotes,
-    propertyNotes: row.propertyNotes,
-    destinations: row.destinations,
+    savedPropertyIds: row.savedPropertyIds ?? [],
+    generalNotes: row.generalNotes ?? [],
+    propertyNotes: row.propertyNotes ?? {},
+    destinations: row.destinations ?? [],
+    chatHistory: row.chatHistory ?? [],
   } : { ...emptyWorkspace };
 }
 
@@ -94,5 +95,36 @@ export async function updateWorkspaceField<K extends WorkspaceField>(userId: num
   const db = getDb();
   const set = { [field]: value, updatedAt: new Date() } as Partial<typeof buyerWorkspaces.$inferInsert>;
   await db.insert(buyerWorkspaces).values({ userId, ...set }).onConflictDoUpdate({ target: buyerWorkspaces.userId, set });
+
+  if (field === "savedPropertyIds" && Array.isArray(value)) {
+    const ids = (value as string[])
+      .map(id => {
+        const match = /^(\d+)$/.exec(id) || /-(\d+)$/.exec(id);
+        return match ? parseInt(match[1], 10) : NaN;
+      })
+      .filter(num => !Number.isNaN(num));
+    try {
+      await db.delete(savedProperties).where(eq(savedProperties.userId, userId));
+      for (const pid of ids) {
+        try {
+          await db.insert(savedProperties).values({ userId, propertyId: pid }).onConflictDoNothing();
+        } catch {
+          // Ignore foreign key failures for synthetic IDs
+        }
+      }
+    } catch {
+      // Ignore if table unavailable
+    }
+  }
+
   return getWorkspace(userId);
 }
+
+export async function deleteAccount(userId: number): Promise<boolean> {
+  const db = getDb();
+  await db.delete(users).where(eq(users.userId, userId));
+  const cookieStore = await cookies();
+  cookieStore.delete(cookieName);
+  return true;
+}
+
