@@ -34,9 +34,34 @@ export async function POST(request: Request) {
         .slice(-10)
     : [];
 
-  const context = (body.context && typeof body.context === "object"
-    ? body.context
-    : undefined) as PropertyChatContext | undefined;
+  const rawContext =
+    body.context && typeof body.context === "object"
+      ? (body.context as Record<string, unknown>)
+      : undefined;
+
+  let context: PropertyChatContext | undefined;
+  if (rawContext) {
+    const rawLim = rawContext.limReport as Record<string, unknown> | undefined;
+    context = {
+      savedProperties: Array.isArray(rawContext.savedProperties)
+        ? (rawContext.savedProperties as PropertyChatContext["savedProperties"])
+        : undefined,
+      comparedProperties: Array.isArray(rawContext.comparedProperties)
+        ? (rawContext.comparedProperties as PropertyChatContext["comparedProperties"])
+        : undefined,
+      limReport:
+        rawLim &&
+        typeof rawLim.filename === "string" &&
+        typeof rawLim.text === "string"
+          ? {
+              filename: rawLim.filename,
+              text: rawLim.text,
+              pageCount:
+                typeof rawLim.pageCount === "number" ? rawLim.pageCount : undefined,
+            }
+          : undefined,
+    };
+  }
 
   const result = await generateChatbotResponse(message, history, {
     apiKey: process.env.GEMINI_API_KEY,

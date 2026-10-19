@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect, useMemo } from "react";
-import type { PropertyChatSummary } from "../../lib/chatbot-knowledge";
+import type { PropertyChatSummary, LimReportContext } from "../../lib/chatbot-knowledge";
 import { useAccountWorkspace } from "./account-workspace-provider";
 
 type Message = {
@@ -199,6 +199,7 @@ export default function AIChatbot({
   useEffect(() => {
     if (accountStatus === "signedIn") {
       if (accountChatHistory && accountChatHistory.length > 0) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setMessages(
           accountChatHistory.map((m, idx) => ({
             id: `account-msg-${idx}`,
@@ -217,6 +218,55 @@ export default function AIChatbot({
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const [limReport, setLimReport] = useState<LimReportContext | null>(null);
+  const [isUploadingLim, setIsUploadingLim] = useState(false);
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploadingLim(true);
+    setError(null);
+
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const res = await fetch("/api/chatbot/upload-lim", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = (await res.json()) as {
+        filename?: string;
+        text?: string;
+        pageCount?: number;
+        warning?: string;
+        error?: string;
+      };
+
+      if (!res.ok) {
+        setError(data.error || "Failed to upload LIM report. Please try again.");
+      } else if (data.text !== undefined && data.filename) {
+        setLimReport({
+          filename: data.filename,
+          text: data.text,
+          pageCount: data.pageCount,
+        });
+
+        if (data.warning) {
+          setError(data.warning);
+        }
+      }
+    } catch {
+      setError("Network error uploading LIM report. Please try again.");
+    } finally {
+      setIsUploadingLim(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
 
   // Sync saved and compared properties from localStorage and window event
   useEffect(() => {
@@ -356,8 +406,17 @@ export default function AIChatbot({
       }
     }
 
+    if (limReport) {
+      list.unshift(
+        "Summarize key findings in this LIM",
+        "Are there any unconsented works or missing CCCs?",
+        "What natural or flood hazards are noted in this LIM?",
+        "What are the council rates and zoning rules?",
+      );
+    }
+
     return Array.from(new Set(list)).slice(0, 4);
-  }, [comparedProperties, savedProperties, messages]);
+  }, [comparedProperties, savedProperties, messages, limReport]);
 
   const sendMessage = async (textToSend?: string) => {
     const text = (textToSend ?? input).trim();
@@ -393,6 +452,7 @@ export default function AIChatbot({
           context: {
             savedProperties: effectiveSavedProperties,
             comparedProperties,
+            ...(limReport ? { limReport } : {}),
           },
         }),
       });
@@ -580,7 +640,7 @@ export default function AIChatbot({
           </div>
 
           {/* Active Context Banner */}
-          {(comparedProperties.length > 0 || savedProperties.length > 0) && (
+          {(comparedProperties.length > 0 || savedProperties.length > 0 || limReport) && (
             <div
               style={{
                 padding: "7px 16px",
@@ -598,6 +658,8 @@ export default function AIChatbot({
                 <span>📋</span>
                 <span>
                   Context Active:{" "}
+                  {limReport && `📄 ${limReport.filename}`}
+                  {limReport && (comparedProperties.length > 0 || savedProperties.length > 0) && " · "}
                   {comparedProperties.length > 0 && `${comparedProperties.length} compared`}
                   {comparedProperties.length > 0 && savedProperties.length > 0 && " · "}
                   {savedProperties.length > 0 && `${savedProperties.length} saved`}
@@ -737,49 +799,129 @@ export default function AIChatbot({
               borderTop: "1px solid #e4e4e7",
               backgroundColor: "#ffffff",
               display: "flex",
-              alignItems: "center",
+              flexDirection: "column",
               gap: "8px",
             }}
           >
-            <input
-              ref={inputRef}
-              type="text"
-              aria-label="Ask a question"
-              placeholder="Ask a question..."
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-              disabled={loading}
-              style={{
-                flex: 1,
-                padding: "9px 12px",
-                borderRadius: "10px",
-                border: "1px solid #d4d4d8",
-                fontSize: "13px",
-                outline: "none",
-                backgroundColor: "#ffffff",
-                color: "#18181b",
-              }}
-            />
-            <button
-              type="button"
-              aria-label="Send"
-              disabled={!input.trim() || loading}
-              onClick={() => void sendMessage()}
-              style={{
-                backgroundColor: input.trim() && !loading ? "#18181b" : "#e4e4e7",
-                color: input.trim() && !loading ? "#ffffff" : "#a1a1aa",
-                border: "none",
-                borderRadius: "10px",
-                padding: "9px 14px",
-                fontSize: "13px",
-                fontWeight: "600",
-                cursor: input.trim() && !loading ? "pointer" : "not-allowed",
-                transition: "all 0.15s ease",
-              }}
-            >
-              Send
-            </button>
+            {limReport && (
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  gap: "8px",
+                  padding: "5px 10px",
+                  backgroundColor: "#f0fdf4",
+                  border: "1px solid #bbf7d0",
+                  borderRadius: "8px",
+                  fontSize: "11.5px",
+                  color: "#166534",
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "6px",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  <span>📄</span>
+                  <span style={{ fontWeight: 600 }}>{limReport.filename}</span>
+                  <span style={{ opacity: 0.75 }}>({limReport.pageCount ?? 1} pgs)</span>
+                </div>
+                <button
+                  type="button"
+                  aria-label="Remove LIM report"
+                  onClick={() => setLimReport(null)}
+                  style={{
+                    background: "transparent",
+                    border: "none",
+                    color: "#166534",
+                    fontSize: "13px",
+                    cursor: "pointer",
+                    padding: "2px 4px",
+                    lineHeight: 1,
+                  }}
+                >
+                  ✕
+                </button>
+              </div>
+            )}
+
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".pdf,application/pdf"
+                aria-label="Upload LIM report file"
+                onChange={handleFileUpload}
+                style={{ display: "none" }}
+              />
+              <button
+                type="button"
+                aria-label="Upload LIM report"
+                title="Upload LIM Report (PDF)"
+                disabled={isUploadingLim}
+                onClick={() => fileInputRef.current?.click()}
+                style={{
+                  backgroundColor: "#f4f4f5",
+                  border: "1px solid #d4d4d8",
+                  borderRadius: "10px",
+                  padding: "9px 11px",
+                  fontSize: "14px",
+                  cursor: isUploadingLim ? "wait" : "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: "#3f3f46",
+                  transition: "all 0.15s ease",
+                }}
+              >
+                {isUploadingLim ? "⏳" : "📎"}
+              </button>
+              <input
+                ref={inputRef}
+                type="text"
+                aria-label="Ask a question"
+                placeholder={isUploadingLim ? "Uploading & parsing LIM..." : "Ask a question..."}
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={handleKeyDown}
+                disabled={loading || isUploadingLim}
+                style={{
+                  flex: 1,
+                  padding: "9px 12px",
+                  borderRadius: "10px",
+                  border: "1px solid #d4d4d8",
+                  fontSize: "13px",
+                  outline: "none",
+                  backgroundColor: "#ffffff",
+                  color: "#18181b",
+                }}
+              />
+              <button
+                type="button"
+                aria-label="Send"
+                disabled={!input.trim() || loading || isUploadingLim}
+                onClick={() => void sendMessage()}
+                style={{
+                  backgroundColor: input.trim() && !loading && !isUploadingLim ? "#18181b" : "#e4e4e7",
+                  color: input.trim() && !loading && !isUploadingLim ? "#ffffff" : "#a1a1aa",
+                  border: "none",
+                  borderRadius: "10px",
+                  padding: "9px 14px",
+                  fontSize: "13px",
+                  fontWeight: "600",
+                  cursor: input.trim() && !loading && !isUploadingLim ? "pointer" : "not-allowed",
+                  transition: "all 0.15s ease",
+                }}
+              >
+                Send
+              </button>
+            </div>
           </div>
         </div>
       )}

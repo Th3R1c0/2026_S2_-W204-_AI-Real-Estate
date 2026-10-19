@@ -248,6 +248,70 @@ describe("Chatbot service (TDD)", () => {
     expect(result.reply.toLowerCase()).toContain("campaign");
     expect(result.reply).toContain("LIM");
   });
+
+  it("injects attached LIM report into Gemini systemInstruction", async () => {
+    let capturedBody: {
+      systemInstruction?: { parts: Array<{ text: string }> };
+    } | null = null;
+
+    const fakeFetch: typeof fetch = async (_input, init) => {
+      capturedBody = JSON.parse(String(init?.body));
+      return Response.json({
+        candidates: [
+          {
+            content: {
+              parts: [{ text: "The LIM report confirms building consents are in order." }],
+            },
+          },
+        ],
+      });
+    };
+
+    const mockContext = {
+      limReport: {
+        filename: "88-hobson-street-lim.pdf",
+        text: "AUCKLAND COUNCIL LIM REPORT\nPermit: Consented alterations 2018 (CCC issued).\nFlooding: Overland flow path along rear boundary.\nRates: $3,450 p.a.",
+        pageCount: 6,
+      },
+    };
+
+    const result = await generateChatbotResponse(
+      "Are there building consents on this LIM?",
+      [],
+      { apiKey: "test-key", fetchImpl: fakeFetch, context: mockContext },
+    );
+
+    expect(result.source).toBe("gemini");
+    expect(capturedBody).toBeDefined();
+    const body = capturedBody as unknown as {
+      systemInstruction?: { parts: Array<{ text: string }> };
+    };
+    const systemText = body?.systemInstruction?.parts[0].text;
+    expect(systemText).toContain("ATTACHED LIM REPORT");
+    expect(systemText).toContain("88-hobson-street-lim.pdf");
+    expect(systemText).toContain("CCC issued");
+  });
+
+  it("answers questions about attached LIM report in local knowledge fallback", async () => {
+    const mockContext = {
+      limReport: {
+        filename: "88-hobson-street-lim.pdf",
+        text: "AUCKLAND COUNCIL LIM REPORT\nPermits: CCC issued for alterations 2018.\nFlooding: Mapped overland flow path.\nRates: $3,450 per annum.",
+        pageCount: 5,
+      },
+    };
+
+    const result = await generateChatbotResponse(
+      "Can you summarize this attached LIM report?",
+      [],
+      { apiKey: "", context: mockContext },
+    );
+
+    expect(result.source).toBe("local");
+    expect(result.reply).toContain("88-hobson-street-lim.pdf");
+    expect(result.reply).toContain("Building Consents & Code Compliance");
+    expect(result.reply).toContain("Natural Hazards & Drainage");
+  });
 });
 
 describe("POST /api/chatbot (TDD)", () => {
@@ -316,5 +380,27 @@ describe("POST /api/chatbot (TDD)", () => {
     const data = await response.json();
     expect(data.reply).toContain("10 Queen St");
     expect(data.reply).toContain("20 Custom St");
+  });
+
+  it("accepts limReport in context within POST request", async () => {
+    const response = await POST(
+      new Request("http://localhost/api/chatbot", {
+        method: "POST",
+        body: JSON.stringify({
+          message: "Summarize this LIM report",
+          context: {
+            limReport: {
+              filename: "44-ponsonby-road-lim.pdf",
+              text: "Auckland Council LIM: Consents approved, no flooding.",
+              pageCount: 3,
+            },
+          },
+        }),
+      }),
+    );
+
+    expect(response.status).toBe(200);
+    const data = await response.json();
+    expect(data.reply).toContain("44-ponsonby-road-lim.pdf");
   });
 });

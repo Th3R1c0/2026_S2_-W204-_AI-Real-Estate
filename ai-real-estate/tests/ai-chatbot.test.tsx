@@ -282,5 +282,78 @@ describe("AIChatbot component (TDD)", () => {
     expect(await screen.findByText("My private historical question")).toBeInTheDocument();
     expect(screen.getByText("My private historical answer")).toBeInTheDocument();
   });
+
+  it("allows uploading a LIM PDF report, shows badge, sends context, and allows removal", async () => {
+    let capturedBody: {
+      message?: string;
+      context?: { limReport?: { filename: string; text: string } };
+    } | null = null;
+
+    global.fetch = vi.fn().mockImplementation(async (url: string, init?: RequestInit) => {
+      if (typeof url === "string" && url.includes("/api/chatbot/upload-lim")) {
+        return {
+          ok: true,
+          json: async () => ({
+            filename: "12-queen-street-lim.pdf",
+            pageCount: 4,
+            text: "Auckland Council LIM: Consents approved, no flood plain.",
+          }),
+        };
+      }
+      if (typeof url === "string" && url.includes("/api/chatbot")) {
+        capturedBody = JSON.parse(String(init?.body));
+        return {
+          ok: true,
+          json: async () => ({
+            reply: "LIM analysis: Building consents are approved with Code Compliance Certificates.",
+            source: "gemini",
+          }),
+        };
+      }
+      return { ok: false, status: 404 };
+    });
+
+    const user = userEvent.setup();
+    render(<AIChatbot />);
+
+    await user.click(screen.getByRole("button", { name: /open ai chat|ask haven ai/i }));
+
+    const fileInput = screen.getByLabelText(/upload lim report file/i);
+    const testFile = new File(["%PDF-sample"], "12-queen-street-lim.pdf", {
+      type: "application/pdf",
+    });
+
+    await user.upload(fileInput, testFile);
+
+    // Verify LIM badge is visible
+    await waitFor(() => {
+      expect(screen.getByText("12-queen-street-lim.pdf")).toBeInTheDocument();
+      expect(screen.getByText("(4 pgs)")).toBeInTheDocument();
+    });
+
+    // Verify LIM quick suggestion prompt appears
+    expect(
+      screen.getByRole("button", { name: /summarize key findings in this lim/i })
+    ).toBeInTheDocument();
+
+    // Send a message and check that context.limReport is passed in request
+    const input = screen.getByRole("textbox", { name: /ask a question/i });
+    const sendBtn = screen.getByRole("button", { name: /send/i });
+    await user.type(input, "Are there building consents?");
+    await user.click(sendBtn);
+
+    await waitFor(() => {
+      expect(capturedBody).toBeDefined();
+      expect(capturedBody?.context?.limReport?.filename).toBe("12-queen-street-lim.pdf");
+      expect(capturedBody?.context?.limReport?.text).toContain("Consents approved");
+      expect(screen.getByText(/building consents are approved/i)).toBeInTheDocument();
+    });
+
+    // Test removing the LIM report
+    const removeBtn = screen.getByRole("button", { name: /remove lim report/i });
+    await user.click(removeBtn);
+
+    expect(screen.queryByText("(4 pgs)")).not.toBeInTheDocument();
+  });
 });
 
