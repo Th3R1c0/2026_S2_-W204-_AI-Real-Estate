@@ -1823,10 +1823,10 @@ export default function PropertyExplorer({
           </a>
           <a href="#calculator">Calculator</a>
           <a href="#how-it-works">How it works</a>
-          <a href="/profile">Profile & Notes</a>
+          <a href="/profile">Profile</a>
         </nav>
 
-        <div style={{ display: "flex", gap: "0.75rem", alignItems: "center" }}>
+        <div className="header-actions">
           <button
             className="shortlist-button"
             onClick={() => setSavedModalOpen(true)}
@@ -2745,7 +2745,7 @@ export default function PropertyExplorer({
           <div className="section-title">
             <p className="eyebrow">Finance Estimator</p>
             <h2>Mortgage Repayment Calculator</h2>
-            <p>Estimate your weekly, fortnightly, or monthly repayments based on current rates.</p>
+            <p>Explore estimated repayments and compare two fixed-rate loan options.</p>
           </div>
           <div className="calculator-container">
             <MortgageCalculator defaultPrice={1250000} />
