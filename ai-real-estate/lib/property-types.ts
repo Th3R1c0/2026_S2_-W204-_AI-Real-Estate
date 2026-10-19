@@ -51,6 +51,14 @@ export type ListingAgent = {
   email?: string;
 };
 
+export type OpenHome = {
+  date: string;
+  startTime: string;
+  endTime: string;
+  label: string;
+};
+
+
 export type SchoolZone = {
   schoolId?: number;
   schoolName?: string;
@@ -127,6 +135,7 @@ export type Property = {
   city: string;
   region: string;
   price: number;
+  saleMethod?: string;
   bedrooms: number;
   bathrooms: number;
   landArea: number;
@@ -136,6 +145,7 @@ export type Property = {
   architecturalStyle?: ArchitecturalStyle;
   floodRisk?: FloodRisk;
   floodHazards?: PropertyFloodHazard[];
+  openHomes?: OpenHome[];
   orientation?: "North" | "South" | "East" | "West";
   sunlightHours?: number;
   latitude: number;
@@ -150,6 +160,7 @@ export type Property = {
   estimatedWeeklyRent?: number;
   ownershipType?: string;
   soldDate?: string;
+  summary?: string;
   sources?: PropertySource[];
   schoolZones?: SchoolZone[];
   nearbySchools?: NearbySchool[];
@@ -179,6 +190,7 @@ export type PropertyFilters = {
   architecturalStyles?: ArchitecturalStyle[];
   floodHazardTypes?: FloodHazardType[];
   noMappedFloodHazard?: boolean;
+  hasOpenHome?: boolean;
   northFacingOnly?: boolean;
   yearBuiltFrom?: number;
   yearBuiltTo?: number;

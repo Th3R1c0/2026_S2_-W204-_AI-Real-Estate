@@ -39,7 +39,7 @@ function toProperty(item, idx) {
   const h = item.homesDetails;
   const l = item.linz;
   const method = item.parsedTitle.saleMethod;
-  
+
   // URL UID
   const uid = item.item.url.split('/').filter(Boolean).pop();
   let id = l?.addressId ? `linz-${l.addressId}` : `oneroof-${uid}`;
@@ -56,8 +56,8 @@ function toProperty(item, idx) {
   const parts = fullRaw.split(',').map(p => p.trim());
   const street = o.street || parts[0];
   const suburb = o.suburb || parts[1] || '';
-  const city = l?.city || o.district || parts[2] || 'New Zealand';
-  const region = o.region || parts[3] || parts[2] || 'New Zealand';
+  const city = l?.city || o.district || parts[2] || 'Auckland';
+  const region = o.region || parts[3] || parts[2] || 'Auckland';
 
   // Price calculation
   const priceFromMethod = (method.match(/\$([\d,]+)/) || [])[1];
@@ -147,11 +147,6 @@ function toProperty(item, idx) {
     },
   ];
 
-  // Flood risk realistic distribution
-  let floodRisk = 'Low';
-  if (idx % 7 === 1) floodRisk = 'Moderate';
-  else if (idx % 11 === 2) floodRisk = 'High';
-
   // Orientation and sunlight
   let orientation = 'North';
   let sunlightHours = 7.8;
@@ -172,18 +167,14 @@ function toProperty(item, idx) {
     sunlightHours = 4.6;
   }
 
-  // Walkability based on proximity and central location
-  let walkScore = Math.max(45, Math.min(95, Math.round(92 - distKm * 1.8)));
-  if (suburb.toLowerCase().includes('eden') || suburb.toLowerCase().includes('ponsonby') || suburb.toLowerCase().includes('grey lynn') || suburb.toLowerCase().includes('newmarket')) {
-    walkScore = Math.max(walkScore, 85);
-  }
-  const walkLabel = walkScore >= 80 ? 'Walker\'s Paradise' : walkScore >= 65 ? 'Very Walkable' : 'Somewhat Walkable';
-
   // Images
   const gallery = [...new Set([...(o.images || []), ...(h?.images || [])])];
   const image = o.heroCover || gallery[0] || '/properties/address-placeholder.svg';
-  // The saved OneRoof search card names the listing agent immediately before "Enquire".
   const agentName = item.item.title.match(/\n([^\n]+)\nEnquire\s*$/)?.[1]?.trim();
+
+  // Official Auckland Council Flood Hazards & Open Homes
+  const floodHazards = Array.isArray(item.floodHazards) ? item.floodHazards : [];
+  const openHomes = Array.isArray(item.openHomes) ? item.openHomes : [];
 
   // Multi-source attributions
   const sources = [];
@@ -280,6 +271,7 @@ function toProperty(item, idx) {
     city,
     region,
     price,
+    saleMethod: method,
     bedrooms,
     bathrooms,
     parkingSpaces,
@@ -288,7 +280,8 @@ function toProperty(item, idx) {
     yearBuilt,
     propertyType,
     architecturalStyle,
-    floodRisk,
+    floodHazards,
+    openHomes,
     orientation,
     sunlightHours,
     latitude,
@@ -302,13 +295,6 @@ function toProperty(item, idx) {
     estimatedWeeklyRent: h?.facts?.estimatedWeeklyRent || Math.round((price * 0.045) / 52),
     ownershipType: h?.facts?.ownershipType || 'Freehold',
     schoolZones: getSchoolZones(suburb, city, region),
-    walkability: {
-      score: walkScore,
-      label: walkLabel,
-      parksNearby: walkScore >= 75 ? 4 : 2,
-      cafesNearby: walkScore >= 75 ? 6 : 2,
-      supermarketsNearby: walkScore >= 75 ? 2 : 1
-    },
     commuteOptions,
     sources
   };

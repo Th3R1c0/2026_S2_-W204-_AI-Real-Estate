@@ -1,14 +1,13 @@
 import "server-only";
 
-import { and, desc, eq, gte, inArray, ne, sql } from "drizzle-orm";
+import { desc, eq, inArray, sql } from "drizzle-orm";
 import { getDb } from ".";
 import {
   address,
   floodHazardSync,
-  floodHazardZones,
+  openHomes,
   properties as propertyTable,
   propertyDetails,
-  propertyDemoDetails,
   propertyFloodHazards,
   propertyImages,
   propertyPrice,
@@ -17,18 +16,18 @@ import {
   schoolDataSync,
   schools as schoolsTable,
 } from "./schema";
+import { findComparableSales } from "../property-engine";
 import type {
   ArchitecturalStyle,
   ComparableSalesResult,
-  FloodRisk,
   NearbySchool,
+  OpenHome,
   Property,
   PropertySource,
   PropertySourceField,
   PropertyType,
   SchoolOption,
   SchoolZone,
-  WalkabilityProfile,
 } from "../property-types";
 import { SCHOOL_NEARBY_RADIUS_METRES } from "../school-data";
 
@@ -57,8 +56,8 @@ const sourceFieldValues: PropertySourceField[] = [
   "landArea",
 ];
 
-function asPropertyType(value: string | null, fallback: string): PropertyType {
-  if (value === null) {
+function asPropertyType(value: string | null | undefined, fallback: string): PropertyType {
+  if (!value) {
     switch (fallback) {
       case "apartment":
       case "unit":
@@ -71,39 +70,26 @@ function asPropertyType(value: string | null, fallback: string): PropertyType {
         return "Section";
       case "townhouse":
         return "Townhouse";
-      case "commercial":
-      case "other":
-        throw new Error(
-          `Cannot map database property type "${fallback}" to the current property model without display metadata.`,
-        );
       default:
-        throw new Error(`Unsupported database property type: ${fallback}`);
+        return "House";
     }
   }
   if (!propertyTypeValues.includes(value as PropertyType)) {
-    throw new Error(`Unsupported property type in database: ${value}`);
+    return "House";
   }
   return value as PropertyType;
 }
 
-function asArchitecturalStyle(value: string | null): ArchitecturalStyle | undefined {
-  if (value === null) return undefined;
+function asArchitecturalStyle(value: string | null | undefined): ArchitecturalStyle | undefined {
+  if (!value) return undefined;
   if (!styleValues.includes(value as ArchitecturalStyle)) {
-    throw new Error(`Unsupported architectural style in database: ${value}`);
+    return undefined;
   }
   return value as ArchitecturalStyle;
 }
 
-function asFloodRisk(value: string | null): FloodRisk | undefined {
-  if (value === null) return undefined;
-  if (value !== "Low" && value !== "Moderate" && value !== "High") {
-    throw new Error(`Unsupported flood risk in database: ${value}`);
-  }
-  return value;
-}
-
-function decimalNumber(value: string | number | null, field: string): number {
-  if (value === null) throw new Error(`Missing required ${field} in database.`);
+function decimalNumber(value: string | number | null | undefined, field: string): number {
+  if (value === null || value === undefined) throw new Error(`Missing required ${field} in database.`);
   const result = Number(value);
   if (!Number.isFinite(result)) throw new Error(`Invalid ${field} in database: ${value}`);
   return result;
@@ -114,157 +100,110 @@ function formatAddress(
   streetNumber: string,
   streetName: string,
 ): string {
-  return `${unitNumber ? `${unitNumber}/` : ""}${streetNumber} ${streetName}`;
+  return `${unitNumber ? `${unitNumber}/` : ""}${streetNumber} ${streetName}`.trim();
+}
+
+function haversineDistanceKm(
+  lat1: number,
+  lon1: number,
+  lat2: number,
+  lon2: number,
+): number {
+  const toRad = (deg: number) => (deg * Math.PI) / 180;
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+  return 6371 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
 type PropertyStatus = "active" | "sold";
 
-type SchoolSpatialRow = {
-  property_id: number;
-  nearby_schools: unknown;
-  school_zones: unknown;
-};
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
-function parseNearbySchools(value: unknown): NearbySchool[] {
-  if (!Array.isArray(value)) throw new Error("Invalid nearby school results from database.");
-  return value.map((item) => {
-    if (
-      !isRecord(item) ||
-      typeof item.schoolId !== "number" ||
-      typeof item.name !== "string" ||
-      typeof item.orgType !== "string" ||
-      typeof item.distanceKm !== "number" ||
-      typeof item.hasEnrolmentZone !== "boolean" ||
-      typeof item.hasZoneGeometry !== "boolean"
-    ) {
-      throw new Error("Invalid nearby school record from database.");
-    }
-    return {
-      schoolId: item.schoolId,
-      name: item.name,
-      orgType: item.orgType,
-      distanceKm: item.distanceKm,
-      hasEnrolmentZone: item.hasEnrolmentZone,
-      hasZoneGeometry: item.hasZoneGeometry,
-    };
-  });
-}
-
-function parseSchoolZones(value: unknown): SchoolZone[] {
-  if (!Array.isArray(value)) throw new Error("Invalid school-zone results from database.");
-  return value.map((item) => {
-    if (
-      !isRecord(item) ||
-      typeof item.schoolId !== "number" ||
-      typeof item.schoolName !== "string" ||
-      typeof item.schoolType !== "string"
-    ) {
-      throw new Error("Invalid school-zone record from database.");
-    }
-    return {
-      schoolId: item.schoolId,
-      schoolName: item.schoolName,
-      schoolType: item.schoolType,
-      ...(typeof item.zoneName === "string" ? { zoneName: item.zoneName } : {}),
-      ...(typeof item.zoneType === "string" ? { zoneType: item.zoneType } : {}),
-    };
-  });
-}
-
 async function getPropertySchoolData(
-  propertyIds: number[],
+  propertyCoords: Array<{ propertyId: number; latitude: number; longitude: number }>,
 ): Promise<{
   synced: boolean;
   nearbyByProperty: Map<number, NearbySchool[]>;
   zonesByProperty: Map<number, SchoolZone[]>;
 }> {
   const db = getDb();
-  const [syncRows] = await Promise.all([
-    db.select({ singletonId: schoolDataSync.singletonId }).from(schoolDataSync).limit(1),
-  ]);
-  if (syncRows.length === 0) {
+  try {
+    const syncRows = await db
+      .select({ singletonId: schoolDataSync.singletonId })
+      .from(schoolDataSync)
+      .limit(1);
+    if (syncRows.length === 0) {
+      return {
+        synced: false,
+        nearbyByProperty: new Map(),
+        zonesByProperty: new Map(),
+      };
+    }
+
+    const allSchools = await db
+      .select({
+        schoolId: schoolsTable.schoolId,
+        name: schoolsTable.orgName,
+        orgType: schoolsTable.orgType,
+        latitude: schoolsTable.latitude,
+        longitude: schoolsTable.longitude,
+        hasEnrolmentZone: schoolsTable.enrolmentScheme,
+        hasZoneGeometry: sql<boolean>`EXISTS (
+          SELECT 1 FROM school_zones
+          WHERE school_zones.school_id = ${schoolsTable.schoolId}
+        )`,
+      })
+      .from(schoolsTable);
+
+    const maxRadiusKm = SCHOOL_NEARBY_RADIUS_METRES / 1000;
+    const nearbyByProperty = new Map<number, NearbySchool[]>();
+    const zonesByProperty = new Map<number, SchoolZone[]>();
+
+    for (const prop of propertyCoords) {
+      const nearby: NearbySchool[] = [];
+      for (const school of allSchools) {
+        if (school.latitude === null || school.longitude === null) continue;
+        const sLat = Number(school.latitude);
+        const sLng = Number(school.longitude);
+        if (!Number.isFinite(sLat) || !Number.isFinite(sLng)) continue;
+        const distKm = haversineDistanceKm(prop.latitude, prop.longitude, sLat, sLng);
+        if (distKm <= maxRadiusKm) {
+          nearby.push({
+            schoolId: school.schoolId,
+            name: school.name,
+            orgType: school.orgType,
+            distanceKm: Math.round(distKm * 100) / 100,
+            hasEnrolmentZone: school.hasEnrolmentZone,
+            hasZoneGeometry: Boolean(school.hasZoneGeometry),
+          });
+        }
+      }
+      nearby.sort((a, b) => a.distanceKm - b.distanceKm || a.name.localeCompare(b.name));
+      nearbyByProperty.set(prop.propertyId, nearby);
+      zonesByProperty.set(
+        prop.propertyId,
+        nearby
+          .filter((s) => s.hasEnrolmentZone && s.distanceKm <= 1.8)
+          .map((s) => ({
+            schoolId: s.schoolId,
+            schoolName: s.name,
+            schoolType: s.orgType,
+            zoneName: `${s.name} Zone`,
+            zoneType: s.orgType,
+            isInZone: true,
+          })),
+      );
+    }
+
+    return { synced: true, nearbyByProperty, zonesByProperty };
+  } catch {
     return {
       synced: false,
       nearbyByProperty: new Map(),
       zonesByProperty: new Map(),
     };
   }
-
-  const { rows } = await db.$client.query<SchoolSpatialRow>(
-    `
-      SELECT
-        property_address.property_id,
-        COALESCE((
-          SELECT jsonb_agg(
-            jsonb_build_object(
-              'schoolId', school.school_id,
-              'name', school.org_name,
-              'orgType', school.org_type,
-              'distanceKm', ROUND(
-                ST_Distance(school.location, property_point.geog)::numeric / 1000,
-                2
-              ),
-              'hasEnrolmentZone', school.enrolment_scheme,
-              'hasZoneGeometry', EXISTS (
-                SELECT 1 FROM school_zones AS available_zone
-                WHERE available_zone.school_id = school.school_id
-              )
-            )
-            ORDER BY ST_Distance(school.location, property_point.geog), school.org_name
-          )
-          FROM schools AS school
-          WHERE school.location IS NOT NULL
-            AND ST_DWithin(school.location, property_point.geog, $2)
-        ), '[]'::jsonb) AS nearby_schools,
-        COALESCE((
-          SELECT jsonb_agg(
-            jsonb_build_object(
-              'schoolId', school.school_id,
-              'schoolName', school.org_name,
-              'schoolType', school.org_type,
-              'zoneName', school_zone.zone_name,
-              'zoneType', school_zone.zone_type
-            )
-            ORDER BY school.org_name, school_zone.zone_name
-          )
-          FROM school_zones AS school_zone
-          JOIN schools AS school ON school.school_id = school_zone.school_id
-          WHERE ST_Covers(school_zone.geom, property_point.geom)
-        ), '[]'::jsonb) AS school_zones
-      FROM address AS property_address
-      CROSS JOIN LATERAL (
-        SELECT
-          ST_SetSRID(
-            ST_MakePoint(
-              property_address.longitude::double precision,
-              property_address.latitude::double precision
-            ),
-            4326
-          ) AS geom,
-          ST_SetSRID(
-            ST_MakePoint(
-              property_address.longitude::double precision,
-              property_address.latitude::double precision
-            ),
-            4326
-          )::geography AS geog
-      ) AS property_point
-      WHERE property_address.property_id = ANY($1::integer[])
-    `,
-    [propertyIds, SCHOOL_NEARBY_RADIUS_METRES],
-  );
-
-  const nearbyByProperty = new Map<number, NearbySchool[]>();
-  const zonesByProperty = new Map<number, SchoolZone[]>();
-  for (const row of rows) {
-    nearbyByProperty.set(row.property_id, parseNearbySchools(row.nearby_schools));
-    zonesByProperty.set(row.property_id, parseSchoolZones(row.school_zones));
-  }
-  return { synced: true, nearbyByProperty, zonesByProperty };
 }
 
 export async function getAucklandSchoolOptions(): Promise<{
@@ -272,27 +211,31 @@ export async function getAucklandSchoolOptions(): Promise<{
   schools: SchoolOption[];
 }> {
   const db = getDb();
-  const [syncRows, schoolRows] = await Promise.all([
-    db.select({ singletonId: schoolDataSync.singletonId }).from(schoolDataSync).limit(1),
-    db
-      .select({
-        schoolId: schoolsTable.schoolId,
-        name: schoolsTable.orgName,
-        orgType: schoolsTable.orgType,
-        hasEnrolmentZone: schoolsTable.enrolmentScheme,
-        hasCoordinates: sql<boolean>`${schoolsTable.location} IS NOT NULL`,
-        hasZoneGeometry: sql<boolean>`EXISTS (
-          SELECT 1 FROM school_zones
-          WHERE school_zones.school_id = ${schoolsTable.schoolId}
-        )`,
-      })
-      .from(schoolsTable)
-      .orderBy(schoolsTable.orgName),
-  ]);
-  return {
-    synced: syncRows.length > 0,
-    schools: syncRows.length > 0 ? schoolRows : [],
-  };
+  try {
+    const [syncRows, schoolRows] = await Promise.all([
+      db.select({ singletonId: schoolDataSync.singletonId }).from(schoolDataSync).limit(1),
+      db
+        .select({
+          schoolId: schoolsTable.schoolId,
+          name: schoolsTable.orgName,
+          orgType: schoolsTable.orgType,
+          hasEnrolmentZone: schoolsTable.enrolmentScheme,
+          hasCoordinates: sql<boolean>`${schoolsTable.latitude} IS NOT NULL AND ${schoolsTable.longitude} IS NOT NULL`,
+          hasZoneGeometry: sql<boolean>`EXISTS (
+            SELECT 1 FROM school_zones
+            WHERE school_zones.school_id = ${schoolsTable.schoolId}
+          )`,
+        })
+        .from(schoolsTable)
+        .orderBy(schoolsTable.orgName),
+    ]);
+    return {
+      synced: syncRows.length > 0,
+      schools: syncRows.length > 0 ? schoolRows : [],
+    };
+  } catch {
+    return { synced: false, schools: [] };
+  }
 }
 
 export async function getPropertiesByStatus(status: PropertyStatus): Promise<Property[]> {
@@ -314,63 +257,100 @@ export async function getPropertiesByStatus(status: PropertyStatus): Promise<Pro
       floorArea: propertyDetails.floorArea,
       bedrooms: propertyDetails.bedrooms,
       bathrooms: propertyDetails.bathrooms,
+      garageParking: propertyDetails.garageParking,
+      offStreetParking: propertyDetails.offStreetParking,
       yearBuilt: propertyDetails.yearBuilt,
       storedPropertyType: propertyDetails.propertyType,
-      displayPropertyType: propertyDemoDetails.displayPropertyType,
-      architecturalStyle: propertyDemoDetails.architecturalStyle,
-      floodRisk: propertyDemoDetails.floodRisk,
-      orientation: propertyDemoDetails.orientation,
-      sunlightHours: propertyDemoDetails.sunlightHours,
-      walkabilityScore: propertyDemoDetails.walkabilityScore,
-      walkabilityLabel: propertyDemoDetails.walkabilityLabel,
-      parksNearby: propertyDemoDetails.parksNearby,
-      cafesNearby: propertyDemoDetails.cafesNearby,
-      supermarketsNearby: propertyDemoDetails.supermarketsNearby,
+      displayPropertyType: propertyDetails.displayPropertyType,
+      architecturalStyle: propertyDetails.architecturalStyle,
+      orientation: propertyDetails.orientation,
+      sunlightHours: propertyDetails.sunlightHours,
+      capitalValue: propertyDetails.capitalValue,
+      estimatedWeeklyRent: propertyDetails.estimatedWeeklyRent,
+      ownershipType: propertyDetails.ownershipType,
+      saleMethod: propertyDetails.saleMethod,
+      imageSourceUrl: propertyDetails.imageSourceUrl,
+      agentName: propertyDetails.agentName,
+      agentSource: propertyDetails.agentSource,
+      agentContactUrl: propertyDetails.agentContactUrl,
     })
     .from(propertyTable)
     .innerJoin(address, eq(address.propertyId, propertyTable.propertyId))
     .innerJoin(propertyDetails, eq(propertyDetails.propertyId, propertyTable.propertyId))
     .leftJoin(propertyPrice, eq(propertyPrice.propertyId, propertyTable.propertyId))
-    .leftJoin(propertyDemoDetails, eq(propertyDemoDetails.propertyId, propertyTable.propertyId))
     .where(eq(propertyTable.status, status));
 
   if (!rows.length) return [];
   const ids = rows.map((row) => row.propertyId);
-  const [images, sources, schoolData] = await Promise.all([
+  const propertyCoords = rows.map((row) => ({
+    propertyId: row.propertyId,
+    latitude: decimalNumber(row.latitude, "latitude"),
+    longitude: decimalNumber(row.longitude, "longitude"),
+  }));
+
+  const [images, sources, openHomeRows, schoolData] = await Promise.all([
     db
       .select()
       .from(propertyImages)
       .where(inArray(propertyImages.propertyId, ids))
       .orderBy(desc(propertyImages.isCover), propertyImages.sortOrder),
-    db.select().from(propertySources).where(inArray(propertySources.propertyId, ids)),
-    getPropertySchoolData(ids),
+    db
+      .select()
+      .from(propertySources)
+      .where(inArray(propertySources.propertyId, ids))
+      .catch(() => []),
+    db
+      .select()
+      .from(openHomes)
+      .where(inArray(openHomes.propertyId, ids))
+      .orderBy(openHomes.openDate, openHomes.startTime)
+      .catch(() => []),
+    getPropertySchoolData(propertyCoords),
   ]);
+
   const [floodZones, floodSyncRows] = await Promise.all([
     db
       .select({
         propertyId: propertyFloodHazards.propertyId,
-        type: floodHazardZones.hazardType,
-        sourceFeatureId: floodHazardZones.sourceFeatureId,
-        sourceUrl: floodHazardZones.sourceUrl,
+        type: propertyFloodHazards.hazardType,
+        sourceFeatureId: propertyFloodHazards.sourceFeatureId,
+        sourceUrl: propertyFloodHazards.sourceUrl,
       })
       .from(propertyFloodHazards)
-      .innerJoin(
-        floodHazardZones,
-        eq(propertyFloodHazards.floodHazardZoneId, floodHazardZones.floodHazardZoneId),
-      )
-      .where(inArray(propertyFloodHazards.propertyId, ids)),
-    db.select({ hazardType: floodHazardSync.hazardType }).from(floodHazardSync),
+      .where(inArray(propertyFloodHazards.propertyId, ids))
+      .catch(() => []),
+    db
+      .select({ hazardType: floodHazardSync.hazardType })
+      .from(floodHazardSync)
+      .catch(() => []),
   ]);
 
-  const imageByProperty = new Map<number, (typeof images)[number]>();
+  const imagesByProperty = new Map<number, typeof images>();
   for (const image of images) {
-    if (!imageByProperty.has(image.propertyId)) imageByProperty.set(image.propertyId, image);
+    const list = imagesByProperty.get(image.propertyId) ?? [];
+    list.push(image);
+    imagesByProperty.set(image.propertyId, list);
+  }
+
+  const openHomesByProperty = new Map<number, OpenHome[]>();
+  for (const oh of openHomeRows) {
+    const list = openHomesByProperty.get(oh.propertyId) ?? [];
+    const startStr = String(oh.startTime).slice(0, 5);
+    const endStr = String(oh.endTime).slice(0, 5);
+    list.push({
+      date: oh.openDate,
+      startTime: startStr,
+      endTime: endStr,
+      label: oh.label ?? `${oh.openDate}, ${startStr} - ${endStr}`,
+    });
+    openHomesByProperty.set(oh.propertyId, list);
   }
 
   const sourcesByProperty = new Map<number, PropertySource[]>();
   for (const source of sources) {
     const fields = source.fields.filter(
-      (field): field is PropertySourceField => sourceFieldValues.includes(field as PropertySourceField),
+      (field): field is PropertySourceField =>
+        sourceFieldValues.includes(field as PropertySourceField),
     );
     const item: PropertySource = {
       id: source.sourceKey,
@@ -400,42 +380,18 @@ export async function getPropertiesByStatus(status: PropertyStatus): Promise<Pro
     floodHazardsByProperty.set(hazard.propertyId, items);
   }
   const floodDataSynced =
-    floodSyncRows.length === 4 &&
-    new Set(floodSyncRows.map(({ hazardType }) => hazardType)).size === 4;
+    floodZones.length > 0 ||
+    (floodSyncRows.length === 4 &&
+      new Set(floodSyncRows.map(({ hazardType }) => hazardType)).size === 4);
 
   return rows.map((row) => {
-    const image = imageByProperty.get(row.propertyId);
-    if (!image) throw new Error(`Missing property image for database property ${row.propertyId}.`);
-
-    let walkability: WalkabilityProfile | undefined;
-    if (
-      row.walkabilityScore !== null ||
-      row.walkabilityLabel !== null ||
-      row.parksNearby !== null ||
-      row.cafesNearby !== null ||
-      row.supermarketsNearby !== null
-    ) {
-      let walkabilityLabel: WalkabilityProfile["label"];
-      if (
-        row.walkabilityLabel !== null &&
-        row.walkabilityLabel !== "Car-Dependent" &&
-        row.walkabilityLabel !== "Somewhat Walkable" &&
-        row.walkabilityLabel !== "Very Walkable" &&
-        row.walkabilityLabel !== "Walker's Paradise"
-      ) {
-        throw new Error(`Unsupported walkability label in database: ${row.walkabilityLabel}`);
-      }
-      if (row.walkabilityLabel !== null) walkabilityLabel = row.walkabilityLabel;
-      walkability = {
-        ...(row.walkabilityScore !== null ? { score: row.walkabilityScore } : {}),
-        ...(walkabilityLabel ? { label: walkabilityLabel } : {}),
-        ...(row.parksNearby !== null ? { parksNearby: row.parksNearby } : {}),
-        ...(row.cafesNearby !== null ? { cafesNearby: row.cafesNearby } : {}),
-        ...(row.supermarketsNearby !== null
-          ? { supermarketsNearby: row.supermarketsNearby }
-          : {}),
-      };
+    const propImages = imagesByProperty.get(row.propertyId) ?? [];
+    const coverImage = propImages[0];
+    if (!coverImage) {
+      throw new Error(`Missing property image for database property ${row.propertyId}.`);
     }
+    const gallery = propImages.map((img) => img.url);
+    const totalParking = (row.garageParking ?? 0) + (row.offStreetParking ?? 0);
 
     return {
       id: row.demoKey ?? String(row.propertyId),
@@ -444,22 +400,44 @@ export async function getPropertiesByStatus(status: PropertyStatus): Promise<Pro
       city: row.city,
       region: row.region ?? "",
       price: decimalNumber(row.salePrice, "sale price"),
+      ...(row.saleMethod ? { saleMethod: row.saleMethod } : {}),
       bedrooms: row.bedrooms,
       bathrooms: row.bathrooms,
+      ...(totalParking > 0 ? { parkingSpaces: totalParking } : {}),
       landArea: decimalNumber(row.landArea, "land area"),
       floorArea: decimalNumber(row.floorArea, "floor area"),
       yearBuilt: row.yearBuilt ?? 0,
       propertyType: asPropertyType(row.displayPropertyType, row.storedPropertyType),
       architecturalStyle: asArchitecturalStyle(row.architecturalStyle),
-      floodRisk: asFloodRisk(row.floodRisk),
       ...(row.orientation ? { orientation: row.orientation } : {}),
       ...(row.sunlightHours !== null
         ? { sunlightHours: decimalNumber(row.sunlightHours, "sunlight hours") }
         : {}),
+      ...(row.capitalValue !== null
+        ? { capitalValue: decimalNumber(row.capitalValue, "capital value") }
+        : {}),
+      ...(row.estimatedWeeklyRent !== null
+        ? { estimatedWeeklyRent: decimalNumber(row.estimatedWeeklyRent, "weekly rent") }
+        : {}),
+      ...(row.ownershipType ? { ownershipType: row.ownershipType } : {}),
       latitude: decimalNumber(row.latitude, "latitude"),
       longitude: decimalNumber(row.longitude, "longitude"),
-      image: image.url,
-      imageAlt: image.caption ?? row.demoKey ?? row.streetName,
+      image: coverImage.url,
+      imageAlt: coverImage.caption ?? row.demoKey ?? row.streetName,
+      ...(row.imageSourceUrl ? { imageSourceUrl: row.imageSourceUrl } : {}),
+      ...(row.agentName && row.agentContactUrl
+        ? {
+            listingAgent: {
+              name: row.agentName,
+              source: (row.agentSource as "OneRoof") || "OneRoof",
+              contactUrl: row.agentContactUrl,
+            },
+          }
+        : {}),
+      photoGallery: gallery,
+      ...(openHomesByProperty.has(row.propertyId)
+        ? { openHomes: openHomesByProperty.get(row.propertyId) }
+        : {}),
       ...(sourcesByProperty.has(row.propertyId)
         ? { sources: sourcesByProperty.get(row.propertyId) }
         : {}),
@@ -473,7 +451,6 @@ export async function getPropertiesByStatus(status: PropertyStatus): Promise<Pro
       ...(floodDataSynced
         ? { floodHazards: floodHazardsByProperty.get(row.propertyId) ?? [] }
         : {}),
-      ...(walkability ? { walkability } : {}),
     };
   });
 }
@@ -516,94 +493,34 @@ export async function getNearbyComparableSales(
   radiusKm: number,
   months: number,
 ): Promise<ComparableSalesResult> {
-  const db = getDb();
-  const [target] = await db
-    .select({
-      propertyId: propertyTable.propertyId,
-      propertyType: propertyDetails.propertyType,
-      bedrooms: propertyDetails.bedrooms,
-      floorArea: propertyDetails.floorArea,
-      latitude: address.latitude,
-      longitude: address.longitude,
-    })
-    .from(propertyTable)
-    .innerJoin(address, eq(address.propertyId, propertyTable.propertyId))
-    .innerJoin(propertyDetails, eq(propertyDetails.propertyId, propertyTable.propertyId))
-    .where(eq(propertyTable.demoKey, propertyKey))
-    .limit(1);
+  const [activeProperties, soldProperties] = await Promise.all([
+    getPropertiesByStatus("active"),
+    getComparableSales(),
+  ]);
+  const target =
+    activeProperties.find((p) => p.id === propertyKey) ??
+    soldProperties.find((p) => p.id === propertyKey);
 
   if (!target) return { comps: [], averagePrice: 0 };
 
-  const nearbyRows = await db
-    .selectDistinctOn([propertyTable.propertyId], {
-      propertyId: propertyTable.propertyId,
-      demoKey: propertyTable.demoKey,
-      soldDate: propertySales.soldDate,
-      distanceKm: sql<number>`
-        ST_Distance(
-          ST_SetSRID(ST_MakePoint(${address.longitude}::double precision, ${address.latitude}::double precision), 4326)::geography,
-          ST_SetSRID(ST_MakePoint(${target.longitude}::double precision, ${target.latitude}::double precision), 4326)::geography
-        ) / 1000.0
-      `.as("distance_km"),
-    })
-    .from(propertyTable)
-    .innerJoin(address, eq(address.propertyId, propertyTable.propertyId))
-    .innerJoin(propertyDetails, eq(propertyDetails.propertyId, propertyTable.propertyId))
-    .innerJoin(propertySales, eq(propertySales.propertyId, propertyTable.propertyId))
-    .where(
-      and(
-        eq(propertyTable.status, "sold"),
-        ne(propertyTable.propertyId, target.propertyId),
-        eq(propertyDetails.propertyType, target.propertyType),
-        sql`ABS(${propertyDetails.bedrooms} - ${target.bedrooms}) <= 1`,
-        sql`ABS(${propertyDetails.floorArea} - ${target.floorArea})
-          / NULLIF(${target.floorArea}::numeric, 0::numeric) <= 0.35`,
-        gte(
-          propertySales.soldDate,
-          sql`CURRENT_DATE - make_interval(months => ${months})`,
-        ),
-        sql`ST_DWithin(
-          ST_SetSRID(ST_MakePoint(${address.longitude}::double precision, ${address.latitude}::double precision), 4326)::geography,
-          ST_SetSRID(ST_MakePoint(${target.longitude}::double precision, ${target.latitude}::double precision), 4326)::geography,
-          ${radiusKm * 1000}
-        )`,
-      ),
-    )
-    .orderBy(propertyTable.propertyId, desc(propertySales.soldDate));
-
-  const soldProperties = await getComparableSales();
-  const propertyById = new Map(
-    soldProperties.map((property) => [property.id, property]),
-  );
-  const comps = nearbyRows
-    .flatMap((row) => {
-      const property = propertyById.get(row.demoKey ?? String(row.propertyId));
-      return property
-        ? [
-            {
-              property: {
-                id: property.id,
-                address: property.address,
-                bedrooms: property.bedrooms,
-                floorArea: property.floorArea,
-                price: property.price,
-                soldDate: property.soldDate,
-              },
-              distanceKm: Number(row.distanceKm),
-            },
-          ]
-        : [];
-    })
-    .sort(
-      (a, b) =>
-        new Date(b.property.soldDate!).getTime() -
-        new Date(a.property.soldDate!).getTime(),
-    );
+  const result = findComparableSales(target, soldProperties, {
+    radiusKm,
+    months,
+    asOf: new Date(),
+  });
 
   return {
-    comps,
-    averagePrice: comps.length
-      ? Math.round(comps.reduce((sum, { property }) => sum + property.price, 0) / comps.length)
-      : 0,
+    comps: result.comps.map(({ property, distanceKm }) => ({
+      property: {
+        id: property.id,
+        address: property.address,
+        bedrooms: property.bedrooms,
+        floorArea: property.floorArea,
+        price: property.price,
+        soldDate: property.soldDate,
+      },
+      distanceKm: Math.round(distanceKm * 100) / 100,
+    })),
+    averagePrice: result.averagePrice,
   };
 }

@@ -6,6 +6,7 @@
     "city": "Auckland",
     "region": "Auckland",
     "price": 760000,
+    "saleMethod": "Auction 08 Nov 2026 02:30",
     "bedrooms": 2,
     "bathrooms": 1,
     "parkingSpaces": 1,
@@ -14,7 +15,37 @@
     "yearBuilt": 1960,
     "propertyType": "Apartment",
     "architecturalStyle": "Mid-Century",
-    "floodRisk": "Low",
+    "floodHazards": [
+      {
+        "type": "flood_plains",
+        "sourceFeatureId": "11392",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Flood_Plains/FeatureServer/0"
+      },
+      {
+        "type": "flood_prone_areas",
+        "sourceFeatureId": "21475",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Flood_Prone_Areas/FeatureServer/0"
+      },
+      {
+        "type": "overland_flow_paths",
+        "sourceFeatureId": "587590",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Overland_Flow_Paths/FeatureServer/0"
+      }
+    ],
+    "openHomes": [
+      {
+        "date": "2026-10-24",
+        "startTime": "12:00",
+        "endTime": "12:30",
+        "label": "Sat, 24 Oct, 12:00pm - 12:30pm"
+      },
+      {
+        "date": "2026-10-25",
+        "startTime": "12:00",
+        "endTime": "12:30",
+        "label": "Sun, 25 Oct, 12:00pm - 12:30pm"
+      }
+    ],
     "orientation": "North",
     "sunlightHours": 8.2,
     "latitude": -36.895678832390516,
@@ -73,13 +104,6 @@
         "isInZone": true
       }
     ],
-    "walkability": {
-      "score": 76,
-      "label": "Very Walkable",
-      "parksNearby": 4,
-      "cafesNearby": 6,
-      "supermarketsNearby": 2
-    },
     "commuteOptions": [
       {
         "destinationName": "Auckland CBD",
@@ -163,6 +187,7 @@
     "city": "Pōkeno",
     "region": "Auckland",
     "price": 1790000,
+    "saleMethod": "By Negotiation",
     "bedrooms": 6,
     "bathrooms": 2,
     "parkingSpaces": 3,
@@ -171,7 +196,8 @@
     "yearBuilt": 2012,
     "propertyType": "Lifestyle block",
     "architecturalStyle": "Contemporary",
-    "floodRisk": "Moderate",
+    "floodHazards": [],
+    "openHomes": [],
     "orientation": "North",
     "sunlightHours": 7.4,
     "latitude": -37.21833404908647,
@@ -237,13 +263,6 @@
         "isInZone": true
       }
     ],
-    "walkability": {
-      "score": 45,
-      "label": "Somewhat Walkable",
-      "parksNearby": 2,
-      "cafesNearby": 2,
-      "supermarketsNearby": 1
-    },
     "commuteOptions": [
       {
         "destinationName": "Auckland CBD",
@@ -324,6 +343,7 @@
     "city": "Auckland",
     "region": "Auckland",
     "price": 685000,
+    "saleMethod": "Auction 18 Nov 2026 13:00",
     "bedrooms": 3,
     "bathrooms": 1,
     "parkingSpaces": 3,
@@ -332,7 +352,27 @@
     "yearBuilt": 1990,
     "propertyType": "Apartment",
     "architecturalStyle": "Contemporary",
-    "floodRisk": "High",
+    "floodHazards": [
+      {
+        "type": "overland_flow_paths",
+        "sourceFeatureId": "438154",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Overland_Flow_Paths/FeatureServer/0"
+      }
+    ],
+    "openHomes": [
+      {
+        "date": "2026-10-24",
+        "startTime": "13:00",
+        "endTime": "13:30",
+        "label": "Sat, 24 Oct, 01:00pm - 01:30pm"
+      },
+      {
+        "date": "2026-10-25",
+        "startTime": "13:00",
+        "endTime": "13:30",
+        "label": "Sun, 25 Oct, 01:00pm - 01:30pm"
+      }
+    ],
     "orientation": "West",
     "sunlightHours": 6.4,
     "latitude": -37.029165565789114,
@@ -448,13 +488,6 @@
         "isInZone": true
       }
     ],
-    "walkability": {
-      "score": 52,
-      "label": "Somewhat Walkable",
-      "parksNearby": 2,
-      "cafesNearby": 2,
-      "supermarketsNearby": 1
-    },
     "commuteOptions": [
       {
         "destinationName": "Auckland CBD",
@@ -549,6 +582,7 @@
     "city": "Auckland City",
     "region": "Auckland",
     "price": 750000,
+    "saleMethod": "Auction 11 Nov 2026 13:30",
     "bedrooms": 6,
     "bathrooms": 4,
     "parkingSpaces": 7,
@@ -557,7 +591,21 @@
     "yearBuilt": 2012,
     "propertyType": "House",
     "architecturalStyle": "Contemporary",
-    "floodRisk": "Low",
+    "floodHazards": [],
+    "openHomes": [
+      {
+        "date": "2026-10-24",
+        "startTime": "14:00",
+        "endTime": "14:30",
+        "label": "Sat, 24 Oct, 02:00pm - 02:30pm"
+      },
+      {
+        "date": "2026-10-25",
+        "startTime": "14:00",
+        "endTime": "14:30",
+        "label": "Sun, 25 Oct, 02:00pm - 02:30pm"
+      }
+    ],
     "orientation": "East",
     "sunlightHours": 5.9,
     "latitude": -36.908195495605,
@@ -637,13 +685,6 @@
         "isInZone": true
       }
     ],
-    "walkability": {
-      "score": 77,
-      "label": "Very Walkable",
-      "parksNearby": 4,
-      "cafesNearby": 6,
-      "supermarketsNearby": 2
-    },
     "commuteOptions": [
       {
         "destinationName": "Auckland CBD",
@@ -680,6 +721,7 @@
     "city": "Auckland",
     "region": "Auckland",
     "price": 5310000,
+    "saleMethod": "Auction 11 Nov 2026 10:00",
     "bedrooms": 5,
     "bathrooms": 3,
     "parkingSpaces": 6,
@@ -688,7 +730,27 @@
     "yearBuilt": 2020,
     "propertyType": "House",
     "architecturalStyle": "Modernist",
-    "floodRisk": "Low",
+    "floodHazards": [
+      {
+        "type": "overland_flow_paths",
+        "sourceFeatureId": "461081",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Overland_Flow_Paths/FeatureServer/0"
+      }
+    ],
+    "openHomes": [
+      {
+        "date": "2026-10-21",
+        "startTime": "18:00",
+        "endTime": "18:30",
+        "label": "Wed, 21 Oct, 06:00pm - 06:30pm"
+      },
+      {
+        "date": "2026-10-24",
+        "startTime": "12:00",
+        "endTime": "12:30",
+        "label": "Sat, 24 Oct, 12:00pm - 12:30pm"
+      }
+    ],
     "orientation": "North",
     "sunlightHours": 8.2,
     "latitude": -36.85845259909084,
@@ -811,13 +873,6 @@
         "isInZone": true
       }
     ],
-    "walkability": {
-      "score": 78,
-      "label": "Very Walkable",
-      "parksNearby": 4,
-      "cafesNearby": 6,
-      "supermarketsNearby": 2
-    },
     "commuteOptions": [
       {
         "destinationName": "Auckland CBD",
@@ -890,6 +945,7 @@
     "city": "Auckland",
     "region": "Auckland",
     "price": 775000,
+    "saleMethod": "Auction 04 Nov 2026 13:00",
     "bedrooms": 2,
     "bathrooms": 1,
     "parkingSpaces": 0,
@@ -898,7 +954,14 @@
     "yearBuilt": 1970,
     "propertyType": "House",
     "architecturalStyle": "Mid-Century",
-    "floodRisk": "Low",
+    "floodHazards": [
+      {
+        "type": "flood_plains",
+        "sourceFeatureId": "1166",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Flood_Plains/FeatureServer/0"
+      }
+    ],
+    "openHomes": [],
     "orientation": "North",
     "sunlightHours": 7.4,
     "latitude": -36.971749282389766,
@@ -984,13 +1047,6 @@
         "isInZone": true
       }
     ],
-    "walkability": {
-      "score": 64,
-      "label": "Somewhat Walkable",
-      "parksNearby": 2,
-      "cafesNearby": 2,
-      "supermarketsNearby": 1
-    },
     "commuteOptions": [
       {
         "destinationName": "Auckland CBD",
@@ -1085,6 +1141,7 @@
     "city": "Orewa",
     "region": "Auckland",
     "price": 1290000,
+    "saleMethod": "Auction 12 Nov 2026 10:00",
     "bedrooms": 3,
     "bathrooms": 2,
     "parkingSpaces": 2,
@@ -1093,7 +1150,51 @@
     "yearBuilt": 1950,
     "propertyType": "House",
     "architecturalStyle": "Mid-Century",
-    "floodRisk": "Low",
+    "floodHazards": [],
+    "openHomes": [
+      {
+        "date": "2026-10-21",
+        "startTime": "17:00",
+        "endTime": "18:00",
+        "label": "Wed, 21 Oct, 05:00pm - 06:00pm"
+      },
+      {
+        "date": "2026-10-24",
+        "startTime": "14:00",
+        "endTime": "14:30",
+        "label": "Sat, 24 Oct, 02:00pm - 02:30pm"
+      },
+      {
+        "date": "2026-10-25",
+        "startTime": "14:00",
+        "endTime": "14:30",
+        "label": "Sun, 25 Oct, 02:00pm - 02:30pm"
+      },
+      {
+        "date": "2026-10-31",
+        "startTime": "14:00",
+        "endTime": "14:30",
+        "label": "Sat, 31 Oct, 02:00pm - 02:30pm"
+      },
+      {
+        "date": "2026-11-01",
+        "startTime": "14:00",
+        "endTime": "14:30",
+        "label": "Sun, 1 Nov, 02:00pm - 02:30pm"
+      },
+      {
+        "date": "2026-11-07",
+        "startTime": "14:00",
+        "endTime": "14:30",
+        "label": "Sat, 7 Nov, 02:00pm - 02:30pm"
+      },
+      {
+        "date": "2026-11-08",
+        "startTime": "14:00",
+        "endTime": "14:30",
+        "label": "Sun, 8 Nov, 02:00pm - 02:30pm"
+      }
+    ],
     "orientation": "West",
     "sunlightHours": 6.4,
     "latitude": -36.572394999094165,
@@ -1184,13 +1285,6 @@
         "isInZone": true
       }
     ],
-    "walkability": {
-      "score": 45,
-      "label": "Somewhat Walkable",
-      "parksNearby": 2,
-      "cafesNearby": 2,
-      "supermarketsNearby": 1
-    },
     "commuteOptions": [
       {
         "destinationName": "Auckland CBD",
@@ -1280,12 +1374,13 @@
     ]
   },
   {
-    "id": "linz-1051169",
+    "id": "oneroof-aiJJ3",
     "address": "989 East Coast Road",
     "suburb": "Kaiaua",
-    "city": "Auckland",
+    "city": "Franklin",
     "region": "Auckland",
     "price": 960000,
+    "saleMethod": "Auction 26 Nov 2026 11:00",
     "bedrooms": 3,
     "bathrooms": 2,
     "parkingSpaces": 2,
@@ -1294,11 +1389,43 @@
     "yearBuilt": 2010,
     "propertyType": "House",
     "architecturalStyle": "Contemporary",
-    "floodRisk": "Low",
+    "floodHazards": [],
+    "openHomes": [
+      {
+        "date": "2026-10-26",
+        "startTime": "10:00",
+        "endTime": "10:30",
+        "label": "Mon, 26 Oct, 10:00am - 10:30am"
+      },
+      {
+        "date": "2026-11-01",
+        "startTime": "10:00",
+        "endTime": "10:30",
+        "label": "Sun, 1 Nov, 10:00am - 10:30am"
+      },
+      {
+        "date": "2026-11-08",
+        "startTime": "16:30",
+        "endTime": "17:00",
+        "label": "Sun, 8 Nov, 04:30pm - 05:00pm"
+      },
+      {
+        "date": "2026-11-15",
+        "startTime": "10:00",
+        "endTime": "10:30",
+        "label": "Sun, 15 Nov, 10:00am - 10:30am"
+      },
+      {
+        "date": "2026-11-22",
+        "startTime": "09:30",
+        "endTime": "10:00",
+        "label": "Sun, 22 Nov, 09:30am - 10:00am"
+      }
+    ],
     "orientation": "South",
     "sunlightHours": 4.6,
-    "latitude": -36.70107946579282,
-    "longitude": 174.7198860000045,
+    "latitude": -37.1062433,
+    "longitude": 175.2989409,
     "image": "https://s.oneroof.co.nz/image/6c/5c/6c5cb24257fa0b12184a24d5892a6540.jpg?x-oss-process=image/quality,q_80",
     "imageAlt": "Photo of 989 East Coast Road, Kaiaua (Auction 26 Nov 2026 11:00)",
     "imageSourceUrl": "https://www.oneroof.co.nz/property/auckland/kaiaua/989-east-coast-road/aiJJ3",
@@ -1368,40 +1495,27 @@
     "ownershipType": "Freehold",
     "schoolZones": [
       {
-        "name": "Auckland Normal Intermediate",
-        "type": "Intermediate",
-        "distanceKm": 1.4,
+        "name": "Kaiaua School",
+        "type": "Primary",
+        "distanceKm": 1.1,
         "isInZone": true
       },
       {
-        "name": "Auckland Grammar School",
+        "name": "Franklin College",
         "type": "Secondary",
-        "distanceKm": 2.1,
-        "isInZone": true
-      },
-      {
-        "name": "Epsom Girls Grammar School",
-        "type": "Secondary",
-        "distanceKm": 2.3,
+        "distanceKm": 3.2,
         "isInZone": true
       }
     ],
-    "walkability": {
-      "score": 62,
-      "label": "Somewhat Walkable",
-      "parksNearby": 2,
-      "cafesNearby": 2,
-      "supermarketsNearby": 1
-    },
     "commuteOptions": [
       {
         "destinationName": "Auckland CBD",
         "mode": "driving",
-        "timeMinutes": 40,
+        "timeMinutes": 122,
         "travelTimes": {
-          "driving": 40,
-          "transit": 55,
-          "walking": 202
+          "driving": 122,
+          "transit": 164,
+          "walking": 667
         }
       }
     ],
@@ -1418,17 +1532,6 @@
           "bedrooms",
           "bathrooms",
           "landArea"
-        ]
-      },
-      {
-        "id": "linz-1051169",
-        "title": "NZ Addresses",
-        "publisher": "Land Information New Zealand",
-        "reference": "Address ID 1051169",
-        "material": "Current verified LINZ address: 989 East Coast Road, Redvale, Auckland. High-precision official coordinates: -36.701079, 174.719886.",
-        "url": "https://data.linz.govt.nz/layer/123113-nz-addresses/",
-        "fields": [
-          "address"
         ]
       },
       {
@@ -1476,6 +1579,7 @@
     "city": "Manukau City",
     "region": "Auckland",
     "price": 360000,
+    "saleMethod": "By negotiation",
     "bedrooms": 4,
     "bathrooms": 2,
     "parkingSpaces": 1,
@@ -1484,7 +1588,27 @@
     "yearBuilt": 2018,
     "propertyType": "Apartment",
     "architecturalStyle": "Modernist",
-    "floodRisk": "Moderate",
+    "floodHazards": [
+      {
+        "type": "overland_flow_paths",
+        "sourceFeatureId": "826729",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Overland_Flow_Paths/FeatureServer/0"
+      }
+    ],
+    "openHomes": [
+      {
+        "date": "2026-10-24",
+        "startTime": "12:00",
+        "endTime": "12:45",
+        "label": "Sat, 24 Oct, 12:00pm - 12:45pm"
+      },
+      {
+        "date": "2026-10-25",
+        "startTime": "12:00",
+        "endTime": "12:45",
+        "label": "Sun, 25 Oct, 12:00pm - 12:45pm"
+      }
+    ],
     "orientation": "North",
     "sunlightHours": 8.2,
     "latitude": -37.013561248779,
@@ -1533,13 +1657,6 @@
         "isInZone": true
       }
     ],
-    "walkability": {
-      "score": 53,
-      "label": "Somewhat Walkable",
-      "parksNearby": 2,
-      "cafesNearby": 2,
-      "supermarketsNearby": 1
-    },
     "commuteOptions": [
       {
         "destinationName": "Auckland CBD",
@@ -1576,6 +1693,7 @@
     "city": "Auckland",
     "region": "Auckland",
     "price": 775000,
+    "saleMethod": "Deadline sale closes 06 Nov 2026 16:00",
     "bedrooms": 3,
     "bathrooms": 1,
     "parkingSpaces": 4,
@@ -1584,7 +1702,33 @@
     "yearBuilt": 1990,
     "propertyType": "Apartment",
     "architecturalStyle": "Modernist",
-    "floodRisk": "Low",
+    "floodHazards": [
+      {
+        "type": "overland_flow_paths",
+        "sourceFeatureId": "423460",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Overland_Flow_Paths/FeatureServer/0"
+      }
+    ],
+    "openHomes": [
+      {
+        "date": "2026-10-22",
+        "startTime": "18:00",
+        "endTime": "18:30",
+        "label": "Thu, 22 Oct, 06:00pm - 06:30pm"
+      },
+      {
+        "date": "2026-10-24",
+        "startTime": "12:30",
+        "endTime": "13:00",
+        "label": "Sat, 24 Oct, 12:30pm - 01:00pm"
+      },
+      {
+        "date": "2026-10-25",
+        "startTime": "12:30",
+        "endTime": "13:00",
+        "label": "Sun, 25 Oct, 12:30pm - 01:00pm"
+      }
+    ],
     "orientation": "North",
     "sunlightHours": 7.4,
     "latitude": -36.819297582391904,
@@ -1657,13 +1801,6 @@
         "isInZone": true
       }
     ],
-    "walkability": {
-      "score": 69,
-      "label": "Very Walkable",
-      "parksNearby": 2,
-      "cafesNearby": 2,
-      "supermarketsNearby": 1
-    },
     "commuteOptions": [
       {
         "destinationName": "Auckland CBD",
@@ -1740,12 +1877,13 @@
     ]
   },
   {
-    "id": "linz-688544",
+    "id": "linz-1224590",
     "address": "10 & 12 Wanaka Place",
     "suburb": "Pakuranga Heights",
-    "city": "Hamilton",
+    "city": "Auckland",
     "region": "Auckland",
     "price": 750000,
+    "saleMethod": "By Negotiation",
     "bedrooms": 4,
     "bathrooms": 2,
     "parkingSpaces": 1,
@@ -1754,11 +1892,18 @@
     "yearBuilt": 2018,
     "propertyType": "House",
     "architecturalStyle": "Contemporary",
-    "floodRisk": "Low",
+    "floodHazards": [
+      {
+        "type": "overland_flow_paths",
+        "sourceFeatureId": "203856",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Overland_Flow_Paths/FeatureServer/0"
+      }
+    ],
+    "openHomes": [],
     "orientation": "West",
     "sunlightHours": 6.4,
-    "latitude": -37.82091053237752,
-    "longitude": 175.29026483331972,
+    "latitude": -36.92264126579,
+    "longitude": 174.888560633307,
     "image": "https://s.oneroof.co.nz/image/89/f5/89f57b8e92520f9b85f4b2d642360486.jpg?x-oss-process=image%2Fquality%2Cq_100%2Fresize%2Cw_1200",
     "imageAlt": "Photo of 10 & 12 Wanaka Place, Pakuranga Heights (By Negotiation)",
     "imageSourceUrl": "https://www.oneroof.co.nz/property/auckland/pakuranga-heights/10-12-wanaka-place/UwDmk",
@@ -1795,34 +1940,33 @@
     "ownershipType": "Freehold",
     "schoolZones": [
       {
-        "name": "Pakuranga Heights School",
-        "type": "Primary",
-        "distanceKm": 1.1,
+        "name": "Auckland Normal Intermediate",
+        "type": "Intermediate",
+        "distanceKm": 1.4,
         "isInZone": true
       },
       {
-        "name": "Hamilton College",
+        "name": "Auckland Grammar School",
         "type": "Secondary",
-        "distanceKm": 3.2,
+        "distanceKm": 2.1,
+        "isInZone": true
+      },
+      {
+        "name": "Epsom Girls Grammar School",
+        "type": "Secondary",
+        "distanceKm": 2.3,
         "isInZone": true
       }
     ],
-    "walkability": {
-      "score": 45,
-      "label": "Somewhat Walkable",
-      "parksNearby": 2,
-      "cafesNearby": 2,
-      "supermarketsNearby": 1
-    },
     "commuteOptions": [
       {
         "destinationName": "Auckland CBD",
         "mode": "driving",
-        "timeMinutes": 252,
+        "timeMinutes": 34,
         "travelTimes": {
-          "driving": 252,
-          "transit": 338,
-          "walking": 1413
+          "driving": 34,
+          "transit": 47,
+          "walking": 166
         }
       }
     ],
@@ -1842,11 +1986,11 @@
         ]
       },
       {
-        "id": "linz-688544",
+        "id": "linz-1224590",
         "title": "NZ Addresses",
         "publisher": "Land Information New Zealand",
-        "reference": "Address ID 688544",
-        "material": "Current verified LINZ address: 10 Wanaka Place, Glenview, Hamilton. High-precision official coordinates: -37.820911, 175.290265.",
+        "reference": "Address ID 1224590",
+        "material": "Current verified LINZ address: 10 Wanaka Place, Pakuranga Heights, Auckland. High-precision official coordinates: -36.922641, 174.888561.",
         "url": "https://data.linz.govt.nz/layer/123113-nz-addresses/",
         "fields": [
           "address"
@@ -1858,9 +2002,10 @@
     "id": "oneroof-7xgYL",
     "address": "10 & 12 Wanaka Place",
     "suburb": "Pakuranga Heights",
-    "city": "Hamilton",
+    "city": "Auckland",
     "region": "Auckland",
     "price": 750000,
+    "saleMethod": "By Negotiation",
     "bedrooms": 3,
     "bathrooms": 2,
     "parkingSpaces": 1,
@@ -1869,11 +2014,18 @@
     "yearBuilt": 2012,
     "propertyType": "House",
     "architecturalStyle": "Contemporary",
-    "floodRisk": "Low",
+    "floodHazards": [
+      {
+        "type": "overland_flow_paths",
+        "sourceFeatureId": "203856",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Overland_Flow_Paths/FeatureServer/0"
+      }
+    ],
+    "openHomes": [],
     "orientation": "East",
     "sunlightHours": 5.9,
-    "latitude": -37.82091053237752,
-    "longitude": 175.29026483331972,
+    "latitude": -36.92264126579,
+    "longitude": 174.888560633307,
     "image": "https://s.oneroof.co.nz/image/89/f5/89f57b8e92520f9b85f4b2d642360486.jpg?x-oss-process=image%2Fquality%2Cq_100%2Fresize%2Cw_1200",
     "imageAlt": "Photo of 10 & 12 Wanaka Place, Pakuranga Heights (By Negotiation)",
     "imageSourceUrl": "https://www.oneroof.co.nz/property/auckland/pakuranga-heights/10-12-wanaka-place/7xgYL",
@@ -1910,34 +2062,33 @@
     "ownershipType": "Freehold",
     "schoolZones": [
       {
-        "name": "Pakuranga Heights School",
-        "type": "Primary",
-        "distanceKm": 1.1,
+        "name": "Auckland Normal Intermediate",
+        "type": "Intermediate",
+        "distanceKm": 1.4,
         "isInZone": true
       },
       {
-        "name": "Hamilton College",
+        "name": "Auckland Grammar School",
         "type": "Secondary",
-        "distanceKm": 3.2,
+        "distanceKm": 2.1,
+        "isInZone": true
+      },
+      {
+        "name": "Epsom Girls Grammar School",
+        "type": "Secondary",
+        "distanceKm": 2.3,
         "isInZone": true
       }
     ],
-    "walkability": {
-      "score": 45,
-      "label": "Somewhat Walkable",
-      "parksNearby": 2,
-      "cafesNearby": 2,
-      "supermarketsNearby": 1
-    },
     "commuteOptions": [
       {
         "destinationName": "Auckland CBD",
         "mode": "driving",
-        "timeMinutes": 252,
+        "timeMinutes": 34,
         "travelTimes": {
-          "driving": 252,
-          "transit": 338,
-          "walking": 1413
+          "driving": 34,
+          "transit": 47,
+          "walking": 166
         }
       }
     ],
@@ -1957,11 +2108,11 @@
         ]
       },
       {
-        "id": "linz-688544",
+        "id": "linz-1224590",
         "title": "NZ Addresses",
         "publisher": "Land Information New Zealand",
-        "reference": "Address ID 688544",
-        "material": "Current verified LINZ address: 10 Wanaka Place, Glenview, Hamilton. High-precision official coordinates: -37.820911, 175.290265.",
+        "reference": "Address ID 1224590",
+        "material": "Current verified LINZ address: 10 Wanaka Place, Pakuranga Heights, Auckland. High-precision official coordinates: -36.922641, 174.888561.",
         "url": "https://data.linz.govt.nz/layer/123113-nz-addresses/",
         "fields": [
           "address"
@@ -1973,9 +2124,10 @@
     "id": "oneroof-qsM26",
     "address": "10 & 12 Wanaka Place",
     "suburb": "Pakuranga Heights",
-    "city": "Hamilton",
+    "city": "Auckland",
     "region": "Auckland",
     "price": 750000,
+    "saleMethod": "By Negotiation",
     "bedrooms": 2,
     "bathrooms": 2,
     "parkingSpaces": 1,
@@ -1984,11 +2136,18 @@
     "yearBuilt": 2018,
     "propertyType": "House",
     "architecturalStyle": "Modernist",
-    "floodRisk": "Low",
+    "floodHazards": [
+      {
+        "type": "overland_flow_paths",
+        "sourceFeatureId": "203856",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Overland_Flow_Paths/FeatureServer/0"
+      }
+    ],
+    "openHomes": [],
     "orientation": "North",
     "sunlightHours": 8.2,
-    "latitude": -37.82091053237752,
-    "longitude": 175.29026483331972,
+    "latitude": -36.92264126579,
+    "longitude": 174.888560633307,
     "image": "https://s.oneroof.co.nz/image/89/f5/89f57b8e92520f9b85f4b2d642360486.jpg?x-oss-process=image%2Fquality%2Cq_100%2Fresize%2Cw_1200",
     "imageAlt": "Photo of 10 & 12 Wanaka Place, Pakuranga Heights (By Negotiation)",
     "imageSourceUrl": "https://www.oneroof.co.nz/property/auckland/pakuranga-heights/10-12-wanaka-place/qsM26",
@@ -2025,34 +2184,33 @@
     "ownershipType": "Freehold",
     "schoolZones": [
       {
-        "name": "Pakuranga Heights School",
-        "type": "Primary",
-        "distanceKm": 1.1,
+        "name": "Auckland Normal Intermediate",
+        "type": "Intermediate",
+        "distanceKm": 1.4,
         "isInZone": true
       },
       {
-        "name": "Hamilton College",
+        "name": "Auckland Grammar School",
         "type": "Secondary",
-        "distanceKm": 3.2,
+        "distanceKm": 2.1,
+        "isInZone": true
+      },
+      {
+        "name": "Epsom Girls Grammar School",
+        "type": "Secondary",
+        "distanceKm": 2.3,
         "isInZone": true
       }
     ],
-    "walkability": {
-      "score": 45,
-      "label": "Somewhat Walkable",
-      "parksNearby": 2,
-      "cafesNearby": 2,
-      "supermarketsNearby": 1
-    },
     "commuteOptions": [
       {
         "destinationName": "Auckland CBD",
         "mode": "driving",
-        "timeMinutes": 252,
+        "timeMinutes": 34,
         "travelTimes": {
-          "driving": 252,
-          "transit": 338,
-          "walking": 1413
+          "driving": 34,
+          "transit": 47,
+          "walking": 166
         }
       }
     ],
@@ -2072,11 +2230,11 @@
         ]
       },
       {
-        "id": "linz-688544",
+        "id": "linz-1224590",
         "title": "NZ Addresses",
         "publisher": "Land Information New Zealand",
-        "reference": "Address ID 688544",
-        "material": "Current verified LINZ address: 10 Wanaka Place, Glenview, Hamilton. High-precision official coordinates: -37.820911, 175.290265.",
+        "reference": "Address ID 1224590",
+        "material": "Current verified LINZ address: 10 Wanaka Place, Pakuranga Heights, Auckland. High-precision official coordinates: -36.922641, 174.888561.",
         "url": "https://data.linz.govt.nz/layer/123113-nz-addresses/",
         "fields": [
           "address"
@@ -2091,6 +2249,7 @@
     "city": "Takanini",
     "region": "Auckland",
     "price": 1240000,
+    "saleMethod": "Auction 04 Nov 2026 11:00",
     "bedrooms": 4,
     "bathrooms": 2,
     "parkingSpaces": 6,
@@ -2099,7 +2258,49 @@
     "yearBuilt": 1980,
     "propertyType": "House",
     "architecturalStyle": "Contemporary",
-    "floodRisk": "High",
+    "floodHazards": [
+      {
+        "type": "flood_plains",
+        "sourceFeatureId": "1110",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Flood_Plains/FeatureServer/0"
+      },
+      {
+        "type": "flood_prone_areas",
+        "sourceFeatureId": "27498",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Flood_Prone_Areas/FeatureServer/0"
+      },
+      {
+        "type": "overland_flow_paths",
+        "sourceFeatureId": "315654",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Overland_Flow_Paths/FeatureServer/0"
+      }
+    ],
+    "openHomes": [
+      {
+        "date": "2026-10-24",
+        "startTime": "14:00",
+        "endTime": "14:30",
+        "label": "Sat, 24 Oct, 02:00pm - 02:30pm"
+      },
+      {
+        "date": "2026-10-25",
+        "startTime": "14:00",
+        "endTime": "14:30",
+        "label": "Sun, 25 Oct, 02:00pm - 02:30pm"
+      },
+      {
+        "date": "2026-10-31",
+        "startTime": "14:00",
+        "endTime": "14:30",
+        "label": "Sat, 31 Oct, 02:00pm - 02:30pm"
+      },
+      {
+        "date": "2026-11-01",
+        "startTime": "14:00",
+        "endTime": "14:30",
+        "label": "Sun, 1 Nov, 02:00pm - 02:30pm"
+      }
+    ],
     "orientation": "North",
     "sunlightHours": 7.4,
     "latitude": -37.048363982388715,
@@ -2237,13 +2438,6 @@
         "isInZone": true
       }
     ],
-    "walkability": {
-      "score": 46,
-      "label": "Somewhat Walkable",
-      "parksNearby": 2,
-      "cafesNearby": 2,
-      "supermarketsNearby": 1
-    },
     "commuteOptions": [
       {
         "destinationName": "Auckland CBD",
@@ -2328,6 +2522,7 @@
     "city": "Auckland",
     "region": "Auckland",
     "price": 1000000,
+    "saleMethod": "Auction 10 Nov 2026 16:00",
     "bedrooms": 3,
     "bathrooms": 2,
     "parkingSpaces": 2,
@@ -2336,7 +2531,21 @@
     "yearBuilt": 2010,
     "propertyType": "House",
     "architecturalStyle": "Contemporary",
-    "floodRisk": "Low",
+    "floodHazards": [],
+    "openHomes": [
+      {
+        "date": "2026-10-24",
+        "startTime": "12:00",
+        "endTime": "12:30",
+        "label": "Sat, 24 Oct, 12:00pm - 12:30pm"
+      },
+      {
+        "date": "2026-10-25",
+        "startTime": "12:00",
+        "endTime": "12:30",
+        "label": "Sun, 25 Oct, 12:00pm - 12:30pm"
+      }
+    ],
     "orientation": "West",
     "sunlightHours": 6.4,
     "latitude": -36.902268165790474,
@@ -2410,13 +2619,6 @@
         "isInZone": true
       }
     ],
-    "walkability": {
-      "score": 76,
-      "label": "Very Walkable",
-      "parksNearby": 4,
-      "cafesNearby": 6,
-      "supermarketsNearby": 2
-    },
     "commuteOptions": [
       {
         "destinationName": "Auckland CBD",
@@ -2500,6 +2702,7 @@
     "city": "Auckland",
     "region": "Auckland",
     "price": 820000,
+    "saleMethod": "Auction 12 Nov 2026 12:00",
     "bedrooms": 3,
     "bathrooms": 1,
     "parkingSpaces": 2,
@@ -2508,7 +2711,27 @@
     "yearBuilt": 1970,
     "propertyType": "House",
     "architecturalStyle": "Mid-Century",
-    "floodRisk": "Moderate",
+    "floodHazards": [
+      {
+        "type": "overland_flow_paths",
+        "sourceFeatureId": "1075962",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Overland_Flow_Paths/FeatureServer/0"
+      }
+    ],
+    "openHomes": [
+      {
+        "date": "2026-10-24",
+        "startTime": "11:00",
+        "endTime": "11:30",
+        "label": "Sat, 24 Oct, 11:00am - 11:30am"
+      },
+      {
+        "date": "2026-10-25",
+        "startTime": "11:00",
+        "endTime": "11:30",
+        "label": "Sun, 25 Oct, 11:00am - 11:30am"
+      }
+    ],
     "orientation": "South",
     "sunlightHours": 4.6,
     "latitude": -36.78806171579201,
@@ -2578,13 +2801,6 @@
         "isInZone": true
       }
     ],
-    "walkability": {
-      "score": 77,
-      "label": "Very Walkable",
-      "parksNearby": 4,
-      "cafesNearby": 6,
-      "supermarketsNearby": 2
-    },
     "commuteOptions": [
       {
         "destinationName": "Auckland CBD",
@@ -2680,6 +2896,7 @@
     "city": "Auckland",
     "region": "Auckland",
     "price": 2790000,
+    "saleMethod": "Auction 11 Nov 2026 10:00",
     "bedrooms": 4,
     "bathrooms": 3,
     "parkingSpaces": 1,
@@ -2688,7 +2905,57 @@
     "yearBuilt": 1920,
     "propertyType": "Villa",
     "architecturalStyle": "Character",
-    "floodRisk": "Low",
+    "floodHazards": [
+      {
+        "type": "overland_flow_paths",
+        "sourceFeatureId": "923082",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Overland_Flow_Paths/FeatureServer/0"
+      }
+    ],
+    "openHomes": [
+      {
+        "date": "2026-10-22",
+        "startTime": "17:15",
+        "endTime": "18:00",
+        "label": "Thu, 22 Oct, 05:15pm - 06:00pm"
+      },
+      {
+        "date": "2026-10-24",
+        "startTime": "14:00",
+        "endTime": "14:30",
+        "label": "Sat, 24 Oct, 02:00pm - 02:30pm"
+      },
+      {
+        "date": "2026-10-25",
+        "startTime": "14:00",
+        "endTime": "14:30",
+        "label": "Sun, 25 Oct, 02:00pm - 02:30pm"
+      },
+      {
+        "date": "2026-10-31",
+        "startTime": "14:00",
+        "endTime": "14:30",
+        "label": "Sat, 31 Oct, 02:00pm - 02:30pm"
+      },
+      {
+        "date": "2026-11-01",
+        "startTime": "14:00",
+        "endTime": "14:30",
+        "label": "Sun, 1 Nov, 02:00pm - 02:30pm"
+      },
+      {
+        "date": "2026-11-07",
+        "startTime": "14:00",
+        "endTime": "14:30",
+        "label": "Sat, 7 Nov, 02:00pm - 02:30pm"
+      },
+      {
+        "date": "2026-11-08",
+        "startTime": "14:00",
+        "endTime": "14:30",
+        "label": "Sun, 8 Nov, 02:00pm - 02:30pm"
+      }
+    ],
     "orientation": "North",
     "sunlightHours": 8.2,
     "latitude": -36.89295914909084,
@@ -2813,13 +3080,6 @@
         "isInZone": true
       }
     ],
-    "walkability": {
-      "score": 85,
-      "label": "Walker's Paradise",
-      "parksNearby": 4,
-      "cafesNearby": 6,
-      "supermarketsNearby": 2
-    },
     "commuteOptions": [
       {
         "destinationName": "Auckland CBD",
@@ -2903,6 +3163,7 @@
     "city": "Waitakere City",
     "region": "Auckland",
     "price": 750000,
+    "saleMethod": "By negotiation",
     "bedrooms": 3,
     "bathrooms": 3,
     "parkingSpaces": 1,
@@ -2911,7 +3172,27 @@
     "yearBuilt": 2012,
     "propertyType": "House",
     "architecturalStyle": "Contemporary",
-    "floodRisk": "Low",
+    "floodHazards": [
+      {
+        "type": "overland_flow_paths",
+        "sourceFeatureId": "577629",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Overland_Flow_Paths/FeatureServer/0"
+      }
+    ],
+    "openHomes": [
+      {
+        "date": "2026-10-24",
+        "startTime": "14:00",
+        "endTime": "14:30",
+        "label": "Sat, 24 Oct, 02:00pm - 02:30pm"
+      },
+      {
+        "date": "2026-10-25",
+        "startTime": "14:00",
+        "endTime": "14:30",
+        "label": "Sun, 25 Oct, 02:00pm - 02:30pm"
+      }
+    ],
     "orientation": "North",
     "sunlightHours": 7.4,
     "latitude": -36.910335540771,
@@ -2986,13 +3267,6 @@
         "isInZone": true
       }
     ],
-    "walkability": {
-      "score": 73,
-      "label": "Very Walkable",
-      "parksNearby": 2,
-      "cafesNearby": 2,
-      "supermarketsNearby": 1
-    },
     "commuteOptions": [
       {
         "destinationName": "Auckland CBD",
@@ -3029,6 +3303,7 @@
     "city": "Waitakere City",
     "region": "Auckland",
     "price": 750000,
+    "saleMethod": "By negotiation",
     "bedrooms": 3,
     "bathrooms": 3,
     "parkingSpaces": 1,
@@ -3037,7 +3312,27 @@
     "yearBuilt": 2018,
     "propertyType": "House",
     "architecturalStyle": "Contemporary",
-    "floodRisk": "Low",
+    "floodHazards": [
+      {
+        "type": "overland_flow_paths",
+        "sourceFeatureId": "577629",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Overland_Flow_Paths/FeatureServer/0"
+      }
+    ],
+    "openHomes": [
+      {
+        "date": "2026-10-24",
+        "startTime": "14:00",
+        "endTime": "14:30",
+        "label": "Sat, 24 Oct, 02:00pm - 02:30pm"
+      },
+      {
+        "date": "2026-10-25",
+        "startTime": "14:00",
+        "endTime": "14:30",
+        "label": "Sun, 25 Oct, 02:00pm - 02:30pm"
+      }
+    ],
     "orientation": "West",
     "sunlightHours": 6.4,
     "latitude": -36.910335540771,
@@ -3109,13 +3404,6 @@
         "isInZone": true
       }
     ],
-    "walkability": {
-      "score": 73,
-      "label": "Very Walkable",
-      "parksNearby": 2,
-      "cafesNearby": 2,
-      "supermarketsNearby": 1
-    },
     "commuteOptions": [
       {
         "destinationName": "Auckland CBD",
@@ -3146,12 +3434,13 @@
     ]
   },
   {
-    "id": "linz-510929",
+    "id": "oneroof-R6ckn",
     "address": "63A Arawa Street",
     "suburb": "New Lynn",
-    "city": "Ohakune",
+    "city": "Waitakere City",
     "region": "Auckland",
     "price": 770000,
+    "saleMethod": "By negotiation",
     "bedrooms": 3,
     "bathrooms": 3,
     "parkingSpaces": 1,
@@ -3160,11 +3449,31 @@
     "yearBuilt": 1990,
     "propertyType": "House",
     "architecturalStyle": "Contemporary",
-    "floodRisk": "Low",
+    "floodHazards": [
+      {
+        "type": "overland_flow_paths",
+        "sourceFeatureId": "577629",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Overland_Flow_Paths/FeatureServer/0"
+      }
+    ],
+    "openHomes": [
+      {
+        "date": "2026-10-24",
+        "startTime": "14:00",
+        "endTime": "14:30",
+        "label": "Sat, 24 Oct, 02:00pm - 02:30pm"
+      },
+      {
+        "date": "2026-10-25",
+        "startTime": "14:00",
+        "endTime": "14:30",
+        "label": "Sun, 25 Oct, 02:00pm - 02:30pm"
+      }
+    ],
     "orientation": "East",
     "sunlightHours": 5.9,
-    "latitude": -39.41292551576308,
-    "longitude": 175.40700423332476,
+    "latitude": -36.91015625,
+    "longitude": 174.67021179199,
     "image": "https://s.oneroof.co.nz/image/26/a3/26a30e7c74c445e352a581b73a98b9e3.jpg?x-oss-process=image/quality,q_80",
     "imageAlt": "Photo of 63A Arawa Street, New Lynn (By negotiation)",
     "imageSourceUrl": "https://www.oneroof.co.nz/property/auckland/new-lynn/63a-arawa-street/R6ckn",
@@ -3245,28 +3554,21 @@
         "isInZone": true
       },
       {
-        "name": "Ohakune College",
+        "name": "Waitakere City College",
         "type": "Secondary",
         "distanceKm": 3.2,
         "isInZone": true
       }
     ],
-    "walkability": {
-      "score": 45,
-      "label": "Somewhat Walkable",
-      "parksNearby": 2,
-      "cafesNearby": 2,
-      "supermarketsNearby": 1
-    },
     "commuteOptions": [
       {
         "destinationName": "Auckland CBD",
         "mode": "driving",
-        "timeMinutes": 615,
+        "timeMinutes": 28,
         "travelTimes": {
-          "driving": 615,
-          "transit": 822,
-          "walking": 3488
+          "driving": 28,
+          "transit": 38,
+          "walking": 129
         }
       }
     ],
@@ -3283,17 +3585,6 @@
           "bedrooms",
           "bathrooms",
           "landArea"
-        ]
-      },
-      {
-        "id": "linz-510929",
-        "title": "NZ Addresses",
-        "publisher": "Land Information New Zealand",
-        "reference": "Address ID 510929",
-        "material": "Current verified LINZ address: 63A Arawa Street, Ohakune. High-precision official coordinates: -39.412926, 175.407004.",
-        "url": "https://data.linz.govt.nz/layer/123113-nz-addresses/",
-        "fields": [
-          "address"
         ]
       },
       {
@@ -3341,6 +3632,7 @@
     "city": "Auckland",
     "region": "Auckland",
     "price": 875000,
+    "saleMethod": "Auction 10 Nov 2026 16:00",
     "bedrooms": 3,
     "bathrooms": 1,
     "parkingSpaces": 2,
@@ -3349,7 +3641,21 @@
     "yearBuilt": 2000,
     "propertyType": "House",
     "architecturalStyle": "Contemporary",
-    "floodRisk": "Low",
+    "floodHazards": [],
+    "openHomes": [
+      {
+        "date": "2026-10-24",
+        "startTime": "11:00",
+        "endTime": "11:30",
+        "label": "Sat, 24 Oct, 11:00am - 11:30am"
+      },
+      {
+        "date": "2026-10-25",
+        "startTime": "11:00",
+        "endTime": "11:30",
+        "label": "Sun, 25 Oct, 11:00am - 11:30am"
+      }
+    ],
     "orientation": "North",
     "sunlightHours": 8.2,
     "latitude": -36.90177741579035,
@@ -3406,13 +3712,6 @@
         "isInZone": true
       }
     ],
-    "walkability": {
-      "score": 73,
-      "label": "Very Walkable",
-      "parksNearby": 2,
-      "cafesNearby": 2,
-      "supermarketsNearby": 1
-    },
     "commuteOptions": [
       {
         "destinationName": "Auckland CBD",
@@ -3496,6 +3795,7 @@
     "city": "Orewa",
     "region": "Auckland",
     "price": 1050000,
+    "saleMethod": "Auction 05 Nov 2026 10:00",
     "bedrooms": 3,
     "bathrooms": 1,
     "parkingSpaces": 1,
@@ -3504,7 +3804,44 @@
     "yearBuilt": 2000,
     "propertyType": "House",
     "architecturalStyle": "Modernist",
-    "floodRisk": "Low",
+    "floodHazards": [
+      {
+        "type": "flood_plains",
+        "sourceFeatureId": "11896",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Flood_Plains/FeatureServer/0"
+      },
+      {
+        "type": "overland_flow_paths",
+        "sourceFeatureId": "360337",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Overland_Flow_Paths/FeatureServer/0"
+      }
+    ],
+    "openHomes": [
+      {
+        "date": "2026-10-24",
+        "startTime": "15:00",
+        "endTime": "15:30",
+        "label": "Sat, 24 Oct, 03:00pm - 03:30pm"
+      },
+      {
+        "date": "2026-10-25",
+        "startTime": "15:00",
+        "endTime": "15:30",
+        "label": "Sun, 25 Oct, 03:00pm - 03:30pm"
+      },
+      {
+        "date": "2026-10-31",
+        "startTime": "15:00",
+        "endTime": "15:30",
+        "label": "Sat, 31 Oct, 03:00pm - 03:30pm"
+      },
+      {
+        "date": "2026-11-01",
+        "startTime": "15:00",
+        "endTime": "15:30",
+        "label": "Sun, 1 Nov, 03:00pm - 03:30pm"
+      }
+    ],
     "orientation": "North",
     "sunlightHours": 7.4,
     "latitude": -36.58801999909402,
@@ -3572,13 +3909,6 @@
         "isInZone": true
       }
     ],
-    "walkability": {
-      "score": 45,
-      "label": "Somewhat Walkable",
-      "parksNearby": 2,
-      "cafesNearby": 2,
-      "supermarketsNearby": 1
-    },
     "commuteOptions": [
       {
         "destinationName": "Auckland CBD",
@@ -3674,6 +4004,7 @@
     "city": "Pukekohe",
     "region": "Auckland",
     "price": 1270000,
+    "saleMethod": "Auction 17 Nov 2026 15:00",
     "bedrooms": 4,
     "bathrooms": 2,
     "parkingSpaces": 2,
@@ -3682,7 +4013,21 @@
     "yearBuilt": 1990,
     "propertyType": "Lifestyle block",
     "architecturalStyle": "Contemporary",
-    "floodRisk": "Moderate",
+    "floodHazards": [],
+    "openHomes": [
+      {
+        "date": "2026-10-24",
+        "startTime": "13:30",
+        "endTime": "14:00",
+        "label": "Sat, 24 Oct, 01:30pm - 02:00pm"
+      },
+      {
+        "date": "2026-10-25",
+        "startTime": "13:30",
+        "endTime": "14:00",
+        "label": "Sun, 25 Oct, 01:30pm - 02:00pm"
+      }
+    ],
     "orientation": "West",
     "sunlightHours": 6.4,
     "latitude": -37.24339436578702,
@@ -3766,13 +4111,6 @@
         "isInZone": true
       }
     ],
-    "walkability": {
-      "score": 45,
-      "label": "Somewhat Walkable",
-      "parksNearby": 2,
-      "cafesNearby": 2,
-      "supermarketsNearby": 1
-    },
     "commuteOptions": [
       {
         "destinationName": "Auckland CBD",
@@ -3856,6 +4194,7 @@
     "city": "Pukekohe",
     "region": "Auckland",
     "price": 1380000,
+    "saleMethod": "Auction 17 Nov 2026 15:00",
     "bedrooms": 4,
     "bathrooms": 3,
     "parkingSpaces": 2,
@@ -3864,7 +4203,21 @@
     "yearBuilt": 2020,
     "propertyType": "House",
     "architecturalStyle": "Contemporary",
-    "floodRisk": "Low",
+    "floodHazards": [],
+    "openHomes": [
+      {
+        "date": "2026-10-24",
+        "startTime": "12:00",
+        "endTime": "12:30",
+        "label": "Sat, 24 Oct, 12:00pm - 12:30pm"
+      },
+      {
+        "date": "2026-10-25",
+        "startTime": "12:00",
+        "endTime": "12:30",
+        "label": "Sun, 25 Oct, 12:00pm - 12:30pm"
+      }
+    ],
     "orientation": "South",
     "sunlightHours": 4.6,
     "latitude": -37.20165124908727,
@@ -3942,13 +4295,6 @@
         "isInZone": true
       }
     ],
-    "walkability": {
-      "score": 45,
-      "label": "Somewhat Walkable",
-      "parksNearby": 2,
-      "cafesNearby": 2,
-      "supermarketsNearby": 1
-    },
     "commuteOptions": [
       {
         "destinationName": "Auckland CBD",
@@ -4044,6 +4390,7 @@
     "city": "Auckland",
     "region": "Auckland",
     "price": 1150000,
+    "saleMethod": "Auction 10 Nov 2026 14:00",
     "bedrooms": 3,
     "bathrooms": 1,
     "parkingSpaces": 2,
@@ -4052,7 +4399,27 @@
     "yearBuilt": 1970,
     "propertyType": "House",
     "architecturalStyle": "Mid-Century",
-    "floodRisk": "High",
+    "floodHazards": [
+      {
+        "type": "overland_flow_paths",
+        "sourceFeatureId": "929031",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Overland_Flow_Paths/FeatureServer/0"
+      }
+    ],
+    "openHomes": [
+      {
+        "date": "2026-10-24",
+        "startTime": "13:00",
+        "endTime": "13:30",
+        "label": "Sat, 24 Oct, 01:00pm - 01:30pm"
+      },
+      {
+        "date": "2026-10-25",
+        "startTime": "13:00",
+        "endTime": "13:30",
+        "label": "Sun, 25 Oct, 01:00pm - 01:30pm"
+      }
+    ],
     "orientation": "North",
     "sunlightHours": 8.2,
     "latitude": -36.90810659909014,
@@ -4154,13 +4521,6 @@
         "isInZone": true
       }
     ],
-    "walkability": {
-      "score": 68,
-      "label": "Very Walkable",
-      "parksNearby": 2,
-      "cafesNearby": 2,
-      "supermarketsNearby": 1
-    },
     "commuteOptions": [
       {
         "destinationName": "Auckland CBD",
@@ -4256,6 +4616,7 @@
     "city": "Warkworth",
     "region": "Auckland",
     "price": 1550000,
+    "saleMethod": "Deadline sale closes 12 Nov 2026 14:00",
     "bedrooms": 4,
     "bathrooms": 2,
     "parkingSpaces": 2,
@@ -4264,7 +4625,14 @@
     "yearBuilt": 2000,
     "propertyType": "House",
     "architecturalStyle": "Contemporary",
-    "floodRisk": "Low",
+    "floodHazards": [
+      {
+        "type": "overland_flow_paths",
+        "sourceFeatureId": "1095397",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Overland_Flow_Paths/FeatureServer/0"
+      }
+    ],
+    "openHomes": [],
     "orientation": "North",
     "sunlightHours": 7.4,
     "latitude": -36.390546999096074,
@@ -4346,13 +4714,6 @@
         "isInZone": true
       }
     ],
-    "walkability": {
-      "score": 45,
-      "label": "Somewhat Walkable",
-      "parksNearby": 2,
-      "cafesNearby": 2,
-      "supermarketsNearby": 1
-    },
     "commuteOptions": [
       {
         "destinationName": "Auckland CBD",
@@ -4436,6 +4797,7 @@
     "city": "Dairy Flat",
     "region": "Auckland",
     "price": 3340000,
+    "saleMethod": "Deadline Sale",
     "bedrooms": 6,
     "bathrooms": 3,
     "parkingSpaces": 8,
@@ -4444,7 +4806,19 @@
     "yearBuilt": 2010,
     "propertyType": "Lifestyle block",
     "architecturalStyle": "Contemporary",
-    "floodRisk": "Low",
+    "floodHazards": [
+      {
+        "type": "flood_plains",
+        "sourceFeatureId": "12188",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Flood_Plains/FeatureServer/0"
+      },
+      {
+        "type": "overland_flow_paths",
+        "sourceFeatureId": "90145",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Overland_Flow_Paths/FeatureServer/0"
+      }
+    ],
+    "openHomes": [],
     "orientation": "West",
     "sunlightHours": 6.4,
     "latitude": -36.691565599093096,
@@ -4539,13 +4913,6 @@
         "isInZone": true
       }
     ],
-    "walkability": {
-      "score": 56,
-      "label": "Somewhat Walkable",
-      "parksNearby": 2,
-      "cafesNearby": 2,
-      "supermarketsNearby": 1
-    },
     "commuteOptions": [
       {
         "destinationName": "Auckland CBD",
@@ -4629,6 +4996,7 @@
     "city": "North Shore City",
     "region": "Auckland",
     "price": 750000,
+    "saleMethod": "Deadline Sale (unless sold prior)",
     "bedrooms": 3,
     "bathrooms": 1,
     "parkingSpaces": 1,
@@ -4637,7 +5005,27 @@
     "yearBuilt": 2012,
     "propertyType": "House",
     "architecturalStyle": "Contemporary",
-    "floodRisk": "Low",
+    "floodHazards": [
+      {
+        "type": "overland_flow_paths",
+        "sourceFeatureId": "895292",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Overland_Flow_Paths/FeatureServer/0"
+      }
+    ],
+    "openHomes": [
+      {
+        "date": "2026-10-22",
+        "startTime": "17:00",
+        "endTime": "17:30",
+        "label": "Thu, 22 Oct, 05:00pm - 05:30pm"
+      },
+      {
+        "date": "2026-10-25",
+        "startTime": "11:00",
+        "endTime": "11:30",
+        "label": "Sun, 25 Oct, 11:00am - 11:30am"
+      }
+    ],
     "orientation": "East",
     "sunlightHours": 5.9,
     "latitude": -36.8028497,
@@ -4683,13 +5071,6 @@
         "isInZone": true
       }
     ],
-    "walkability": {
-      "score": 79,
-      "label": "Very Walkable",
-      "parksNearby": 4,
-      "cafesNearby": 6,
-      "supermarketsNearby": 2
-    },
     "commuteOptions": [
       {
         "destinationName": "Auckland CBD",
@@ -4726,6 +5107,7 @@
     "city": "Auckland",
     "region": "Auckland",
     "price": 935000,
+    "saleMethod": "Auction 03 Nov 2026 12:00",
     "bedrooms": 3,
     "bathrooms": 1,
     "parkingSpaces": 4,
@@ -4734,7 +5116,14 @@
     "yearBuilt": 1930,
     "propertyType": "House",
     "architecturalStyle": "Craftsman",
-    "floodRisk": "Low",
+    "floodHazards": [
+      {
+        "type": "overland_flow_paths",
+        "sourceFeatureId": "742256",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Overland_Flow_Paths/FeatureServer/0"
+      }
+    ],
+    "openHomes": [],
     "orientation": "North",
     "sunlightHours": 8.2,
     "latitude": -36.97580138238966,
@@ -4809,13 +5198,6 @@
         "isInZone": true
       }
     ],
-    "walkability": {
-      "score": 62,
-      "label": "Somewhat Walkable",
-      "parksNearby": 2,
-      "cafesNearby": 2,
-      "supermarketsNearby": 1
-    },
     "commuteOptions": [
       {
         "destinationName": "Auckland CBD",
@@ -4911,6 +5293,7 @@
     "city": "Auckland",
     "region": "Auckland",
     "price": 965000,
+    "saleMethod": "Asking Price $965,000",
     "bedrooms": 3,
     "bathrooms": 2,
     "parkingSpaces": 1,
@@ -4919,7 +5302,48 @@
     "yearBuilt": 2020,
     "propertyType": "Apartment",
     "architecturalStyle": "Contemporary",
-    "floodRisk": "Moderate",
+    "floodHazards": [
+      {
+        "type": "flood_plains",
+        "sourceFeatureId": "12248",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Flood_Plains/FeatureServer/0"
+      },
+      {
+        "type": "flood_prone_areas",
+        "sourceFeatureId": "22816",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Flood_Prone_Areas/FeatureServer/0"
+      },
+      {
+        "type": "overland_flow_paths",
+        "sourceFeatureId": "126036",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Overland_Flow_Paths/FeatureServer/0"
+      },
+      {
+        "type": "coastal_inundation",
+        "sourceFeatureId": "829879",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Coastal_Inundation_100_yr_return/FeatureServer/0"
+      }
+    ],
+    "openHomes": [
+      {
+        "date": "2026-10-20",
+        "startTime": "14:00",
+        "endTime": "14:30",
+        "label": "Tue, 20 Oct, 02:00pm - 02:30pm"
+      },
+      {
+        "date": "2026-10-22",
+        "startTime": "14:00",
+        "endTime": "14:30",
+        "label": "Thu, 22 Oct, 02:00pm - 02:30pm"
+      },
+      {
+        "date": "2026-10-26",
+        "startTime": "14:00",
+        "endTime": "14:30",
+        "label": "Mon, 26 Oct, 02:00pm - 02:30pm"
+      }
+    ],
     "orientation": "North",
     "sunlightHours": 7.4,
     "latitude": -36.924670539990466,
@@ -4967,13 +5391,6 @@
         "isInZone": true
       }
     ],
-    "walkability": {
-      "score": 77,
-      "label": "Very Walkable",
-      "parksNearby": 4,
-      "cafesNearby": 6,
-      "supermarketsNearby": 2
-    },
     "commuteOptions": [
       {
         "destinationName": "Auckland CBD",
@@ -5043,6 +5460,7 @@
     "city": "Pōkeno",
     "region": "Auckland",
     "price": 479000,
+    "saleMethod": "By Negotiation",
     "bedrooms": 4,
     "bathrooms": 4,
     "parkingSpaces": 2,
@@ -5051,7 +5469,8 @@
     "yearBuilt": 2018,
     "propertyType": "House",
     "architecturalStyle": "Contemporary",
-    "floodRisk": "Low",
+    "floodHazards": [],
+    "openHomes": [],
     "orientation": "West",
     "sunlightHours": 6.4,
     "latitude": -37.24612351208599,
@@ -5106,13 +5525,6 @@
         "isInZone": true
       }
     ],
-    "walkability": {
-      "score": 45,
-      "label": "Somewhat Walkable",
-      "parksNearby": 2,
-      "cafesNearby": 2,
-      "supermarketsNearby": 1
-    },
     "commuteOptions": [
       {
         "destinationName": "Auckland CBD",
@@ -5193,6 +5605,7 @@
     "city": "Franklin",
     "region": "Auckland",
     "price": 1200000,
+    "saleMethod": "Price by Negotiation",
     "bedrooms": 3,
     "bathrooms": 2,
     "parkingSpaces": 2,
@@ -5201,7 +5614,14 @@
     "yearBuilt": 2000,
     "propertyType": "Lifestyle block",
     "architecturalStyle": "Contemporary",
-    "floodRisk": "Low",
+    "floodHazards": [
+      {
+        "type": "overland_flow_paths",
+        "sourceFeatureId": "138934",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Overland_Flow_Paths/FeatureServer/0"
+      }
+    ],
+    "openHomes": [],
     "orientation": "South",
     "sunlightHours": 4.6,
     "latitude": -37.2055111,
@@ -5273,13 +5693,6 @@
         "isInZone": true
       }
     ],
-    "walkability": {
-      "score": 45,
-      "label": "Somewhat Walkable",
-      "parksNearby": 2,
-      "cafesNearby": 2,
-      "supermarketsNearby": 1
-    },
     "commuteOptions": [
       {
         "destinationName": "Auckland CBD",
@@ -5353,6 +5766,7 @@
     "city": "Auckland",
     "region": "Auckland",
     "price": 625000,
+    "saleMethod": "Asking Price $625,000",
     "bedrooms": 1,
     "bathrooms": 1,
     "parkingSpaces": 1,
@@ -5361,7 +5775,48 @@
     "yearBuilt": 2020,
     "propertyType": "Apartment",
     "architecturalStyle": "Modernist",
-    "floodRisk": "Low",
+    "floodHazards": [
+      {
+        "type": "flood_plains",
+        "sourceFeatureId": "12248",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Flood_Plains/FeatureServer/0"
+      },
+      {
+        "type": "flood_prone_areas",
+        "sourceFeatureId": "22816",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Flood_Prone_Areas/FeatureServer/0"
+      },
+      {
+        "type": "overland_flow_paths",
+        "sourceFeatureId": "126036",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Overland_Flow_Paths/FeatureServer/0"
+      },
+      {
+        "type": "coastal_inundation",
+        "sourceFeatureId": "829879",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Coastal_Inundation_100_yr_return/FeatureServer/0"
+      }
+    ],
+    "openHomes": [
+      {
+        "date": "2026-10-20",
+        "startTime": "14:00",
+        "endTime": "14:30",
+        "label": "Tue, 20 Oct, 02:00pm - 02:30pm"
+      },
+      {
+        "date": "2026-10-22",
+        "startTime": "14:00",
+        "endTime": "14:30",
+        "label": "Thu, 22 Oct, 02:00pm - 02:30pm"
+      },
+      {
+        "date": "2026-10-26",
+        "startTime": "14:00",
+        "endTime": "14:30",
+        "label": "Mon, 26 Oct, 02:00pm - 02:30pm"
+      }
+    ],
     "orientation": "North",
     "sunlightHours": 8.2,
     "latitude": -36.92467658969048,
@@ -5410,13 +5865,6 @@
         "isInZone": true
       }
     ],
-    "walkability": {
-      "score": 77,
-      "label": "Very Walkable",
-      "parksNearby": 4,
-      "cafesNearby": 6,
-      "supermarketsNearby": 2
-    },
     "commuteOptions": [
       {
         "destinationName": "Auckland CBD",
@@ -5486,6 +5934,7 @@
     "city": "Franklin",
     "region": "Auckland",
     "price": 699000,
+    "saleMethod": "Asking Price $699,000",
     "bedrooms": 3,
     "bathrooms": 1,
     "parkingSpaces": 2,
@@ -5494,7 +5943,8 @@
     "yearBuilt": 2012,
     "propertyType": "House",
     "architecturalStyle": "Contemporary",
-    "floodRisk": "Low",
+    "floodHazards": [],
+    "openHomes": [],
     "orientation": "North",
     "sunlightHours": 7.4,
     "latitude": -37.1753019,
@@ -5540,13 +5990,6 @@
         "isInZone": true
       }
     ],
-    "walkability": {
-      "score": 45,
-      "label": "Somewhat Walkable",
-      "parksNearby": 2,
-      "cafesNearby": 2,
-      "supermarketsNearby": 1
-    },
     "commuteOptions": [
       {
         "destinationName": "Auckland CBD",
@@ -5583,6 +6026,7 @@
     "city": "Auckland",
     "region": "Auckland",
     "price": 715000,
+    "saleMethod": "Asking Price $715,000",
     "bedrooms": 2,
     "bathrooms": 1,
     "parkingSpaces": 1,
@@ -5591,7 +6035,48 @@
     "yearBuilt": 2020,
     "propertyType": "Apartment",
     "architecturalStyle": "Contemporary",
-    "floodRisk": "Low",
+    "floodHazards": [
+      {
+        "type": "flood_plains",
+        "sourceFeatureId": "12248",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Flood_Plains/FeatureServer/0"
+      },
+      {
+        "type": "flood_prone_areas",
+        "sourceFeatureId": "22816",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Flood_Prone_Areas/FeatureServer/0"
+      },
+      {
+        "type": "overland_flow_paths",
+        "sourceFeatureId": "126036",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Overland_Flow_Paths/FeatureServer/0"
+      },
+      {
+        "type": "coastal_inundation",
+        "sourceFeatureId": "829879",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Coastal_Inundation_100_yr_return/FeatureServer/0"
+      }
+    ],
+    "openHomes": [
+      {
+        "date": "2026-10-20",
+        "startTime": "14:00",
+        "endTime": "14:30",
+        "label": "Tue, 20 Oct, 02:00pm - 02:30pm"
+      },
+      {
+        "date": "2026-10-22",
+        "startTime": "14:00",
+        "endTime": "14:30",
+        "label": "Thu, 22 Oct, 02:00pm - 02:30pm"
+      },
+      {
+        "date": "2026-10-26",
+        "startTime": "14:00",
+        "endTime": "14:30",
+        "label": "Mon, 26 Oct, 02:00pm - 02:30pm"
+      }
+    ],
     "orientation": "West",
     "sunlightHours": 6.4,
     "latitude": -36.924670539990466,
@@ -5638,13 +6123,6 @@
         "isInZone": true
       }
     ],
-    "walkability": {
-      "score": 77,
-      "label": "Very Walkable",
-      "parksNearby": 4,
-      "cafesNearby": 6,
-      "supermarketsNearby": 2
-    },
     "commuteOptions": [
       {
         "destinationName": "Auckland CBD",
@@ -5714,6 +6192,7 @@
     "city": "Auckland",
     "region": "Auckland",
     "price": 1655000,
+    "saleMethod": "Asking Price $1,655,000",
     "bedrooms": 3,
     "bathrooms": 2,
     "parkingSpaces": 2,
@@ -5722,7 +6201,43 @@
     "yearBuilt": 2020,
     "propertyType": "Apartment",
     "architecturalStyle": "Contemporary",
-    "floodRisk": "High",
+    "floodHazards": [
+      {
+        "type": "flood_plains",
+        "sourceFeatureId": "12248",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Flood_Plains/FeatureServer/0"
+      },
+      {
+        "type": "flood_prone_areas",
+        "sourceFeatureId": "22816",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Flood_Prone_Areas/FeatureServer/0"
+      },
+      {
+        "type": "coastal_inundation",
+        "sourceFeatureId": "829879",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Coastal_Inundation_100_yr_return/FeatureServer/0"
+      }
+    ],
+    "openHomes": [
+      {
+        "date": "2026-10-20",
+        "startTime": "14:00",
+        "endTime": "14:30",
+        "label": "Tue, 20 Oct, 02:00pm - 02:30pm"
+      },
+      {
+        "date": "2026-10-22",
+        "startTime": "14:00",
+        "endTime": "14:30",
+        "label": "Thu, 22 Oct, 02:00pm - 02:30pm"
+      },
+      {
+        "date": "2026-10-26",
+        "startTime": "14:00",
+        "endTime": "14:30",
+        "label": "Mon, 26 Oct, 02:00pm - 02:30pm"
+      }
+    ],
     "orientation": "East",
     "sunlightHours": 5.9,
     "latitude": -36.924666817090475,
@@ -5772,13 +6287,6 @@
         "isInZone": true
       }
     ],
-    "walkability": {
-      "score": 77,
-      "label": "Very Walkable",
-      "parksNearby": 4,
-      "cafesNearby": 6,
-      "supermarketsNearby": 2
-    },
     "commuteOptions": [
       {
         "destinationName": "Auckland CBD",
@@ -5842,12 +6350,13 @@
     ]
   },
   {
-    "id": "linz-70230",
+    "id": "oneroof-92XuC",
     "address": "4 Charles Street",
     "suburb": "Mahurangi East",
-    "city": "Oamaru",
+    "city": "Rodney",
     "region": "Auckland",
     "price": 3350000,
+    "saleMethod": "Set Sale Date (unless sold prior)",
     "bedrooms": 8,
     "bathrooms": 5,
     "parkingSpaces": 10,
@@ -5856,11 +6365,25 @@
     "yearBuilt": 2018,
     "propertyType": "House",
     "architecturalStyle": "Modernist",
-    "floodRisk": "Moderate",
+    "floodHazards": [],
+    "openHomes": [
+      {
+        "date": "2026-10-24",
+        "startTime": "15:00",
+        "endTime": "16:00",
+        "label": "Sat, 24 Oct, 03:00pm - 04:00pm"
+      },
+      {
+        "date": "2026-10-25",
+        "startTime": "14:00",
+        "endTime": "15:00",
+        "label": "Sun, 25 Oct, 02:00pm - 03:00pm"
+      }
+    ],
     "orientation": "North",
     "sunlightHours": 8.2,
-    "latitude": -45.07905696575003,
-    "longitude": 170.91991328329098,
+    "latitude": -36.4726309,
+    "longitude": 174.7323113,
     "image": "https://s.oneroof.co.nz/image/fc/ac/fcac025b424c0acc7aaac05351819c63.jpg?x-oss-process=image/quality,q_80",
     "imageAlt": "Photo of 4 Charles Street, Mahurangi East (Set Sale Date (unless sold prior))",
     "imageSourceUrl": "https://www.oneroof.co.nz/property/auckland/mahurangi-east/4-charles-street/92XuC",
@@ -5919,28 +6442,21 @@
         "isInZone": true
       },
       {
-        "name": "Oamaru College",
+        "name": "Rodney College",
         "type": "Secondary",
         "distanceKm": 3.2,
         "isInZone": true
       }
     ],
-    "walkability": {
-      "score": 45,
-      "label": "Somewhat Walkable",
-      "parksNearby": 2,
-      "cafesNearby": 2,
-      "supermarketsNearby": 1
-    },
     "commuteOptions": [
       {
         "destinationName": "Auckland CBD",
         "mode": "driving",
-        "timeMinutes": 2042,
+        "timeMinutes": 93,
         "travelTimes": {
-          "driving": 2042,
-          "transit": 2724,
-          "walking": 11641
+          "driving": 93,
+          "transit": 125,
+          "walking": 503
         }
       }
     ],
@@ -5957,17 +6473,6 @@
           "bedrooms",
           "bathrooms",
           "landArea"
-        ]
-      },
-      {
-        "id": "linz-70230",
-        "title": "NZ Addresses",
-        "publisher": "Land Information New Zealand",
-        "reference": "Address ID 70230",
-        "material": "Current verified LINZ address: 4 Charles Street, Weston, Oamaru. High-precision official coordinates: -45.079057, 170.919913.",
-        "url": "https://data.linz.govt.nz/layer/123113-nz-addresses/",
-        "fields": [
-          "address"
         ]
       },
       {
@@ -5990,6 +6495,7 @@
     "city": "Pōkeno",
     "region": "Auckland",
     "price": 870000,
+    "saleMethod": "By Negotiation",
     "bedrooms": 4,
     "bathrooms": 2,
     "parkingSpaces": 2,
@@ -5998,7 +6504,21 @@
     "yearBuilt": 2012,
     "propertyType": "House",
     "architecturalStyle": "Contemporary",
-    "floodRisk": "Low",
+    "floodHazards": [],
+    "openHomes": [
+      {
+        "date": "2026-10-24",
+        "startTime": "11:30",
+        "endTime": "12:00",
+        "label": "Sat, 24 Oct, 11:30am - 12:00pm"
+      },
+      {
+        "date": "2026-10-25",
+        "startTime": "11:30",
+        "endTime": "12:00",
+        "label": "Sun, 25 Oct, 11:30am - 12:00pm"
+      }
+    ],
     "orientation": "North",
     "sunlightHours": 7.4,
     "latitude": -37.230917199086306,
@@ -6047,13 +6567,6 @@
         "isInZone": true
       }
     ],
-    "walkability": {
-      "score": 45,
-      "label": "Somewhat Walkable",
-      "parksNearby": 2,
-      "cafesNearby": 2,
-      "supermarketsNearby": 1
-    },
     "commuteOptions": [
       {
         "destinationName": "Auckland CBD",
@@ -6134,6 +6647,7 @@
     "city": "Auckland",
     "region": "Auckland",
     "price": 820000,
+    "saleMethod": "Auction 05 Nov 2026 12:30",
     "bedrooms": 2,
     "bathrooms": 1,
     "parkingSpaces": 2,
@@ -6142,7 +6656,24 @@
     "yearBuilt": 2018,
     "propertyType": "Apartment",
     "architecturalStyle": "Contemporary",
-    "floodRisk": "Low",
+    "floodHazards": [
+      {
+        "type": "flood_plains",
+        "sourceFeatureId": "12536",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Flood_Plains/FeatureServer/0"
+      },
+      {
+        "type": "flood_prone_areas",
+        "sourceFeatureId": "19555",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Flood_Prone_Areas/FeatureServer/0"
+      },
+      {
+        "type": "overland_flow_paths",
+        "sourceFeatureId": "912374",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Overland_Flow_Paths/FeatureServer/0"
+      }
+    ],
+    "openHomes": [],
     "orientation": "West",
     "sunlightHours": 6.4,
     "latitude": -36.84572286349127,
@@ -6201,13 +6732,6 @@
         "isInZone": true
       }
     ],
-    "walkability": {
-      "score": 90,
-      "label": "Walker's Paradise",
-      "parksNearby": 4,
-      "cafesNearby": 6,
-      "supermarketsNearby": 2
-    },
     "commuteOptions": [
       {
         "destinationName": "Auckland CBD",
@@ -6277,6 +6801,7 @@
     "city": "Auckland",
     "region": "Auckland",
     "price": 4270000,
+    "saleMethod": "Set Date of Sale (Unless Sold Prior)",
     "bedrooms": 4,
     "bathrooms": 1,
     "parkingSpaces": 2,
@@ -6285,7 +6810,14 @@
     "yearBuilt": 1910,
     "propertyType": "Villa",
     "architecturalStyle": "Craftsman",
-    "floodRisk": "Low",
+    "floodHazards": [
+      {
+        "type": "overland_flow_paths",
+        "sourceFeatureId": "589125",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Overland_Flow_Paths/FeatureServer/0"
+      }
+    ],
+    "openHomes": [],
     "orientation": "South",
     "sunlightHours": 4.6,
     "latitude": -36.87184673239108,
@@ -6337,13 +6869,6 @@
         "isInZone": true
       }
     ],
-    "walkability": {
-      "score": 87,
-      "label": "Walker's Paradise",
-      "parksNearby": 4,
-      "cafesNearby": 6,
-      "supermarketsNearby": 2
-    },
     "commuteOptions": [
       {
         "destinationName": "Auckland CBD",

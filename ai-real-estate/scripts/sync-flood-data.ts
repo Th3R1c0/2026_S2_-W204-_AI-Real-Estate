@@ -183,263 +183,73 @@ async function fetchArcGisJson<T>(url: URL): Promise<T> {
     : new Error("ArcGIS request failed after repeated attempts.");
 }
 
-async function getPropertyExtent(client: PoolClient): Promise<Extent> {
+async function getPropertyAddresses(client: PoolClient): Promise<
+  Array<{
+    property_id: number;
+    latitude: number;
+    longitude: number;
+  }>
+> {
   const result = await client.query<{
-    xmin: number | null;
-    ymin: number | null;
-    xmax: number | null;
-    ymax: number | null;
-    total_addresses: number;
-    valid_addresses: number;
+    property_id: number;
+    latitude: string | number | null;
+    longitude: string | number | null;
   }>(`
-    WITH property_extent AS (
-      SELECT
-        COUNT(*)::int AS total_addresses,
-        COUNT(*) FILTER (
-          WHERE longitude BETWEEN -180 AND 180
-            AND latitude BETWEEN -90 AND 90
-        )::int AS valid_addresses,
-        ST_Transform(
-          ST_MakeEnvelope(
-            MIN(longitude::double precision) FILTER (
-              WHERE longitude BETWEEN -180 AND 180
-                AND latitude BETWEEN -90 AND 90
-            ),
-            MIN(latitude::double precision) FILTER (
-              WHERE longitude BETWEEN -180 AND 180
-                AND latitude BETWEEN -90 AND 90
-            ),
-            MAX(longitude::double precision) FILTER (
-              WHERE longitude BETWEEN -180 AND 180
-                AND latitude BETWEEN -90 AND 90
-            ),
-            MAX(latitude::double precision) FILTER (
-              WHERE longitude BETWEEN -180 AND 180
-                AND latitude BETWEEN -90 AND 90
-            ),
-            4326
-          ),
-          2193
-        ) AS geom
-      FROM address
-    ),
-    buffered_extent AS (
-      SELECT
-        total_addresses,
-        valid_addresses,
-        ST_Transform(ST_Expand(geom, 1000), 4326) AS geom
-      FROM property_extent
-    )
-    SELECT
-      ST_XMin(Box3D(geom)) AS xmin,
-      ST_YMin(Box3D(geom)) AS ymin,
-      ST_XMax(Box3D(geom)) AS xmax,
-      ST_YMax(Box3D(geom)) AS ymax,
-      total_addresses,
-      valid_addresses
-    FROM buffered_extent
+    SELECT property_id, latitude, longitude
+    FROM address
+    WHERE latitude IS NOT NULL AND longitude IS NOT NULL
   `);
-  const extent = result.rows[0];
-  if (!extent || extent.total_addresses === 0) {
+
+  const rows = result.rows
+    .map((row) => ({
+      property_id: row.property_id,
+      latitude: Number(row.latitude),
+      longitude: Number(row.longitude),
+    }))
+    .filter(
+      (row) =>
+        Number.isFinite(row.latitude) &&
+        Number.isFinite(row.longitude) &&
+        row.latitude >= -90 &&
+        row.latitude <= 90 &&
+        row.longitude >= -180 &&
+        row.longitude <= 180,
+    );
+
+  if (rows.length === 0) {
     throw new Error(
       "Flood-data import requires at least one property address with coordinates.",
     );
   }
-  if (extent.valid_addresses !== extent.total_addresses) {
-    throw new Error(
-      `Flood-data import found ${extent.total_addresses - extent.valid_addresses} address(es) with invalid longitude or latitude values.`,
-    );
-  }
-  if (
-    extent?.xmin === null ||
-    extent?.ymin === null ||
-    extent?.xmax === null ||
-    extent?.ymax === null
-  ) {
-    throw new Error(
-      "Flood-data import could not calculate a valid property-coordinate extent.",
-    );
-  }
-
-  return {
-    xmin: extent.xmin,
-    ymin: extent.ymin,
-    xmax: extent.xmax,
-    ymax: extent.ymax,
-  };
+  return rows;
 }
 
-async function createStagingTable(client: PoolClient): Promise<void> {
-  await client.query(`
-    CREATE TEMP TABLE flood_hazard_import_stage (
-      hazard_type text NOT NULL,
-      source_feature_id text NOT NULL,
-      source_url text NOT NULL,
-      source_attributes jsonb NOT NULL,
-      geom geometry(Geometry, 4326) NOT NULL,
-      PRIMARY KEY (hazard_type, source_feature_id)
-    ) ON COMMIT PRESERVE ROWS
-  `);
-}
-
-async function stageFeatures(
-  client: PoolClient,
-  features: StagedFeature[],
-): Promise<void> {
-  if (features.length === 0) return;
-
-  await client.query(
-    `
-      INSERT INTO flood_hazard_import_stage (
-        hazard_type,
-        source_feature_id,
-        source_url,
-        source_attributes,
-        geom
-      )
-      SELECT
-        feature.hazard_type,
-        feature.source_feature_id,
-        feature.source_url,
-        feature.source_attributes,
-        ST_SetSRID(ST_GeomFromGeoJSON(feature.geometry::text), 4326)
-      FROM jsonb_to_recordset($1::jsonb) AS feature(
-        hazard_type text,
-        source_feature_id text,
-        source_url text,
-        source_attributes jsonb,
-        geometry jsonb
-      )
-    `,
-    [
-      JSON.stringify(
-        features.map(({ hazard_type, source_feature_id, source_url, source_attributes, geometry }) => ({
-          hazard_type,
-          source_feature_id,
-          source_url,
-          source_attributes,
-          geometry,
-        })),
-      ),
-    ],
-  );
-}
-
-async function importDataset(
-  client: PoolClient,
+async function queryPropertyDatasetHit(
   dataset: Dataset,
-  extent: Extent,
-): Promise<number> {
-  const layerUrl = new URL(
-    `${ARCGIS_SERVICES}/${dataset.serviceName}/FeatureServer/0`,
-  );
-  layerUrl.searchParams.set("f", "json");
-  const layer = await fetchArcGisJson<{
-    name?: string;
-    geometryType?: string;
-    objectIdField?: string;
-    objectIdFieldName?: string;
-  }>(layerUrl);
-  const objectIdField = layer.objectIdField ?? layer.objectIdFieldName;
-  if (layer.geometryType !== dataset.expectedGeometryType || !objectIdField) {
-    throw new Error(
-      `ArcGIS layer metadata changed unexpectedly for ${dataset.layerName}.`,
-    );
-  }
+  latitude: number,
+  longitude: number,
+): Promise<boolean> {
+  const delta = dataset.expectedGeometryType === "esriGeometryPolyline" ? 0.00035 : 0.00022;
+  const extent: Extent = {
+    xmin: longitude - delta,
+    ymin: latitude - delta,
+    xmax: longitude + delta,
+    ymax: latitude + delta,
+  };
+  const layerUrl = `${ARCGIS_SERVICES}/${dataset.serviceName}/FeatureServer/0`;
+  const url = new URL(`${layerUrl}/query`);
+  url.search = new URLSearchParams({
+    where: "1=1",
+    returnCountOnly: "true",
+    f: "json",
+    geometry: `${extent.xmin},${extent.ymin},${extent.xmax},${extent.ymax}`,
+    geometryType: "esriGeometryEnvelope",
+    inSR: "4326",
+    spatialRel: "esriSpatialRelIntersects",
+  }).toString();
 
-  let resultOffset = 0;
-  let totalImported = 0;
-  for (;;) {
-    const url = createFeatureQueryUrl(dataset, extent, resultOffset);
-    const page = await fetchArcGisJson<ArcGisFeaturePage>(url);
-    const features = parseFeaturePage(page, dataset, objectIdField);
-    if (features.length === 0) {
-      if (page.exceededTransferLimit) {
-        throw new Error(
-          `ArcGIS reported more ${dataset.layerName} features but returned an empty page.`,
-        );
-      }
-      break;
-    }
-
-    await stageFeatures(client, features);
-    totalImported += features.length;
-    resultOffset += features.length;
-
-    if (features.length < PAGE_SIZE && !page.exceededTransferLimit) break;
-  }
-
-  console.info(`${dataset.layerName}: staged ${totalImported} features.`);
-  return totalImported;
-}
-
-async function refreshPropertyIntersections(client: PoolClient): Promise<number> {
-  await client.query("BEGIN");
-  try {
-    await client.query("DELETE FROM property_flood_hazards");
-    await client.query("DELETE FROM flood_hazard_zones");
-    await client.query(`
-      INSERT INTO flood_hazard_zones (
-        hazard_type,
-        source_feature_id,
-        source_url,
-        source_attributes,
-        geom
-      )
-      SELECT
-        hazard_type::flood_hazard_type,
-        source_feature_id,
-        source_url,
-        source_attributes,
-        geom
-      FROM flood_hazard_import_stage
-    `);
-    const result = await client.query(`
-      INSERT INTO property_flood_hazards (property_id, flood_hazard_zone_id)
-      SELECT address.property_id, flood_hazard_zones.flood_hazard_zone_id
-      FROM address
-      JOIN flood_hazard_zones
-        ON ST_Intersects(
-          flood_hazard_zones.geom,
-          ST_SetSRID(
-            ST_MakePoint(
-              address.longitude::double precision,
-              address.latitude::double precision
-            ),
-            4326
-          )
-        )
-    `);
-    await client.query(`
-      INSERT INTO flood_hazard_sync (
-        hazard_type,
-        imported_feature_count,
-        imported_at
-      )
-      SELECT
-        dataset.hazard_type::flood_hazard_type,
-        COUNT(stage.source_feature_id)::int,
-        CURRENT_TIMESTAMP
-      FROM (
-        VALUES
-          ('flood_plains'),
-          ('flood_prone_areas'),
-          ('overland_flow_paths'),
-          ('coastal_inundation')
-      ) AS dataset(hazard_type)
-      LEFT JOIN flood_hazard_import_stage AS stage
-        ON stage.hazard_type = dataset.hazard_type
-      GROUP BY dataset.hazard_type
-      ON CONFLICT (hazard_type) DO UPDATE SET
-        imported_feature_count = EXCLUDED.imported_feature_count,
-        imported_at = EXCLUDED.imported_at
-    `);
-    await client.query("COMMIT");
-    return result.rowCount ?? 0;
-  } catch (error) {
-    await client.query("ROLLBACK");
-    throw error;
-  }
+  const data = await fetchArcGisJson<{ count?: number }>(url);
+  return (data.count ?? 0) > 0;
 }
 
 export async function syncFloodData(pool: Pool): Promise<void> {
@@ -449,19 +259,77 @@ export async function syncFloodData(pool: Pool): Promise<void> {
   try {
     await client.query("SELECT pg_advisory_lock(84549271, 1)");
     lockAcquired = true;
-    const extent = await getPropertyExtent(client);
+    const addresses = await getPropertyAddresses(client);
     console.info(
-      `Importing Auckland Council flood data for property extent with a 1 km buffer: ${extent.xmin},${extent.ymin},${extent.xmax},${extent.ymax}.`,
+      `Checking Auckland Council flood layers for ${addresses.length} property addresses...`,
     );
-    await createStagingTable(client);
 
-    for (const dataset of FLOOD_DATASETS) {
-      await importDataset(client, dataset, extent);
+    const hits: Array<{
+      propertyId: number;
+      hazardType: Dataset["hazardType"];
+      sourceUrl: string;
+    }> = [];
+    const countsByLayer = new Map<Dataset["hazardType"], number>(
+      FLOOD_DATASETS.map((d) => [d.hazardType, 0]),
+    );
+
+    for (const addr of addresses) {
+      for (const dataset of FLOOD_DATASETS) {
+        const hit = await queryPropertyDatasetHit(
+          dataset,
+          addr.latitude,
+          addr.longitude,
+        );
+        if (hit) {
+          hits.push({
+            propertyId: addr.property_id,
+            hazardType: dataset.hazardType,
+            sourceUrl: `${ARCGIS_SERVICES}/${dataset.serviceName}/FeatureServer/0`,
+          });
+          countsByLayer.set(
+            dataset.hazardType,
+            (countsByLayer.get(dataset.hazardType) ?? 0) + 1,
+          );
+        }
+      }
     }
 
-    const intersections = await refreshPropertyIntersections(client);
+    await client.query("BEGIN");
+    try {
+      await client.query("DELETE FROM property_flood_hazards");
+      for (const hit of hits) {
+        await client.query(
+          `
+            INSERT INTO property_flood_hazards (
+              property_id, hazard_type, source_feature_id, source_url
+            ) VALUES ($1, $2::flood_hazard_type, 'arcgis-verified', $3)
+            ON CONFLICT (property_id, hazard_type) DO NOTHING
+          `,
+          [hit.propertyId, hit.hazardType, hit.sourceUrl],
+        );
+      }
+
+      for (const dataset of FLOOD_DATASETS) {
+        await client.query(
+          `
+            INSERT INTO flood_hazard_sync (
+              hazard_type, imported_feature_count, imported_at
+            ) VALUES ($1::flood_hazard_type, $2, CURRENT_TIMESTAMP)
+            ON CONFLICT (hazard_type) DO UPDATE SET
+              imported_feature_count = EXCLUDED.imported_feature_count,
+              imported_at = EXCLUDED.imported_at
+          `,
+          [dataset.hazardType, countsByLayer.get(dataset.hazardType) ?? 0],
+        );
+      }
+      await client.query("COMMIT");
+    } catch (error) {
+      await client.query("ROLLBACK");
+      throw error;
+    }
+
     console.info(
-      `Flood-data import complete. Stored intersections for ${intersections} property/hazard pairs.`,
+      `Flood-data import complete. Stored intersections for ${hits.length} property/hazard pairs.`,
     );
   } finally {
     try {
@@ -469,11 +337,7 @@ export async function syncFloodData(pool: Pool): Promise<void> {
         await client.query("SELECT pg_advisory_unlock(84549271, 1)");
       }
     } finally {
-      try {
-        await client.query("DROP TABLE IF EXISTS pg_temp.flood_hazard_import_stage");
-      } finally {
-        client.release();
-      }
+      client.release();
     }
   }
 }
