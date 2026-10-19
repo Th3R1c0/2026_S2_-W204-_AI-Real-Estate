@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect, useMemo } from "react";
 import type { PropertyChatSummary } from "../../lib/chatbot-knowledge";
+import { useAccountWorkspace } from "./account-workspace-provider";
 
 type Message = {
   id: string;
@@ -177,17 +178,42 @@ export default function AIChatbot({
   const [savedProperties, setSavedProperties] = useState<PropertyChatSummary[]>(initialSavedProperties);
   const [comparedProperties, setComparedProperties] = useState<PropertyChatSummary[]>(initialComparedProperties);
 
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: "welcome",
-      role: "model",
-      text: "Kia ora! I'm your Haven AI Assistant. Ask me anything about finding properties, architectural styles, flood risks, LIM reports, or ask me to compare your selected homes and help plan your search campaign!",
-      time: "Just now",
-    },
-  ]);
+  const account = useAccountWorkspace();
+  const accountStatus = account?.status;
+  const accountUserId = account?.user?.userId;
+  const accountChatHistory = account?.workspace?.chatHistory;
+  const accountSavedIds = account?.workspace?.savedPropertyIds;
+
+  const defaultWelcomeMessage: Message = useMemo(() => ({
+    id: "welcome",
+    role: "model",
+    text: "Kia ora! I'm your Haven AI Assistant. Ask me anything about finding properties, architectural styles, flood risks, LIM reports, or ask me to compare your selected homes and help plan your search campaign!",
+    time: "Just now",
+  }), []);
+
+  const [messages, setMessages] = useState<Message[]>([defaultWelcomeMessage]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (accountStatus === "signedIn") {
+      if (accountChatHistory && accountChatHistory.length > 0) {
+        setMessages(
+          accountChatHistory.map((m, idx) => ({
+            id: `account-msg-${idx}`,
+            role: m.role,
+            text: m.text,
+            time: m.time || "Recently",
+          }))
+        );
+      } else {
+        setMessages([defaultWelcomeMessage]);
+      }
+    } else if (accountStatus === "guest") {
+      setMessages([defaultWelcomeMessage]);
+    }
+  }, [accountStatus, accountUserId, accountChatHistory, defaultWelcomeMessage]);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -354,6 +380,10 @@ export default function AIChatbot({
         .filter((m) => m.id !== "welcome")
         .map((m) => ({ role: m.role, text: m.text }));
 
+      const effectiveSavedProperties = accountStatus === "signedIn" && accountSavedIds
+        ? savedProperties.filter((p) => accountSavedIds.includes(p.id))
+        : (accountStatus === "guest" || !account) ? savedProperties : [];
+
       const res = await fetch("/api/chatbot", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -361,7 +391,7 @@ export default function AIChatbot({
           message: text,
           history,
           context: {
-            savedProperties,
+            savedProperties: effectiveSavedProperties,
             comparedProperties,
           },
         }),
@@ -381,7 +411,18 @@ export default function AIChatbot({
         time: getTimestamp(),
       };
 
-      setMessages((prev) => [...prev, botMessage]);
+      setMessages((prev) => {
+        const next = [...prev, botMessage];
+        if (account?.status === "signedIn") {
+          void account.save(
+            "chatHistory",
+            next
+              .filter((m) => m.id !== "welcome")
+              .map((m) => ({ role: m.role, text: m.text, time: m.time }))
+          );
+        }
+        return next;
+      });
     } catch {
       setError("Service is currently unavailable. Please try again.");
     } finally {
