@@ -14,6 +14,17 @@ export type ArchitecturalStyle =
   | "Mid-Century";
 
 export type FloodRisk = "Low" | "Moderate" | "High";
+export type FloodHazardType =
+  | "flood_plains"
+  | "flood_prone_areas"
+  | "overland_flow_paths"
+  | "coastal_inundation";
+
+export type PropertyFloodHazard = {
+  type: FloodHazardType;
+  sourceFeatureId: string;
+  sourceUrl: string;
+};
 
 export type PropertySourceField =
   | "address"
@@ -93,6 +104,7 @@ export type Property = {
   propertyType: PropertyType;
   architecturalStyle?: ArchitecturalStyle;
   floodRisk?: FloodRisk;
+  floodHazards?: PropertyFloodHazard[];
   orientation?: "North" | "South" | "East" | "West";
   sunlightHours?: number;
   latitude: number;
@@ -118,11 +130,13 @@ export type Property = {
 export type PropertyFilters = {
   propertyTypes?: PropertyType[];
   architecturalStyles?: ArchitecturalStyle[];
-  floodRisks?: FloodRisk[];
+  floodHazardTypes?: FloodHazardType[];
+  noMappedFloodHazard?: boolean;
   northFacingOnly?: boolean;
   yearBuiltFrom?: number;
   yearBuiltTo?: number;
   minWalkScore?: number;
+  maxWalkScore?: number;
   inZoneOnly?: boolean;
   maxCommuteTimeMinutes?: number;
   commuteMode?: "driving" | "transit" | "walking";
@@ -130,6 +144,11 @@ export type PropertyFilters = {
   maxPrice?: number;
   minPrice?: number;
   bedrooms?: number;
+  numericCriteria?: Partial<Record<NumericSearchField, NumericCriterion>>;
+  orientations?: Array<NonNullable<Property["orientation"]>>;
+  ownershipTypes?: string[];
+  schoolZoneName?: string;
+  commuteDestination?: string;
   commuteFilter?: {
     destinationName: string;
     maxTimeMinutes?: number;
@@ -137,3 +156,15 @@ export type PropertyFilters = {
     mode: "driving" | "transit" | "walking";
   };
 };
+
+export type NumericSearchField =
+  | "bedrooms"
+  | "bathrooms"
+  | "parkingSpaces"
+  | "landArea"
+  | "floorArea"
+  | "sunlightHours"
+  | "estimatedWeeklyRent"
+  | "capitalValue";
+
+export type NumericCriterion = { min?: number; max?: number };

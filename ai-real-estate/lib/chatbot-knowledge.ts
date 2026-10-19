@@ -3,6 +3,9 @@
  * This is injected into the Gemini prompt as system context and used for local fallback Q&A.
  */
 
+import { floodHazardOptions } from "./flood-hazards";
+import type { FloodHazardType } from "./property-types";
+
 export const HAVEN_SYSTEM_KNOWLEDGE = `
 You are the Haven AI Real Estate Assistant — a helpful, friendly, and knowledgeable concierge for the Haven property discovery platform in New Zealand.
 
@@ -12,13 +15,13 @@ You are the Haven AI Real Estate Assistant — a helpful, friendly, and knowledg
 
 ### Key Features of Haven:
 1. **AI Natural Language Search**:
-   - Users can search in plain English (e.g. "Find me a 3-bedroom modernist townhouse in Auckland under $1.2M with low flood risk").
+   - Users can search in plain English (e.g. "Find me a 3-bedroom modernist townhouse in Auckland under $1.2M intersecting a mapped flood plain").
    - Haven's AI interprets the search into structured filters instantly.
 
 2. **Specialized & Non-Standard Property Filters**:
    - **Architectural Styles**: Character, Contemporary, Craftsman, Mid-Century, and Modernist.
    - **Property Types**: Villa, Townhouse, House, Apartment, Lifestyle block, and Section.
-   - **Flood Risk Levels**: Low, Moderate, and High, sourced from official council hazard zones and environmental models.
+   - **Mapped Flood Hazards**: Auckland Council flood plains, flood-prone areas, overland flow paths, and coastal inundation layers. These are mapped intersections, not site-specific risk ratings.
    - **Sunlight & Orientation**: Tracks estimated daily sunlight hours and filters for true North-facing orientation.
    - **Building Age**: Filters by decade and construction era (e.g. heritage pre-1940 vs contemporary).
 
@@ -42,7 +45,7 @@ You are the Haven AI Real Estate Assistant — a helpful, friendly, and knowledg
    - Haven highlights key LIM findings and risk indicators for listings.
 
 8. **Source Citations**:
-   - All property details, flood classifications, and pricing history provide transparent citations from official data providers, LINZ, and council records.
+   - Council flood hazard matches show mapped intersections and are not a site-specific risk assessment.
 
 9. **Saved Listings & Agent Inquiries**:
    - Bookmark favorite properties and receive alerts.
@@ -67,7 +70,7 @@ export type PropertyChatSummary = {
   yearBuilt?: number;
   propertyType: string;
   architecturalStyle?: string;
-  floodRisk?: string;
+  floodHazards?: FloodHazardType[];
   orientation?: string;
   sunlightHours?: number;
 };
@@ -76,6 +79,16 @@ export type PropertyChatContext = {
   savedProperties?: PropertyChatSummary[];
   comparedProperties?: PropertyChatSummary[];
 };
+
+function formatFloodHazards(hazards?: FloodHazardType[]): string {
+  if (!hazards) return "Council flood data not synced";
+  if (hazards.length === 0) return "No mapped Council flood hazard";
+
+  const labels = floodHazardOptions
+    .filter(({ type }) => hazards.includes(type))
+    .map(({ label }) => label);
+  return `Mapped Council flood hazards: ${labels.join(", ")}`;
+}
 
 export function formatPropertiesContext(context?: PropertyChatContext): string {
   if (!context) return "";
@@ -92,7 +105,7 @@ export function formatPropertiesContext(context?: PropertyChatContext): string {
         `Type: ${p.propertyType}`,
         p.architecturalStyle ? `Style: ${p.architecturalStyle}` : null,
         p.yearBuilt ? `Built: ${p.yearBuilt}` : null,
-        p.floodRisk ? `Flood Risk: ${p.floodRisk}` : null,
+        formatFloodHazards(p.floodHazards),
         p.sunlightHours !== undefined ? `Sunlight: ${p.sunlightHours} hrs` : null,
         p.orientation ? `Facing: ${p.orientation}` : null,
       ].filter(Boolean).join(" | ");
@@ -109,7 +122,7 @@ export function formatPropertiesContext(context?: PropertyChatContext): string {
         `${p.bedrooms} beds, ${p.bathrooms} baths`,
         p.propertyType,
         p.architecturalStyle ? `Style: ${p.architecturalStyle}` : null,
-        p.floodRisk ? `Flood Risk: ${p.floodRisk}` : null,
+        formatFloodHazards(p.floodHazards),
         p.sunlightHours !== undefined ? `Sunlight: ${p.sunlightHours} hrs` : null,
       ].filter(Boolean).join(" | ");
 
@@ -122,7 +135,7 @@ export function formatPropertiesContext(context?: PropertyChatContext): string {
       "Instructions for user properties:\n" +
       "- The user has explicitly selected or saved the above listings in Haven.\n" +
       "- When asked about their compared or saved properties, or when helping them think about their search campaign or which home to choose, refer to these specific listings and their attributes in detail.\n" +
-      "- Help them weigh trade-offs (e.g. price vs flood risk vs sunlight vs architectural style), organize their thinking, and plan their next steps in their buying campaign."
+      "- Help them weigh trade-offs (e.g. price vs mapped Council flood hazards vs sunlight vs architectural style), organize their thinking, and plan their next steps in their buying campaign."
     );
   }
 
@@ -138,7 +151,7 @@ export const LOCAL_KNOWLEDGE_TOPICS: KnowledgeTopic[] = [
   {
     keywords: ["what is haven", "about haven", "who are you", "what can you do", "help me"],
     reply:
-      "Haven is an AI-powered property discovery platform for New Zealand. You can search using natural language, filter by architectural styles (like Villas or Modernist homes), check flood risk levels and sunlight hours, calculate mortgage repayments, and plan commutes to work or school.",
+      "Haven is an AI-powered property discovery platform for New Zealand. You can search using natural language, filter by architectural styles (like Villas or Modernist homes), check mapped Council flood hazards and sunlight hours, calculate mortgage repayments, and plan commutes to work or school.",
   },
   {
     keywords: ["lim", "lim report", "land information memorandum"],
@@ -158,7 +171,7 @@ export const LOCAL_KNOWLEDGE_TOPICS: KnowledgeTopic[] = [
   {
     keywords: ["flood", "flood risk", "flooding", "hazards"],
     reply:
-      "We classify properties into Low, Moderate, and High flood risk based on council hazard maps and environmental models, helping you assess overland flow paths and climate resilience before making an offer.",
+      "Haven shows whether a property location intersects Auckland Council flood plains, flood-prone areas, overland flow paths, or coastal inundation. These mapped intersections are for property discovery and do not provide a site-specific risk rating or replace a LIM or professional assessment.",
   },
   {
     keywords: ["sunlight", "sun", "north", "north-facing", "orientation"],
@@ -202,7 +215,7 @@ export function findLocalKnowledgeAnswer(query: string, context?: PropertyChatCo
       const summaryList = compared
         .map(
           (p, i) =>
-            `${i + 1}. **${p.address}** (${p.suburb}): $${p.price.toLocaleString()} — ${p.bedrooms} beds, ${p.bathrooms} baths, ${p.propertyType}${p.architecturalStyle ? ` (${p.architecturalStyle})` : ""}, Flood Risk: ${p.floodRisk ?? "N/A"}, Sunlight: ${p.sunlightHours ?? "N/A"} hrs`,
+            `${i + 1}. **${p.address}** (${p.suburb}): $${p.price.toLocaleString()} — ${p.bedrooms} beds, ${p.bathrooms} baths, ${p.propertyType}${p.architecturalStyle ? ` (${p.architecturalStyle})` : ""}, ${formatFloodHazards(p.floodHazards)}, Sunlight: ${p.sunlightHours ?? "N/A"} hrs`,
         )
         .join("\n");
 
@@ -237,7 +250,7 @@ export function findLocalKnowledgeAnswer(query: string, context?: PropertyChatCo
       const savedList = saved
         .map(
           (p, i) =>
-            `${i + 1}. **${p.address}** (${p.suburb}) — $${p.price.toLocaleString()} | ${p.bedrooms} beds | ${p.propertyType}${p.architecturalStyle ? ` (${p.architecturalStyle})` : ""} | Flood Risk: ${p.floodRisk ?? "N/A"}`,
+            `${i + 1}. **${p.address}** (${p.suburb}) — $${p.price.toLocaleString()} | ${p.bedrooms} beds | ${p.propertyType}${p.architecturalStyle ? ` (${p.architecturalStyle})` : ""} | ${formatFloodHazards(p.floodHazards)}`,
         )
         .join("\n");
 
@@ -266,7 +279,7 @@ export function findLocalKnowledgeAnswer(query: string, context?: PropertyChatCo
       contextualAdvice = "Here is a structured campaign framework to organize your New Zealand home search:\n\n";
     }
 
-    return `${contextualAdvice}1. **Define Your Criteria**: Lock in your top non-negotiables (bedrooms, school zones, and maximum commute time).\n2. **Evaluate Climate & Hazards**: Filter for Low/Moderate flood risks and North-facing orientation for warmth.\n3. **Financial Feasibility**: Use Haven's Mortgage Calculator to check your repayments against current interest rates.\n4. **Conduct Due Diligence**: For serious contenders, request the LIM report, verify title type, and inspect recent comparable sales (comps) in the suburb.\n5. **Inspect & Inquire**: Contact listing agents directly through Haven to arrange private viewings or confirm auction dates.`;
+    return `${contextualAdvice}1. **Define Your Criteria**: Lock in your top non-negotiables (bedrooms, school zones, and maximum commute time).\n2. **Evaluate Climate & Hazards**: Check Council hazard-layer intersections and North-facing orientation for warmth.\n3. **Financial Feasibility**: Use Haven's Mortgage Calculator to check your repayments against current interest rates.\n4. **Conduct Due Diligence**: For serious contenders, request the LIM report, verify title type, and inspect recent comparable sales (comps) in the suburb.\n5. **Inspect & Inquire**: Contact listing agents directly through Haven to arrange private viewings or confirm auction dates.`;
   }
 
   // 4. Check standard knowledge topics
@@ -276,5 +289,5 @@ export function findLocalKnowledgeAnswer(query: string, context?: PropertyChatCo
     }
   }
 
-  return "I'm the Haven AI Assistant! I can help you search for New Zealand properties by architectural style, flood risk, or sunlight, answer questions about LIM reports and buying processes, or help you use our mortgage and commute calculators. What would you like to know?";
+  return "I'm the Haven AI Assistant! I can help you search for New Zealand properties by architectural style, mapped Council flood hazards, or sunlight, answer questions about LIM reports and buying processes, or help you use our mortgage and commute calculators. What would you like to know?";
 }

@@ -1,9 +1,10 @@
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import PropertyExplorer from "../app/components/property-explorer";
 import { aucklandProperties as seededProperties } from "../lib/property-data";
+import { floodHazardDisclaimer } from "../lib/flood-hazards";
 import type { Property } from "../lib/property-types";
 
 const properties: Property[] = [
@@ -22,6 +23,13 @@ const properties: Property[] = [
     propertyType: "Townhouse",
     architecturalStyle: "Modernist",
     floodRisk: "Low",
+    floodHazards: [
+      {
+        type: "flood_plains",
+        sourceFeatureId: "1",
+        sourceUrl: "https://council.example/flood-plains",
+      },
+    ],
     orientation: "North",
     sunlightHours: 7.8,
     latitude: -36.913,
@@ -44,6 +52,7 @@ const properties: Property[] = [
     propertyType: "Villa",
     architecturalStyle: "Character",
     floodRisk: "Moderate",
+    floodHazards: [],
     orientation: "East",
     sunlightHours: 5.4,
     latitude: -36.849,
@@ -82,6 +91,25 @@ describe("PropertyExplorer", () => {
     expect(screen.getByText("2/30 Hardington Street")).toBeInTheDocument();
   });
 
+  it("filters listings by imported Council flood hazard categories", async () => {
+    const user = userEvent.setup();
+    render(<PropertyExplorer properties={properties} comparableSales={comparableSales} />);
+
+    const floodFilter = screen.getByRole("combobox", { name: "Mapped flood hazard" });
+    await user.selectOptions(floodFilter, "flood_plains");
+
+    expect(screen.getByText("2/30 Hardington Street")).toBeInTheDocument();
+    expect(screen.queryByText("54 Kelmarna Avenue")).not.toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Remove flood hazard Flood plains" }));
+    expect(screen.getByText("54 Kelmarna Avenue")).toBeInTheDocument();
+
+    await user.selectOptions(floodFilter, "none");
+    expect(screen.queryByText("2/30 Hardington Street")).not.toBeInTheDocument();
+    expect(screen.getByText("54 Kelmarna Avenue")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Remove no mapped flood hazard filter" }));
+    expect(screen.getByText("2/30 Hardington Street")).toBeInTheDocument();
+  });
+
   it("applies an AI search and explains when there are no matches", async () => {
     const user = userEvent.setup();
     const aiSearch = async (query: string) => ({
@@ -116,6 +144,49 @@ describe("PropertyExplorer", () => {
     expect(await screen.findByText(/no matching listings were found/i)).toBeInTheDocument();
   });
 
+  it("shows and removes each applied bathroom and land-size condition", async () => {
+    const user = userEvent.setup();
+    render(<PropertyExplorer
+      properties={properties}
+      comparableSales={comparableSales}
+      aiSearch={async () => ({
+        status: "ready", source: "jev", message: "Search applied.",
+        filters: { numericCriteria: { bathrooms: { min: 1, max: 1 }, landArea: { min: 500 } } },
+      })}
+    />);
+
+    await user.type(screen.getByRole("textbox", { name: /describe your ideal property/i }), "one bathroom, 500 m² land");
+    await user.click(screen.getByRole("button", { name: /^search$/i }));
+    expect(await screen.findByText("54 Kelmarna Avenue")).toBeInTheDocument();
+    expect(screen.queryByText("2/30 Hardington Street")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Remove bathrooms filter" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Remove land area filter" })).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Remove bathrooms filter" }));
+    expect(screen.getByRole("button", { name: "Remove land area filter" })).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Remove land area filter" }));
+    expect(screen.getByText("2/30 Hardington Street")).toBeInTheDocument();
+  });
+
+  it("shows named school, commute destination and building year conditions", async () => {
+    const user = userEvent.setup();
+    render(<PropertyExplorer
+      properties={properties}
+      comparableSales={comparableSales}
+      aiSearch={async () => ({
+        status: "ready", source: "jev", message: "Search applied.",
+        filters: { schoolZoneName: "Auckland Grammar School", commuteDestination: "Auckland CBD", maxCommuteTimeMinutes: 30, yearBuiltFrom: 2000 },
+      })}
+    />);
+
+    await user.type(screen.getByRole("textbox", { name: /describe your ideal property/i }), "school and commute");
+    await user.click(screen.getByRole("button", { name: /^search$/i }));
+
+    expect(await screen.findByRole("button", { name: "Remove school zone name filter" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Remove commute destination filter" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Remove built from filter" })).toBeInTheDocument();
+  });
+
   it("compares selected homes side by side and removes a column", async () => {
     const user = userEvent.setup();
     render(<PropertyExplorer properties={properties} comparableSales={comparableSales} />);
@@ -146,6 +217,15 @@ describe("PropertyExplorer", () => {
       screen.getByRole("button", { name: /view details for 2\/30 hardington street/i }),
     );
     const details = screen.getByRole("dialog", { name: /property details/i });
+
+    await user.click(within(details).getByRole("button", { name: "Flood risk" }));
+    expect(within(details).getByText("Flood plains")).toBeInTheDocument();
+    expect(
+      within(details).getByText(
+        "Council mapping identifies this property location within Flood plains. These layers map potential inundation areas or surface-water flow paths and do not establish site-specific flood depth or likelihood.",
+      ),
+    ).toBeInTheDocument();
+    expect(within(details).getByText(floodHazardDisclaimer)).toBeInTheDocument();
 
     await user.click(within(details).getByRole("button", { name: /comparable sales/i }));
     expect(within(details).getByText("31 Hardington Street")).toBeInTheDocument();
@@ -245,5 +325,69 @@ describe("PropertyExplorer", () => {
 
     expect(screen.queryByText("Verified address")).not.toBeInTheDocument();
     expect(container.querySelector(".style-badge")).toBeNull();
+  });
+
+  it("executes real-time debounced search as user types and syncs filters", async () => {
+    const user = userEvent.setup();
+    const mockAiSearch = vi.fn().mockImplementation(async (query: string) => ({
+      status: "ready" as const,
+      filters: query.includes("villa")
+        ? { propertyTypes: ["Villa" as const], location: "Auckland" }
+        : {},
+      message: "Showing matching character villas.",
+      source: "jev" as const,
+    }));
+
+    render(
+      <PropertyExplorer
+        properties={properties}
+        comparableSales={comparableSales}
+        aiSearch={mockAiSearch}
+      />,
+    );
+
+    const input = screen.getByRole("textbox", { name: /describe your ideal property/i });
+    await user.type(input, "villa");
+
+    // Wait for debounced search to trigger automatically without hitting submit button
+    await waitFor(() => {
+      expect(mockAiSearch).toHaveBeenCalledWith("villa");
+    }, { timeout: 1500 });
+
+    await waitFor(() => {
+      expect(screen.getByText("TypeSafe Jev interpreted")).toBeInTheDocument();
+      expect(screen.getByText("Showing matching character villas.")).toBeInTheDocument();
+      expect(screen.getByText("54 Kelmarna Avenue")).toBeInTheDocument();
+    });
+
+    // Clear search using clear button
+    const clearButton = screen.getByRole("button", { name: /clear search query/i });
+    await user.click(clearButton);
+    expect(input).toHaveValue("");
+    expect(screen.getByText("2/30 Hardington Street")).toBeInTheDocument();
+  });
+
+  it("updates listings in real-time when sidebar location and bedroom controls change", async () => {
+    const user = userEvent.setup();
+    render(<PropertyExplorer properties={properties} comparableSales={comparableSales} />);
+
+    // Select Location filter
+    const locationSelect = screen.getByLabelText("Location / Suburb");
+    await user.selectOptions(locationSelect, "Onehunga");
+    expect(screen.getByText("2/30 Hardington Street")).toBeInTheDocument();
+    expect(screen.queryByText("54 Kelmarna Avenue")).not.toBeInTheDocument();
+
+    // Reset location
+    await user.selectOptions(locationSelect, "");
+    expect(screen.getByText("54 Kelmarna Avenue")).toBeInTheDocument();
+
+    // Select 1 bed filter (neither sample home in test fixture has 1 bed)
+    await user.click(screen.getByRole("button", { name: "1 bed" }));
+    expect(screen.queryByText("2/30 Hardington Street")).not.toBeInTheDocument();
+    expect(screen.queryByText("54 Kelmarna Avenue")).not.toBeInTheDocument();
+
+    // Clear filter
+    await user.click(screen.getByRole("button", { name: "Clear all filters" }));
+    expect(screen.getByText("54 Kelmarna Avenue")).toBeInTheDocument();
   });
 });

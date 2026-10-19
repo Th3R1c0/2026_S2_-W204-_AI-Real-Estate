@@ -103,7 +103,7 @@ describe("Chatbot service (TDD)", () => {
           bedrooms: 3,
           bathrooms: 2,
           propertyType: "Townhouse",
-          floodRisk: "Low",
+          floodHazards: ["flood_plains" as const],
           sunlightHours: 7.8,
         },
         {
@@ -115,7 +115,7 @@ describe("Chatbot service (TDD)", () => {
           bedrooms: 3,
           bathrooms: 1,
           propertyType: "Villa",
-          floodRisk: "Moderate",
+          floodHazards: ["coastal_inundation" as const],
           sunlightHours: 5.4,
         },
       ],
@@ -161,7 +161,7 @@ describe("Chatbot service (TDD)", () => {
           bedrooms: 3,
           bathrooms: 2,
           propertyType: "Townhouse",
-          floodRisk: "Low",
+          floodHazards: ["flood_plains" as const],
           sunlightHours: 7.8,
         },
         {
@@ -173,7 +173,7 @@ describe("Chatbot service (TDD)", () => {
           bedrooms: 3,
           bathrooms: 1,
           propertyType: "Villa",
-          floodRisk: "Moderate",
+          floodHazards: ["coastal_inundation" as const],
           sunlightHours: 5.4,
         },
       ],
@@ -189,6 +189,8 @@ describe("Chatbot service (TDD)", () => {
     expect(result.reply).toContain("2/30 Hardington Street");
     expect(result.reply).toContain("54 Kelmarna Avenue");
     expect(result.reply).toContain("Best Price Value");
+    expect(result.reply).toContain("Mapped Council flood hazards: Flood plains");
+    expect(result.reply).toContain("Mapped Council flood hazards: Coastal inundation");
   });
 
   it("answers questions about saved shortlist in local knowledge fallback", async () => {
@@ -203,7 +205,7 @@ describe("Chatbot service (TDD)", () => {
           bedrooms: 4,
           bathrooms: 2,
           propertyType: "House",
-          floodRisk: "Low",
+          floodHazards: [],
         },
       ],
     };
@@ -217,6 +219,7 @@ describe("Chatbot service (TDD)", () => {
     expect(result.source).toBe("local");
     expect(result.reply).toContain("12 Karaka Street");
     expect(result.reply).toContain("1,850,000");
+    expect(result.reply).toContain("No mapped Council flood hazard");
   });
 
   it("provides search campaign planning advice", async () => {

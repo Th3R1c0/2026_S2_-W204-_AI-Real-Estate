@@ -6,9 +6,11 @@ import {
   customType,
   date,
   decimal,
+  foreignKey,
   index,
   integer,
   json,
+  jsonb,
   pgEnum,
   pgTable,
   primaryKey,
@@ -57,9 +59,19 @@ export const schoolZoneTypeEnum = pgEnum("school_zone_type", [
   "Intermediate",
   "Secondary",
 ]);
+export const floodHazardTypeEnum = pgEnum("flood_hazard_type", [
+  "flood_plains",
+  "flood_prone_areas",
+  "overland_flow_paths",
+  "coastal_inundation",
+]);
 
 const point = customType<{ data: string; driverData: string }>({
   dataType: () => "point",
+});
+
+const postgisGeometry = customType<{ data: string; driverData: string }>({
+  dataType: () => "geometry(Geometry, 4326)",
 });
 
 export const users = pgTable(
@@ -390,6 +402,63 @@ export const propertySchoolZones = pgTable(
   (table) => [index("idx_school_zones_property").on(table.propertyId)],
 );
 
+export const floodHazardZones = pgTable(
+  "flood_hazard_zones",
+  {
+    floodHazardZoneId: serial("flood_hazard_zone_id").primaryKey(),
+    hazardType: floodHazardTypeEnum("hazard_type").notNull(),
+    sourceFeatureId: varchar("source_feature_id", { length: 100 }).notNull(),
+    sourceUrl: varchar("source_url", { length: 500 }).notNull(),
+    sourceAttributes: jsonb("source_attributes")
+      .$type<Record<string, unknown>>()
+      .default({})
+      .notNull(),
+    geom: postgisGeometry("geom").notNull(),
+    importedAt: timestamp("imported_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    uniqueIndex("uq_flood_hazard_zones_source").on(
+      table.hazardType,
+      table.sourceFeatureId,
+    ),
+    index("sp_flood_hazard_zones_geom").using("gist", table.geom),
+  ],
+);
+
+export const floodHazardSync = pgTable("flood_hazard_sync", {
+  hazardType: floodHazardTypeEnum("hazard_type").primaryKey(),
+  importedFeatureCount: integer("imported_feature_count").notNull(),
+  importedAt: timestamp("imported_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+});
+
+export const propertyFloodHazards = pgTable(
+  "property_flood_hazards",
+  {
+    propertyId: integer("property_id").notNull(),
+    floodHazardZoneId: integer("flood_hazard_zone_id").notNull(),
+  },
+  (table) => [
+    primaryKey({
+      columns: [table.propertyId, table.floodHazardZoneId],
+    }),
+    foreignKey({
+      name: "fk_property_flood_hazards_property",
+      columns: [table.propertyId],
+      foreignColumns: [properties.propertyId],
+    }).onDelete("cascade"),
+    foreignKey({
+      name: "fk_property_flood_hazards_zone",
+      columns: [table.floodHazardZoneId],
+      foreignColumns: [floodHazardZones.floodHazardZoneId],
+    }).onDelete("cascade"),
+    index("idx_property_flood_hazards_zone").on(table.floodHazardZoneId),
+  ],
+);
+
 export const propertySources = pgTable(
   "property_sources",
   {
@@ -416,5 +485,13 @@ export const propertiesRelations = relations(properties, ({ one, many }) => ({
   images: many(propertyImages),
   sales: many(propertySales),
   schoolZones: many(propertySchoolZones),
+  floodHazards: many(propertyFloodHazards),
   sources: many(propertySources),
 }));
+
+export const floodHazardZonesRelations = relations(
+  floodHazardZones,
+  ({ many }) => ({
+    properties: many(propertyFloodHazards),
+  }),
+);

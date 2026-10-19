@@ -12,9 +12,11 @@
     "db:setup-local": "node scripts/setup-local-db.mjs",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
-    "db:seed": "node --env-file=.env.local --conditions=react-server --import=tsx scripts/seed.ts"
+    "db:seed": "node --env-file=.env.local --conditions=react-server --import=tsx scripts/seed.ts",
+    "db:sync-flood-data": "node --env-file=.env.local --import=tsx scripts/sync-flood-data.ts"
   },
   "dependencies": {
+    "@typesafe-ai/sdk": "^0.7.0",
     "drizzle-orm": "^0.45.4",
     "next": "16.3.1",
     "pg": "^8.23.1",

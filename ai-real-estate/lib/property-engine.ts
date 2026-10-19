@@ -1,5 +1,6 @@
 import type {
   ArchitecturalStyle,
+  FloodHazardType,
   PastSale,
   Property,
   PropertyFilters,
@@ -7,6 +8,7 @@ import type {
   PropertyType,
   ValuationRecord,
 } from "./property-types";
+import { matchCatalogDetails, parseExplicitPropertyFilters } from "./property-query";
 
 export function filterProperties(
   properties: Property[],
@@ -19,27 +21,51 @@ export function filterProperties(
       .join(" ")
       .toLocaleLowerCase();
 
+    const numericCriteriaMatch = Object.entries(filters.numericCriteria ?? {}).every(
+      ([field, range]) => {
+        const value = property[field as keyof NonNullable<PropertyFilters["numericCriteria"]>];
+        return typeof value === "number" &&
+          (range.min === undefined || value >= range.min) &&
+          (range.max === undefined || value <= range.max);
+      },
+    );
+
     return (
       (!filters.propertyTypes?.length ||
         filters.propertyTypes.includes(property.propertyType)) &&
       (!filters.architecturalStyles?.length ||
         (property.architecturalStyle !== undefined &&
           filters.architecturalStyles.includes(property.architecturalStyle))) &&
-      (!filters.floodRisks?.length ||
-        (property.floodRisk !== undefined && filters.floodRisks.includes(property.floodRisk))) &&
+      (!filters.floodHazardTypes?.length ||
+        property.floodHazards?.some((hazard) =>
+          filters.floodHazardTypes?.includes(hazard.type),
+        ) === true) &&
+      (!filters.noMappedFloodHazard ||
+        (property.floodHazards !== undefined && property.floodHazards.length === 0)) &&
       (!location || propertyLocation.includes(location)) &&
       (filters.maxPrice === undefined || property.price <= filters.maxPrice) &&
       (filters.minPrice === undefined || property.price >= filters.minPrice) &&
       (filters.bedrooms === undefined || property.bedrooms === filters.bedrooms) &&
+      numericCriteriaMatch &&
+      (!filters.orientations?.length ||
+        (property.orientation !== undefined && filters.orientations.includes(property.orientation))) &&
+      (!filters.ownershipTypes?.length ||
+        (property.ownershipType !== undefined && filters.ownershipTypes.some(
+          (type) => type.toLowerCase() === property.ownershipType?.toLowerCase(),
+        ))) &&
       (filters.yearBuiltFrom === undefined || property.yearBuilt >= filters.yearBuiltFrom) &&
       (filters.yearBuiltTo === undefined || property.yearBuilt <= filters.yearBuiltTo) &&
       (!filters.northFacingOnly || property.orientation === "North") &&
       // Walkability filter
       (filters.minWalkScore === undefined ||
         (property.walkability?.score ?? 0) >= filters.minWalkScore) &&
+      (filters.maxWalkScore === undefined ||
+        (property.walkability?.score !== undefined && property.walkability.score <= filters.maxWalkScore)) &&
       // In-zone school catchment filter
       (!filters.inZoneOnly ||
         (property.schoolZones?.some((zone) => zone.isInZone) ?? false)) &&
+      (!filters.schoolZoneName ||
+        (property.schoolZones?.some((zone) => zone.isInZone && zone.name.toLowerCase() === filters.schoolZoneName?.toLowerCase()) ?? false)) &&
       // Commute filter logic
       (!filters.commuteFilter ||
         !filters.commuteFilter.destinationName ||
@@ -55,7 +81,19 @@ export function filterProperties(
 
           const travelTime = matchingCommute.travelTimes?.[mode];
           return travelTime !== undefined && travelTime <= maxTime;
-        })())
+        })()) &&
+      (filters.maxCommuteTimeMinutes === undefined ||
+        (() => {
+          if (!property.commuteOptions || property.commuteOptions.length === 0) return false;
+          const mode = filters.commuteMode ?? "driving";
+          return property.commuteOptions.some((opt) => {
+            if (filters.commuteDestination && opt.destinationName?.toLowerCase() !== filters.commuteDestination.toLowerCase()) return false;
+            const time = opt.travelTimes?.[mode] ?? (opt.mode === mode ? opt.timeMinutes : undefined);
+            return time !== undefined && time <= filters.maxCommuteTimeMinutes!;
+          });
+        })()) &&
+      (!filters.commuteDestination || filters.maxCommuteTimeMinutes !== undefined ||
+        (property.commuteOptions?.some((option) => option.destinationName?.toLowerCase() === filters.commuteDestination?.toLowerCase()) ?? false))
     );
   });
 }
@@ -77,6 +115,13 @@ const styleMatchers: Array<[RegExp, ArchitecturalStyle]> = [
   [/\bcharacter\b/i, "Character"],
 ];
 
+const floodHazardMatchers: Array<[RegExp, FloodHazardType]> = [
+  [/\bflood\s+plains?\b/i, "flood_plains"],
+  [/\bflood[-\s]+prone\s+areas?\b/i, "flood_prone_areas"],
+  [/\boverland\s+flow\s+paths?\b/i, "overland_flow_paths"],
+  [/\bcoastal\s+inundation\b/i, "coastal_inundation"],
+];
+
 const wordNumbers: Record<string, number> = {
   one: 1,
   two: 2,
@@ -86,13 +131,6 @@ const wordNumbers: Record<string, number> = {
   six: 6,
 };
 
-function parsePriceAmount(raw: string, suffix?: string): number {
-  const numeric = Number(raw.replaceAll(",", ""));
-  if (suffix?.toLocaleLowerCase() === "k") return numeric * 1_000;
-  if (suffix?.toLocaleLowerCase() === "m") return numeric * 1_000_000;
-  return numeric;
-}
-
 export function parseNaturalLanguageSearch(
   query: string,
   properties: Property[],
@@ -101,12 +139,29 @@ export function parseNaturalLanguageSearch(
   filters: PropertyFilters;
   message: string;
 } {
-  const filters: PropertyFilters = {};
+  const filters: PropertyFilters = parseExplicitPropertyFilters(query);
   const propertyType = typeMatchers.find(([matcher]) => matcher.test(query))?.[1];
   const style = styleMatchers.find(([matcher]) => matcher.test(query))?.[1];
+  const floodHazards = floodHazardMatchers
+    .filter(([matcher]) => matcher.test(query))
+    .map(([, hazard]) => hazard);
+  const noFloodHazard = /\bno\s+(?:mapped\s+)?flood\s+(?:hazards?|risks?)\b/i.test(query);
+  const unsupportedFloodRating = /\b(?:low|moderate|high)\s+flood\s+risk\b/i.test(query);
 
   if (propertyType) filters.propertyTypes = [propertyType];
   if (style) filters.architecturalStyles = [style];
+  if (floodHazards.length) filters.floodHazardTypes = floodHazards;
+  else if (/\bflood\s+(?:risk|hazards?)\b/i.test(query) && !noFloodHazard && !unsupportedFloodRating) {
+    filters.floodHazardTypes = [
+      "flood_plains",
+      "flood_prone_areas",
+      "overland_flow_paths",
+      "coastal_inundation",
+    ];
+  }
+  if (noFloodHazard) {
+    filters.noMappedFloodHazard = true;
+  }
 
   const places = Array.from(
     new Set(properties.flatMap(({ city, region, suburb }) => [city, region, suburb])),
@@ -115,13 +170,9 @@ export function parseNaturalLanguageSearch(
     query.toLocaleLowerCase().includes(place.toLocaleLowerCase()),
   );
   if (location) filters.location = location;
+  Object.assign(filters, matchCatalogDetails(query, properties));
 
-  const priceMatch = query.match(
-    /(?:under|below|up to|maximum|max)\s*\$?([\d,.]+)\s*([km])?/i,
-  );
-  if (priceMatch) filters.maxPrice = parsePriceAmount(priceMatch[1], priceMatch[2]);
-
-  const bedroomsMatch = query.match(
+  const bedroomsMatch = filters.bedrooms === undefined && !filters.numericCriteria?.bedrooms && query.match(
     /\b(one|two|three|four|five|six|\d+)\s*[-_\s]?bed(?:room)?s?\b/i,
   );
   if (bedroomsMatch) {
@@ -134,8 +185,9 @@ export function parseNaturalLanguageSearch(
     return {
       status: "needs-clarification",
       filters,
-      message:
-        "Try adding a location, property type, architectural style, bedroom count or budget.",
+      message: unsupportedFloodRating
+        ? "Council mapping does not provide a low, moderate or high risk rating. Try a mapped flood hazard instead."
+        : "Try adding a location, property type, mapped flood hazard, architectural style, bedroom count or budget.",
     };
   }
 

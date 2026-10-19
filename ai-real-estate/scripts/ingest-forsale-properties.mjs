@@ -1,5 +1,5 @@
 import { readFile, writeFile } from 'node:fs/promises';
-import { parseDirectSourcePage, linzFeatureForAddress } from './property-snapshot.mjs';
+import { parseDirectSourcePage } from './property-snapshot.mjs';
 
 const SITES = [
   ['RealEstate', 'realestate'],
@@ -19,30 +19,44 @@ function cleanPriceNumber(val) {
 
 function parseTitle(title) {
   const lines = title.split('\n').map(l => l.trim()).filter(Boolean);
-  let saleMethod = '';
-  let address = '';
-  let beds = null, baths = null, cars = null;
-  const numStack = [];
-
-  for (let i = lines.length - 1; i >= 0; i--) {
-    const l = lines[i];
-    if (/^\d+$/.test(l)) {
-      numStack.unshift(Number(l));
-    } else {
-      if (!address) {
-        address = l;
-      } else if (!saleMethod && l !== 'view more' && !l.startsWith('Open Home')) {
-        saleMethod = l;
-      }
+  const numIndices = [];
+  for (let i = 0; i < lines.length; i++) {
+    if (/^\d+$/.test(lines[i])) {
+      numIndices.push(i);
     }
   }
 
-  if (numStack.length >= 3) {
-    [beds, baths, cars] = numStack;
-  } else if (numStack.length === 2) {
-    [beds, baths] = numStack;
-  } else if (numStack.length === 1) {
-    [beds] = numStack;
+  let beds = null, baths = null, cars = null;
+  let address = '';
+  let saleMethod = '';
+
+  if (numIndices.length > 0) {
+    const firstNumIdx = numIndices[0];
+    const nums = numIndices.map(i => Number(lines[i]));
+    if (nums.length >= 3) [beds, baths, cars] = nums;
+    else if (nums.length === 2) [beds, baths] = nums;
+    else if (nums.length === 1) [beds] = nums;
+
+    if (firstNumIdx > 0) {
+      address = lines[firstNumIdx - 1];
+    }
+
+    for (let i = firstNumIdx - 2; i >= 0; i--) {
+      const l = lines[i];
+      if (l !== 'view more' && !l.startsWith('Open Home')) {
+        saleMethod = l;
+        break;
+      }
+    }
+  } else {
+    for (const l of lines) {
+      if (l === 'view more' || l.startsWith('Open Home') || l === 'Enquire') continue;
+      if (l.includes(',')) {
+        address = l;
+      } else if (!saleMethod) {
+        saleMethod = l;
+      }
+    }
   }
 
   return { saleMethod, address, beds, baths, cars };
@@ -55,7 +69,7 @@ function parseOneRoofPage(html, item, parsedTitle) {
   }).find(j => j && (j['@type'] === 'SingleFamilyResidence' || j['@type'] === 'Apartment' || j['@type'] === 'Place' || j['geo']));
 
   const images = (jsonLd?.image || []).filter(url => typeof url === 'string' && url.startsWith('http'));
-  const geo = jsonLd?.geo ? {
+  const geo = (jsonLd?.geo && Number(jsonLd.geo.latitude) && Number(jsonLd.geo.longitude)) ? {
     latitude: Number(jsonLd.geo.latitude),
     longitude: Number(jsonLd.geo.longitude)
   } : null;
@@ -115,29 +129,40 @@ function parseOneRoofPage(html, item, parsedTitle) {
 
 async function verifyWithLinz(address) {
   try {
-    const street = address.split(',')[0].trim().replace(/^lot\s+\d+\/?/i, '').trim();
-    const where = `full_address LIKE '${street.replaceAll("'", "''")}%'`;
-    const params = new URLSearchParams({
-      where,
-      outFields: 'address_id,full_address,address_lifecycle,suburb_locality,town_city',
-      returnGeometry: 'true',
-      outSR: '4326',
-      f: 'json'
-    });
-    const res = await fetch(LINZ_ENDPOINT + '?' + params, { signal: AbortSignal.timeout(10000) });
-    if (!res.ok) return null;
-    const data = await res.json();
-    if (!data.features || data.features.length === 0) return null;
-    const feat = data.features[0];
-    return {
-      addressId: feat.attributes.address_id,
-      fullAddress: feat.attributes.full_address,
-      latitude: feat.geometry.y,
-      longitude: feat.geometry.x,
-      suburb: feat.attributes.suburb_locality,
-      city: feat.attributes.town_city
-    };
-  } catch (err) {
+    let street = address.split(',')[0].trim().replace(/^lot\s+\d+\/?/i, '').trim();
+    // Normalize ALL-CAPS words: "382 RAZORBACK ROAD" -> "382 Razorback Road"
+    street = street.replace(/\b[A-Z]{2,}\b/g, m => m.charAt(0).toUpperCase() + m.slice(1).toLowerCase());
+    // If multi-number like "10 & 12 Wanaka Place", try first number
+    const cleanedStreet = street.replace(/\s*&\s*\d+/, '');
+
+    const candidates = [cleanedStreet];
+    if (cleanedStreet !== street) candidates.push(street);
+
+    for (const s of candidates) {
+      const where = `full_address LIKE '${s.replaceAll("'", "''")}%'`;
+      const params = new URLSearchParams({
+        where,
+        outFields: 'address_id,full_address,address_lifecycle,suburb_locality,town_city',
+        returnGeometry: 'true',
+        outSR: '4326',
+        f: 'json'
+      });
+      const res = await fetch(LINZ_ENDPOINT + '?' + params, { signal: AbortSignal.timeout(25000) });
+      if (!res.ok) continue;
+      const data = await res.json();
+      if (!data.features || data.features.length === 0) continue;
+      const feat = data.features[0];
+      return {
+        addressId: feat.attributes.address_id,
+        fullAddress: feat.attributes.full_address,
+        latitude: feat.geometry.y,
+        longitude: feat.geometry.x,
+        suburb: feat.attributes.suburb_locality,
+        city: feat.attributes.town_city
+      };
+    }
+    return null;
+  } catch {
     return null;
   }
 }
@@ -178,7 +203,7 @@ async function fetchHomesDetails(homesUrl, expectedAddress) {
     if (!res.ok) return null;
     const html = await res.text();
     return parseDirectSourcePage('Homes', html, expectedAddress);
-  } catch (err) {
+  } catch {
     return null;
   }
 }

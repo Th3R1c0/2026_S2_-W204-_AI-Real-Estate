@@ -1,6 +1,5 @@
-import { interpretPropertyQuery } from "../../../lib/gemini-search";
-import { getPropertiesByStatus } from "../../../lib/db/properties";
-import { properties as seedProperties } from "../../../lib/property-data";
+import { interpretPropertyQuery } from "../../../lib/jev-search";
+import { loadPropertyCatalog } from "../../../lib/property-catalog";
 
 export async function POST(request: Request) {
   let body: { query?: unknown };
@@ -18,16 +17,10 @@ export async function POST(request: Request) {
   const query = body.query.trim().slice(0, 500);
   console.log(`[POST /api/search] Incoming query: "${query}"`);
 
-  let properties = seedProperties;
-  if (process.env.DATABASE_URL) {
-    try {
-      properties = await getPropertiesByStatus("active");
-    } catch (error) {
-      console.warn("[Database] Search fallback to local dataset:", error);
-    }
-  }
+  const { properties } = await loadPropertyCatalog();
   const result = await interpretPropertyQuery(query, properties, {
-    apiKey: process.env.GEMINI_API_KEY,
+    jevApiKey: process.env.JEV_API_KEY || process.env.TYPESAFE_API_KEY,
+    geminiApiKey: process.env.GEMINI_API_KEY,
   });
 
   console.log("[POST /api/search] Returning interpreted search result:", JSON.stringify(result, null, 2));

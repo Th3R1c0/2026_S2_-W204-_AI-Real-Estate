@@ -8,6 +8,20 @@
       "when": 1792318471414,
       "tag": "0000_soft_ulik",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1792330667920,
+      "tag": "0001_add_flood_hazard_data",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1792332674802,
+      "tag": "0002_track_flood_data_sync",
+      "breakpoints": true
     }
   ]
 }
