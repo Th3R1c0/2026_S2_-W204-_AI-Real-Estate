@@ -64,6 +64,11 @@ const properties: Property[] = [
     ],
     image: "/properties/test.jpg",
     imageAlt: "Modern townhouse",
+    listingAgent: {
+      name: "Casey Agent",
+      source: "OneRoof",
+      contactUrl: "https://www.oneroof.co.nz/property/example-listing",
+    },
   },
   {
     id: "character-villa",
@@ -326,6 +331,18 @@ describe("PropertyExplorer", () => {
 
     expect(within(details).getByTestId("monthly-repayment").textContent).not.toBe(
       initialPayment,
+    );
+  });
+
+  it("shows the listing agent and source enquiry link in property details", async () => {
+    const user = userEvent.setup();
+    render(<PropertyExplorer properties={properties} comparableSales={comparableSales} />);
+    await user.click(screen.getByRole("button", { name: /view details for 2\/30 hardington street/i }));
+
+    const details = screen.getByRole("dialog", { name: /property details/i });
+    expect(within(details).getByText("Casey Agent")).toBeInTheDocument();
+    expect(within(details).getByRole("link", { name: /enquire on oneroof/i })).toHaveAttribute(
+      "href", "https://www.oneroof.co.nz/property/example-listing",
     );
   });
 

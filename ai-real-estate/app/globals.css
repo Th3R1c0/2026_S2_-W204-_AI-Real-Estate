@@ -1557,6 +1557,21 @@ footer {
   font-size: 8px;
 }
 
+.listing-agent-card {
+  margin-top: 18px;
+  padding: 20px 22px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--soft);
+}
+
+.listing-agent-card .eyebrow { margin: 0 0 6px; }
+.listing-agent-card h3 { margin: 0; color: var(--ink); font-size: 20px; }
+.listing-agent-card p:not(.eyebrow) { margin: 7px 0 0; color: var(--muted); font-size: 12px; line-height: 1.5; }
+.listing-agent-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 15px; }
+.listing-agent-actions a { display: inline-flex; align-items: center; min-height: 36px; padding: 8px 13px; border-radius: 999px; background: var(--ink); color: white; font-size: 12px; font-weight: 700; text-decoration: none; }
+.listing-agent-actions a:hover { background: var(--forest); }
+
 .source-citations {
   display: inline-flex;
   align-items: baseline;

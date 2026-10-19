@@ -20,6 +20,15 @@ test('for-sale catalogue contains 40 live properties with full galleries and mul
   expect(forSaleProperties.some(p => p.sources?.some(s => s.publisher === 'Homes'))).toBe(true);
 });
 
+test('each for-sale listing keeps its source agent and enquiry link', () => {
+  expect(forSaleProperties).toHaveLength(40);
+  expect(forSaleProperties.every(property => property.listingAgent?.name && property.listingAgent.contactUrl === property.imageSourceUrl)).toBe(true);
+  expect(forSaleProperties.find(property => property.address === '1/10 Harding Avenue')?.listingAgent).toMatchObject({
+    name: 'Kevin Ratnayake',
+    source: 'OneRoof',
+  });
+});
+
 test('unknown zero facts do not override populated direct-source facts', () => {
   expect(properties.find(item => item.address === '72 Stonefields Avenue')?.bathrooms).toBe(1);
   expect(properties.find(item => item.address === '32 Red Hills Road')?.landArea).toBe(10557);

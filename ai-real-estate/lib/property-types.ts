@@ -43,6 +43,14 @@ export type PropertySource = {
   fields: PropertySourceField[];
 };
 
+export type ListingAgent = {
+  name: string;
+  source: "OneRoof";
+  contactUrl: string;
+  phone?: string;
+  email?: string;
+};
+
 export type SchoolZone = {
   schoolId?: number;
   schoolName?: string;
@@ -135,6 +143,7 @@ export type Property = {
   image: string;
   imageAlt: string;
   imageSourceUrl?: string;
+  listingAgent?: ListingAgent;
   photoGallery?: string[];
   parkingSpaces?: number;
   capitalValue?: number;
