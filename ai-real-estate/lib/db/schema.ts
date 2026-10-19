@@ -107,6 +107,7 @@ export const buyerWorkspaces = pgTable("buyer_workspaces", {
   generalNotes: jsonb("general_notes").$type<BuyerWorkspace["generalNotes"]>().default([]).notNull(),
   propertyNotes: jsonb("property_notes").$type<BuyerWorkspace["propertyNotes"]>().default({}).notNull(),
   destinations: jsonb("destinations").$type<BuyerWorkspace["destinations"]>().default([]).notNull(),
+  chatHistory: jsonb("chat_history").$type<BuyerWorkspace["chatHistory"]>().default([]).notNull(),
   updatedAt: timestamp("updated_at").defaultNow().$onUpdateFn(() => new Date()).notNull(),
 });
 
