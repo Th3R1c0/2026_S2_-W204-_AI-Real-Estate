@@ -1,0 +1,1 @@
+ALTER TABLE "school_zones" ADD CONSTRAINT "chk_school_zones_nonempty" CHECK (NOT ST_IsEmpty("school_zones"."geom"));
