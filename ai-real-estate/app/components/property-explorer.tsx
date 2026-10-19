@@ -1356,6 +1356,45 @@ function DetailDialog({
                     )}
                   </div>
                 </>
+              ) : property.schoolZones?.length ? (
+                <div>
+                  <h4 style={{ marginBottom: "0.75rem", fontWeight: "600" }}>School Catchments</h4>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                    {property.schoolZones.map((school, index) => {
+                      const name = school.name ?? school.schoolName ?? "School";
+                      const type = school.type ?? school.schoolType ?? school.zoneType ?? "";
+                      const isInZone = school.isInZone ?? true;
+                      return (
+                        <div
+                          key={`${school.schoolId ?? name}-${index}`}
+                          style={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                            padding: "0.75rem",
+                            border: "1px solid var(--border-color, #e5e7eb)",
+                            borderRadius: "6px",
+                          }}
+                        >
+                          <div>
+                            <strong>{name}</strong>
+                            <span style={{ display: "block", fontSize: "0.8rem", opacity: 0.7 }}>
+                              {[type, school.distanceKm !== undefined ? `${school.distanceKm} km away` : undefined]
+                                .filter(Boolean)
+                                .join(" · ")}
+                            </span>
+                          </div>
+                          <span
+                            className={`badge ${isInZone ? "badge-success" : "badge-outline"}`}
+                            style={{ fontSize: "0.75rem" }}
+                          >
+                            {isInZone ? "In Zone" : "Out of Zone"}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
               ) : (
                 <p style={{ opacity: 0.7, fontSize: "0.9rem" }}>
                   Auckland school data has not been imported yet.

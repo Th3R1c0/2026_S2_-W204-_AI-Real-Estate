@@ -11,9 +11,9 @@ type DatabaseGlobal = typeof globalThis & {
 const databaseGlobal = globalThis as DatabaseGlobal;
 
 export function getDb() {
-  const databaseUrl = process.env.DATABASE_URL;
+  const databaseUrl = process.env.DATABASE_URL || process.env.POSTGRES_URL;
   if (!databaseUrl) {
-    throw new Error("DATABASE_URL must be set to connect to the PostgreSQL database.");
+    throw new Error("DATABASE_URL or POSTGRES_URL must be set to connect to the PostgreSQL database.");
   }
 
   const pool =
