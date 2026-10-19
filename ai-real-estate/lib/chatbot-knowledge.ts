@@ -76,9 +76,16 @@ export type PropertyChatSummary = {
   sunlightHours?: number;
 };
 
+export type LimReportContext = {
+  filename: string;
+  text: string;
+  pageCount?: number;
+};
+
 export type PropertyChatContext = {
   savedProperties?: PropertyChatSummary[];
   comparedProperties?: PropertyChatSummary[];
+  limReport?: LimReportContext;
 };
 
 function formatFloodHazards(hazards?: FloodHazardType[]): string {
@@ -137,6 +144,23 @@ export function formatPropertiesContext(context?: PropertyChatContext): string {
       "- The user has explicitly selected or saved the above listings in Haven.\n" +
       "- When asked about their compared or saved properties, or when helping them think about their search campaign or which home to choose, refer to these specific listings and their attributes in detail.\n" +
       "- Help them weigh trade-offs (e.g. price vs mapped Council flood hazards vs sunlight vs architectural style), organize their thinking, and plan their next steps in their buying campaign."
+    );
+  }
+
+  if (context.limReport) {
+    const maxLen = 25_000;
+    const truncatedText = context.limReport.text.length > maxLen
+      ? context.limReport.text.slice(0, maxLen) + "\n...[LIM Report truncated for context limit]..."
+      : context.limReport.text;
+
+    parts.push(
+      `--- ATTACHED LIM REPORT (Land Information Memorandum) for ${context.limReport.filename} ---\n` +
+      truncatedText +
+      `\n----------------------------------------------------------------------\n` +
+      `Instructions for attached LIM Report:\n` +
+      `- The user has attached an official LIM report for ${context.limReport.filename}.\n` +
+      `- When asked about the property, building permits, code compliance certificates (CCC), flood risk, overland flow paths, zoning, council rates, or red flags, reference the specific facts and data from this attached LIM report.\n` +
+      `- Be accurate, objective, and cite relevant details from the document.`
     );
   }
 
@@ -283,7 +307,43 @@ export function findLocalKnowledgeAnswer(query: string, context?: PropertyChatCo
     return `${contextualAdvice}1. **Define Your Criteria**: Lock in your top non-negotiables (bedrooms, school zones, and maximum commute time).\n2. **Evaluate Climate & Hazards**: Check Council hazard-layer intersections and North-facing orientation for warmth.\n3. **Financial Feasibility**: Use Haven's Mortgage Calculator to check your repayments against current interest rates.\n4. **Conduct Due Diligence**: For serious contenders, request the LIM report, verify title type, and inspect recent comparable sales (comps) in the suburb.\n5. **Inspect & Inquire**: Contact listing agents directly through Haven to arrange private viewings or confirm auction dates.`;
   }
 
-  // 4. Check standard knowledge topics
+  // 4. Attached LIM report questions
+  if (context?.limReport) {
+    const limLower = context.limReport.text.toLowerCase();
+    const isLimRelated =
+      normalized.includes("lim") ||
+      normalized.includes("consent") ||
+      normalized.includes("permit") ||
+      normalized.includes("ccc") ||
+      normalized.includes("compliance") ||
+      normalized.includes("hazard") ||
+      normalized.includes("flood") ||
+      normalized.includes("rate") ||
+      normalized.includes("zoning") ||
+      normalized.includes("summar") ||
+      normalized.includes("attached");
+
+    if (isLimRelated) {
+      const bulletPoints: string[] = [];
+      if (limLower.includes("consent") || limLower.includes("permit") || limLower.includes("ccc")) {
+        bulletPoints.push("Building Consents & Code Compliance: The report lists historical building consents and certification records.");
+      }
+      if (limLower.includes("flood") || limLower.includes("flow") || limLower.includes("hazard") || limLower.includes("inundation")) {
+        bulletPoints.push("Natural Hazards & Drainage: Council hazard layers or flood catchment data are recorded.");
+      }
+      if (limLower.includes("rate") || limLower.includes("rates") || limLower.includes("valuation")) {
+        bulletPoints.push("Council Rates & Valuation: Rating assessment and annual council rates information are present.");
+      }
+      if (limLower.includes("zone") || limLower.includes("zoning") || limLower.includes("unitary plan")) {
+        bulletPoints.push("Planning & Zoning: Unitary Plan zoning classification and property designations are specified.");
+      }
+
+      const recordedDetails = bulletPoints.length > 0 ? "\n\nKey Recorded Areas:\n- " + bulletPoints.join("\n- ") : "";
+      return `Attached LIM Report: **${context.limReport.filename}** (${context.limReport.pageCount ?? 1} pages loaded).${recordedDetails}\n\nYou can ask me specific questions about consents, unconsented works, flood layers, zoning rules, or council rates from this document!`;
+    }
+  }
+
+  // 5. Check standard knowledge topics
   for (const topic of LOCAL_KNOWLEDGE_TOPICS) {
     if (topic.keywords.some((kw) => normalized.includes(kw))) {
       return topic.reply;
