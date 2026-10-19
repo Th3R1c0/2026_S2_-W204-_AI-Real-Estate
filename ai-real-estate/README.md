@@ -128,6 +128,8 @@ ai-real-estate/
    DATABASE_URL=postgresql://your-postgres-user@localhost:5432/real_estate
    ```
 
+   For a Vercel deployment without a connected database, leave `DATABASE_URL` unset. The app and search use the bundled listing snapshot. If the database is unreachable or has no active listings, they also fall back to that snapshot. Council flood hazard data requires a migrated and synced PostgreSQL database.
+
 5. Apply migrations and seed the demo records:
    ```bash
    npm run db:setup-local

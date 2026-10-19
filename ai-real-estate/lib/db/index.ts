@@ -18,7 +18,11 @@ export function getDb() {
 
   const pool =
     databaseGlobal.postgresPool ??
-    (databaseGlobal.postgresPool = new Pool({ connectionString: databaseUrl }));
+    (databaseGlobal.postgresPool = new Pool({
+      connectionString: databaseUrl,
+      connectionTimeoutMillis: 2000,
+      query_timeout: 3000,
+    }));
 
   return drizzle(pool, { schema });
 }
