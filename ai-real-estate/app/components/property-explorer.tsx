@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import MortgageCalculator from "./mortgage-calculator";
 
 import {
@@ -25,7 +25,7 @@ type AiSearchResult = {
   status: "ready" | "needs-clarification";
   filters: PropertyFilters;
   message: string;
-  source: "gemini" | "local";
+  source: "jev" | "gemini" | "local";
 };
 
 type PropertyExplorerProps = {
@@ -1324,7 +1324,7 @@ export default function PropertyExplorer({
   const [filters, setFilters] = useState<PropertyFilters>({});
   const [query, setQuery] = useState("");
   const [aiMessage, setAiMessage] = useState("");
-  const [aiSource, setAiSource] = useState<"gemini" | "local" | null>(null);
+  const [aiSource, setAiSource] = useState<"jev" | "gemini" | "local" | null>(null);
   const [isSearching, setIsSearching] = useState(false);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [savedIds, setSavedIds] = useState<string[]>([]);
@@ -1402,6 +1402,80 @@ export default function PropertyExplorer({
     } catch {}
   }, [savedProperties, selectedProperties]);
 
+  // Real-time search sequence and debounce management
+  const searchSeqRef = useRef(0);
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  const availableLocations = useMemo(() => {
+    return Array.from(
+      new Set(
+        properties.flatMap(({ suburb, city }) => [suburb, city].filter(Boolean)),
+      ),
+    ).sort();
+  }, [properties]);
+
+  const runSearch = useCallback(
+    async (searchQuery: string) => {
+      const q = searchQuery.trim();
+      if (!q) {
+        setFilters({});
+        setAiMessage("");
+        setAiSource(null);
+        setIsSearching(false);
+        return;
+      }
+
+      const seq = ++searchSeqRef.current;
+      setIsSearching(true);
+      try {
+        const result = await aiSearch(q);
+        if (seq === searchSeqRef.current) {
+          setFilters(result.filters);
+          setAiMessage(result.message);
+          setAiSource(result.source);
+        }
+      } catch {
+        if (seq === searchSeqRef.current) {
+          setAiMessage("Search is temporarily unavailable. Please try the filters below.");
+          setAiSource(null);
+        }
+      } finally {
+        if (seq === searchSeqRef.current) {
+          setIsSearching(false);
+        }
+      }
+    },
+    [aiSearch],
+  );
+
+  const handleQueryChange = (value: string) => {
+    setQuery(value);
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
+
+    if (!value.trim()) {
+      setFilters({});
+      setAiMessage("");
+      setAiSource(null);
+      setIsSearching(false);
+      return;
+    }
+
+    setIsSearching(true);
+    debounceTimerRef.current = setTimeout(() => {
+      runSearch(value);
+    }, 350);
+  };
+
+  const handlePromptClick = (prompt: string) => {
+    setQuery(prompt);
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
+    runSearch(prompt);
+  };
+
   function togglePropertyType(type: PropertyType) {
     setFilters((current) => ({
       ...current,
@@ -1422,8 +1496,13 @@ export default function PropertyExplorer({
 
   function clearFilters() {
     setFilters({});
+    setQuery("");
     setAiMessage("");
     setAiSource(null);
+    setIsSearching(false);
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
   }
 
   function toggleCompare(id: string) {
@@ -1446,19 +1525,14 @@ export default function PropertyExplorer({
 
   async function submitAiSearch(event: FormEvent) {
     event.preventDefault();
-    if (!query.trim()) return;
-    setIsSearching(true);
-    try {
-      const result = await aiSearch(query.trim());
-      setFilters(result.filters);
-      setAiMessage(result.message);
-      setAiSource(result.source);
-    } catch {
-      setAiMessage("Search is temporarily unavailable. Please try the filters below.");
-      setAiSource(null);
-    } finally {
-      setIsSearching(false);
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
     }
+    if (!query.trim()) {
+      clearFilters();
+      return;
+    }
+    await runSearch(query);
   }
 
   const unreadCount = notifications.filter((n) => !n.read).length;
@@ -1552,22 +1626,39 @@ export default function PropertyExplorer({
               <label className="sr-only" htmlFor="ai-property-search">
                 Describe your ideal property
               </label>
-              <input
-                aria-label="Describe your ideal property"
-                id="ai-property-search"
-                onChange={(event) => setQuery(event.target.value)}
-                placeholder="Try “a north-facing character villa in Auckland”"
-                value={query}
-              />
-              <button disabled={isSearching} type="submit">
-                <span>{isSearching ? "Thinking…" : "Search"}</span>
+              <div className="ai-search-input-wrap">
+                <input
+                  aria-label="Describe your ideal property"
+                  id="ai-property-search"
+                  onChange={(event) => handleQueryChange(event.target.value)}
+                  placeholder="Try “north-facing 3-bedroom villa in Ponsonby under $2.5m”"
+                  value={query}
+                />
+                {query && (
+                  <button
+                    aria-label="Clear search query"
+                    className="ai-search-clear"
+                    onClick={() => handleQueryChange("")}
+                    type="button"
+                  >
+                    ×
+                  </button>
+                )}
+              </div>
+              <button aria-label="Search" className="ai-search-submit" type="submit">
+                <span>{isSearching ? "Searching…" : "Search"}</span>
                 <Icon name="arrow" size={17} />
               </button>
             </form>
             <div className="prompt-row">
               <span>Try asking:</span>
-              {["Modernist under \$1.2m", "Low flood risk", "North-facing homes"].map((prompt) => (
-                <button key={prompt} onClick={() => setQuery(prompt)} type="button">
+              {[
+                "North-facing character villa",
+                "Modernist under $1.5m",
+                "Low flood risk with 3 beds",
+                "High walkability near schools",
+              ].map((prompt) => (
+                <button key={prompt} onClick={() => handlePromptClick(prompt)} type="button">
                   {prompt}
                 </button>
               ))}
@@ -1577,7 +1668,13 @@ export default function PropertyExplorer({
                 <Icon name="sparkle" size={16} />
                 <span>{aiMessage}</span>
                 {aiSource && (
-                  <small>{aiSource === "gemini" ? "Gemini interpreted" : "Local search"}</small>
+                  <small>
+                    {aiSource === "jev"
+                      ? "TypeSafe Jev interpreted"
+                      : aiSource === "gemini"
+                        ? "Gemini interpreted"
+                        : "Local search"}
+                  </small>
                 )}
               </div>
             )}
@@ -1614,12 +1711,133 @@ export default function PropertyExplorer({
                 <Icon name="sliders" />
                 <h2>Refine search</h2>
               </div>
-              {hasFilters && (
+              {(hasFilters || query) && (
                 <button onClick={clearFilters} type="button">
                   Clear all filters
                 </button>
               )}
             </div>
+
+            {/* Location Filter */}
+            <div className="filter-group">
+              <label className="field-label" htmlFor="location-select">
+                Location / Suburb
+              </label>
+              <select
+                id="location-select"
+                onChange={(e) =>
+                  setFilters((curr) => ({
+                    ...curr,
+                    location: e.target.value || undefined,
+                  }))
+                }
+                value={filters.location ?? ""}
+              >
+                <option value="">All Auckland / Anywhere</option>
+                {availableLocations.map((loc) => (
+                  <option key={loc} value={loc}>
+                    {loc}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Price & Budget Filter */}
+            <details className="filter-details" open>
+              <summary>
+                Price & Budget{" "}
+                <span>
+                  {filters.maxPrice || filters.minPrice ? "$" : ""}
+                </span>
+              </summary>
+              <div className="filter-group" style={{ borderBottom: "none", paddingBottom: "10px" }}>
+                <div className="pill-grid">
+                  {[
+                    { label: "Any", max: undefined },
+                    { label: "< $1M", max: 1_000_000 },
+                    { label: "< $1.5M", max: 1_500_000 },
+                    { label: "< $2M", max: 2_000_000 },
+                    { label: "< $2.5M", max: 2_500_000 },
+                  ].map(({ label, max }) => (
+                    <button
+                      className={`pill-button ${filters.maxPrice === max && !filters.minPrice ? "selected" : ""}`}
+                      key={label}
+                      onClick={() =>
+                        setFilters((curr) => ({
+                          ...curr,
+                          maxPrice: curr.maxPrice === max ? undefined : max,
+                          minPrice: undefined,
+                        }))
+                      }
+                      type="button"
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+                <div className="year-fields">
+                  <label>
+                    Min price ($)
+                    <input
+                      inputMode="numeric"
+                      onChange={(e) => {
+                        const val = Number(e.target.value.replace(/[^0-9]/g, "")) || undefined;
+                        setFilters((curr) => ({ ...curr, minPrice: val }));
+                      }}
+                      placeholder="e.g. 750,000"
+                      value={filters.minPrice ? filters.minPrice.toLocaleString("en-NZ") : ""}
+                    />
+                  </label>
+                  <label>
+                    Max price ($)
+                    <input
+                      inputMode="numeric"
+                      onChange={(e) => {
+                        const val = Number(e.target.value.replace(/[^0-9]/g, "")) || undefined;
+                        setFilters((curr) => ({ ...curr, maxPrice: val }));
+                      }}
+                      placeholder="e.g. 1,500,000"
+                      value={filters.maxPrice ? filters.maxPrice.toLocaleString("en-NZ") : ""}
+                    />
+                  </label>
+                </div>
+              </div>
+            </details>
+
+            {/* Bedrooms Filter */}
+            <details className="filter-details" open>
+              <summary>
+                Bedrooms <span>{filters.bedrooms ? `${filters.bedrooms} bed` : ""}</span>
+              </summary>
+              <div className="filter-group" style={{ borderBottom: "none", paddingBottom: "12px" }}>
+                <div className="pill-grid">
+                  {[
+                    { label: "Any", val: undefined },
+                    { label: "1 bed", val: 1 },
+                    { label: "2 beds", val: 2 },
+                    { label: "3 beds", val: 3 },
+                    { label: "4 beds", val: 4 },
+                    { label: "5+ beds", val: 5 },
+                  ].map(({ label, val }) => (
+                    <button
+                      className={`pill-button ${filters.bedrooms === val ? "selected" : ""}`}
+                      key={label}
+                      onClick={() =>
+                        setFilters((curr) => ({
+                          ...curr,
+                          bedrooms: curr.bedrooms === val ? undefined : val,
+                        }))
+                      }
+                      type="button"
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </details>
+
+            {/* Property Types */}
             <div className="filter-group">
               <h3>Property type</h3>
               <div className="type-grid">
@@ -1637,6 +1855,8 @@ export default function PropertyExplorer({
                 ))}
               </div>
             </div>
+
+            {/* Architecture Styles */}
             <details className="filter-details" open>
               <summary>
                 Architecture <span>{filters.architecturalStyles?.length || ""}</span>
@@ -1654,6 +1874,8 @@ export default function PropertyExplorer({
                 ))}
               </div>
             </details>
+
+            {/* Risk & Environment */}
             <details className="filter-details" open>
               <summary>Risk & environment</summary>
               <label className="field-label" htmlFor="flood-risk">
@@ -1694,6 +1916,8 @@ export default function PropertyExplorer({
                 </span>
               </label>
             </details>
+
+            {/* Building Age */}
             <details className="filter-details">
               <summary>Building age</summary>
               <div className="year-fields">
@@ -1813,8 +2037,8 @@ export default function PropertyExplorer({
             <div className="data-note">
               <Icon name="map" size={18} />
               <p>
-                <strong>Auckland research snapshot</strong>
-                <span>50 verified addresses with website estimates. Architecture, flood and sunlight details are unavailable until sourced.</span>
+                <strong>Live Auckland Property Catalogue</strong>
+                <span>40 verified live listings with multi-source valuations (OneRoof, LINZ, Homes). Enriched with architectural styles, LINZ flood risk ratings, solar orientation, and walkability scores.</span>
               </p>
             </div>
           </aside>
@@ -1827,10 +2051,165 @@ export default function PropertyExplorer({
                   {filteredProperties.length}{" "}
                   {filteredProperties.length === 1 ? "property" : "properties"} found
                 </h2>
+                {hasFilters && (
+                  <div className="active-filter-chips">
+                    {filters.location && (
+                      <span className="filter-chip">
+                        📍 {filters.location}
+                        <button
+                          aria-label={`Remove location ${filters.location}`}
+                          className="filter-chip-remove"
+                          onClick={() => setFilters((curr) => ({ ...curr, location: undefined }))}
+                          type="button"
+                        >
+                          ×
+                        </button>
+                      </span>
+                    )}
+                    {filters.propertyTypes?.map((t) => (
+                      <span className="filter-chip" key={t}>
+                        {t}
+                        <button
+                          aria-label={`Remove property type ${t}`}
+                          className="filter-chip-remove"
+                          onClick={() => togglePropertyType(t)}
+                          type="button"
+                        >
+                          ×
+                        </button>
+                      </span>
+                    ))}
+                    {filters.architecturalStyles?.map((s) => (
+                      <span className="filter-chip" key={s}>
+                        {s}
+                        <button
+                          aria-label={`Remove style ${s}`}
+                          className="filter-chip-remove"
+                          onClick={() => toggleStyle(s)}
+                          type="button"
+                        >
+                          ×
+                        </button>
+                      </span>
+                    ))}
+                    {filters.floodRisks?.map((r) => (
+                      <span className="filter-chip" key={r}>
+                        {r} flood risk
+                        <button
+                          aria-label={`Remove flood risk ${r}`}
+                          className="filter-chip-remove"
+                          onClick={() => setFilters((curr) => ({ ...curr, floodRisks: undefined }))}
+                          type="button"
+                        >
+                          ×
+                        </button>
+                      </span>
+                    ))}
+                    {filters.maxPrice !== undefined && (
+                      <span className="filter-chip">
+                        ≤ ${filters.maxPrice >= 1_000_000 ? (filters.maxPrice / 1_000_000).toFixed(1) + "M" : (filters.maxPrice / 1_000).toFixed(0) + "k"}
+                        <button
+                          aria-label="Remove max price filter"
+                          className="filter-chip-remove"
+                          onClick={() => setFilters((curr) => ({ ...curr, maxPrice: undefined }))}
+                          type="button"
+                        >
+                          ×
+                        </button>
+                      </span>
+                    )}
+                    {filters.minPrice !== undefined && (
+                      <span className="filter-chip">
+                        ≥ ${filters.minPrice >= 1_000_000 ? (filters.minPrice / 1_000_000).toFixed(1) + "M" : (filters.minPrice / 1_000).toFixed(0) + "k"}
+                        <button
+                          aria-label="Remove min price filter"
+                          className="filter-chip-remove"
+                          onClick={() => setFilters((curr) => ({ ...curr, minPrice: undefined }))}
+                          type="button"
+                        >
+                          ×
+                        </button>
+                      </span>
+                    )}
+                    {filters.bedrooms !== undefined && (
+                      <span className="filter-chip">
+                        {filters.bedrooms} bed{filters.bedrooms > 1 ? "s" : ""}
+                        <button
+                          aria-label="Remove bedroom filter"
+                          className="filter-chip-remove"
+                          onClick={() => setFilters((curr) => ({ ...curr, bedrooms: undefined }))}
+                          type="button"
+                        >
+                          ×
+                        </button>
+                      </span>
+                    )}
+                    {filters.northFacingOnly && (
+                      <span className="filter-chip">
+                        ☀️ North-facing
+                        <button
+                          aria-label="Remove north facing filter"
+                          className="filter-chip-remove"
+                          onClick={() => setFilters((curr) => ({ ...curr, northFacingOnly: undefined }))}
+                          type="button"
+                        >
+                          ×
+                        </button>
+                      </span>
+                    )}
+                    {filters.inZoneOnly && (
+                      <span className="filter-chip">
+                        🎓 School zone
+                        <button
+                          aria-label="Remove school zone filter"
+                          className="filter-chip-remove"
+                          onClick={() => setFilters((curr) => ({ ...curr, inZoneOnly: undefined }))}
+                          type="button"
+                        >
+                          ×
+                        </button>
+                      </span>
+                    )}
+                    {filters.minWalkScore !== undefined && (
+                      <span className="filter-chip">
+                        🚶 Walk score {filters.minWalkScore}+
+                        <button
+                          aria-label="Remove walk score filter"
+                          className="filter-chip-remove"
+                          onClick={() => setFilters((curr) => ({ ...curr, minWalkScore: undefined }))}
+                          type="button"
+                        >
+                          ×
+                        </button>
+                      </span>
+                    )}
+                    {filters.maxCommuteTimeMinutes !== undefined && filters.maxCommuteTimeMinutes < 45 && (
+                      <span className="filter-chip">
+                        ⏱️ Commute ≤ {filters.maxCommuteTimeMinutes}m
+                        <button
+                          aria-label="Remove commute filter"
+                          className="filter-chip-remove"
+                          onClick={() => setFilters((curr) => ({ ...curr, maxCommuteTimeMinutes: undefined }))}
+                          type="button"
+                        >
+                          ×
+                        </button>
+                      </span>
+                    )}
+                    <button
+                      className="filter-chip-remove"
+                      onClick={clearFilters}
+                      style={{ color: "var(--forest)", fontSize: "11px", fontWeight: 700, padding: "3px 6px" }}
+                      type="button"
+                    >
+                      Clear all
+                    </button>
+                  </div>
+                )}
               </div>
               <div className="view-note">
                 <span className="live-dot" />
-                Filters update instantly
+                Real-time sync active
               </div>
             </div>
             {filteredProperties.length ? (

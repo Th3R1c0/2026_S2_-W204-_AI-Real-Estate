@@ -55,6 +55,15 @@ export function filterProperties(
 
           const travelTime = matchingCommute.travelTimes?.[mode];
           return travelTime !== undefined && travelTime <= maxTime;
+        })()) &&
+      (filters.maxCommuteTimeMinutes === undefined ||
+        (() => {
+          if (!property.commuteOptions || property.commuteOptions.length === 0) return true;
+          const mode = filters.commuteMode ?? "driving";
+          return property.commuteOptions.some((opt) => {
+            const time = opt.travelTimes?.[mode] ?? opt.timeMinutes;
+            return time !== undefined && time <= filters.maxCommuteTimeMinutes!;
+          });
         })())
     );
   });

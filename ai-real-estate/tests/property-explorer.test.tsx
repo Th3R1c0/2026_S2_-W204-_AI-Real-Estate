@@ -246,4 +246,68 @@ describe("PropertyExplorer", () => {
     expect(screen.queryByText("Verified address")).not.toBeInTheDocument();
     expect(container.querySelector(".style-badge")).toBeNull();
   });
+
+  it("executes real-time debounced search as user types and syncs filters", async () => {
+    const user = userEvent.setup();
+    const mockAiSearch = vi.fn().mockImplementation(async (query: string) => ({
+      status: "ready" as const,
+      filters: query.includes("villa")
+        ? { propertyTypes: ["Villa" as const], location: "Auckland" }
+        : {},
+      message: "Showing matching character villas.",
+      source: "jev" as const,
+    }));
+
+    render(
+      <PropertyExplorer
+        properties={properties}
+        comparableSales={comparableSales}
+        aiSearch={mockAiSearch}
+      />,
+    );
+
+    const input = screen.getByRole("textbox", { name: /describe your ideal property/i });
+    await user.type(input, "villa");
+
+    // Wait for debounced search to trigger automatically without hitting submit button
+    await waitFor(() => {
+      expect(mockAiSearch).toHaveBeenCalledWith("villa");
+    }, { timeout: 1500 });
+
+    await waitFor(() => {
+      expect(screen.getByText("TypeSafe Jev interpreted")).toBeInTheDocument();
+      expect(screen.getByText("Showing matching character villas.")).toBeInTheDocument();
+      expect(screen.getByText("54 Kelmarna Avenue")).toBeInTheDocument();
+    });
+
+    // Clear search using clear button
+    const clearButton = screen.getByRole("button", { name: /clear search query/i });
+    await user.click(clearButton);
+    expect(input).toHaveValue("");
+    expect(screen.getByText("2/30 Hardington Street")).toBeInTheDocument();
+  });
+
+  it("updates listings in real-time when sidebar location and bedroom controls change", async () => {
+    const user = userEvent.setup();
+    render(<PropertyExplorer properties={properties} comparableSales={comparableSales} />);
+
+    // Select Location filter
+    const locationSelect = screen.getByLabelText("Location / Suburb");
+    await user.selectOptions(locationSelect, "Onehunga");
+    expect(screen.getByText("2/30 Hardington Street")).toBeInTheDocument();
+    expect(screen.queryByText("54 Kelmarna Avenue")).not.toBeInTheDocument();
+
+    // Reset location
+    await user.selectOptions(locationSelect, "");
+    expect(screen.getByText("54 Kelmarna Avenue")).toBeInTheDocument();
+
+    // Select 1 bed filter (neither sample home in test fixture has 1 bed)
+    await user.click(screen.getByRole("button", { name: "1 bed" }));
+    expect(screen.queryByText("2/30 Hardington Street")).not.toBeInTheDocument();
+    expect(screen.queryByText("54 Kelmarna Avenue")).not.toBeInTheDocument();
+
+    // Clear filter
+    await user.click(screen.getByRole("button", { name: "Clear all filters" }));
+    expect(screen.getByText("54 Kelmarna Avenue")).toBeInTheDocument();
+  });
 });

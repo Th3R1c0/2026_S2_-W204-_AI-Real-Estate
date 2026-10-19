@@ -1,4 +1,4 @@
-import { interpretPropertyQuery } from "../../../lib/gemini-search";
+import { interpretPropertyQuery } from "../../../lib/jev-search";
 import { getPropertiesByStatus } from "../../../lib/db/properties";
 import { properties as seedProperties } from "../../../lib/property-data";
 
@@ -27,7 +27,8 @@ export async function POST(request: Request) {
     }
   }
   const result = await interpretPropertyQuery(query, properties, {
-    apiKey: process.env.GEMINI_API_KEY,
+    jevApiKey: process.env.JEV_API_KEY || process.env.TYPESAFE_API_KEY,
+    geminiApiKey: process.env.GEMINI_API_KEY,
   });
 
   console.log("[POST /api/search] Returning interpreted search result:", JSON.stringify(result, null, 2));

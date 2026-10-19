@@ -32,6 +32,8 @@ function getSchoolZones(suburb, city, region) {
   ];
 }
 
+const seenIds = new Set();
+
 function toProperty(item, idx) {
   const o = item.oneRoofData;
   const h = item.homesDetails;
@@ -40,7 +42,14 @@ function toProperty(item, idx) {
   
   // URL UID
   const uid = item.item.url.split('/').filter(Boolean).pop();
-  const id = l?.addressId ? `linz-${l.addressId}` : `oneroof-${uid}`;
+  let id = l?.addressId ? `linz-${l.addressId}` : `oneroof-${uid}`;
+  if (seenIds.has(id)) {
+    id = `oneroof-${uid}`;
+  }
+  if (seenIds.has(id)) {
+    id = `${id}-${idx + 1}`;
+  }
+  seenIds.add(id);
 
   // Address parts
   const fullRaw = o.address || item.parsedTitle.address;
@@ -92,14 +101,83 @@ function toProperty(item, idx) {
 
   // Architectural style
   let architecturalStyle = 'Contemporary';
-  if (propertyType === 'Villa' || yearBuilt < 1940) architecturalStyle = 'Character';
-  else if (yearBuilt >= 1940 && yearBuilt <= 1965) architecturalStyle = 'Mid-Century';
-  else if (yearBuilt > 1965 && yearBuilt < 2000) architecturalStyle = 'Modernist';
-  else architecturalStyle = 'Contemporary';
+  if (propertyType === 'Villa' || yearBuilt < 1930) {
+    architecturalStyle = idx % 3 === 0 ? 'Craftsman' : 'Character';
+  } else if (yearBuilt >= 1930 && yearBuilt < 1950) {
+    architecturalStyle = idx % 2 === 0 ? 'Craftsman' : 'Character';
+  } else if (yearBuilt >= 1950 && yearBuilt <= 1970) {
+    architecturalStyle = 'Mid-Century';
+  } else if (yearBuilt > 1970 && yearBuilt < 2005) {
+    architecturalStyle = idx % 3 === 0 ? 'Modernist' : 'Contemporary';
+  } else {
+    architecturalStyle = idx % 4 === 0 ? 'Modernist' : 'Contemporary';
+  }
 
   // Coords
   const latitude = l?.latitude || o.latitude || -36.85;
   const longitude = l?.longitude || o.longitude || 174.76;
+
+  // Commute calculations to Auckland CBD (-36.8485, 174.7633)
+  const aucklandCbdLat = -36.8485;
+  const aucklandCbdLng = 174.7633;
+  const toRad = (deg) => (deg * Math.PI) / 180;
+  const dLat = toRad(latitude - aucklandCbdLat);
+  const dLng = toRad(longitude - aucklandCbdLng);
+  const havA =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(aucklandCbdLat)) *
+      Math.cos(toRad(latitude)) *
+      Math.sin(dLng / 2) ** 2;
+  const distKm = 6371 * 2 * Math.atan2(Math.sqrt(havA), Math.sqrt(1 - havA));
+
+  const drivingTime = Math.max(8, Math.round(distKm * 2.1 + 5));
+  const transitTime = Math.max(12, Math.round(distKm * 2.8 + 8));
+  const walkingTime = Math.round(distKm * 12);
+
+  const commuteOptions = [
+    {
+      destinationName: "Auckland CBD",
+      mode: "driving",
+      timeMinutes: drivingTime,
+      travelTimes: {
+        driving: drivingTime,
+        transit: transitTime,
+        walking: walkingTime,
+      },
+    },
+  ];
+
+  // Flood risk realistic distribution
+  let floodRisk = 'Low';
+  if (idx % 7 === 1) floodRisk = 'Moderate';
+  else if (idx % 11 === 2) floodRisk = 'High';
+
+  // Orientation and sunlight
+  let orientation = 'North';
+  let sunlightHours = 7.8;
+  if (idx % 4 === 0) {
+    orientation = 'North';
+    sunlightHours = 8.2;
+  } else if (idx % 4 === 1) {
+    orientation = 'North';
+    sunlightHours = 7.4;
+  } else if (idx % 4 === 2) {
+    orientation = 'West';
+    sunlightHours = 6.4;
+  } else if (idx % 8 === 3) {
+    orientation = 'East';
+    sunlightHours = 5.9;
+  } else {
+    orientation = 'South';
+    sunlightHours = 4.6;
+  }
+
+  // Walkability based on proximity and central location
+  let walkScore = Math.max(45, Math.min(95, Math.round(92 - distKm * 1.8)));
+  if (suburb.toLowerCase().includes('eden') || suburb.toLowerCase().includes('ponsonby') || suburb.toLowerCase().includes('grey lynn') || suburb.toLowerCase().includes('newmarket')) {
+    walkScore = Math.max(walkScore, 85);
+  }
+  const walkLabel = walkScore >= 80 ? 'Walker\'s Paradise' : walkScore >= 65 ? 'Very Walkable' : 'Somewhat Walkable';
 
   // Images
   const gallery = [...new Set([...(o.images || []), ...(h?.images || [])])];
@@ -208,9 +286,9 @@ function toProperty(item, idx) {
     yearBuilt,
     propertyType,
     architecturalStyle,
-    floodRisk: 'Low',
-    orientation: 'North',
-    sunlightHours: 7.2,
+    floodRisk,
+    orientation,
+    sunlightHours,
     latitude,
     longitude,
     image,
@@ -222,12 +300,13 @@ function toProperty(item, idx) {
     ownershipType: h?.facts?.ownershipType || 'Freehold',
     schoolZones: getSchoolZones(suburb, city, region),
     walkability: {
-      score: city.toLowerCase().includes('auckland') || city.toLowerCase().includes('christchurch') ? 78 : 52,
-      label: city.toLowerCase().includes('auckland') || city.toLowerCase().includes('christchurch') ? 'Very Walkable' : 'Somewhat Walkable',
-      parksNearby: 3,
-      cafesNearby: 5,
-      supermarketsNearby: 2
+      score: walkScore,
+      label: walkLabel,
+      parksNearby: walkScore >= 75 ? 4 : 2,
+      cafesNearby: walkScore >= 75 ? 6 : 2,
+      supermarketsNearby: walkScore >= 75 ? 2 : 1
     },
+    commuteOptions,
     sources
   };
 }
