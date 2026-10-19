@@ -4,6 +4,7 @@ import Image from "next/image";
 import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import MortgageCalculator from "./mortgage-calculator";
 import PropertyNotes from "./property-notes";
+import PropertyLocationMap from "./property-location-map";
 
 import {
   filterProperties,
@@ -31,6 +32,7 @@ import type {
   SchoolOption,
 } from "../../lib/property-types";
 import { SCHOOL_NEARBY_RADIUS_METRES } from "../../lib/school-data";
+import { straightLineDistanceKm, type SavedLocation } from "../../lib/saved-locations";
 
 type AiSearchResult = {
   status: "ready" | "needs-clarification";
@@ -58,7 +60,6 @@ type DetailTab =
   | "history"
   | "notes";
 type CommuteMode = "driving" | "transit" | "bicycling" | "walking";
-type CommuteDestination = { name: string; address: string };
 type SourceSelection = {
   source: PropertySource;
   field: PropertySourceField;
@@ -126,6 +127,23 @@ function formatNumericFilter(field: NumericSearchField, range: NumericCriterion)
   return label;
 }
 const commuteStorageKey = "ai-real-estate-commute-destinations";
+let nextLocationLookupAt = 0;
+function readSavedLocations(): SavedLocation[] {
+  try {
+    const parsed: unknown = JSON.parse(localStorage.getItem(commuteStorageKey) ?? "[]");
+    if (!Array.isArray(parsed)) return [];
+    return parsed.filter((item) => item && typeof item.name === "string" && typeof item.address === "string")
+      .slice(0, 3)
+      .map((item, index) => ({
+        id: typeof item.id === "string" ? item.id : `legacy-${index}`,
+        name: item.name,
+        address: item.address,
+        ...(Number.isFinite(item.latitude) && Number.isFinite(item.longitude)
+          ? { latitude: item.latitude, longitude: item.longitude }
+          : {}),
+      }));
+  } catch { return []; }
+}
 const commuteModes: Array<{ id: CommuteMode; label: string }> = [
   { id: "driving", label: "Driving" },
   { id: "transit", label: "Public transport" },
@@ -137,37 +155,58 @@ function formatMoney(value: number) {
   return moneyFormatter.format(value).replace("NZ", "");
 }
 
-function CommutePlanner({ property }: { property: Property }) {
-  const [destinations, setDestinations] = useState<CommuteDestination[]>(() => {
-    if (typeof window === "undefined") return [];
-    try {
-      const saved = localStorage.getItem(commuteStorageKey);
-      const parsed: unknown = saved ? JSON.parse(saved) : [];
-      if (Array.isArray(parsed)) {
-        return parsed
-          .filter(
-            (item): item is CommuteDestination =>
-              item && typeof item.name === "string" && typeof item.address === "string",
-          )
-          .slice(0, 3);
-      }
-    } catch { }
-    return [];
-  });
+function CommutePlanner({ property, destinations, setDestinations }: {
+  property: Property;
+  destinations: SavedLocation[];
+  setDestinations: React.Dispatch<React.SetStateAction<SavedLocation[]>>;
+}) {
   const [mode, setMode] = useState<CommuteMode>("driving");
+  const [locatingIndex, setLocatingIndex] = useState<number | null>(null);
+  const [locationError, setLocationError] = useState("");
 
-  useEffect(() => {
-    try {
-      localStorage.setItem(commuteStorageKey, JSON.stringify(destinations));
-    } catch { }
-  }, [destinations]);
-
-  function updateDestination(index: number, field: keyof CommuteDestination, value: string) {
+  function updateDestination(index: number, field: "name" | "address", value: string) {
     setDestinations((current) =>
       current.map((destination, currentIndex) =>
-        currentIndex === index ? { ...destination, [field]: value } : destination,
+        currentIndex === index ? {
+          ...destination,
+          [field]: value,
+          ...(field === "address" ? { latitude: undefined, longitude: undefined } : {}),
+        } : destination,
       ),
     );
+  }
+
+  async function locateDestination(index: number) {
+    const destination = destinations[index];
+    if (!destination?.address.trim()) return;
+    setLocatingIndex(index);
+    setLocationError("");
+    try {
+      const query = new URL("https://nominatim.openstreetmap.org/search");
+      query.searchParams.set("q", destination.address.trim());
+      query.searchParams.set("format", "jsonv2");
+      query.searchParams.set("countrycodes", "nz");
+      query.searchParams.set("limit", "1");
+      const waitMs = Math.max(0, nextLocationLookupAt - Date.now());
+      nextLocationLookupAt = Date.now() + waitMs + 1000;
+      if (waitMs) await new Promise((resolve) => setTimeout(resolve, waitMs));
+      const response = await fetch(query.toString());
+      if (!response.ok) throw new Error("Location lookup failed. Try again.");
+      const result: unknown = await response.json();
+      const first = Array.isArray(result) ? result[0] : null;
+      const latitude = Number(first?.lat);
+      const longitude = Number(first?.lon);
+      if (!first || !Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+        throw new Error("Address not found. Try a more specific address.");
+      }
+      setDestinations((current) => current.map((item) => item.id === destination.id && item.address === destination.address
+        ? { ...item, latitude, longitude }
+        : item));
+    } catch (error) {
+      setLocationError(error instanceof Error ? error.message : "Location lookup failed.");
+    } finally {
+      setLocatingIndex(null);
+    }
   }
 
   return (
@@ -175,7 +214,7 @@ function CommutePlanner({ property }: { property: Property }) {
       <div className="tool-heading">
         <div>
           <p className="eyebrow">Your regular journeys</p>
-          <h3>Commute destinations</h3>
+          <h3>Saved locations</h3>
         </div>
         <span className="commute-count">{destinations.length}/3 saved</span>
       </div>
@@ -221,6 +260,14 @@ function CommutePlanner({ property }: { property: Property }) {
                     value={destination.address}
                   />
                 </label>
+                <button
+                  className="commute-add"
+                  disabled={!destination.address.trim() || locatingIndex !== null}
+                  onClick={() => locateDestination(index)}
+                  type="button"
+                >
+                  {locatingIndex === index ? "Finding…" : destination.latitude === undefined ? "Find on map" : "Update map pin"}
+                </button>
                 {destination.address.trim() ? (
                   <a href={mapsUrl.toString()} rel="noreferrer" target="_blank">
                     Open directions
@@ -245,19 +292,20 @@ function CommutePlanner({ property }: { property: Property }) {
           })}
         </div>
       ) : (
-        <p className="commute-empty">Add a workplace, childcare, or other regular destination.</p>
+        <p className="commute-empty">Add a workplace, family home, or other regular destination.</p>
       )}
       <button
         className="commute-add"
         disabled={destinations.length >= 3}
-        onClick={() => setDestinations((current) => [...current, { name: "", address: "" }])}
+        onClick={() => setDestinations((current) => [...current, { id: crypto.randomUUID(), name: "", address: "" }])}
         type="button"
       >
         Add destination
       </button>
+      {locationError && <p role="alert">{locationError}</p>}
       <p className="disclaimer">
-        Destinations are saved in this browser. Google Maps provides route details when opened;
-        in-app and peak-hour travel times are not configured.
+        Saved on this device. Address lookup and map tiles use OpenStreetMap;
+        Google Maps opens route directions. Distances shown here are straight-line estimates.
       </p>
     </div>
   );
@@ -831,6 +879,8 @@ function ComparisonDialog({
 function DetailDialog({
   property,
   comparableSales,
+  destinations,
+  setDestinations,
   isSaved,
   onSave,
   onClose,
@@ -838,12 +888,15 @@ function DetailDialog({
 }: {
   property: Property;
   comparableSales: Property[];
+  destinations: SavedLocation[];
+  setDestinations: React.Dispatch<React.SetStateAction<SavedLocation[]>>;
   isSaved: boolean;
   onSave: () => void;
   onClose: () => void;
   onOpenSource: (source: PropertySource, field: PropertySourceField) => void;
 }) {
   const [tab, setTab] = useState<DetailTab>("overview");
+  const [showSavedLocations, setShowSavedLocations] = useState(true);
   const [nearbySchoolType, setNearbySchoolType] = useState("");
   const [radius, setRadius] = useState(2);
   const [months, setMonths] = useState(6);
@@ -1049,12 +1102,28 @@ function DetailDialog({
               <div style={{ marginTop: 22 }}>
                 <strong>Map position</strong>
                 <p style={{ fontSize: 13 }}>{property.latitude.toFixed(6)}, {property.longitude.toFixed(6)} · LINZ NZ Addresses</p>
-                <iframe
-                  title={`Map of ${property.address}`}
-                  src={`https://www.openstreetmap.org/export/embed.html?bbox=${property.longitude - 0.004}%2C${property.latitude - 0.003}%2C${property.longitude + 0.004}%2C${property.latitude + 0.003}&layer=mapnik&marker=${property.latitude}%2C${property.longitude}`}
-                  loading="lazy"
-                  style={{ width: "100%", height: 250, border: "1px solid #dce8e2", borderRadius: 12 }}
+                <label className="saved-location-toggle">
+                  <input checked={showSavedLocations} onChange={(event) => setShowSavedLocations(event.target.checked)} type="checkbox" />
+                  Show saved locations
+                </label>
+                <PropertyLocationMap
+                  address={property.address}
+                  latitude={property.latitude}
+                  longitude={property.longitude}
+                  locations={showSavedLocations ? destinations : []}
                 />
+                {showSavedLocations && (
+                  <ul className="saved-location-distances">
+                    {destinations.filter((location) => location.latitude !== undefined && location.longitude !== undefined)
+                      .map((location) => (
+                        <li key={location.id}>
+                          {location.name || location.address} · {straightLineDistanceKm(
+                            property.latitude, property.longitude, location.latitude!, location.longitude!,
+                          ).toFixed(1)} km straight-line
+                        </li>
+                      ))}
+                  </ul>
+                )}
                 <a href={`https://www.openstreetmap.org/?mlat=${property.latitude}&mlon=${property.longitude}#map=17/${property.latitude}/${property.longitude}`} target="_blank" rel="noopener noreferrer">Open larger map ↗</a>
               </div>
               <div className="insight-note">
@@ -1425,7 +1494,7 @@ function DetailDialog({
               <MortgageCalculator defaultPrice={property.price} />
             </div>
           )}
-          {tab === "commute" && <CommutePlanner property={property} />}
+          {tab === "commute" && <CommutePlanner destinations={destinations} property={property} setDestinations={setDestinations} />}
           {tab === "history" && (
             <div className="tool-panel" style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
               <div className="tool-heading">
@@ -1593,17 +1662,47 @@ export default function PropertyExplorer({
   const [isSearching, setIsSearching] = useState(false);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [savedIds, setSavedIds] = useState<string[]>([]);
+  const [destinations, setDestinations] = useState<SavedLocation[]>([]);
+  const [destinationsLoaded, setDestinationsLoaded] = useState(false);
+  const [selectedDestinationId, setSelectedDestinationId] = useState("");
+  const [maxSavedLocationDistance, setMaxSavedLocationDistance] = useState(5);
   const [comparisonOpen, setComparisonOpen] = useState(false);
   const [savedModalOpen, setSavedModalOpen] = useState(false);
   const [detailId, setDetailId] = useState<string | null>(null);
   const [sourceSelection, setSourceSelection] = useState<SourceSelection | null>(null);
   const [readNotificationIds, setReadNotificationIds] = useState<string[]>([]);
 
-  const filteredProperties = useMemo(() => filterProperties(properties, filters), [properties, filters]);
+  useEffect(() => {
+    let active = true;
+    queueMicrotask(() => {
+      if (!active) return;
+      setDestinations(readSavedLocations());
+      setDestinationsLoaded(true);
+    });
+    return () => { active = false; };
+  }, []);
+
+  useEffect(() => {
+    if (!destinationsLoaded) return;
+    try { localStorage.setItem(commuteStorageKey, JSON.stringify(destinations)); } catch { }
+  }, [destinations, destinationsLoaded]);
+
+  const selectedDestination = destinations.find((destination) =>
+    destination.id === selectedDestinationId &&
+    destination.latitude !== undefined && destination.longitude !== undefined,
+  );
+  const filteredProperties = useMemo(() => {
+    const matches = filterProperties(properties, filters);
+    if (!selectedDestination) return matches;
+    return matches.filter((property) => straightLineDistanceKm(
+      property.latitude, property.longitude,
+      selectedDestination.latitude!, selectedDestination.longitude!,
+    ) <= maxSavedLocationDistance);
+  }, [properties, filters, selectedDestination, maxSavedLocationDistance]);
   const selectedProperties = properties.filter(({ id }) => selectedIds.includes(id));
   const savedProperties = properties.filter(({ id }) => savedIds.includes(id));
   const detailProperty = properties.find(({ id }) => id === detailId);
-  const hasFilters = Object.keys(filters).length > 0;
+  const hasFilters = Object.keys(filters).length > 0 || !!selectedDestination;
   const schoolTypes = Array.from(
     new Set(schoolOptions.map(({ orgType }) => orgType)),
   ).sort((a, b) => a.localeCompare(b));
@@ -1770,6 +1869,7 @@ export default function PropertyExplorer({
 
   function clearFilters() {
     setFilters({});
+    setSelectedDestinationId("");
     setQuery("");
     setAiMessage("");
     setAiSource(null);
@@ -2026,6 +2126,20 @@ export default function PropertyExplorer({
                   </option>
                 ))}
               </select>
+            </div>
+
+            <div className="filter-group">
+              <label className="field-label" htmlFor="saved-location-select">Search near saved location</label>
+              <select id="saved-location-select" onChange={(event) => setSelectedDestinationId(event.target.value)} value={selectedDestination?.id ?? ""}>
+                <option value="">Any location</option>
+                {destinations.filter((destination) => destination.latitude !== undefined && destination.longitude !== undefined)
+                  .map((destination) => <option key={destination.id} value={destination.id}>{destination.name || destination.address}</option>)}
+              </select>
+              <label className="field-label" htmlFor="saved-location-distance">Maximum distance</label>
+              <select id="saved-location-distance" onChange={(event) => setMaxSavedLocationDistance(Number(event.target.value))} value={maxSavedLocationDistance}>
+                {[2, 5, 10, 20].map((distance) => <option key={distance} value={distance}>{distance} km</option>)}
+              </select>
+              <span className="filter-help">Straight-line distance. Add places in a property&apos;s Commute tab.</span>
             </div>
 
             {/* Price & Budget Filter */}
@@ -2448,6 +2562,12 @@ export default function PropertyExplorer({
                 </h2>
                 {hasFilters && (
                   <div className="active-filter-chips">
+                    {selectedDestination && (
+                      <span className="filter-chip">
+                        Within {maxSavedLocationDistance} km of {selectedDestination.name || selectedDestination.address}
+                        <button aria-label="Remove saved location filter" className="filter-chip-remove" onClick={() => setSelectedDestinationId("")} type="button">×</button>
+                      </span>
+                    )}
                     {filters.location && (
                       <span className="filter-chip">
                         📍 {filters.location}
@@ -2820,6 +2940,7 @@ export default function PropertyExplorer({
       {detailProperty && (
         <DetailDialog
           comparableSales={comparableSales}
+          destinations={destinations}
           isSaved={savedIds.includes(detailProperty.id)}
           onClose={() => setDetailId(null)}
           onSave={() => toggleSave(detailProperty.id)}
@@ -2827,6 +2948,7 @@ export default function PropertyExplorer({
             setSourceSelection({ source, field, property: detailProperty })
           }
           property={detailProperty}
+          setDestinations={setDestinations}
         />
       )}
 

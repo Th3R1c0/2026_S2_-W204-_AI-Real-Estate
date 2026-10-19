@@ -407,6 +407,74 @@ describe("PropertyExplorer", () => {
     );
   });
 
+  it("shows a saved named location and its distance on a property map", async () => {
+    window.localStorage.clear();
+    const geocode = vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(new Response(JSON.stringify([
+      { lat: "-36.904", lon: "174.787", display_name: "1 Queen Street, Auckland" },
+    ]), { status: 200 }));
+    const user = userEvent.setup();
+    render(<PropertyExplorer properties={properties} comparableSales={comparableSales} />);
+
+    await user.click(screen.getByRole("button", { name: /view details for 2\/30 hardington street/i }));
+    const details = screen.getByRole("dialog", { name: /property details/i });
+    await user.click(within(details).getByRole("button", { name: "Commute" }));
+    await user.click(within(details).getByRole("button", { name: "Add destination" }));
+    await user.type(within(details).getByRole("textbox", { name: "Name for destination 1" }), "Work");
+    await user.type(within(details).getByRole("textbox", { name: "Address for destination 1" }), "1 Queen Street, Auckland");
+    await user.click(within(details).getByRole("button", { name: "Find on map" }));
+
+    await waitFor(() => expect(window.localStorage.getItem("ai-real-estate-commute-destinations")).toContain('"latitude":-36.904'));
+    await user.click(within(details).getByRole("button", { name: "Overview" }));
+    expect(within(details).getByText(/Work.*1\.0 km straight-line/i)).toBeInTheDocument();
+    expect(within(details).getByRole("checkbox", { name: "Show saved locations" })).toBeChecked();
+    await user.click(within(details).getByRole("checkbox", { name: "Show saved locations" }));
+    expect(within(details).queryByText(/Work.*km straight-line/i)).not.toBeInTheDocument();
+    expect(geocode).toHaveBeenCalledTimes(1);
+    geocode.mockRestore();
+  });
+
+  it("filters properties by straight-line distance from a saved location", async () => {
+    window.localStorage.setItem("ai-real-estate-commute-destinations", JSON.stringify([
+      { id: "work", name: "Work", address: "1 Queen Street, Auckland", latitude: -36.904, longitude: 174.787 },
+    ]));
+    const user = userEvent.setup();
+    render(<PropertyExplorer properties={properties} comparableSales={comparableSales} />);
+
+    await screen.findByRole("option", { name: "Work" });
+    await user.selectOptions(screen.getByRole("combobox", { name: "Search near saved location" }), "work");
+    await user.selectOptions(screen.getByRole("combobox", { name: "Maximum distance" }), "2");
+
+    expect(screen.getByRole("heading", { name: "1 property found" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /view details for 2\/30 hardington street/i })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /view details for 54 kelmarna avenue/i })).not.toBeInTheDocument();
+  });
+
+  it("does not pin old coordinates after a saved address is edited during lookup", async () => {
+    window.localStorage.clear();
+    let finishLookup!: (response: Response) => void;
+    const geocode = vi.spyOn(globalThis, "fetch").mockImplementation(() => new Promise((resolve) => {
+      finishLookup = resolve;
+    }));
+    const user = userEvent.setup();
+    render(<PropertyExplorer properties={properties} comparableSales={comparableSales} />);
+    await user.click(screen.getByRole("button", { name: /view details for 2\/30 hardington street/i }));
+    const details = screen.getByRole("dialog", { name: /property details/i });
+    await user.click(within(details).getByRole("button", { name: "Commute" }));
+    await user.click(within(details).getByRole("button", { name: "Add destination" }));
+    await user.type(within(details).getByRole("textbox", { name: "Name for destination 1" }), "Work");
+    const address = within(details).getByRole("textbox", { name: "Address for destination 1" });
+    await user.type(address, "1 Queen Street, Auckland");
+    await user.click(within(details).getByRole("button", { name: "Find on map" }));
+    await user.clear(address);
+    await user.type(address, "100 Queen Street, Auckland");
+    await waitFor(() => expect(geocode).toHaveBeenCalled(), { timeout: 2500 });
+    finishLookup(new Response(JSON.stringify([{ lat: "-36.904", lon: "174.787" }]), { status: 200 }));
+    await waitFor(() => expect(within(details).getByRole("button", { name: "Find on map" })).toBeEnabled());
+    await user.click(within(details).getByRole("button", { name: "Overview" }));
+    expect(within(details).queryByText(/Work.*km straight-line/i)).not.toBeInTheDocument();
+    geocode.mockRestore();
+  });
+
   it("opens source details from an inline property citation", async () => {
     const user = userEvent.setup();
     render(<PropertyExplorer properties={[seededProperties[0]]} comparableSales={[]} />);
@@ -435,7 +503,7 @@ describe("PropertyExplorer", () => {
     render(<PropertyExplorer properties={[seededProperties[0]]} comparableSales={[]} />);
     await user.click(screen.getByRole("button", { name: /view details for 59 israel avenue/i }));
     const details = screen.getByRole("dialog", { name: /property details/i });
-    expect(within(details).getByTitle(/map of 59 israel avenue/i)).toHaveAttribute("src", expect.stringContaining("openstreetmap.org"));
+    expect(within(details).getByRole("region", { name: /map of 59 israel avenue/i })).toBeInTheDocument();
     expect(within(details).getByRole("link", { name: /photo source/i })).toHaveAttribute("href", seededProperties[0].imageSourceUrl);
   });
 
