@@ -1,0 +1,216 @@
+@startuml
+title Haven Real Estate Platform — Architecture & Database UML (Jev Primary, Gemini Alt)
+hide methods
+hide stereotypes
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+top to bottom direction
+
+package "AI Search Engine (Jev Primary, Gemini Alt/Backup)" {
+  class JevSearchEngine << service >> {
+    +model: "jev-latest"
+    +endpoint: "https://api.typesafe.ai/v1/systemone"
+    +interpretPropertyQueryWithJev()
+    -- notes --
+    TypeSafe AI System One model.
+    Evaluates catalog state against query.
+  }
+
+  class GeminiSearchEngine << service >> {
+    +model: "gemini-3.5-flash-lite"
+    +interpretWithGemini()
+    -- notes --
+    Secondary / Alt / Backup engine.
+    Used if Jev is unreachable.
+  }
+
+  JevSearchEngine ..> GeminiSearchEngine : "fallback on error/timeout"
+}
+
+package "Authentication & Buyer Workspace" {
+  class users << table >> {
+    +user_id: SERIAL {PK}
+    +username: VARCHAR(50) {UNIQUE}
+    +email: VARCHAR(255) {UNIQUE}
+    +password_hash: VARCHAR(255)
+    +created_at: TIMESTAMP
+    +updated_at: TIMESTAMP
+  }
+
+  class user_sessions << table >> {
+    +token_hash: CHAR(64) {PK}
+    +user_id: INTEGER {FK}
+    +expires_at: TIMESTAMP
+    +created_at: TIMESTAMP
+  }
+
+  class buyer_workspaces << table >> {
+    +user_id: INTEGER {PK, FK}
+    +saved_property_ids: JSONB
+    +general_notes: JSONB
+    +property_notes: JSONB
+    +destinations: JSONB
+    +chat_history: JSONB
+    +updated_at: TIMESTAMP
+  }
+}
+
+package "Core Properties & Specs" {
+  class properties << table >> {
+    +property_id: SERIAL {PK}
+    +demo_key: VARCHAR(80) [0..1] {UNIQUE}
+    +title: VARCHAR(200)
+    +body: TEXT [0..1]
+    +listing_type: ENUM(sale, rent, lease)
+    +status: ENUM(draft, active, under_offer, sold, rented, withdrawn)
+    +listed_at: TIMESTAMP [0..1]
+    +created_at: TIMESTAMP
+    +updated_at: TIMESTAMP
+  }
+
+  class property_price << table >> {
+    +property_id: INTEGER {PK, FK}
+    +pricing_method: ENUM(fixed, negotiation, auction, tender, enquiries_over, price_on_application)
+    +sale_price: DECIMAL(12,2) [0..1]
+    +rent_price: DECIMAL(10,2) [0..1]
+    +rent_period: ENUM(week, fortnight, month) [0..1]
+    +lease_price: DECIMAL(12,2) [0..1]
+    +currency: CHAR(3)
+  }
+
+  class address << table >> {
+    +property_id: INTEGER {PK, FK}
+    +unit_number: VARCHAR(20) [0..1]
+    +street_number: VARCHAR(20)
+    +street_name: VARCHAR(120)
+    +suburb: VARCHAR(100) [0..1]
+    +city: VARCHAR(100)
+    +state: VARCHAR(100) [0..1]
+    +post_code: VARCHAR(12) [0..1]
+    +country: VARCHAR(100)
+    +latitude: DECIMAL(9,6)
+    +longitude: DECIMAL(9,6)
+  }
+
+  class property_details << table >> {
+    +property_id: INTEGER {PK, FK}
+    +property_type: ENUM(house, apartment, townhouse, unit, section, lifestyle, commercial, other)
+    +display_property_type: VARCHAR(40) [0..1]
+    +architectural_style: VARCHAR(40) [0..1]
+    +orientation: ENUM(North, East, South, West) [0..1]
+    +sunlight_hours: DECIMAL(4,1) [0..1]
+    +land_area: DECIMAL(10,2) [0..1]
+    +floor_area: DECIMAL(10,2) [0..1]
+    +bedrooms: SMALLINT
+    +bathrooms: SMALLINT
+    +ensuites: SMALLINT
+    +toilets: SMALLINT
+    +living_rooms: SMALLINT
+    +garage_parking: SMALLINT
+    +off_street_parking: SMALLINT
+    +year_built: INTEGER [0..1]
+    +capital_value: DECIMAL(12,2) [0..1]
+    +estimated_weekly_rent: DECIMAL(10,2) [0..1]
+    +ownership_type: VARCHAR(60) [0..1]
+    +sale_method: VARCHAR(160) [0..1]
+    +image_source_url: VARCHAR(500) [0..1]
+    +agent_name: VARCHAR(120) [0..1]
+    +agent_source: VARCHAR(60) [0..1]
+    +agent_contact_url: VARCHAR(500) [0..1]
+  }
+}
+
+package "Market Events & Media" {
+  class open_homes << table >> {
+    +open_home_id: SERIAL {PK}
+    +property_id: INTEGER {FK}
+    +open_date: DATE
+    +start_time: TIME
+    +end_time: TIME
+    +label: VARCHAR(160) [0..1]
+  }
+
+  class property_sales << table >> {
+    +sale_id: SERIAL {PK}
+    +property_id: INTEGER {FK}
+    +sold_price: DECIMAL(12,2)
+    +sold_date: DATE
+  }
+
+  class property_valuations << table >> {
+    +valuation_id: SERIAL {PK}
+    +property_id: INTEGER {FK}
+    +valuation_date: DATE
+    +capital_value: DECIMAL(12,2) [0..1]
+    +land_value: DECIMAL(12,2) [0..1]
+    +improvement_value: DECIMAL(12,2) [0..1]
+    +low_estimate: DECIMAL(12,2) [0..1]
+    +median_estimate: DECIMAL(12,2) [0..1]
+    +high_estimate: DECIMAL(12,2) [0..1]
+    +source: VARCHAR(100) [0..1]
+  }
+
+  class property_images << table >> {
+    +image_id: SERIAL {PK}
+    +property_id: INTEGER {FK}
+    +url: VARCHAR(500)
+    +caption: VARCHAR(200) [0..1]
+    +sort_order: INTEGER
+    +is_cover: BOOLEAN
+  }
+
+  class property_sources << table >> {
+    +property_source_id: SERIAL {PK}
+    +property_id: INTEGER {FK}
+    +source_key: VARCHAR(80)
+    +title: VARCHAR(200)
+    +publisher: VARCHAR(150)
+    +url: VARCHAR(500)
+    +reference: VARCHAR(255)
+    +material: TEXT
+    +fields: JSON
+  }
+}
+
+package "Geospatial Data (Schools & Hazards)" {
+  class schools << table >> {
+    +school_id: INTEGER {PK}
+    +org_name: VARCHAR(200)
+    +org_type: VARCHAR(100)
+    +latitude: DECIMAL(10,7)
+    +longitude: DECIMAL(10,7)
+    +enrolment_scheme: BOOLEAN
+  }
+
+  class school_zones << table >> {
+    +school_zone_id: SERIAL {PK}
+    +school_id: INTEGER {FK}
+    +zone_name: VARCHAR(200) [0..1]
+    +zone_type: VARCHAR(100) [0..1]
+  }
+
+  class property_flood_hazards << table >> {
+    +property_id: INTEGER {PK, FK}
+    +hazard_type: ENUM {PK}
+    +source_feature_id: VARCHAR(100) {PK}
+    +source_url: VARCHAR(500)
+  }
+}
+
+' Relationships
+users "1" *-- "0..*" user_sessions : token
+users "1" *-- "0..1" buyer_workspaces : workspace
+
+properties "1" *-- "1" property_price : pricing
+properties "1" *-- "1" address : location
+properties "1" *-- "1" property_details : specs
+properties "1" *-- "0..*" open_homes : schedules
+properties "1" *-- "0..*" property_sales : historical_sales
+properties "1" *-- "0..*" property_valuations : cv_records
+properties "1" *-- "0..*" property_images : gallery
+properties "1" *-- "0..*" property_sources : citations
+properties "1" *-- "0..*" property_flood_hazards : hazards
+
+schools "1" *-- "0..*" school_zones : zones
+
+@enduml

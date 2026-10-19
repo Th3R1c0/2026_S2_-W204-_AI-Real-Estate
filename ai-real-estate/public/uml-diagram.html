@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Haven Real Estate — UML Diagrams</title>
+  <!-- Mermaid.js for UML Rendering -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: #f8fafc;
+      color: #0f172a;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    body.dark {
+      background: #09090b;
+      color: #f4f4f5;
+    }
+
+    /* Top Navigation Bar */
+    header {
+      background: #ffffff;
+      border-bottom: 1px solid #e2e8f0;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-shrink: 0;
+      z-index: 50;
+    }
+
+    body.dark header {
+      background: #09090b;
+      border-color: #27272a;
+    }
+
+    .title-group {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .title {
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      white-space: nowrap;
+    }
+
+    /* Minimalist Segmented Tabs */
+    .tabs {
+      display: flex;
+      gap: 4px;
+      background: #f1f5f9;
+      padding: 3px;
+      border-radius: 6px;
+      overflow-x: auto;
+    }
+
+    body.dark .tabs {
+      background: #18181b;
+    }
+
+    .tab-btn {
+      padding: 6px 12px;
+      font-size: 13px;
+      font-weight: 500;
+      color: #64748b;
+      background: transparent;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.12s ease;
+      white-space: nowrap;
+    }
+
+    .tab-btn:hover {
+      color: #0f172a;
+    }
+
+    body.dark .tab-btn:hover {
+      color: #fafafa;
+    }
+
+    .tab-btn.active {
+      background: #ffffff;
+      color: #0f172a;
+      font-weight: 600;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+    }
+
+    body.dark .tab-btn.active {
+      background: #27272a;
+      color: #fafafa;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Header Actions */
+    .actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      padding: 6px 11px;
+      font-size: 12px;
+      font-weight: 500;
+      color: #334155;
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.1s ease;
+    }
+
+    body.dark .btn {
+      color: #d4d4d8;
+      background: #18181b;
+      border-color: #3f3f46;
+    }
+
+    .btn:hover {
+      background: #f1f5f9;
+      border-color: #94a3b8;
+    }
+
+    body.dark .btn:hover {
+      background: #27272a;
+      border-color: #71717a;
+    }
+
+    .btn-dark {
+      background: #0f172a;
+      color: #ffffff;
+      border-color: #0f172a;
+      font-weight: 600;
+    }
+
+    body.dark .btn-dark {
+      background: #fafafa;
+      color: #09090b;
+      border-color: #fafafa;
+    }
+
+    .btn-dark:hover {
+      background: #1e293b;
+      color: #ffffff;
+    }
+
+    body.dark .btn-dark:hover {
+      background: #e4e4e7;
+    }
+
+    /* Canvas & PanZoom Workspace */
+    .workspace {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      background: #ffffff;
+    }
+
+    body.dark .workspace {
+      background: #0c0a09;
+    }
+
+    .diagram-pane {
+      position: absolute;
+      inset: 0;
+      visibility: hidden;
+      opacity: 0;
+      pointer-events: none;
+      overflow: hidden;
+      cursor: grab;
+    }
+
+    .diagram-pane.active {
+      visibility: visible;
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .diagram-pane:active {
+      cursor: grabbing;
+    }
+
+    .panzoom-layer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      transform-origin: 0 0;
+      user-select: none;
+      padding: 40px;
+    }
+
+    /* Fullscreen Mode (Press F or click Fullscreen) */
+    body.is-fullscreen header {
+      display: none;
+    }
+
+    body.is-fullscreen .workspace {
+      width: 100vw;
+      height: 100vh;
+    }
+
+    /* Floating Toolbar */
+    .floating-toolbar {
+      position: absolute;
+      bottom: 24px;
+      right: 24px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.96);
+      border: 1px solid #cbd5e1;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+      backdrop-filter: blur(8px);
+      padding: 5px;
+      border-radius: 8px;
+      z-index: 60;
+    }
+
+    body.dark .floating-toolbar {
+      background: rgba(24, 24, 27, 0.96);
+      border-color: #3f3f46;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
+    }
+
+    .zoom-readout {
+      font-size: 11px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      padding: 0 8px;
+      color: #475569;
+      min-width: 52px;
+      text-align: center;
+      user-select: none;
+    }
+
+    body.dark .zoom-readout {
+      color: #a1a1aa;
+    }
+
+    .hint {
+      position: absolute;
+      bottom: 24px;
+      left: 24px;
+      font-size: 11px;
+      color: #64748b;
+      pointer-events: none;
+      user-select: none;
+      background: rgba(255, 255, 255, 0.9);
+      padding: 5px 9px;
+      border-radius: 6px;
+      border: 1px solid #e2e8f0;
+    }
+
+    body.dark .hint {
+      background: rgba(24, 24, 27, 0.9);
+      color: #71717a;
+      border-color: #27272a;
+    }
+
+    .mermaid svg {
+      font-family: inherit !important;
+    }
+  </style>
+</head>
+<body class="light">
+
+  <!-- Header -->
+  <header>
+    <div class="title-group">
+      <span class="title">Haven Real Estate &mdash; UML</span>
+      <nav class="tabs">
+        <button class="tab-btn active" data-tab="arch">1. System Architecture</button>
+        <button class="tab-btn" data-tab="db">2. Database Schema</button>
+        <button class="tab-btn" data-tab="seq1">3. AI Search Flow (Jev &amp; Gemini)</button>
+        <button class="tab-btn" data-tab="seq2">4. 3-Mode Map Flow</button>
+        <button class="tab-btn" data-tab="seq3">5. Chatbot &amp; LIM Flow</button>
+        <button class="tab-btn" data-tab="domain">6. Domain Models</button>
+      </nav>
+    </div>
+
+    <div class="actions">
+      <button class="btn" id="themeToggleBtn" title="Toggle Theme">🌓 Mode</button>
+      <button class="btn btn-dark" id="fullscreenToggleBtn" title="Toggle Fullscreen (or press F)">⛶ Fullscreen</button>
+      <button class="btn" id="exportSvgBtn" title="Download SVG">⬇ Export SVG</button>
+    </div>
+  </header>
+
+  <!-- Canvas Workspace Area -->
+  <main class="workspace" id="workspace">
+
+    <!-- 1. System Architecture -->
+    <div class="diagram-pane active" id="pane-arch">
+      <div class="panzoom-layer">
+        <div class="mermaid">
+flowchart TB
+  subgraph Frontend["Presentation Tier (Next.js 16 and React 19)"]
+    direction TB
+    PAGES["Pages: Catalog Explorer / | Property Details /properties/:id | Buyer Workspace /account"]
+    COMPONENTS["Components: PropertyExplorer | PropertyLocationMap (3-Mode Google Maps) | AiChatbot | CommutePlanner | MortgageCalculator"]
+    STATE["State: AccountWorkspaceProvider (Saved Listings, Private Notes, Commute Destinations)"]
+  end
+
+  subgraph API["API Routes (App Router)"]
+    direction TB
+    R_SEARCH["POST /api/search (Natural Language Search Endpoint)"]
+    R_COMPS["GET /api/comparable-sales (Haversine Distance Comp Valuation)"]
+    R_FLOOD["GET /api/flood-zones (Auckland Council GeoJSON Bounding Box)"]
+    R_CHAT["POST /api/chatbot (Conversational Q and A Assistant)"]
+    R_LIM["POST /api/chatbot/upload-lim (PDF Magic Check and Text Extraction)"]
+    R_AUTH["POST /api/auth (User Registration and Session Cookie)"]
+    R_WS["GET / POST /api/account/workspace (JSONB Workspace Sync)"]
+  end
+
+  subgraph Services["Domain Services"]
+    direction TB
+    S_JEV["jev-search.ts (Main AI Engine: TypeSafe Jev System One)"]
+    S_GEMINI["gemini-search.ts (Alt / Backup AI Engine: Gemini 3.5 Flash-Lite)"]
+    S_ENGINE["property-engine.ts (Haversine Math and Comp Filters)"]
+    S_ONEROOF["oneroof-parser.ts (OneRoof Scraper and Public Records Ingestion)"]
+    S_CHAT["chatbot-service.ts (RAG System Context and Fallback KB)"]
+    S_MORTGAGE["mortgage-calculation.ts (Amortization Schedules)"]
+    S_ACCOUNT["account/auth.ts (SHA-256 Token Engine)"]
+  end
+
+  subgraph Persistence["Persistence (PostgreSQL and Drizzle ORM)"]
+    direction TB
+    ORM["Drizzle ORM Engine (schema.ts and properties.ts)"]
+    TABLES["PostgreSQL Tables: properties, property_details, property_price, address, open_homes, property_images, property_sales, users, user_sessions, buyer_workspaces, schools, school_zones, property_flood_hazards"]
+  end
+
+  subgraph External["External Services and APIs"]
+    direction TB
+    EXT_JEV["TypeSafe AI Platform (Jev System One Engine)"]
+    EXT_GEMINI["Google Gemini API (Chatbot and Backup Search)"]
+    EXT_GMAPS["Google Maps API (JS SDK, Directions, Places Autocomplete)"]
+    EXT_COUNCIL["Auckland Council ArcGIS REST (Flood Plains and Overland Paths)"]
+    EXT_ONEROOF["OneRoof NZ Real Estate"]
+  end
+
+  PAGES --> COMPONENTS
+  COMPONENTS --> R_SEARCH
+  COMPONENTS --> R_COMPS
+  COMPONENTS --> R_FLOOD
+  COMPONENTS --> R_CHAT
+  COMPONENTS --> R_LIM
+  COMPONENTS --> R_WS
+  STATE --> R_WS
+
+  R_SEARCH --> S_JEV
+  S_JEV -.->|Fallback if unavailable| S_GEMINI
+  R_SEARCH --> ORM
+  R_COMPS --> ORM
+  R_FLOOD --> EXT_COUNCIL
+  R_CHAT --> S_CHAT
+  R_LIM --> S_CHAT
+  R_AUTH --> S_ACCOUNT
+  R_AUTH --> ORM
+  R_WS --> S_ACCOUNT
+  R_WS --> ORM
+
+  S_JEV -.-> EXT_JEV
+  S_GEMINI -.-> EXT_GEMINI
+  S_CHAT -.-> EXT_GEMINI
+  COMPONENTS -.-> EXT_GMAPS
+  S_ONEROOF -.-> EXT_ONEROOF
+
+  ORM --> TABLES
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. Database Schema -->
+    <div class="diagram-pane" id="pane-db">
+      <div class="panzoom-layer">
+        <div class="mermaid">
+classDiagram
+  direction TB
+
+  class users {
+    +int user_id
+    +string username
+    +string email
+    +string password_hash
+    +timestamp created_at
+  }
+
+  class user_sessions {
+    +string token_hash
+    +int user_id
+    +timestamp expires_at
+  }
+
+  class buyer_workspaces {
+    +int user_id
+    +jsonb saved_property_ids
+    +jsonb general_notes
+    +jsonb property_notes
+    +jsonb destinations
+    +jsonb chat_history
+    +timestamp updated_at
+  }
+
+  class properties {
+    +int property_id
+    +string demo_key
+    +string title
+    +string body
+    +string listing_type
+    +string status
+    +timestamp listed_at
+  }
+
+  class property_price {
+    +int property_id
+    +string pricing_method
+    +decimal sale_price
+    +decimal rent_price
+    +string rent_period
+    +string currency
+  }
+
+  class address {
+    +int property_id
+    +string street_name
+    +string suburb
+    +string city
+    +string post_code
+    +decimal latitude
+    +decimal longitude
+  }
+
+  class property_details {
+    +int property_id
+    +string property_type
+    +string architectural_style
+    +string orientation
+    +decimal sunlight_hours
+    +decimal land_area
+    +decimal floor_area
+    +int bedrooms
+    +int bathrooms
+    +int year_built
+    +decimal capital_value
+    +string agent_name
+    +string agent_contact_url
+  }
+
+  class open_homes {
+    +int open_home_id
+    +int property_id
+    +date open_date
+    +time start_time
+    +time end_time
+    +string label
+  }
+
+  class property_sales {
+    +int sale_id
+    +int property_id
+    +decimal sold_price
+    +date sold_date
+  }
+
+  class property_images {
+    +int image_id
+    +int property_id
+    +string url
+    +int sort_order
+    +bool is_cover
+  }
+
+  class property_flood_hazards {
+    +int property_id
+    +string hazard_type
+    +string source_feature_id
+    +string source_url
+  }
+
+  class schools {
+    +int school_id
+    +string org_name
+    +string org_type
+    +decimal latitude
+    +decimal longitude
+    +bool enrolment_scheme
+  }
+
+  class school_zones {
+    +int school_zone_id
+    +int school_id
+    +string zone_name
+    +string zone_type
+  }
+
+  users "1" --> "0..*" user_sessions : auth_tokens
+  users "1" --> "0..1" buyer_workspaces : workspace_data
+
+  properties "1" *-- "1" property_price : pricing
+  properties "1" *-- "1" address : location
+  properties "1" *-- "1" property_details : specifications
+  properties "1" *-- "0..*" open_homes : schedules
+  properties "1" *-- "0..*" property_sales : past_sales
+  properties "1" *-- "0..*" property_images : media
+  properties "1" *-- "0..*" property_flood_hazards : flood_layers
+
+  schools "1" *-- "0..*" school_zones : school_zones
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. AI Search Sequence Flow (Jev as Main, Gemini as Alt/Backup) -->
+    <div class="diagram-pane" id="pane-seq1">
+      <div class="panzoom-layer">
+        <div class="mermaid">
+sequenceDiagram
+  autonumber
+  actor User as Buyer
+  participant UI as PropertyExplorer
+  participant Route as /api/search
+  participant Jev as TypeSafe AI (Jev - Main)
+  participant Gemini as Google Gemini (Alt / Backup)
+  participant DB as PostgreSQL (Drizzle)
+
+  User->>UI: Enters natural language search ("Modern 3-bed townhouse under $950k")
+  UI->>Route: POST /api/search with query
+  Route->>Jev: interpretPropertyQueryWithJev(query, catalogState)
+
+  alt Jev Evaluation Success (Main Engine)
+    Jev-->>Route: Resolved structured filters (source: "jev")
+  else Jev Unavailable / Key Missing / Error
+    Note over Route, Gemini: Fallback to Gemini 3.5 Flash-Lite
+    Route->>Gemini: interpretWithGemini(query, properties)
+    alt Gemini Success (Alt / Backup Engine)
+      Gemini-->>Route: Resolved structured filters (source: "gemini")
+    else Gemini Error / Fallback
+      Route->>Route: Local property catalog keyword matching
+    end
+  end
+
+  Route->>DB: searchProperties with resolved filters
+  DB-->>Route: Matching property records with joined pricing and location
+  Route-->>UI: 200 OK with properties and interpretedSearch (source: "jev" | "gemini")
+  UI-->>User: Renders matching property cards with interpretation badge
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. 3-Mode Google Map Flow -->
+    <div class="diagram-pane" id="pane-seq2">
+      <div class="panzoom-layer">
+        <div class="mermaid">
+sequenceDiagram
+  autonumber
+  actor User as Buyer
+  participant MapUI as PropertyLocationMap
+  participant GMaps as Google Maps SDK
+  participant FloodAPI as /api/flood-zones
+  participant Council as Auckland Council REST
+
+  User->>MapUI: Switches Map Mode ("Schools", "Commute", or "Flood")
+
+  alt Mode is Schools
+    MapUI->>GMaps: Render 2.5km radius circle and school markers
+    MapUI-->>User: Shows school markers and in-zone membership badge
+  else Mode is Commute
+    MapUI->>GMaps: DirectionsService.route(origin, destination, mode)
+    GMaps-->>MapUI: Polyline route and duration summary
+    MapUI-->>User: Displays route path and driving/transit times
+  else Mode is Flood
+    MapUI->>FloodAPI: GET /api/flood-zones with lat and lng
+    FloodAPI->>Council: Query 450m Bounding Box for 4 Hazard Layers
+    Council-->>FloodAPI: GeoJSON FeatureCollection
+    FloodAPI-->>MapUI: GeoJSON polygons with hazard colors
+    MapUI->>GMaps: Add GeoJSON data layer to map
+    MapUI-->>User: Visualizes flood hazard overlays on satellite or roadmap
+  end
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. Chatbot & LIM Flow -->
+    <div class="diagram-pane" id="pane-seq3">
+      <div class="panzoom-layer">
+        <div class="mermaid">
+sequenceDiagram
+  autonumber
+  actor User as Buyer
+  participant ChatUI as AiChatbot Drawer
+  participant UploadAPI as /api/chatbot/upload-lim
+  participant ChatAPI as /api/chatbot
+  participant Gemini as Gemini 2.5 Flash
+
+  User->>ChatUI: Drops Auckland Council LIM PDF (up to 15MB)
+  ChatUI->>UploadAPI: POST /api/chatbot/upload-lim (multipart/form-data)
+  UploadAPI->>UploadAPI: Validate PDF header and extract text with pdf-parse
+  UploadAPI-->>ChatUI: 200 OK with filename, pageCount, and text
+
+  User->>ChatUI: "Are there any overland flow paths or unconsented works in this LIM?"
+  ChatUI->>ChatAPI: POST /api/chatbot with message, history, and LIM context
+  ChatAPI->>Gemini: generateContent with system knowledge and LIM document text
+  Gemini-->>ChatAPI: 200 OK with synthesized analysis
+  ChatAPI-->>ChatUI: 200 OK with reply and citations
+  ChatUI-->>User: Displays plain-English explanation with LIM page citations
+        </div>
+      </div>
+    </div>
+
+    <!-- 6. Domain Models -->
+    <div class="diagram-pane" id="pane-domain">
+      <div class="panzoom-layer">
+        <div class="mermaid">
+classDiagram
+  direction TB
+
+  class Property {
+    +string id
+    +string address
+    +string suburb
+    +string city
+    +number price
+    +number bedrooms
+    +number bathrooms
+    +number landArea
+    +number floorArea
+    +number yearBuilt
+    +string propertyType
+    +string architecturalStyle
+    +number sunlightHours
+    +number latitude
+    +number longitude
+    +string image
+  }
+
+  class PropertyFilters {
+    +string location
+    +number minPrice
+    +number maxPrice
+    +number schoolId
+  }
+
+  class BuyerWorkspace {
+    +int userId
+  }
+
+  class SavedLocation {
+    +string id
+    +string label
+    +string address
+    +number latitude
+    +number longitude
+  }
+
+  class NearbySchool {
+    +number schoolId
+    +string name
+    +string orgType
+    +number distanceKm
+    +bool hasEnrolmentZone
+  }
+
+  Property "1" *-- "0..*" NearbySchool
+  BuyerWorkspace "1" *-- "0..*" SavedLocation
+        </div>
+      </div>
+    </div>
+
+    <!-- Floating Zoom Controls -->
+    <div class="floating-toolbar">
+      <button class="btn" id="zoomOutBtn" title="Zoom Out (Mouse Wheel Down)">－</button>
+      <span class="zoom-readout" id="zoomDisplay">100%</span>
+      <button class="btn" id="zoomInBtn" title="Zoom In (Mouse Wheel Up)">＋</button>
+      <button class="btn" id="zoomResetBtn" title="Reset View (Double-click Canvas)">Fit</button>
+      <button class="btn btn-dark" id="fullscreenFloatBtn" title="Toggle Fullscreen">⛶</button>
+    </div>
+
+    <div class="hint">Scroll mouse wheel to zoom (unlimited) &bull; Drag anywhere to pan &bull; Double-click to reset</div>
+  </main>
+
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'neutral',
+      securityLevel: 'loose',
+      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+      flowchart: { curve: 'basis', htmlLabels: true },
+      sequence: { actorMargin: 30, showSequenceNumbers: true },
+      class: { hideEmptyMembersBox: true }
+    });
+
+    const panes = document.querySelectorAll('.diagram-pane');
+    const zoomDisplay = document.getElementById('zoomDisplay');
+    const stateMap = new Map();
+
+    function getPaneState(pane) {
+      if (!stateMap.has(pane)) {
+        stateMap.set(pane, {
+          scale: 1,
+          x: 40,
+          y: 40,
+          isDragging: false,
+          startX: 0,
+          startY: 0
+        });
+      }
+      return stateMap.get(pane);
+    }
+
+    function applyTransform(pane) {
+      const state = getPaneState(pane);
+      const layer = pane.querySelector('.panzoom-layer');
+      if (layer) {
+        layer.style.transform = `translate(${state.x}px, ${state.y}px) scale(${state.scale})`;
+      }
+      if (pane.classList.contains('active')) {
+        zoomDisplay.textContent = `${Math.round(state.scale * 100)}%`;
+      }
+    }
+
+    panes.forEach(pane => {
+      const state = getPaneState(pane);
+
+      pane.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        const factor = e.deltaY < 0 ? 1.15 : 0.87;
+        const rect = pane.getBoundingClientRect();
+        const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
+
+        state.x = mouseX - (mouseX - state.x) * factor;
+        state.y = mouseY - (mouseY - state.y) * factor;
+        state.scale *= factor;
+
+        applyTransform(pane);
+      }, { passive: false });
+
+      pane.addEventListener('mousedown', (e) => {
+        if (e.button !== 0) return;
+        state.isDragging = true;
+        state.startX = e.clientX - state.x;
+        state.startY = e.clientY - state.y;
+      });
+
+      window.addEventListener('mousemove', (e) => {
+        if (!state.isDragging) return;
+        state.x = e.clientX - state.startX;
+        state.y = e.clientY - state.startY;
+        applyTransform(pane);
+      });
+
+      window.addEventListener('mouseup', () => {
+        state.isDragging = false;
+      });
+
+      pane.addEventListener('dblclick', () => {
+        state.scale = 1;
+        state.x = 40;
+        state.y = 40;
+        applyTransform(pane);
+      });
+    });
+
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    tabButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        tabButtons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        const tabKey = btn.getAttribute('data-tab');
+        panes.forEach(p => {
+          if (p.id === `pane-${tabKey}`) {
+            p.classList.add('active');
+            applyTransform(p);
+          } else {
+            p.classList.remove('active');
+          }
+        });
+      });
+    });
+
+    function getActivePane() {
+      return document.querySelector('.diagram-pane.active') || panes[0];
+    }
+
+    document.getElementById('zoomInBtn').addEventListener('click', () => {
+      const pane = getActivePane();
+      const state = getPaneState(pane);
+      state.scale *= 1.25;
+      applyTransform(pane);
+    });
+
+    document.getElementById('zoomOutBtn').addEventListener('click', () => {
+      const pane = getActivePane();
+      const state = getPaneState(pane);
+      state.scale *= 0.8;
+      applyTransform(pane);
+    });
+
+    document.getElementById('zoomResetBtn').addEventListener('click', () => {
+      const pane = getActivePane();
+      const state = getPaneState(pane);
+      state.scale = 1;
+      state.x = 40;
+      state.y = 40;
+      applyTransform(pane);
+    });
+
+    document.getElementById('themeToggleBtn').addEventListener('click', () => {
+      document.body.classList.toggle('dark');
+    });
+
+    function toggleFullscreen() {
+      document.body.classList.toggle('is-fullscreen');
+      const isFull = document.body.classList.contains('is-fullscreen');
+      document.getElementById('fullscreenToggleBtn').textContent = isFull ? '✕ Exit' : '⛶ Fullscreen';
+    }
+
+    document.getElementById('fullscreenToggleBtn').addEventListener('click', toggleFullscreen);
+    document.getElementById('fullscreenFloatBtn').addEventListener('click', toggleFullscreen);
+
+    window.addEventListener('keydown', (e) => {
+      if ((e.key === 'f' || e.key === 'F') && !e.target.matches('input, textarea')) {
+        toggleFullscreen();
+      } else if (e.key === 'Escape' && document.body.classList.contains('is-fullscreen')) {
+        toggleFullscreen();
+      }
+    });
+
+    document.getElementById('exportSvgBtn').addEventListener('click', () => {
+      const pane = getActivePane();
+      const svg = pane.querySelector('svg');
+      if (!svg) {
+        alert('SVG rendering in progress, please try again in a moment.');
+        return;
+      }
+      const serializer = new XMLSerializer();
+      let source = serializer.serializeToString(svg);
+      if (!source.match(/^<svg[^>]+xmlns="http\:\/\/www\.w3\.org\/2000\/svg"/)) {
+        source = source.replace(/^<svg/, '<svg xmlns="http://www.w3.org/2000/svg"');
+      }
+      const blob = new Blob([source], { type: 'image/svg+xml;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${pane.id}.svg`;
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+  </script>
+</body>
+</html>
