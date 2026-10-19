@@ -24,7 +24,9 @@ import type {
   PropertySource,
   PropertySourceField,
   PropertyType,
+  SchoolOption,
 } from "../../lib/property-types";
+import { SCHOOL_NEARBY_RADIUS_METRES } from "../../lib/school-data";
 
 type AiSearchResult = {
   status: "ready" | "needs-clarification";
@@ -36,6 +38,8 @@ type AiSearchResult = {
 type PropertyExplorerProps = {
   properties: Property[];
   comparableSales: Property[];
+  schoolOptions?: SchoolOption[];
+  schoolDataSynced?: boolean;
   aiSearch?: (query: string) => Promise<AiSearchResult>;
 };
 
@@ -806,6 +810,7 @@ function DetailDialog({
   onOpenSource: (source: PropertySource, field: PropertySourceField) => void;
 }) {
   const [tab, setTab] = useState<DetailTab>("overview");
+  const [nearbySchoolType, setNearbySchoolType] = useState("");
   const [radius, setRadius] = useState(2);
   const [months, setMonths] = useState(6);
   const compResult = useMemo(
@@ -822,6 +827,12 @@ function DetailDialog({
     property.sunlightHours === undefined
       ? undefined
       : Math.min(100, Math.round((property.sunlightHours / 9) * 100));
+  const nearbySchoolTypes = Array.from(
+    new Set((property.nearbySchools ?? []).map(({ orgType }) => orgType)),
+  ).sort((a, b) => a.localeCompare(b));
+  const visibleNearbySchools = (property.nearbySchools ?? []).filter(
+    (school) => !nearbySchoolType || school.orgType === nearbySchoolType,
+  );
   const tabs: Array<{ id: DetailTab; label: string }> = [
     { id: "overview", label: "Overview" },
     { id: "flood", label: "Flood risk" },
@@ -1143,49 +1154,106 @@ function DetailDialog({
                 </p>
               )}
 
-              <div>
-                <h4 style={{ marginBottom: "0.75rem", fontWeight: "600" }}>School Catchments</h4>
-                <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-                  {property.schoolZones?.length ? (
-                    property.schoolZones.map((school) => (
-                      <div
-                        key={school.name}
-                        style={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          alignItems: "center",
-                          padding: "0.75rem",
-                          border: "1px solid var(--border-color, #e5e7eb)",
-                          borderRadius: "6px",
-                        }}
-                      >
-                        <div>
-                          <strong>{school.name}</strong>
-                          <span style={{ display: "block", fontSize: "0.8rem", opacity: 0.7 }}>
-                            {school.type} · {school.distanceKm} km away
-                          </span>
-                        </div>
-                        <span
-                          style={{
-                            padding: "0.25rem 0.5rem",
-                            borderRadius: "4px",
-                            fontSize: "0.75rem",
-                            fontWeight: "600",
-                            backgroundColor: school.isInZone ? "#dcfce7" : "#f3f4f6",
-                            color: school.isInZone ? "#166534" : "#4b5563",
-                          }}
+              {property.schoolDataSynced ? (
+                <>
+                  <p className="disclaimer" role="note">
+                    <strong>School-zone matches are approximate.</strong> Ministry of Education
+                    boundaries have limited resolution and alignment accuracy, so results may be
+                    inaccurate. Confirm enrolment eligibility with the school or Ministry.
+                  </p>
+                  <div>
+                    <h4 style={{ marginBottom: "0.25rem", fontWeight: "600" }}>
+                      Nearby schools within {SCHOOL_NEARBY_RADIUS_METRES / 1000} km
+                    </h4>
+                    {nearbySchoolTypes.length > 0 && (
+                      <label className="field-label" htmlFor="nearby-school-type">
+                        Filter nearby schools by type
+                        <select
+                          id="nearby-school-type"
+                          onChange={(event) => setNearbySchoolType(event.target.value)}
+                          value={nearbySchoolType}
                         >
-                          {school.isInZone ? "In Zone" : "Out of Zone"}
-                        </span>
+                          <option value="">All school types</option>
+                          {nearbySchoolTypes.map((type) => (
+                            <option key={type} value={type}>{type}</option>
+                          ))}
+                        </select>
+                      </label>
+                    )}
+                    {visibleNearbySchools.length ? (
+                      <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", marginTop: "0.5rem" }}>
+                        {visibleNearbySchools.map((school) => {
+                          const matchingZone = property.schoolZones?.find(
+                            (zone) => zone.schoolId === school.schoolId,
+                          );
+                          return (
+                            <div
+                              key={school.schoolId}
+                              style={{
+                                padding: "0.75rem",
+                                border: "1px solid var(--border-color, #e5e7eb)",
+                                borderRadius: "6px",
+                              }}
+                            >
+                              <strong>{school.name}</strong>
+                              <span style={{ display: "block", fontSize: "0.85rem", opacity: 0.8 }}>
+                                {school.orgType} · {school.distanceKm.toFixed(2)} km away
+                              </span>
+                              <small style={{ display: "block", marginTop: "0.25rem", opacity: 0.7 }}>
+                                {!school.hasEnrolmentZone
+                                  ? "No enrolment zone published"
+                                  : !school.hasZoneGeometry
+                                    ? "Enrolment scheme listed, but zone geometry is unavailable"
+                                  : matchingZone
+                                    ? "This property is in the mapped school zone"
+                                    : "This property is not in the mapped school zone"}
+                              </small>
+                            </div>
+                          );
+                        })}
                       </div>
-                    ))
-                  ) : (
-                    <p style={{ opacity: 0.7, fontSize: "0.9rem" }}>
-                      No direct school zone information available for this property.
-                    </p>
-                  )}
-                </div>
-              </div>
+                    ) : (
+                      <p style={{ opacity: 0.7, fontSize: "0.9rem" }}>
+                        {nearbySchoolType
+                          ? `No ${nearbySchoolType} schools are mapped within ${SCHOOL_NEARBY_RADIUS_METRES / 1000} km.`
+                          : `No schools are mapped within ${SCHOOL_NEARBY_RADIUS_METRES / 1000} km.`}
+                      </p>
+                    )}
+                  </div>
+                  <div>
+                    <h4 style={{ marginBottom: "0.75rem", fontWeight: "600" }}>
+                      School zones containing this property
+                    </h4>
+                    {property.schoolZones?.length ? (
+                      <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                        {property.schoolZones.map((zone) => (
+                          <div key={`${zone.schoolId}-${zone.zoneName ?? zone.zoneType ?? ""}`}>
+                            <strong>{zone.schoolName}</strong>
+                            <span style={{ display: "block", fontSize: "0.85rem", opacity: 0.8 }}>
+                              {[
+                                zone.zoneName && zone.zoneName !== zone.schoolName
+                                  ? zone.zoneName
+                                  : undefined,
+                                zone.zoneType || zone.schoolType,
+                              ]
+                                .filter(Boolean)
+                                .join(" · ")}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p style={{ opacity: 0.7, fontSize: "0.9rem" }}>
+                        No imported school zone contains this property.
+                      </p>
+                    )}
+                  </div>
+                </>
+              ) : (
+                <p style={{ opacity: 0.7, fontSize: "0.9rem" }}>
+                  Auckland school data has not been imported yet.
+                </p>
+              )}
             </div>
           )}
 
@@ -1346,6 +1414,8 @@ function SourceDetailsDialog({
 export default function PropertyExplorer({
   properties,
   comparableSales,
+  schoolOptions = [],
+  schoolDataSynced = false,
   aiSearch = searchWithApi,
 }: PropertyExplorerProps) {
   const [filters, setFilters] = useState<PropertyFilters>({});
@@ -1366,6 +1436,15 @@ export default function PropertyExplorer({
   const savedProperties = properties.filter(({ id }) => savedIds.includes(id));
   const detailProperty = properties.find(({ id }) => id === detailId);
   const hasFilters = Object.keys(filters).length > 0;
+  const schoolTypes = Array.from(
+    new Set(schoolOptions.map(({ orgType }) => orgType)),
+  ).sort((a, b) => a.localeCompare(b));
+  const selectableSchools = schoolOptions.filter(
+    (school) =>
+      filters.schoolSearchMode === "zone"
+        ? school.hasZoneGeometry === true
+        : school.hasCoordinates !== false,
+  );
 
   const notifications = useMemo(
     () =>
@@ -1808,10 +1887,73 @@ export default function PropertyExplorer({
                 />
                 <Icon name="house" size={18} />
                 <span>
-                  <strong>In-zone schools only</strong>
-                  <small>Guaranteed school catchment zone</small>
+                  <strong>Inside at least one mapped school zone</strong>
+                  <small>Based on imported school enrolment boundaries</small>
                 </span>
               </label>
+              {schoolDataSynced ? (
+                <>
+                  <label className="field-label" htmlFor="nearby-school-type-filter" style={{ marginTop: "12px" }}>
+                    Nearby school type (within {SCHOOL_NEARBY_RADIUS_METRES / 1000} km)
+                    <select
+                      id="nearby-school-type-filter"
+                      value={filters.nearbySchoolType ?? ""}
+                      onChange={(event) =>
+                        setFilters((current) => ({
+                          ...current,
+                          nearbySchoolType: event.target.value || undefined,
+                        }))
+                      }
+                    >
+                      <option value="">Any type</option>
+                      {schoolTypes.map((type) => (
+                        <option key={type} value={type}>{type}</option>
+                      ))}
+                    </select>
+                  </label>
+                  <label className="field-label" htmlFor="school-search-mode" style={{ marginTop: "12px" }}>
+                    Search by school
+                    <select
+                      id="school-search-mode"
+                      value={filters.schoolSearchMode ?? "nearby"}
+                      onChange={(event) =>
+                        setFilters((current) => ({
+                          ...current,
+                          schoolId: undefined,
+                          schoolSearchMode: event.target.value as "zone" | "nearby",
+                        }))
+                      }
+                    >
+                      <option value="nearby">Within {SCHOOL_NEARBY_RADIUS_METRES / 1000} km of the school</option>
+                      <option value="zone">Inside the school&apos;s enrolment zone</option>
+                    </select>
+                  </label>
+                  <label className="field-label" htmlFor="school-search-id" style={{ marginTop: "12px" }}>
+                    School
+                    <select
+                      id="school-search-id"
+                      value={filters.schoolId ?? ""}
+                      onChange={(event) =>
+                        setFilters((current) => ({
+                          ...current,
+                          schoolId: event.target.value ? Number(event.target.value) : undefined,
+                        }))
+                      }
+                    >
+                      <option value="">Choose a school</option>
+                      {selectableSchools.map((school) => (
+                        <option key={school.schoolId} value={school.schoolId}>
+                          {school.name} — {school.orgType}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                </>
+              ) : (
+                <p style={{ opacity: 0.7, fontSize: "0.85rem", marginTop: "12px" }}>
+                  Import Auckland school data to enable nearby-school and zone search.
+                </p>
+              )}
             </details>
 
             {/* Commute & Transport Filters */}

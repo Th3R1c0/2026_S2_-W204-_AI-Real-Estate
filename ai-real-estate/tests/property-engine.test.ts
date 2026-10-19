@@ -37,6 +37,26 @@ const listings: Property[] = [
     sunlightHours: 7.8,
     latitude: -36.913,
     longitude: 174.787,
+    schoolDataSynced: true,
+    nearbySchools: [
+      {
+        schoolId: 1327,
+        name: "Kauri Park School",
+        orgType: "Contributing",
+        distanceKm: 1.2,
+        hasEnrolmentZone: true,
+        hasZoneGeometry: true,
+      },
+    ],
+    schoolZones: [
+      {
+        schoolId: 1327,
+        schoolName: "Kauri Park School",
+        schoolType: "Contributing",
+        zoneName: "Kauri Park School Zone",
+        zoneType: "Contributing",
+      },
+    ],
     image: "/properties/test.jpg",
     imageAlt: "Modern townhouse",
   },
@@ -66,6 +86,18 @@ const listings: Property[] = [
     sunlightHours: 5.4,
     latitude: -36.849,
     longitude: 174.734,
+    schoolDataSynced: true,
+    nearbySchools: [
+      {
+        schoolId: 9,
+        name: "Ponsonby Secondary",
+        orgType: "Secondary",
+        distanceKm: 2.4,
+        hasEnrolmentZone: true,
+        hasZoneGeometry: true,
+      },
+    ],
+    schoolZones: [],
     image: "/properties/test.jpg",
     imageAlt: "Character villa",
   },
@@ -199,6 +231,22 @@ describe("specialist filters", () => {
     expect(
       filterProperties(listings, { noMappedFloodHazard: true }).map(({ id }) => id),
     ).toEqual(["wellington-townhouse"]);
+  });
+
+  it("filters listings by nearby school type, selected school zone, and radius", () => {
+    expect(
+      filterProperties(listings, { nearbySchoolType: "Secondary" }).map(({ id }) => id),
+    ).toEqual(["character-villa"]);
+    expect(
+      filterProperties(listings, { schoolId: 1327, schoolSearchMode: "zone" }).map(
+        ({ id }) => id,
+      ),
+    ).toEqual(["modern-townhouse"]);
+    expect(
+      filterProperties(listings, { schoolId: 9, schoolSearchMode: "nearby" }).map(
+        ({ id }) => id,
+      ),
+    ).toEqual(["character-villa"]);
   });
 });
 

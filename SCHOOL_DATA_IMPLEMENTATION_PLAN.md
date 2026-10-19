@@ -2,7 +2,7 @@
 
 ## Status
 
-Planning only. No implementation has been started.
+Implemented. The file-based importer and migrations must still be run against the application's database to populate real Education Counts data. No production/app database was modified during implementation. The per-school zone endpoint returns a Cloudflare HTTP 403 to Node in this environment, so the local bulk MapInfo download is the supported zone import path.
 
 ## Goal
 
@@ -21,11 +21,19 @@ Use the New Zealand Education Counts Schools Directory API documented at:
 
 - <https://www.educationcounts.govt.nz/directories/school-directory-api>
 
-Use the enrolment-zone endpoint for schools that have an enrolment scheme:
+The per-school endpoint exists for schools that have an enrolment scheme, but Node requests from this development environment are challenged by Cloudflare:
 
 - `https://www.educationcounts.govt.nz/js-content/school-enrolment-zone-geo-data?school={SchoolID}`
 
-Import only schools whose `Regional_Council` is Auckland. Retain only these school-directory fields:
+Use the official bulk Enrolment Scheme Master MapInfo download instead:
+
+- <https://www.educationcounts.govt.nz/__data/assets/file/0003/108606/Enrolmentschememaster.zip>
+- Local extracted file inspected at `/Users/yasser/Downloads/Enrolmentschememaster`; contains 1,327 polygons for 1,291 schools.
+- Use the current Auckland School_Id set from the Schools Directory API to filter the file, retaining only IDs marked with an enrolment scheme. Do not use the MapInfo `Office` value for regional selection.
+- The file CRS is EPSG:2193; the importer reprojects selected polygons to EPSG:4326. Ignore `EffectiveDate` per user direction.
+- Accept the Ministry's stated low spatial resolution and alignment limitations; clearly disclaim that property/zone matches may be inaccurate.
+
+The directory API's current value for Auckland is `Regional_Council: "Auckland Region"`. Filter on that exact value. Retain only these school-directory fields:
 
 - `School_Id`
 - `Org_Name`
@@ -34,7 +42,7 @@ Import only schools whose `Regional_Council` is Auckland. Retain only these scho
 - `Longitude`
 - `Enrolment_Scheme`
 
-For zone responses, retain only the school identifier, the relevant zone name/type (`PolyName`, `INSTTYPE`), and the polygon geometry needed for spatial matching. Do not persist unrelated directory or zone-response data.
+For zones, retain only the directory-matched school identifier, the relevant zone name/type (`PolyName`, `INSTTYPE`), and polygon geometry needed for spatial matching. Do not persist unrelated MapInfo attributes or the `EffectiveDate`.
 
 Keep every source `Org_Type` value for Auckland schools and present them with readable labels. Do not restrict school types to only primary, intermediate, and secondary.
 
@@ -49,56 +57,48 @@ Keep every source `Org_Type` value for Auckland schools and present them with re
 
 ### 1. Verify source data and response geometry
 
-- Confirm the directory API's request format, pagination, field names, Auckland `Regional_Council` value, and how `Enrolment_Scheme` indicates an available zone.
-- Inspect representative zone endpoint responses, including geometry type, coordinate reference system, empty responses, and schools with no valid geometry.
-- Confirm the source's `Org_Type` values and create display labels without discarding or rewriting their stored source values.
+- Verified the CKAN `datastore_search` API, resource ID `4b292323-9fcc-41f8-814b-3c7b19cf14b3`, field selection, offset pagination, the Auckland Region filter, and `Yes`/`No` enrolment-scheme values.
+- Confirmed the current filtered directory contains 573 records and inspected a representative polygon response from the zone endpoint.
+- Store the source `Org_Type` unchanged and use it as the readable UI label.
 
 ### 2. Design and migrate the database
 
-- Add a canonical schools table keyed by source `School_Id`, with only the requested directory fields and a PostGIS point built from valid coordinates.
-- Add a school-zone table keyed to the school, storing the relevant zone name/type and valid polygon or multipolygon geometry in a consistent SRID.
-- Add spatial indexes for school locations and zone geometries, and ordinary indexes/constraints for school IDs and joins as useful.
-- Add import metadata sufficient to distinguish never-imported/partial data from a successfully completed import.
-- Update the Drizzle schema, SQL reference, PostgreSQL migration(s), and types.
-- Remove or migrate the demo `property_school_zones` representation and any seed behavior that would conflict with imported records. Preserve unrelated demo metadata.
+- Added canonical `schools`, `school_zones`, and `school_data_sync` tables with PostGIS geography/geometry, spatial indexes, and sync counts/timestamp.
+- Removed the old demo `property_school_zones` table and `school_zone_type` enum from the current Drizzle schema and SQL reference; a migration drops them. Seed logic no longer inserts synthetic school-zone rows.
+- Updated Drizzle schema, PostgreSQL migrations, SQL reference, and property types.
 
 ### 3. Implement a repeatable import command
 
-- Add a developer-run script, following the established flood import convention. Do not fetch data on app startup.
-- Fetch and validate all Auckland directory records, then retrieve zone geometry only for schools with an enrolment scheme.
-- Handle pagination, request failures, invalid coordinates, empty or invalid geometries, and API throttling explicitly. Report actionable errors and counts.
-- Make imports repeatable and safe: stage/validate fetched data, then update canonical records and import status transactionally so a failed run does not present partial data as complete.
-- Store no fields beyond the approved directory and zone data.
-- Document the command and prerequisites. Do not enable an automatic schedule in this phase.
+- Added `npm run db:sync-school-data`, a manual developer-run command that is not invoked at application startup.
+- Added `npm run db:sync-school-data-file -- <MapInfo .TAB file or extracted folder> [--dry-run]`. It imports Auckland-filtered, whitelisted directory fields and filters MapInfo features by the current directory school IDs marked as having an enrolment scheme.
+- GDAL `ogr2ogr` converts the MapInfo features to GeoJSON, promotes polygons to multipolygons, and reprojects EPSG:2193 to EPSG:4326. The importer ignores `EffectiveDate` and `Office`, retains only school ID/name/type and geometry, and stages everything before transactional replacement.
+- `--dry-run` fetches the current directory and validates/counts selected file features without connecting to or modifying the database.
+- `npm run db:export-school-data-sql -- <MapInfo .TAB file or extracted folder> --export-sql <output.sql>` creates a portable SQL handoff with Auckland school rows, matched zones, and sync metadata. It requires no PostgreSQL connection; the recipient applies it after installing PostGIS and running app migrations.
+- The original per-school API importer remains, but its zone requests are blocked by Cloudflare's challenge (HTTP 403) in this environment. Use the local bulk-file importer.
+- Dry-run validation against the downloaded 2 October 2026 file found 573 Auckland schools, 393 with an enrolment scheme, and 391 zone polygons for 387 schools; six scheme schools had no polygon in the file.
+- The importer handles paginated responses, bounded concurrent zone requests, retries transient API failures, validates records, stages data, and replaces imported rows and sync metadata in a transaction.
+- No automatic schedule is enabled.
 
 ### 4. Add PostGIS-backed property data
 
-- Return nearby Auckland schools within a fixed **2,500 metres** of each property and calculate distances in PostGIS.
-- Use the spatially indexed school point column with a metric-safe query (for example, `geography` with `ST_DWithin` and `ST_Distance`, or a suitable projected geometry).
-- Determine zone membership in PostGIS using a boundary-inclusive predicate such as `ST_Covers`, so a property on a zone boundary is not accidentally excluded.
-- Return stable school IDs, names, original school types, distances, and zone membership/zone metadata to the application.
-- Distinguish data-not-imported from a successful query with no nearby schools or no containing zones.
-- Ensure query behavior is consistent for property details, filters, and search. Do not implement frontend distance or point-in-polygon calculations.
+- Property reads use PostGIS `ST_DWithin`/`ST_Distance` on school geography points and `ST_Covers` on zone polygons.
+- Nearby-school results are limited to **2,500 metres**. School IDs, names, source types, distance, scheme/geometry status, and containing-zone details are returned to the app.
+- A `school_data_sync` row distinguishes not-imported data from successfully imported empty matches.
+- The frontend/search filters consume these PostGIS results; they do not compute distance or point-in-polygon matches.
 
 ### 5. Add details UI and search
 
-- In property details, list schools within 2.5 km with source school type and distance; support filtering this list by type.
-- Show which school zones contain the property, with school identity and zone type where available.
-- Add school selection/search controls for:
-  - properties within the selected school's enrolment zone;
-  - properties within 2.5 km of the selected school.
-- Use school IDs for selection and matching; names are display/search text, not spatial join keys.
-- Keep the interface text/list based. Do not render school maps, flood maps, or hazard polygons.
+- Property details list nearby schools with type/distance, a type filter, and the school's mapped zone-membership state; containing zones are listed separately. The UI discloses the Ministry's stated resolution/alignment limitations and warns the result may be inaccurate.
+- Added search filters for nearby-school type and for properties inside a selected school's zone or within 2.5 km of a selected school. Selectors use School_Id.
+- Zone searches only offer schools with imported zone geometry. Data states distinguish unavailable zone geometry from an outside-zone result.
+- The frontend shows no school-zone or flood-risk maps.
 
 ### 6. Validate, test, and document
 
-- Unit-test source-field filtering, Auckland-only selection, type labels, and import validation.
-- Test importer pagination, zoned and unzoned schools, invalid data, API failures, repeat imports, and transactional failure behavior.
-- Test PostGIS results for schools just inside/outside 2.5 km, distance values, zone interiors, boundaries, exteriors, and properties with multiple/no zones.
-- Test type filtering and both selected-school search modes, including imported/not-imported states.
-- Apply migrations and exercise queries against a disposable PostgreSQL database with PostGIS enabled.
-- Run focused tests, lint, type-check, and production build.
-- Update the README with data provenance, import/setup instructions, field scope, and the no-map behavior.
+- Added tests for Auckland filtering, allowed fields, pagination, scheme-only geometry requests, invalid records, type/radius/zone filters, and property UI.
+- Applied all migrations to a disposable PostgreSQL/PostGIS database. Exercised the importer with fixture data, radius checks inside/outside 2,500 m, zone containment/boundary checks, and property loading.
+- Updated README with provenance, import command, field scope, and no-map behavior.
+- The portable SQL export is generated at `/Users/yasser/Downloads/auckland-school-data.sql` for handoff. It was applied and verified in a disposable PostgreSQL/PostGIS database: 573 school rows, 391 zones, all at SRID 4326, and no invalid geometries. No application database has been changed by this implementation.
 
 ## Acceptance criteria
 

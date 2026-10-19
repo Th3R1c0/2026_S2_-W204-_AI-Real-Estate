@@ -54,11 +54,6 @@ export const propertyTypeEnum = pgEnum("property_type", [
 ]);
 export const floodRiskEnum = pgEnum("flood_risk", ["Low", "Moderate", "High"]);
 export const orientationEnum = pgEnum("orientation", ["North", "East", "South", "West"]);
-export const schoolZoneTypeEnum = pgEnum("school_zone_type", [
-  "Primary",
-  "Intermediate",
-  "Secondary",
-]);
 export const floodHazardTypeEnum = pgEnum("flood_hazard_type", [
   "flood_plains",
   "flood_prone_areas",
@@ -72,6 +67,14 @@ const point = customType<{ data: string; driverData: string }>({
 
 const postgisGeometry = customType<{ data: string; driverData: string }>({
   dataType: () => "geometry(Geometry, 4326)",
+});
+
+const postgisMultiPolygon = customType<{ data: string; driverData: string }>({
+  dataType: () => "geometry(MultiPolygon, 4326)",
+});
+
+const postgisGeographyPoint = customType<{ data: string; driverData: string }>({
+  dataType: () => "geography(Point, 4326)",
 });
 
 export const users = pgTable(
@@ -387,20 +390,50 @@ export const propertyDemoDetails = pgTable("property_demo_details", {
   ),
 ]);
 
-export const propertySchoolZones = pgTable(
-  "property_school_zones",
+export const schools = pgTable(
+  "schools",
   {
-    propertySchoolZoneId: serial("property_school_zone_id").primaryKey(),
-    propertyId: integer("property_id")
-      .notNull()
-      .references(() => properties.propertyId, { onDelete: "cascade" }),
-    name: varchar("name", { length: 150 }).notNull(),
-    type: schoolZoneTypeEnum("type").notNull(),
-    distanceKm: decimal("distance_km", { precision: 5, scale: 2 }).notNull(),
-    isInZone: boolean("is_in_zone").default(false).notNull(),
+    schoolId: integer("school_id").primaryKey(),
+    orgName: varchar("org_name", { length: 200 }).notNull(),
+    orgType: varchar("org_type", { length: 100 }).notNull(),
+    latitude: decimal("latitude", { precision: 10, scale: 7 }),
+    longitude: decimal("longitude", { precision: 10, scale: 7 }),
+    enrolmentScheme: boolean("enrolment_scheme").notNull(),
+    location: postgisGeographyPoint("location"),
   },
-  (table) => [index("idx_school_zones_property").on(table.propertyId)],
+  (table) => [
+    index("sp_schools_location").using("gist", table.location),
+  ],
 );
+
+export const schoolZones = pgTable(
+  "school_zones",
+  {
+    schoolZoneId: serial("school_zone_id").primaryKey(),
+    schoolId: integer("school_id")
+      .notNull()
+      .references(() => schools.schoolId, { onDelete: "cascade" }),
+    zoneName: varchar("zone_name", { length: 200 }),
+    zoneType: varchar("zone_type", { length: 100 }),
+    geom: postgisMultiPolygon("geom").notNull(),
+  },
+  (table) => [
+    check("chk_school_zones_nonempty", sql`NOT ST_IsEmpty(${table.geom})`),
+    index("idx_school_zones_school").on(table.schoolId),
+    index("sp_school_zones_geom").using("gist", table.geom),
+  ],
+);
+
+export const schoolDataSync = pgTable("school_data_sync", {
+  singletonId: integer("singleton_id").primaryKey(),
+  importedSchoolCount: integer("imported_school_count").notNull(),
+  importedZoneCount: integer("imported_zone_count").notNull(),
+  importedAt: timestamp("imported_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+}, (table) => [
+  check("chk_school_data_sync_singleton", sql`${table.singletonId} = 1`),
+]);
 
 export const floodHazardZones = pgTable(
   "flood_hazard_zones",
@@ -484,9 +517,19 @@ export const propertiesRelations = relations(properties, ({ one, many }) => ({
   demoDetails: one(propertyDemoDetails),
   images: many(propertyImages),
   sales: many(propertySales),
-  schoolZones: many(propertySchoolZones),
   floodHazards: many(propertyFloodHazards),
   sources: many(propertySources),
+}));
+
+export const schoolsRelations = relations(schools, ({ many }) => ({
+  zones: many(schoolZones),
+}));
+
+export const schoolZonesRelations = relations(schoolZones, ({ one }) => ({
+  school: one(schools, {
+    fields: [schoolZones.schoolId],
+    references: [schools.schoolId],
+  }),
 }));
 
 export const floodHazardZonesRelations = relations(

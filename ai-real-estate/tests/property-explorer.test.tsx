@@ -34,6 +34,34 @@ const properties: Property[] = [
     sunlightHours: 7.8,
     latitude: -36.913,
     longitude: 174.787,
+    schoolDataSynced: true,
+    nearbySchools: [
+      {
+        schoolId: 1327,
+        name: "Kauri Park School",
+        orgType: "Contributing",
+        distanceKm: 1.24,
+        hasEnrolmentZone: true,
+        hasZoneGeometry: true,
+      },
+      {
+        schoolId: 1500,
+        name: "Example Secondary",
+        orgType: "Secondary",
+        distanceKm: 2.1,
+        hasEnrolmentZone: false,
+        hasZoneGeometry: false,
+      },
+    ],
+    schoolZones: [
+      {
+        schoolId: 1327,
+        schoolName: "Kauri Park School",
+        schoolType: "Contributing",
+        zoneName: "Kauri Park School Zone",
+        zoneType: "Contributing",
+      },
+    ],
     image: "/properties/test.jpg",
     imageAlt: "Modern townhouse",
   },
@@ -57,6 +85,18 @@ const properties: Property[] = [
     sunlightHours: 5.4,
     latitude: -36.849,
     longitude: 174.734,
+    schoolDataSynced: true,
+    nearbySchools: [
+      {
+        schoolId: 1500,
+        name: "Example Secondary",
+        orgType: "Secondary",
+        distanceKm: 2.3,
+        hasEnrolmentZone: false,
+        hasZoneGeometry: false,
+      },
+    ],
+    schoolZones: [],
     image: "/properties/test.jpg",
     imageAlt: "Character villa",
   },
@@ -103,6 +143,49 @@ describe("PropertyExplorer", () => {
 
     await user.selectOptions(floodFilter, "none");
     expect(screen.queryByText("2/30 Hardington Street")).not.toBeInTheDocument();
+    expect(screen.getByText("54 Kelmarna Avenue")).toBeInTheDocument();
+  });
+
+  it("filters properties by nearby school type and the selected school's zone or radius", async () => {
+    const user = userEvent.setup();
+    render(
+      <PropertyExplorer
+        properties={properties}
+        comparableSales={comparableSales}
+        schoolDataSynced
+        schoolOptions={[
+          {
+            schoolId: 1327,
+            name: "Kauri Park School",
+            orgType: "Contributing",
+            hasEnrolmentZone: true,
+            hasZoneGeometry: true,
+            hasCoordinates: true,
+          },
+          {
+            schoolId: 1500,
+            name: "Example Secondary",
+            orgType: "Secondary",
+            hasEnrolmentZone: false,
+            hasZoneGeometry: false,
+            hasCoordinates: true,
+          },
+        ]}
+      />,
+    );
+
+    await user.selectOptions(screen.getByLabelText("Nearby school type (within 2.5 km)"), "Secondary");
+    expect(screen.getByText("2/30 Hardington Street")).toBeInTheDocument();
+    expect(screen.getByText("54 Kelmarna Avenue")).toBeInTheDocument();
+
+    await user.selectOptions(screen.getByLabelText("Search by school"), "zone");
+    await user.selectOptions(screen.getByLabelText("School"), "1327");
+    expect(screen.getByText("2/30 Hardington Street")).toBeInTheDocument();
+    expect(screen.queryByText("54 Kelmarna Avenue")).not.toBeInTheDocument();
+
+    await user.selectOptions(screen.getByLabelText("Search by school"), "nearby");
+    await user.selectOptions(screen.getByLabelText("School"), "1500");
+    expect(screen.getByText("2/30 Hardington Street")).toBeInTheDocument();
     expect(screen.getByText("54 Kelmarna Avenue")).toBeInTheDocument();
   });
 
@@ -193,9 +276,34 @@ describe("PropertyExplorer", () => {
     fireEvent.change(within(details).getByLabelText(/deposit percentage/i), {
       target: { value: "30" },
     });
+
     expect(within(details).getByTestId("monthly-repayment").textContent).not.toBe(
       initialPayment,
     );
+  });
+
+  it("shows nearby schools and containing school zones without a map", async () => {
+    const user = userEvent.setup();
+    render(<PropertyExplorer properties={properties} comparableSales={comparableSales} />);
+    await user.click(
+      screen.getByRole("button", { name: /view details for 2\/30 hardington street/i }),
+    );
+    const details = screen.getByRole("dialog", { name: /property details/i });
+    await user.click(within(details).getByRole("button", { name: /schools & walkability/i }));
+
+    expect(within(details).getAllByText("Kauri Park School")).toHaveLength(2);
+    expect(within(details).getByText("Contributing · 1.24 km away")).toBeInTheDocument();
+    expect(within(details).getByText("This property is in the mapped school zone")).toBeInTheDocument();
+    expect(within(details).getByText("Kauri Park School Zone · Contributing")).toBeInTheDocument();
+    expect(within(details).getByText("School-zone matches are approximate.")).toBeInTheDocument();
+    expect(
+      within(details).getByText(/limited resolution and alignment accuracy/i),
+    ).toBeInTheDocument();
+    expect(within(details).queryByRole("img", { name: /map/i })).not.toBeInTheDocument();
+
+    await user.selectOptions(within(details).getByLabelText("Filter nearby schools by type"), "Secondary");
+    expect(within(details).getByText("Example Secondary")).toBeInTheDocument();
+    expect(within(details).getAllByText("Kauri Park School")).toHaveLength(1);
   });
 
   it("saves up to three commute destinations and updates the directions mode", async () => {

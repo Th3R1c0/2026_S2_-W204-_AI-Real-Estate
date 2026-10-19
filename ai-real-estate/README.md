@@ -19,6 +19,7 @@ All features and acceptance criteria are aligned with the Sprint One user storie
   - **Architectural Style**: Character, Modernist, Contemporary, Craftsman, Mid-Century.
   - **Property Type**: Villa, Townhouse, Apartment, House, Lifestyle block, Section.
   - **Mapped Flood Hazards**: Filter by Auckland Council flood plains, flood-prone areas, overland flow paths, coastal inundation, or properties with no mapped intersection.
+  - **Schools**: Browse nearby Auckland schools by source school type, search properties within 2.5 km of a selected school, or search homes inside that school's mapped enrolment zone.
   - **Building Age**: Interactive slider filtering by construction era (e.g., pre-1920s villas to 2020s modern builds).
   - **North-Facing Orientation**: Instant toggle for homes oriented to the northern sun.
 
@@ -42,6 +43,28 @@ All features and acceptance criteria are aligned with the Sprint One user storie
   # 0 3 1 1 * cd /path/to/ai-real-estate && npm run db:sync-flood-data >> /path/to/flood-sync.log 2>&1
   ```
 - Council sources: [Flood Plains](https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Flood_Plains/FeatureServer/0), [Flood Prone Areas](https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Flood_Prone_Areas/FeatureServer/0), [Overland Flow Paths](https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Overland_Flow_Paths/FeatureServer/0), and [Coastal Inundation](https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Coastal_Inundation_100_yr_return/FeatureServer/0).
+
+### Education Counts School Data
+- The developer-run importer reads the Ministry of Education Schools Directory API, retaining Auckland Region schools and only `School_Id`, `Org_Name`, `Org_Type`, `Latitude`, `Longitude`, and `Enrolment_Scheme`. Only school identity, `PolyName`, `INSTTYPE`, and geometry are stored for zones.
+- PostGIS calculates nearby schools within 2.5 km and tests property points against enrolment-zone polygons. The interface lists school details and mapped zone membership; no school or flood maps are rendered.
+- After applying migrations and seeding the application database, zone polygons are loaded from the Ministry's [Enrolment Scheme Master MapInfo download](https://www.educationcounts.govt.nz/__data/assets/file/0003/108606/Enrolmentschememaster.zip). Install GDAL (`ogr2ogr`), extract the ZIP, then preview the import with the extracted folder or `.TAB` file:
+  ```bash
+  npm run db:sync-school-data-file -- "/path/to/Enrolmentschememaster" --dry-run
+  ```
+  - To hand the school dataset to someone who will create the application database later, export a portable SQL file without connecting to PostgreSQL:
+  ```bash
+    npm run db:export-school-data-sql -- "/path/to/Enrolmentschememaster" --export-sql "/path/to/auckland-school-data.sql"
+  ```
+  - The SQL file inserts the current Auckland directory school rows, replaces `schools` and `school_zones` in one transaction, and updates `school_data_sync`. Your colleague can apply it after creating the database, installing PostGIS, and running the application migrations, for example with `psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f auckland-school-data.sql`. It contains only Auckland schools and matched zone polygons, not the original nationwide MapInfo dataset.
+  - Alternatively, to import directly into a prepared database, the file importer fetches current Auckland school IDs, selects matching schools with an enrolment scheme, reprojects the selected features from EPSG:2193 to EPSG:4326, then transactionally replaces the imported school data. It deliberately ignores `EffectiveDate` and does not trust the file's `Office` field to determine Auckland membership:
+    ```bash
+    npm run db:sync-school-data-file -- "/path/to/Enrolmentschememaster"
+    ```
+- The per-school API importer (`npm run db:sync-school-data`) remains available, but its zone requests were blocked by a Cloudflare challenge (HTTP 403) in the development environment. The local bulk file path avoids those zone downloads.
+- The Ministry warns that the bulk polygons have limited spatial resolution and alignment integrity, and should not be used for spatial queries against other datasets. This application accepts that limitation: mapped membership is approximate and may be inaccurate. Confirm current enrolment eligibility directly with the school or Ministry of Education.
+- The dry run reports scheme schools with no matching polygon; in the downloaded 2 October 2026 file, 6 of 393 Auckland schools marked with an enrolment scheme had no polygon. Such schools remain listed, but the interface reports their zone geometry as unavailable.
+- These commands are manually run, not invoked on application startup, and have no automatic schedule. They download and validate source records before transactionally replacing imported data; failed imports leave existing data intact.
+- Sources: [Schools Directory API](https://www.educationcounts.govt.nz/directories/school-directory-api) and [Enrolment Scheme Master MapInfo dataset](https://catalogue.data.govt.nz/dataset/school-enrolment-zones).
 
 ### 4. Side-by-Side Property Comparison
 - Select two or more properties to inspect specs side-by-side in parallel columns.
@@ -147,13 +170,13 @@ After changing `lib/db/schema.ts`, generate a migration with:
 npm run db:generate
 ```
 
-The PostgreSQL SQL reference is maintained in [`../backend/schema.SQL`](../backend/schema.SQL). `lib/db/schema.ts` is its Drizzle representation, including PostGIS-backed flood geometries and the property-to-hazard intersection table. Drizzle's PostgreSQL migrations are stored in `drizzle/postgres`; the original MySQL migration history in `drizzle/` is not applied.
+The PostgreSQL SQL reference is maintained in [`../backend/schema.SQL`](../backend/schema.SQL). `lib/db/schema.ts` is its Drizzle representation, including PostGIS-backed school and flood geometries. Drizzle's PostgreSQL migrations are stored in `drizzle/postgres`; the original MySQL migration history in `drizzle/` is not applied.
 
 ---
 
 ## 🧪 Testing & Verification
 
-The project is built following Test-Driven Development (TDD) principles. 19 unit and integration tests verify all requirements:
+The project is built following Test-Driven Development (TDD) principles. Unit and integration tests cover the application, including school-source import validation and school spatial filters:
 
 ```bash
 # Run unit and integration tests

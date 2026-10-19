@@ -44,7 +44,17 @@ export function filterProperties(
         (property.walkability?.score ?? 0) >= filters.minWalkScore) &&
       // In-zone school catchment filter
       (!filters.inZoneOnly ||
-        (property.schoolZones?.some((zone) => zone.isInZone) ?? false)) &&
+        (property.schoolZones?.length ?? 0) > 0) &&
+      (!filters.nearbySchoolType ||
+        property.nearbySchools?.some(
+          (school) => school.orgType === filters.nearbySchoolType,
+        ) === true) &&
+      (filters.schoolId === undefined ||
+        (filters.schoolSearchMode === "zone"
+          ? property.schoolZones?.some((zone) => zone.schoolId === filters.schoolId) === true
+          : property.nearbySchools?.some(
+              (school) => school.schoolId === filters.schoolId,
+            ) === true)) &&
       // Commute filter logic
       (!filters.commuteFilter ||
         !filters.commuteFilter.destinationName ||
