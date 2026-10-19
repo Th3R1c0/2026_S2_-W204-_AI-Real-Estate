@@ -9,7 +9,6 @@ import {
   propertyImages,
   propertyPrice,
   propertySales,
-  propertySchoolZones,
   propertySources,
 } from "../lib/db/schema";
 import { comparableSales, properties } from "../lib/property-data";
@@ -100,16 +99,6 @@ async function insertProperty(
     caption: property.imageAlt,
     isCover: true,
   });
-
-  for (const zone of property.schoolZones ?? []) {
-    await tx.insert(propertySchoolZones).values({
-      propertyId,
-      name: zone.name,
-      type: zone.type,
-      distanceKm: String(zone.distanceKm),
-      isInZone: zone.isInZone,
-    });
-  }
 
   for (const source of property.sources ?? []) {
     await tx.insert(propertySources).values({

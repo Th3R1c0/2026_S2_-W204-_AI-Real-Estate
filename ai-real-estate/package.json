@@ -13,7 +13,10 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:seed": "node --env-file=.env.local --conditions=react-server --import=tsx scripts/seed.ts",
-    "db:sync-flood-data": "node --env-file=.env.local --import=tsx scripts/sync-flood-data.ts"
+    "db:sync-flood-data": "node --env-file=.env.local --import=tsx scripts/sync-flood-data.ts",
+    "db:sync-school-data": "node --env-file=.env.local --import=tsx scripts/sync-school-data.ts",
+    "db:sync-school-data-file": "node --env-file=.env.local --import=tsx scripts/sync-school-data-file.ts",
+    "db:export-school-data-sql": "node --import=tsx scripts/sync-school-data-file.ts"
   },
   "dependencies": {
     "@typesafe-ai/sdk": "^0.7.0",

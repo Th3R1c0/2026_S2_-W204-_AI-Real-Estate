@@ -44,10 +44,33 @@ export type PropertySource = {
 };
 
 export type SchoolZone = {
+  schoolId?: number;
+  schoolName?: string;
+  schoolType?: string;
+  zoneName?: string;
+  zoneType?: string;
+  name?: string;
+  type?: string;
+  distanceKm?: number;
+  isInZone?: boolean;
+};
+
+export type NearbySchool = {
+  schoolId: number;
   name: string;
-  type: "Primary" | "Intermediate" | "Secondary";
+  orgType: string;
   distanceKm: number;
-  isInZone: boolean;
+  hasEnrolmentZone: boolean;
+  hasZoneGeometry: boolean;
+};
+
+export type SchoolOption = {
+  schoolId: number;
+  name: string;
+  orgType: string;
+  hasEnrolmentZone: boolean;
+  hasZoneGeometry?: boolean;
+  hasCoordinates?: boolean;
 };
 
 export type WalkabilityProfile = {
@@ -120,11 +143,26 @@ export type Property = {
   soldDate?: string;
   sources?: PropertySource[];
   schoolZones?: SchoolZone[];
+  nearbySchools?: NearbySchool[];
+  schoolDataSynced?: boolean;
   walkability?: WalkabilityProfile;
   commuteOptions?: CommuteOption[];
   pastSales?: PastSale[];
   valuationHistory?: ValuationRecord[];
   notifications?: PropertyNotification[];
+};
+
+export type ComparableSale = {
+  property: Pick<
+    Property,
+    "id" | "address" | "bedrooms" | "floorArea" | "price" | "soldDate"
+  >;
+  distanceKm: number;
+};
+
+export type ComparableSalesResult = {
+  comps: ComparableSale[];
+  averagePrice: number;
 };
 
 export type PropertyFilters = {
@@ -138,6 +176,9 @@ export type PropertyFilters = {
   minWalkScore?: number;
   maxWalkScore?: number;
   inZoneOnly?: boolean;
+  nearbySchoolType?: string;
+  schoolId?: number;
+  schoolSearchMode?: "zone" | "nearby";
   maxCommuteTimeMinutes?: number;
   commuteMode?: "driving" | "transit" | "walking";
   location?: string;
