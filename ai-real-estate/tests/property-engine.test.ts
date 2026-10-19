@@ -95,6 +95,135 @@ const listings: Property[] = [
 ];
 
 describe("natural-language property search", () => {
+  it("keeps every constraint in a combined house search", () => {
+    const houses: Property[] = [
+      { ...listings[0], id: "match", propertyType: "House", price: 650_000, bathrooms: 1, parkingSpaces: 2, landArea: 520 },
+      { ...listings[0], id: "wrong-bath", propertyType: "House", price: 650_000, bathrooms: 2, parkingSpaces: 2, landArea: 520 },
+      { ...listings[0], id: "wrong-parking", propertyType: "House", price: 650_000, bathrooms: 1, parkingSpaces: 1, landArea: 520 },
+      { ...listings[0], id: "wrong-land", propertyType: "House", price: 650_000, bathrooms: 1, parkingSpaces: 2, landArea: 350 },
+      { ...listings[0], id: "wrong-price", propertyType: "House", price: 450_000, bathrooms: 1, parkingSpaces: 2, landArea: 520 },
+    ];
+    const result = parseNaturalLanguageSearch(
+      "houses over $500k with one bathroom, at least 2 parking spaces and at least 400 m² of land",
+      houses,
+    );
+
+    expect(result.filters).toMatchObject({
+      propertyTypes: ["House"],
+      minPrice: 500_000,
+      numericCriteria: {
+        bathrooms: { min: 1, max: 1 },
+        parkingSpaces: { min: 2 },
+        landArea: { min: 400 },
+      },
+    });
+    expect(filterProperties(houses, result.filters).map(({ id }) => id)).toEqual(["match"]);
+  });
+
+  it("handles price ranges, bedroom minimums, floor area, aspect and ownership together", () => {
+    const homes: Property[] = [
+      { ...listings[0], id: "match", propertyType: "House", price: 750_000, bedrooms: 4, floorArea: 140, orientation: "East", ownershipType: "Freehold" },
+      { ...listings[0], id: "outside-price", propertyType: "House", price: 950_000, bedrooms: 4, floorArea: 140, orientation: "East", ownershipType: "Freehold" },
+      { ...listings[0], id: "too-few-beds", propertyType: "House", price: 750_000, bedrooms: 2, floorArea: 140, orientation: "East", ownershipType: "Freehold" },
+      { ...listings[0], id: "too-large", propertyType: "House", price: 750_000, bedrooms: 4, floorArea: 160, orientation: "East", ownershipType: "Freehold" },
+      { ...listings[0], id: "wrong-aspect", propertyType: "House", price: 750_000, bedrooms: 4, floorArea: 140, orientation: "West", ownershipType: "Freehold" },
+      { ...listings[0], id: "wrong-title", propertyType: "House", price: 750_000, bedrooms: 4, floorArea: 140, orientation: "East", ownershipType: "Cross Lease" },
+    ];
+    const result = parseNaturalLanguageSearch(
+      "houses between $500k and $900k with at least 3 bedrooms, floor area under 150 m2, east-facing and freehold",
+      homes,
+    );
+
+    expect(result.filters).toMatchObject({
+      minPrice: 500_000,
+      maxPrice: 900_000,
+      numericCriteria: { bedrooms: { min: 3 }, floorArea: { max: 150 } },
+      orientations: ["East"],
+      ownershipTypes: ["Freehold"],
+    });
+    expect(filterProperties(homes, result.filters).map(({ id }) => id)).toEqual(["match"]);
+  });
+
+  it("matches a named address and a named in-zone school from listing data", () => {
+    const homes: Property[] = [
+      { ...listings[0], id: "match", address: "54 Kelmarna Avenue", schoolZones: [{ name: "Auckland Grammar School", type: "Secondary", distanceKm: 1, isInZone: true }] },
+      { ...listings[0], id: "out-of-zone", address: "56 Kelmarna Avenue", schoolZones: [{ name: "Auckland Grammar School", type: "Secondary", distanceKm: 1, isInZone: false }] },
+    ];
+    const parsed = parseNaturalLanguageSearch("54 Kelmarna Avenue in Auckland Grammar School zone", homes);
+
+    expect(parsed.filters).toMatchObject({ location: "54 Kelmarna Avenue", schoolZoneName: "Auckland Grammar School" });
+    expect(filterProperties(homes, parsed.filters).map(({ id }) => id)).toEqual(["match"]);
+  });
+
+  it("matches a stated commute destination and mode only when travel data exists", () => {
+    const homes: Property[] = [
+      { ...listings[0], id: "match", commuteOptions: [{ destinationName: "Auckland CBD", mode: "transit", travelTimes: { transit: 25 } }] },
+      { ...listings[0], id: "too-slow", commuteOptions: [{ destinationName: "Auckland CBD", mode: "transit", travelTimes: { transit: 40 } }] },
+      { ...listings[0], id: "unknown", commuteOptions: undefined },
+    ];
+    const parsed = parseNaturalLanguageSearch("within 30 minutes to Auckland CBD by transit", homes);
+
+    expect(parsed.filters).toMatchObject({ maxCommuteTimeMinutes: 30, commuteMode: "transit", commuteDestination: "Auckland CBD" });
+    expect(filterProperties(homes, parsed.filters).map(({ id }) => id)).toEqual(["match"]);
+  });
+
+  it("keeps weekly rent and capital value separate from asking price", () => {
+    const homes: Property[] = [
+      { ...listings[0], id: "match", estimatedWeeklyRent: 750, capitalValue: 850_000 },
+      { ...listings[0], id: "low-rent", estimatedWeeklyRent: 550, capitalValue: 850_000 },
+      { ...listings[0], id: "high-value", estimatedWeeklyRent: 750, capitalValue: 1_200_000 },
+    ];
+    const result = parseNaturalLanguageSearch(
+      "weekly rent over $600 and capital value under $1m",
+      homes,
+    );
+
+    expect(result.filters).toEqual({
+      numericCriteria: {
+        estimatedWeeklyRent: { min: 600 },
+        capitalValue: { max: 1_000_000 },
+      },
+    });
+    expect(filterProperties(homes, result.filters).map(({ id }) => id)).toEqual(["match"]);
+  });
+
+  it("treats sunny and east-facing as compatible conditions", () => {
+    const homes: Property[] = [
+      { ...listings[0], id: "match", orientation: "East", sunlightHours: 7.5 },
+      { ...listings[0], id: "not-sunny", orientation: "East", sunlightHours: 4.5 },
+      { ...listings[0], id: "not-east", orientation: "West", sunlightHours: 7.5 },
+    ];
+    const result = parseNaturalLanguageSearch("sunny east-facing", homes);
+
+    expect(result.filters).toMatchObject({
+      orientations: ["East"],
+      numericCriteria: { sunlightHours: { min: 6 } },
+    });
+    expect(filterProperties(homes, result.filters).map(({ id }) => id)).toEqual(["match"]);
+  });
+
+  it("supports a maximum walk score and an exact construction year", () => {
+    const homes: Property[] = [
+      { ...listings[0], id: "match", yearBuilt: 2020, walkability: { score: 60 } },
+      { ...listings[0], id: "too-walkable", yearBuilt: 2020, walkability: { score: 80 } },
+      { ...listings[0], id: "wrong-year", yearBuilt: 2018, walkability: { score: 60 } },
+    ];
+    const result = parseNaturalLanguageSearch("built in 2020 with walk score under 70", homes);
+
+    expect(result.filters).toMatchObject({ yearBuiltFrom: 2020, yearBuiltTo: 2020, maxWalkScore: 70 });
+    expect(filterProperties(homes, result.filters).map(({ id }) => id)).toEqual(["match"]);
+  });
+
+  it("does not treat a driving time as a transit time", () => {
+    const homes: Property[] = [
+      { ...listings[0], id: "transit", commuteOptions: [{ destinationName: "Auckland CBD", mode: "transit", timeMinutes: 25 }] },
+      { ...listings[0], id: "driving", commuteOptions: [{ destinationName: "Auckland CBD", mode: "driving", timeMinutes: 20 }] },
+    ];
+    const result = parseNaturalLanguageSearch("within 30 minutes to Auckland CBD by transit", homes);
+
+    expect(filterProperties(homes, result.filters).map(({ id }) => id)).toEqual(["transit"]);
+  });
+
   it("extracts property type, location, price and bedroom requirements", () => {
     const result = parseNaturalLanguageSearch(
       "A modern three-bedroom townhouse in Auckland under $900,000",

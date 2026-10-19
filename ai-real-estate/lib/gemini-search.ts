@@ -1,5 +1,6 @@
 import type { FloodHazardType, Property, PropertyFilters } from "./property-types";
 import { parseNaturalLanguageSearch } from "./property-engine";
+import { matchCatalogDetails, parseExplicitPropertyFilters } from "./property-query";
 import { floodHazardOptions } from "./flood-hazards";
 
 export type InterpretedSearch = {
@@ -187,12 +188,20 @@ export async function interpretPropertyQuery(
     const result = JSON.parse(text) as GeminiFilters;
     console.log("[AI Search] Parsed filter result from Gemini:", JSON.stringify(result, null, 2));
 
+    const filters: PropertyFilters = {
+      ...cleanGeminiFilters(result),
+      ...parseExplicitPropertyFilters(query),
+      ...matchCatalogDetails(query, properties),
+    };
+    const needsClarification = Object.keys(filters).length === 0;
     return {
-      status: result.needsClarification ? "needs-clarification" : "ready",
-      filters: cleanGeminiFilters(result),
+      status: needsClarification ? "needs-clarification" : "ready",
+      filters,
       message:
-        result.message ||
-        (result.needsClarification
+        (result.needsClarification && !needsClarification
+          ? "I applied the property details I could identify."
+          : result.message) ||
+        (needsClarification
           ? "Try adding a location, property type, style or budget."
           : "I applied the details from your search."),
       source: "gemini",

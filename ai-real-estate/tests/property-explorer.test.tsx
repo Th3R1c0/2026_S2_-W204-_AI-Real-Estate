@@ -144,6 +144,49 @@ describe("PropertyExplorer", () => {
     expect(await screen.findByText(/no matching listings were found/i)).toBeInTheDocument();
   });
 
+  it("shows and removes each applied bathroom and land-size condition", async () => {
+    const user = userEvent.setup();
+    render(<PropertyExplorer
+      properties={properties}
+      comparableSales={comparableSales}
+      aiSearch={async () => ({
+        status: "ready", source: "jev", message: "Search applied.",
+        filters: { numericCriteria: { bathrooms: { min: 1, max: 1 }, landArea: { min: 500 } } },
+      })}
+    />);
+
+    await user.type(screen.getByRole("textbox", { name: /describe your ideal property/i }), "one bathroom, 500 m² land");
+    await user.click(screen.getByRole("button", { name: /^search$/i }));
+    expect(await screen.findByText("54 Kelmarna Avenue")).toBeInTheDocument();
+    expect(screen.queryByText("2/30 Hardington Street")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Remove bathrooms filter" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Remove land area filter" })).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Remove bathrooms filter" }));
+    expect(screen.getByRole("button", { name: "Remove land area filter" })).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Remove land area filter" }));
+    expect(screen.getByText("2/30 Hardington Street")).toBeInTheDocument();
+  });
+
+  it("shows named school, commute destination and building year conditions", async () => {
+    const user = userEvent.setup();
+    render(<PropertyExplorer
+      properties={properties}
+      comparableSales={comparableSales}
+      aiSearch={async () => ({
+        status: "ready", source: "jev", message: "Search applied.",
+        filters: { schoolZoneName: "Auckland Grammar School", commuteDestination: "Auckland CBD", maxCommuteTimeMinutes: 30, yearBuiltFrom: 2000 },
+      })}
+    />);
+
+    await user.type(screen.getByRole("textbox", { name: /describe your ideal property/i }), "school and commute");
+    await user.click(screen.getByRole("button", { name: /^search$/i }));
+
+    expect(await screen.findByRole("button", { name: "Remove school zone name filter" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Remove commute destination filter" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Remove built from filter" })).toBeInTheDocument();
+  });
+
   it("compares selected homes side by side and removes a column", async () => {
     const user = userEvent.setup();
     render(<PropertyExplorer properties={properties} comparableSales={comparableSales} />);

@@ -62,6 +62,7 @@ describe("TypeSafe Jev search interpreter", () => {
     expect(parsePriceFromQuery("up to $750,000")).toEqual({ amount: 750000, isMax: true, isMin: false });
     expect(parsePriceFromQuery("over 1.2 million")).toEqual({ amount: 1200000, isMax: false, isMin: true });
     expect(parsePriceFromQuery("no price mentioned")).toBeNull();
+    expect(parsePriceFromQuery("floor area under 150 m²")).toBeNull();
   });
 
   it("extracts bedroom numbers from numerals and words", () => {
@@ -134,7 +135,8 @@ describe("TypeSafe Jev search interpreter", () => {
       expect(body.questions).toHaveProperty("property_type");
       expect(body.questions).toHaveProperty("architectural_style");
       expect(body.questions).toHaveProperty("location");
-      expect(body.questions).toHaveProperty("is_sunny_or_north_facing");
+      expect(body.questions).not.toHaveProperty("is_sunny_requested");
+      expect(body.questions).not.toHaveProperty("is_north_facing_requested");
       expect(body.questions).toHaveProperty("price_intent");
       expect(body.questions).toHaveProperty("flood_hazard");
 
@@ -164,10 +166,6 @@ describe("TypeSafe Jev search interpreter", () => {
             choice: "Ponsonby",
             confidence: 0.97,
             probabilities: { Ponsonby: 0.97 },
-          },
-          is_sunny_or_north_facing: {
-            type: "noul",
-            noul: 0.94,
           },
           is_walkable_requested: {
             type: "noul",
@@ -211,7 +209,7 @@ describe("TypeSafe Jev search interpreter", () => {
       location: "Ponsonby",
       bedrooms: 3,
       maxPrice: 2600000,
-      northFacingOnly: true,
+      numericCriteria: { sunlightHours: { min: 6 } },
       yearBuiltTo: 1940,
     });
     expect(result.message).toContain("villa");
@@ -228,6 +226,53 @@ describe("TypeSafe Jev search interpreter", () => {
         flood_hazard: { choice: "no_mapped" },
       }).filters,
     ).toEqual({ noMappedFloodHazard: true });
+  });
+
+  it("preserves explicit property details alongside Jev judgments", () => {
+    const result = cleanJevFilters(
+      "houses over $500k with one bathroom and at least 2 parking spaces",
+      { property_type: { choice: "House" }, price_intent: { choice: "min_budget" } },
+    );
+
+    expect(result.filters).toMatchObject({
+      propertyTypes: ["House"],
+      minPrice: 500_000,
+      numericCriteria: {
+        bathrooms: { min: 1, max: 1 },
+        parkingSpaces: { min: 2 },
+      },
+    });
+    expect(result.appliedDescriptions).toContain("1 bathroom");
+    expect(result.appliedDescriptions).toContain("2+ parking spaces");
+  });
+
+  it("does not force a sunny east-facing request to face north", () => {
+    const result = cleanJevFilters("sunny east-facing house", {
+      property_type: { choice: "House" },
+    });
+
+    expect(result.filters.orientations).toEqual(["East"]);
+    expect(result.filters.numericCriteria?.sunlightHours).toEqual({ min: 6 });
+    expect(result.filters.northFacingOnly).toBeUndefined();
+  });
+
+  it("keeps north-facing distinct from a request for sunshine", () => {
+    const result = cleanJevFilters("north-facing house", {
+      property_type: { choice: "House" },
+    });
+
+    expect(result.filters.orientations).toEqual(["North"]);
+    expect(result.filters.numericCriteria?.sunlightHours).toBeUndefined();
+    expect(result.filters.northFacingOnly).toBeUndefined();
+  });
+
+  it("does not replace an upper walk-score bound with a high-walkability minimum", () => {
+    const result = cleanJevFilters("walk score under 70", {
+      is_walkable_requested: { noul: 0.9 },
+    });
+
+    expect(result.filters.maxWalkScore).toBe(70);
+    expect(result.filters.minWalkScore).toBeUndefined();
   });
 
   it("handles queries needing clarification", async () => {
@@ -257,6 +302,25 @@ describe("TypeSafe Jev search interpreter", () => {
 
     expect(result.status).toBe("needs-clarification");
     expect(result.message).toContain("Try adding a location, property type");
+  });
+
+  it("asks for clarification when Jev finds no searchable fields", async () => {
+    const result = await interpretPropertyQueryWithJev(
+      "sea view",
+      sampleProperties,
+      {
+        apiKey: "test-jev-secret",
+        fetchImpl: async () => Response.json({ answers: {
+          property_type: { choice: "none" }, architectural_style: { choice: "none" },
+          flood_hazard: { choice: "none" }, location: { choice: "none" },
+          price_intent: { choice: "none" }, era_intent: { choice: "none" },
+          needs_clarification: { noul: 0.01 },
+        } }),
+      },
+    );
+
+    expect(result.status).toBe("needs-clarification");
+    expect(result.filters).toEqual({});
   });
 
   it("falls back locally when Jev API returns an error", async () => {

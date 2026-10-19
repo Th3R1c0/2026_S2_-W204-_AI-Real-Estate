@@ -7,6 +7,7 @@ import type {
   PropertyType,
 } from "./property-types";
 import { parseNaturalLanguageSearch } from "./property-engine";
+import { matchCatalogDetails, parseExplicitPropertyFilters, parsePriceFilters } from "./property-query";
 import { interpretPropertyQuery as interpretWithGemini } from "./gemini-search";
 
 export type InterpretedSearch = {
@@ -33,68 +34,9 @@ const wordNumbers: Record<string, number> = {
 export function parsePriceFromQuery(
   query: string,
 ): { amount: number; isMax: boolean; isMin: boolean } | null {
-  // Check range e.g. "between 800k and 1.2m"
-  const rangeMatch = query.match(
-    /between\s*\$?([\d,.]+)\s*([km]|million|mil)?\s*(?:and|-)\s*\$?([\d,.]+)\s*([km]|million|mil)?/i,
-  );
-  if (rangeMatch) {
-    const parse = (raw: string, unit?: string) => {
-      const num = Number(raw.replaceAll(",", ""));
-      const u = (unit || "").toLowerCase();
-      if (u === "k") return num * 1_000;
-      if (u === "m" || u === "million" || u === "mil") return num * 1_000_000;
-      return num;
-    };
-    const maxVal = parse(rangeMatch[3], rangeMatch[4] || rangeMatch[2]);
-    return { amount: maxVal, isMax: true, isMin: false };
-  }
-
-  // Max price e.g. "under 1.5M", "below 900k", "up to $1,000,000", "max 800k", "budget $1.2M", "cheaper than 1m"
-  const maxMatch = query.match(
-    /(?:under|below|up to|max(?:imum)?|budget|less than|cheaper than)\s*\$?([\d,.]+)\s*([km]|million|mil)?\b/i,
-  );
-  if (maxMatch) {
-    const num = Number(maxMatch[1].replaceAll(",", ""));
-    const unit = (maxMatch[2] || "").toLowerCase();
-    const mult =
-      unit === "k"
-        ? 1_000
-        : unit === "m" || unit === "million" || unit === "mil"
-          ? 1_000_000
-          : 1;
-    return { amount: num * mult, isMax: true, isMin: false };
-  }
-
-  // Min price e.g. "over 1.5M", "above 900k", "at least $800k", "min 750k"
-  const minMatch = query.match(
-    /(?:over|above|at least|min(?:imum)?|more than)\s*\$?([\d,.]+)\s*([km]|million|mil)?\b/i,
-  );
-  if (minMatch) {
-    const num = Number(minMatch[1].replaceAll(",", ""));
-    const unit = (minMatch[2] || "").toLowerCase();
-    const mult =
-      unit === "k"
-        ? 1_000
-        : unit === "m" || unit === "million" || unit === "mil"
-          ? 1_000_000
-          : 1;
-    return { amount: num * mult, isMax: false, isMin: true };
-  }
-
-  // Standalone price match e.g. "$1,500,000" or "$900k"
-  const genericMatch = query.match(/\$([\d,.]+)\s*([km]|million|mil)?\b/i);
-  if (genericMatch) {
-    const num = Number(genericMatch[1].replaceAll(",", ""));
-    const unit = (genericMatch[2] || "").toLowerCase();
-    const mult =
-      unit === "k"
-        ? 1_000
-        : unit === "m" || unit === "million" || unit === "mil"
-          ? 1_000_000
-          : 1;
-    return { amount: num * mult, isMax: true, isMin: false };
-  }
-
+  const { minPrice, maxPrice } = parsePriceFilters(query);
+  if (maxPrice !== undefined) return { amount: maxPrice, isMax: true, isMin: false };
+  if (minPrice !== undefined) return { amount: minPrice, isMax: false, isMin: true };
   return null;
 }
 
@@ -225,10 +167,6 @@ export function buildJevQuestions(locations: string[]) {
       instructions: "Which known location from `catalog.known_locations` is requested in `user_query`?",
       criteria: locationCriteria,
     },
-    is_sunny_or_north_facing: {
-      type: "noul" as const,
-      instructions: "Does `user_query` request north-facing orientation, all-day sun, or sunny aspect?",
-    },
     is_walkable_requested: {
       type: "noul" as const,
       instructions: "Does `user_query` request high walkability, walking to shops, cafes, or public transit?",
@@ -269,7 +207,7 @@ export function cleanJevFilters(
   query: string,
   answers: Record<string, { choice?: string; noul?: number; confidence?: number }>,
 ): { filters: PropertyFilters; appliedDescriptions: string[] } {
-  const filters: PropertyFilters = {};
+  const filters: PropertyFilters = parseExplicitPropertyFilters(query);
   const applied: string[] = [];
 
   // Property type
@@ -319,18 +257,10 @@ export function cleanJevFilters(
     }
   }
 
-  // Sun / North facing
-  const sunnyProb = answers.is_sunny_or_north_facing?.noul ?? 0;
-  const mentionsSun = /\b(north[- ]facing|sunny|sunlight|all[- ]day sun)\b/i.test(query);
-  if (sunnyProb >= 0.55 || mentionsSun) {
-    filters.northFacingOnly = true;
-    applied.push("north-facing sun");
-  }
-
   // Walkability
   const walkProb = answers.is_walkable_requested?.noul ?? 0;
   const mentionsWalk = /\b(walkable|walkability|walk to|close to cafes|near shops)\b/i.test(query);
-  if (walkProb >= 0.55 || mentionsWalk) {
+  if ((walkProb >= 0.55 || mentionsWalk) && filters.maxWalkScore === undefined && filters.minWalkScore === undefined) {
     filters.minWalkScore = 70;
     applied.push("high walkability");
   }
@@ -356,24 +286,36 @@ export function cleanJevFilters(
   }
 
   // Price
-  const parsedPrice = parsePriceFromQuery(query);
-  const priceIntent = answers.price_intent?.choice;
-  if (parsedPrice) {
-    if (parsedPrice.isMin || priceIntent === "min_budget") {
-      filters.minPrice = parsedPrice.amount;
-      applied.push(`over $${parsedPrice.amount.toLocaleString("en-NZ")}`);
-    } else {
-      filters.maxPrice = parsedPrice.amount;
-      applied.push(`under $${parsedPrice.amount.toLocaleString("en-NZ")}`);
-    }
-  }
+  const parsedPrice = parsePriceFilters(query);
+  if (parsedPrice.minPrice !== undefined) applied.push(`over $${parsedPrice.minPrice.toLocaleString("en-NZ")}`);
+  if (parsedPrice.maxPrice !== undefined) applied.push(`under $${parsedPrice.maxPrice.toLocaleString("en-NZ")}`);
 
   // Bedrooms
   const beds = parseBedroomsFromQuery(query);
-  if (beds !== null) {
+  if (beds !== null && !filters.numericCriteria?.bedrooms) {
     filters.bedrooms = beds;
     applied.push(`${beds}-bedroom`);
   }
+
+  const numericLabels: Record<string, string> = {
+    bedrooms: "bedrooms", bathrooms: "bathroom", parkingSpaces: "parking spaces",
+    landArea: "m² land", floorArea: "m² floor area", sunlightHours: "hours sunlight",
+    estimatedWeeklyRent: "weekly rent", capitalValue: "capital value",
+  };
+  for (const [field, range] of Object.entries(filters.numericCriteria ?? {})) {
+    const label = numericLabels[field] ?? field;
+    if (range.min !== undefined && range.min === range.max) {
+      applied.push(`${range.min} ${label}`);
+    } else if (range.min !== undefined && range.max !== undefined) {
+      applied.push(`${range.min}–${range.max} ${label}`);
+    } else if (range.min !== undefined) {
+      applied.push(`${range.min}+ ${label}`);
+    } else if (range.max !== undefined) {
+      applied.push(`up to ${range.max} ${label}`);
+    }
+  }
+  if (filters.orientations?.length) applied.push(`${filters.orientations.join(" or ").toLowerCase()}-facing`);
+  if (filters.ownershipTypes?.length) applied.push(filters.ownershipTypes.join(" or ").toLowerCase());
 
   // Era / Year Built
   const era = answers.era_intent?.choice;
@@ -474,11 +416,9 @@ export async function interpretPropertyQueryWithJev(
       query,
       responseData.answers,
     );
-    const needsClarificationProb =
-      responseData.answers.needs_clarification?.noul ?? 0;
+    Object.assign(filters, matchCatalogDetails(query, properties));
     const hasFilters = Object.keys(filters).length > 0;
-
-    const isVague = needsClarificationProb >= 0.7 && !hasFilters;
+    const isVague = !hasFilters;
 
     return {
       status: isVague ? "needs-clarification" : "ready",

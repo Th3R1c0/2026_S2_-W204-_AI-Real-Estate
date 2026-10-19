@@ -138,4 +138,45 @@ describe("Gemini search interpretation", () => {
       propertyTypes: ["Villa"],
     });
   });
+
+  it("keeps explicit bathroom and price requirements when Gemini omits them", async () => {
+    const result = await interpretPropertyQuery(
+      "villas over $500k with one bathroom",
+      properties,
+      {
+        apiKey: "test-secret",
+        fetchImpl: async () => Response.json({
+          candidates: [{ content: { parts: [{ text: JSON.stringify({
+            propertyTypes: ["Villa"], architecturalStyles: [], floodHazardTypes: [],
+            noMappedFloodHazard: false, location: null, maxPrice: null, minPrice: null,
+            bedrooms: null, yearBuiltFrom: null, yearBuiltTo: null, northFacingOnly: false,
+            needsClarification: false, message: "Showing villas",
+          }) }] } }],
+        }),
+      },
+    );
+
+    expect(result.filters).toMatchObject({
+      propertyTypes: ["Villa"],
+      minPrice: 500_000,
+      numericCriteria: { bathrooms: { min: 1, max: 1 } },
+    });
+  });
+
+  it("returns ready when explicit filters exist despite Gemini requesting clarification", async () => {
+    const result = await interpretPropertyQuery("one bathroom", properties, {
+      apiKey: "test-secret",
+      fetchImpl: async () => Response.json({
+        candidates: [{ content: { parts: [{ text: JSON.stringify({
+          propertyTypes: [], architecturalStyles: [], floodHazardTypes: [],
+          noMappedFloodHazard: false, location: null, maxPrice: null, minPrice: null,
+          bedrooms: null, yearBuiltFrom: null, yearBuiltTo: null, northFacingOnly: false,
+          needsClarification: true, message: "Add more details.",
+        }) }] } }],
+      }),
+    });
+
+    expect(result.status).toBe("ready");
+    expect(result.filters.numericCriteria?.bathrooms).toEqual({ min: 1, max: 1 });
+  });
 });

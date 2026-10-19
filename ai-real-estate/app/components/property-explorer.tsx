@@ -18,6 +18,8 @@ import {
 import type {
   ArchitecturalStyle,
   FloodHazardType,
+  NumericCriterion,
+  NumericSearchField,
   Property,
   PropertyFilters,
   PropertyNotification,
@@ -87,6 +89,35 @@ const moneyFormatter = new Intl.NumberFormat("en-NZ", {
   currency: "NZD",
   maximumFractionDigits: 0,
 });
+const numericFilterLabels: Record<NumericSearchField, string> = {
+  bedrooms: "Bedrooms",
+  bathrooms: "Bathrooms",
+  parkingSpaces: "Parking spaces",
+  landArea: "Land area",
+  floorArea: "Floor area",
+  sunlightHours: "Sunlight",
+  estimatedWeeklyRent: "Weekly rent",
+  capitalValue: "Capital value",
+};
+
+function formatNumericFilter(field: NumericSearchField, range: NumericCriterion): string {
+  const format = (value: number) => {
+    if (field === "estimatedWeeklyRent" || field === "capitalValue") return formatMoney(value);
+    if (field === "landArea" || field === "floorArea") return `${numberFormatter.format(value)} m²`;
+    if (field === "sunlightHours") return `${value} hours`;
+    return numberFormatter.format(value);
+  };
+  const label = numericFilterLabels[field];
+  if (range.min !== undefined && range.max !== undefined && range.min === range.max) {
+    return `${label}: ${format(range.min)}`;
+  }
+  if (range.min !== undefined && range.max !== undefined) {
+    return `${label}: ${format(range.min)}–${format(range.max)}`;
+  }
+  if (range.min !== undefined) return `${label} ≥ ${format(range.min)}`;
+  if (range.max !== undefined) return `${label} ≤ ${format(range.max)}`;
+  return label;
+}
 const commuteStorageKey = "ai-real-estate-commute-destinations";
 const commuteModes: Array<{ id: CommuteMode; label: string }> = [
   { id: "driving", label: "Driving" },
@@ -1561,6 +1592,17 @@ export default function PropertyExplorer({
     }
   }
 
+  function removeNumericFilter(field: NumericSearchField) {
+    setFilters((current) => {
+      const remaining = { ...current.numericCriteria };
+      delete remaining[field];
+      return {
+        ...current,
+        numericCriteria: Object.keys(remaining).length ? remaining : undefined,
+      };
+    });
+  }
+
   function toggleCompare(id: string) {
     setSelectedIds((current) =>
       current.includes(id) ? current.filter((item) => item !== id) : [...current, id]
@@ -1887,6 +1929,34 @@ export default function PropertyExplorer({
                       type="button"
                     >
                       {label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </details>
+
+            <details className="filter-details" open>
+              <summary>
+                Bathrooms <span>{filters.numericCriteria?.bathrooms?.min === filters.numericCriteria?.bathrooms?.max
+                  ? `${filters.numericCriteria?.bathrooms?.min ?? ""} bath`
+                  : ""}</span>
+              </summary>
+              <div className="filter-group" style={{ borderBottom: "none", paddingBottom: "12px" }}>
+                <div className="pill-grid">
+                  {[1, 2, 3, 4].map((count) => (
+                    <button
+                      className={`pill-button ${filters.numericCriteria?.bathrooms?.min === count && filters.numericCriteria?.bathrooms?.max === count ? "selected" : ""}`}
+                      key={count}
+                      onClick={() => setFilters((current) => ({
+                        ...current,
+                        numericCriteria: {
+                          ...current.numericCriteria,
+                          bathrooms: { min: count, max: count },
+                        },
+                      }))}
+                      type="button"
+                    >
+                      {count} bath{count === 1 ? "" : "s"}
                     </button>
                   ))}
                 </div>
@@ -2235,6 +2305,41 @@ export default function PropertyExplorer({
                         </button>
                       </span>
                     )}
+                    {Object.entries(filters.numericCriteria ?? {}).map(([field, range]) => (
+                      <span className="filter-chip" key={field}>
+                        {formatNumericFilter(field as NumericSearchField, range)}
+                        <button
+                          aria-label={`Remove ${numericFilterLabels[field as NumericSearchField].toLowerCase()} filter`}
+                          className="filter-chip-remove"
+                          onClick={() => removeNumericFilter(field as NumericSearchField)}
+                          type="button"
+                        >
+                          ×
+                        </button>
+                      </span>
+                    ))}
+                    {filters.orientations?.map((orientation) => (
+                      <span className="filter-chip" key={orientation}>
+                        {orientation}-facing
+                        <button
+                          aria-label={`Remove ${orientation.toLowerCase()} facing filter`}
+                          className="filter-chip-remove"
+                          onClick={() => setFilters((current) => ({ ...current, orientations: undefined }))}
+                          type="button"
+                        >×</button>
+                      </span>
+                    ))}
+                    {filters.ownershipTypes?.map((ownership) => (
+                      <span className="filter-chip" key={ownership}>
+                        {ownership}
+                        <button
+                          aria-label={`Remove ${ownership.toLowerCase()} ownership filter`}
+                          className="filter-chip-remove"
+                          onClick={() => setFilters((current) => ({ ...current, ownershipTypes: undefined }))}
+                          type="button"
+                        >×</button>
+                      </span>
+                    ))}
                     {filters.northFacingOnly && (
                       <span className="filter-chip">
                         ☀️ North-facing
@@ -2261,6 +2366,39 @@ export default function PropertyExplorer({
                         </button>
                       </span>
                     )}
+                    {filters.schoolZoneName && (
+                      <span className="filter-chip">
+                        🎓 {filters.schoolZoneName} zone
+                        <button
+                          aria-label="Remove school zone name filter"
+                          className="filter-chip-remove"
+                          onClick={() => setFilters((current) => ({ ...current, schoolZoneName: undefined }))}
+                          type="button"
+                        >×</button>
+                      </span>
+                    )}
+                    {filters.yearBuiltFrom !== undefined && (
+                      <span className="filter-chip">
+                        Built from {filters.yearBuiltFrom}
+                        <button
+                          aria-label="Remove built from filter"
+                          className="filter-chip-remove"
+                          onClick={() => setFilters((current) => ({ ...current, yearBuiltFrom: undefined }))}
+                          type="button"
+                        >×</button>
+                      </span>
+                    )}
+                    {filters.yearBuiltTo !== undefined && (
+                      <span className="filter-chip">
+                        Built to {filters.yearBuiltTo}
+                        <button
+                          aria-label="Remove built to filter"
+                          className="filter-chip-remove"
+                          onClick={() => setFilters((current) => ({ ...current, yearBuiltTo: undefined }))}
+                          type="button"
+                        >×</button>
+                      </span>
+                    )}
                     {filters.minWalkScore !== undefined && (
                       <span className="filter-chip">
                         🚶 Walk score {filters.minWalkScore}+
@@ -2274,7 +2412,18 @@ export default function PropertyExplorer({
                         </button>
                       </span>
                     )}
-                    {filters.maxCommuteTimeMinutes !== undefined && filters.maxCommuteTimeMinutes < 45 && (
+                    {filters.maxWalkScore !== undefined && (
+                      <span className="filter-chip">
+                        🚶 Walk score ≤ {filters.maxWalkScore}
+                        <button
+                          aria-label="Remove max walk score filter"
+                          className="filter-chip-remove"
+                          onClick={() => setFilters((current) => ({ ...current, maxWalkScore: undefined }))}
+                          type="button"
+                        >×</button>
+                      </span>
+                    )}
+                    {filters.maxCommuteTimeMinutes !== undefined && (
                       <span className="filter-chip">
                         ⏱️ Commute ≤ {filters.maxCommuteTimeMinutes}m
                         <button
@@ -2285,6 +2434,28 @@ export default function PropertyExplorer({
                         >
                           ×
                         </button>
+                      </span>
+                    )}
+                    {filters.commuteDestination && (
+                      <span className="filter-chip">
+                        To {filters.commuteDestination}
+                        <button
+                          aria-label="Remove commute destination filter"
+                          className="filter-chip-remove"
+                          onClick={() => setFilters((current) => ({ ...current, commuteDestination: undefined }))}
+                          type="button"
+                        >×</button>
+                      </span>
+                    )}
+                    {filters.commuteMode && (
+                      <span className="filter-chip">
+                        By {filters.commuteMode}
+                        <button
+                          aria-label="Remove commute mode filter"
+                          className="filter-chip-remove"
+                          onClick={() => setFilters((current) => ({ ...current, commuteMode: undefined }))}
+                          type="button"
+                        >×</button>
                       </span>
                     )}
                     <button

@@ -8,6 +8,7 @@ import type {
   PropertyType,
   ValuationRecord,
 } from "./property-types";
+import { matchCatalogDetails, parseExplicitPropertyFilters } from "./property-query";
 
 export function filterProperties(
   properties: Property[],
@@ -19,6 +20,15 @@ export function filterProperties(
     const propertyLocation = [property.address, property.suburb, property.city, property.region]
       .join(" ")
       .toLocaleLowerCase();
+
+    const numericCriteriaMatch = Object.entries(filters.numericCriteria ?? {}).every(
+      ([field, range]) => {
+        const value = property[field as keyof NonNullable<PropertyFilters["numericCriteria"]>];
+        return typeof value === "number" &&
+          (range.min === undefined || value >= range.min) &&
+          (range.max === undefined || value <= range.max);
+      },
+    );
 
     return (
       (!filters.propertyTypes?.length ||
@@ -36,15 +46,26 @@ export function filterProperties(
       (filters.maxPrice === undefined || property.price <= filters.maxPrice) &&
       (filters.minPrice === undefined || property.price >= filters.minPrice) &&
       (filters.bedrooms === undefined || property.bedrooms === filters.bedrooms) &&
+      numericCriteriaMatch &&
+      (!filters.orientations?.length ||
+        (property.orientation !== undefined && filters.orientations.includes(property.orientation))) &&
+      (!filters.ownershipTypes?.length ||
+        (property.ownershipType !== undefined && filters.ownershipTypes.some(
+          (type) => type.toLowerCase() === property.ownershipType?.toLowerCase(),
+        ))) &&
       (filters.yearBuiltFrom === undefined || property.yearBuilt >= filters.yearBuiltFrom) &&
       (filters.yearBuiltTo === undefined || property.yearBuilt <= filters.yearBuiltTo) &&
       (!filters.northFacingOnly || property.orientation === "North") &&
       // Walkability filter
       (filters.minWalkScore === undefined ||
         (property.walkability?.score ?? 0) >= filters.minWalkScore) &&
+      (filters.maxWalkScore === undefined ||
+        (property.walkability?.score !== undefined && property.walkability.score <= filters.maxWalkScore)) &&
       // In-zone school catchment filter
       (!filters.inZoneOnly ||
         (property.schoolZones?.some((zone) => zone.isInZone) ?? false)) &&
+      (!filters.schoolZoneName ||
+        (property.schoolZones?.some((zone) => zone.isInZone && zone.name.toLowerCase() === filters.schoolZoneName?.toLowerCase()) ?? false)) &&
       // Commute filter logic
       (!filters.commuteFilter ||
         !filters.commuteFilter.destinationName ||
@@ -63,13 +84,16 @@ export function filterProperties(
         })()) &&
       (filters.maxCommuteTimeMinutes === undefined ||
         (() => {
-          if (!property.commuteOptions || property.commuteOptions.length === 0) return true;
+          if (!property.commuteOptions || property.commuteOptions.length === 0) return false;
           const mode = filters.commuteMode ?? "driving";
           return property.commuteOptions.some((opt) => {
-            const time = opt.travelTimes?.[mode] ?? opt.timeMinutes;
+            if (filters.commuteDestination && opt.destinationName?.toLowerCase() !== filters.commuteDestination.toLowerCase()) return false;
+            const time = opt.travelTimes?.[mode] ?? (opt.mode === mode ? opt.timeMinutes : undefined);
             return time !== undefined && time <= filters.maxCommuteTimeMinutes!;
           });
-        })())
+        })()) &&
+      (!filters.commuteDestination || filters.maxCommuteTimeMinutes !== undefined ||
+        (property.commuteOptions?.some((option) => option.destinationName?.toLowerCase() === filters.commuteDestination?.toLowerCase()) ?? false))
     );
   });
 }
@@ -107,13 +131,6 @@ const wordNumbers: Record<string, number> = {
   six: 6,
 };
 
-function parsePriceAmount(raw: string, suffix?: string): number {
-  const numeric = Number(raw.replaceAll(",", ""));
-  if (suffix?.toLocaleLowerCase() === "k") return numeric * 1_000;
-  if (suffix?.toLocaleLowerCase() === "m") return numeric * 1_000_000;
-  return numeric;
-}
-
 export function parseNaturalLanguageSearch(
   query: string,
   properties: Property[],
@@ -122,7 +139,7 @@ export function parseNaturalLanguageSearch(
   filters: PropertyFilters;
   message: string;
 } {
-  const filters: PropertyFilters = {};
+  const filters: PropertyFilters = parseExplicitPropertyFilters(query);
   const propertyType = typeMatchers.find(([matcher]) => matcher.test(query))?.[1];
   const style = styleMatchers.find(([matcher]) => matcher.test(query))?.[1];
   const floodHazards = floodHazardMatchers
@@ -153,13 +170,9 @@ export function parseNaturalLanguageSearch(
     query.toLocaleLowerCase().includes(place.toLocaleLowerCase()),
   );
   if (location) filters.location = location;
+  Object.assign(filters, matchCatalogDetails(query, properties));
 
-  const priceMatch = query.match(
-    /(?:under|below|up to|maximum|max)\s*\$?([\d,.]+)\s*([km])?/i,
-  );
-  if (priceMatch) filters.maxPrice = parsePriceAmount(priceMatch[1], priceMatch[2]);
-
-  const bedroomsMatch = query.match(
+  const bedroomsMatch = filters.bedrooms === undefined && !filters.numericCriteria?.bedrooms && query.match(
     /\b(one|two|three|four|five|six|\d+)\s*[-_\s]?bed(?:room)?s?\b/i,
   );
   if (bedroomsMatch) {

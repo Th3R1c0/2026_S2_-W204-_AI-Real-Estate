@@ -136,6 +136,7 @@ export type PropertyFilters = {
   yearBuiltFrom?: number;
   yearBuiltTo?: number;
   minWalkScore?: number;
+  maxWalkScore?: number;
   inZoneOnly?: boolean;
   maxCommuteTimeMinutes?: number;
   commuteMode?: "driving" | "transit" | "walking";
@@ -143,6 +144,11 @@ export type PropertyFilters = {
   maxPrice?: number;
   minPrice?: number;
   bedrooms?: number;
+  numericCriteria?: Partial<Record<NumericSearchField, NumericCriterion>>;
+  orientations?: Array<NonNullable<Property["orientation"]>>;
+  ownershipTypes?: string[];
+  schoolZoneName?: string;
+  commuteDestination?: string;
   commuteFilter?: {
     destinationName: string;
     maxTimeMinutes?: number;
@@ -150,3 +156,15 @@ export type PropertyFilters = {
     mode: "driving" | "transit" | "walking";
   };
 };
+
+export type NumericSearchField =
+  | "bedrooms"
+  | "bathrooms"
+  | "parkingSpaces"
+  | "landArea"
+  | "floorArea"
+  | "sunlightHours"
+  | "estimatedWeeklyRent"
+  | "capitalValue";
+
+export type NumericCriterion = { min?: number; max?: number };
