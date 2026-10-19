@@ -42,6 +42,8 @@ export function filterProperties(
         ) === true) &&
       (!filters.noMappedFloodHazard ||
         (property.floodHazards !== undefined && property.floodHazards.length === 0)) &&
+      (!filters.hasOpenHome ||
+        Boolean(property.openHomes && property.openHomes.length > 0)) &&
       (!location || propertyLocation.includes(location)) &&
       (filters.maxPrice === undefined || property.price <= filters.maxPrice) &&
       (filters.minPrice === undefined || property.price >= filters.minPrice) &&
@@ -175,6 +177,9 @@ export function parseNaturalLanguageSearch(
   }
   if (noFloodHazard) {
     filters.noMappedFloodHazard = true;
+  }
+  if (/\bopen\s+homes?\b/i.test(query)) {
+    filters.hasOpenHome = true;
   }
 
   const places = Array.from(

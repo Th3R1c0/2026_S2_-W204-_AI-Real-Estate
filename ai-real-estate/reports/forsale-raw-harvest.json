@@ -5,7 +5,7 @@
       "source": "dom",
       "title": "view more\nAuction 08 Nov 2026 02:30\n1/10 Harding Avenue, Mount Wellington, Auckland City\n2\n1\n1\nKevin Ratnayake\nEnquire",
       "url": "https://www.oneroof.co.nz/property/auckland/mount-wellington/1-10-harding-avenue/oeScH",
-      "text": "We found over16,000 houses for sale in Auckland.\nSort by:\nFeatured\n|\nMap\nview more\nAuction 08 Nov 2026 02:30\n1/10 Harding Avenue, Mount Wellington, Auckland City\n2\n1\n1\nKevin Ratnayake\nEnquire\nview more\nBy Negotiation\n382 RAZORBACK ROAD, Pōkeno, Franklin\n6\n2\n3\nGurjit Dhindsa\nEnquire\nview more\nAuction 18 Nov 2026 13:00\n3/53 Robert Skelton Place, Clendon Park, Manukau City\n3\n1\n3\nAnu Nehra\nEnquire\nview more\nAuction 11 Nov 2026 13:30\n58A Holbrook Street, Avondale, Auckland City\n6\n4\n7\nCalvin Roche\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 11 Nov 2026 10:00\n48 Edmund Street, Saint Heliers, Auckland City\n5\n3\n6\nAaron Foss\nEnquire\nview more\nAuction 04 Nov 2026 13:00\n1A Barrie Avenue, Papatoetoe, Manukau City\n2\n1\nAmit Kumar\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 12 Nov 2026 10:00\n5 Lancelot Road, Orewa, Rodney\n3\n2\n2\nLouise Thomson\nEnquire\nview more\nOpen Home 26 Oct 2026\nAuction 26 Nov 2026 11:00\n989 East Coast Road, Kaiaua, Franklin\n3\n2\n2\nKarl Davis\nEnquire\nview more\nOpen Home 24 Oct 2026\nBy negotiation\n7/13 Grande Vue Road, Hillpark, Manukau City\n4\n2\n1\nNarinder Dhillon\nEnquire\nview more\nDeadline sale closes 06 Nov 2026 16:00\n2/36 Elizabeth Drive, West Harbour, Waitakere City\n3\n1\n4\nFrank Liang\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n4\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n3\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heig"
+      "text": "We found over16,000 houses for sale in Auckland.\nSort by:\nFeatured\n|\nMap\nview more\nAuction 08 Nov 2026 02:30\n1/10 Harding Avenue, Mount Wellington, Auckland City\n2\n1\n1\nKevin Ratnayake\nEnquire\nview more\nBy Negotiation\n382 RAZORBACK ROAD, P\u014dkeno, Franklin\n6\n2\n3\nGurjit Dhindsa\nEnquire\nview more\nAuction 18 Nov 2026 13:00\n3/53 Robert Skelton Place, Clendon Park, Manukau City\n3\n1\n3\nAnu Nehra\nEnquire\nview more\nAuction 11 Nov 2026 13:30\n58A Holbrook Street, Avondale, Auckland City\n6\n4\n7\nCalvin Roche\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 11 Nov 2026 10:00\n48 Edmund Street, Saint Heliers, Auckland City\n5\n3\n6\nAaron Foss\nEnquire\nview more\nAuction 04 Nov 2026 13:00\n1A Barrie Avenue, Papatoetoe, Manukau City\n2\n1\nAmit Kumar\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 12 Nov 2026 10:00\n5 Lancelot Road, Orewa, Rodney\n3\n2\n2\nLouise Thomson\nEnquire\nview more\nOpen Home 26 Oct 2026\nAuction 26 Nov 2026 11:00\n989 East Coast Road, Kaiaua, Franklin\n3\n2\n2\nKarl Davis\nEnquire\nview more\nOpen Home 24 Oct 2026\nBy negotiation\n7/13 Grande Vue Road, Hillpark, Manukau City\n4\n2\n1\nNarinder Dhillon\nEnquire\nview more\nDeadline sale closes 06 Nov 2026 16:00\n2/36 Elizabeth Drive, West Harbour, Waitakere City\n3\n1\n4\nFrank Liang\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n4\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n3\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heig"
     },
     "parsedTitle": {
       "saleMethod": "Auction 08 Nov 2026 02:30",
@@ -120,19 +120,50 @@
         "latitude": -36.89567947387695,
         "longitude": 174.842529296875
       }
-    }
+    },
+    "floodHazards": [
+      {
+        "type": "flood_plains",
+        "sourceFeatureId": "11392",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Flood_Plains/FeatureServer/0"
+      },
+      {
+        "type": "flood_prone_areas",
+        "sourceFeatureId": "21475",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Flood_Prone_Areas/FeatureServer/0"
+      },
+      {
+        "type": "overland_flow_paths",
+        "sourceFeatureId": "587590",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Overland_Flow_Paths/FeatureServer/0"
+      }
+    ],
+    "openHomes": [
+      {
+        "date": "2026-10-24",
+        "startTime": "12:00",
+        "endTime": "12:30",
+        "label": "Sat, 24 Oct, 12:00pm - 12:30pm"
+      },
+      {
+        "date": "2026-10-25",
+        "startTime": "12:00",
+        "endTime": "12:30",
+        "label": "Sun, 25 Oct, 12:00pm - 12:30pm"
+      }
+    ]
   },
   {
     "index": 2,
     "item": {
       "source": "dom",
-      "title": "view more\nBy Negotiation\n382 RAZORBACK ROAD, Pōkeno, Franklin\n6\n2\n3\nGurjit Dhindsa\nEnquire",
+      "title": "view more\nBy Negotiation\n382 RAZORBACK ROAD, P\u014dkeno, Franklin\n6\n2\n3\nGurjit Dhindsa\nEnquire",
       "url": "https://www.oneroof.co.nz/property/auckland/pokeno/382-razorback-road/GsfwP",
-      "text": "We found over16,000 houses for sale in Auckland.\nSort by:\nFeatured\n|\nMap\nview more\nAuction 08 Nov 2026 02:30\n1/10 Harding Avenue, Mount Wellington, Auckland City\n2\n1\n1\nKevin Ratnayake\nEnquire\nview more\nBy Negotiation\n382 RAZORBACK ROAD, Pōkeno, Franklin\n6\n2\n3\nGurjit Dhindsa\nEnquire\nview more\nAuction 18 Nov 2026 13:00\n3/53 Robert Skelton Place, Clendon Park, Manukau City\n3\n1\n3\nAnu Nehra\nEnquire\nview more\nAuction 11 Nov 2026 13:30\n58A Holbrook Street, Avondale, Auckland City\n6\n4\n7\nCalvin Roche\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 11 Nov 2026 10:00\n48 Edmund Street, Saint Heliers, Auckland City\n5\n3\n6\nAaron Foss\nEnquire\nview more\nAuction 04 Nov 2026 13:00\n1A Barrie Avenue, Papatoetoe, Manukau City\n2\n1\nAmit Kumar\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 12 Nov 2026 10:00\n5 Lancelot Road, Orewa, Rodney\n3\n2\n2\nLouise Thomson\nEnquire\nview more\nOpen Home 26 Oct 2026\nAuction 26 Nov 2026 11:00\n989 East Coast Road, Kaiaua, Franklin\n3\n2\n2\nKarl Davis\nEnquire\nview more\nOpen Home 24 Oct 2026\nBy negotiation\n7/13 Grande Vue Road, Hillpark, Manukau City\n4\n2\n1\nNarinder Dhillon\nEnquire\nview more\nDeadline sale closes 06 Nov 2026 16:00\n2/36 Elizabeth Drive, West Harbour, Waitakere City\n3\n1\n4\nFrank Liang\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n4\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n3\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heig"
+      "text": "We found over16,000 houses for sale in Auckland.\nSort by:\nFeatured\n|\nMap\nview more\nAuction 08 Nov 2026 02:30\n1/10 Harding Avenue, Mount Wellington, Auckland City\n2\n1\n1\nKevin Ratnayake\nEnquire\nview more\nBy Negotiation\n382 RAZORBACK ROAD, P\u014dkeno, Franklin\n6\n2\n3\nGurjit Dhindsa\nEnquire\nview more\nAuction 18 Nov 2026 13:00\n3/53 Robert Skelton Place, Clendon Park, Manukau City\n3\n1\n3\nAnu Nehra\nEnquire\nview more\nAuction 11 Nov 2026 13:30\n58A Holbrook Street, Avondale, Auckland City\n6\n4\n7\nCalvin Roche\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 11 Nov 2026 10:00\n48 Edmund Street, Saint Heliers, Auckland City\n5\n3\n6\nAaron Foss\nEnquire\nview more\nAuction 04 Nov 2026 13:00\n1A Barrie Avenue, Papatoetoe, Manukau City\n2\n1\nAmit Kumar\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 12 Nov 2026 10:00\n5 Lancelot Road, Orewa, Rodney\n3\n2\n2\nLouise Thomson\nEnquire\nview more\nOpen Home 26 Oct 2026\nAuction 26 Nov 2026 11:00\n989 East Coast Road, Kaiaua, Franklin\n3\n2\n2\nKarl Davis\nEnquire\nview more\nOpen Home 24 Oct 2026\nBy negotiation\n7/13 Grande Vue Road, Hillpark, Manukau City\n4\n2\n1\nNarinder Dhillon\nEnquire\nview more\nDeadline sale closes 06 Nov 2026 16:00\n2/36 Elizabeth Drive, West Harbour, Waitakere City\n3\n1\n4\nFrank Liang\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n4\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n3\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heig"
     },
     "parsedTitle": {
       "saleMethod": "By Negotiation",
-      "address": "382 RAZORBACK ROAD, Pōkeno, Franklin",
+      "address": "382 RAZORBACK ROAD, P\u014dkeno, Franklin",
       "beds": 6,
       "baths": 2,
       "cars": 3
@@ -197,11 +228,11 @@
     },
     "linz": {
       "addressId": 1346102,
-      "fullAddress": "382 Razorback Road, Pōkeno",
+      "fullAddress": "382 Razorback Road, P\u014dkeno",
       "latitude": -37.21833404908647,
       "longitude": 175.00843371671002,
-      "suburb": "Pōkeno",
-      "city": "Pōkeno"
+      "suburb": "P\u014dkeno",
+      "city": "P\u014dkeno"
     },
     "propValuesSources": {
       "RealEstate": {
@@ -228,7 +259,9 @@
     "homesDetails": {
       "status": "wrong_address",
       "pageAddress": "382 RAZORBACK ROAD, Pokeno, Franklin, Auckland"
-    }
+    },
+    "floodHazards": [],
+    "openHomes": []
   },
   {
     "index": 3,
@@ -236,7 +269,7 @@
       "source": "dom",
       "title": "view more\nAuction 18 Nov 2026 13:00\n3/53 Robert Skelton Place, Clendon Park, Manukau City\n3\n1\n3\nAnu Nehra\nEnquire",
       "url": "https://www.oneroof.co.nz/property/auckland/clendon-park/3-53-robert-skelton-place/3AIoe",
-      "text": "We found over16,000 houses for sale in Auckland.\nSort by:\nFeatured\n|\nMap\nview more\nAuction 08 Nov 2026 02:30\n1/10 Harding Avenue, Mount Wellington, Auckland City\n2\n1\n1\nKevin Ratnayake\nEnquire\nview more\nBy Negotiation\n382 RAZORBACK ROAD, Pōkeno, Franklin\n6\n2\n3\nGurjit Dhindsa\nEnquire\nview more\nAuction 18 Nov 2026 13:00\n3/53 Robert Skelton Place, Clendon Park, Manukau City\n3\n1\n3\nAnu Nehra\nEnquire\nview more\nAuction 11 Nov 2026 13:30\n58A Holbrook Street, Avondale, Auckland City\n6\n4\n7\nCalvin Roche\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 11 Nov 2026 10:00\n48 Edmund Street, Saint Heliers, Auckland City\n5\n3\n6\nAaron Foss\nEnquire\nview more\nAuction 04 Nov 2026 13:00\n1A Barrie Avenue, Papatoetoe, Manukau City\n2\n1\nAmit Kumar\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 12 Nov 2026 10:00\n5 Lancelot Road, Orewa, Rodney\n3\n2\n2\nLouise Thomson\nEnquire\nview more\nOpen Home 26 Oct 2026\nAuction 26 Nov 2026 11:00\n989 East Coast Road, Kaiaua, Franklin\n3\n2\n2\nKarl Davis\nEnquire\nview more\nOpen Home 24 Oct 2026\nBy negotiation\n7/13 Grande Vue Road, Hillpark, Manukau City\n4\n2\n1\nNarinder Dhillon\nEnquire\nview more\nDeadline sale closes 06 Nov 2026 16:00\n2/36 Elizabeth Drive, West Harbour, Waitakere City\n3\n1\n4\nFrank Liang\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n4\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n3\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heig"
+      "text": "We found over16,000 houses for sale in Auckland.\nSort by:\nFeatured\n|\nMap\nview more\nAuction 08 Nov 2026 02:30\n1/10 Harding Avenue, Mount Wellington, Auckland City\n2\n1\n1\nKevin Ratnayake\nEnquire\nview more\nBy Negotiation\n382 RAZORBACK ROAD, P\u014dkeno, Franklin\n6\n2\n3\nGurjit Dhindsa\nEnquire\nview more\nAuction 18 Nov 2026 13:00\n3/53 Robert Skelton Place, Clendon Park, Manukau City\n3\n1\n3\nAnu Nehra\nEnquire\nview more\nAuction 11 Nov 2026 13:30\n58A Holbrook Street, Avondale, Auckland City\n6\n4\n7\nCalvin Roche\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 11 Nov 2026 10:00\n48 Edmund Street, Saint Heliers, Auckland City\n5\n3\n6\nAaron Foss\nEnquire\nview more\nAuction 04 Nov 2026 13:00\n1A Barrie Avenue, Papatoetoe, Manukau City\n2\n1\nAmit Kumar\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 12 Nov 2026 10:00\n5 Lancelot Road, Orewa, Rodney\n3\n2\n2\nLouise Thomson\nEnquire\nview more\nOpen Home 26 Oct 2026\nAuction 26 Nov 2026 11:00\n989 East Coast Road, Kaiaua, Franklin\n3\n2\n2\nKarl Davis\nEnquire\nview more\nOpen Home 24 Oct 2026\nBy negotiation\n7/13 Grande Vue Road, Hillpark, Manukau City\n4\n2\n1\nNarinder Dhillon\nEnquire\nview more\nDeadline sale closes 06 Nov 2026 16:00\n2/36 Elizabeth Drive, West Harbour, Waitakere City\n3\n1\n4\nFrank Liang\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n4\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n3\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heig"
     },
     "parsedTitle": {
       "saleMethod": "Auction 18 Nov 2026 13:00",
@@ -408,7 +441,28 @@
         "latitude": -37.02916717529297,
         "longitude": 174.86631774902344
       }
-    }
+    },
+    "floodHazards": [
+      {
+        "type": "overland_flow_paths",
+        "sourceFeatureId": "438154",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Overland_Flow_Paths/FeatureServer/0"
+      }
+    ],
+    "openHomes": [
+      {
+        "date": "2026-10-24",
+        "startTime": "13:00",
+        "endTime": "13:30",
+        "label": "Sat, 24 Oct, 01:00pm - 01:30pm"
+      },
+      {
+        "date": "2026-10-25",
+        "startTime": "13:00",
+        "endTime": "13:30",
+        "label": "Sun, 25 Oct, 01:00pm - 01:30pm"
+      }
+    ]
   },
   {
     "index": 4,
@@ -416,7 +470,7 @@
       "source": "dom",
       "title": "view more\nAuction 11 Nov 2026 13:30\n58A Holbrook Street, Avondale, Auckland City\n6\n4\n7\nCalvin Roche\nEnquire",
       "url": "https://www.oneroof.co.nz/property/auckland/avondale/58a-holbrook-street/aHZsV",
-      "text": "We found over16,000 houses for sale in Auckland.\nSort by:\nFeatured\n|\nMap\nview more\nAuction 08 Nov 2026 02:30\n1/10 Harding Avenue, Mount Wellington, Auckland City\n2\n1\n1\nKevin Ratnayake\nEnquire\nview more\nBy Negotiation\n382 RAZORBACK ROAD, Pōkeno, Franklin\n6\n2\n3\nGurjit Dhindsa\nEnquire\nview more\nAuction 18 Nov 2026 13:00\n3/53 Robert Skelton Place, Clendon Park, Manukau City\n3\n1\n3\nAnu Nehra\nEnquire\nview more\nAuction 11 Nov 2026 13:30\n58A Holbrook Street, Avondale, Auckland City\n6\n4\n7\nCalvin Roche\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 11 Nov 2026 10:00\n48 Edmund Street, Saint Heliers, Auckland City\n5\n3\n6\nAaron Foss\nEnquire\nview more\nAuction 04 Nov 2026 13:00\n1A Barrie Avenue, Papatoetoe, Manukau City\n2\n1\nAmit Kumar\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 12 Nov 2026 10:00\n5 Lancelot Road, Orewa, Rodney\n3\n2\n2\nLouise Thomson\nEnquire\nview more\nOpen Home 26 Oct 2026\nAuction 26 Nov 2026 11:00\n989 East Coast Road, Kaiaua, Franklin\n3\n2\n2\nKarl Davis\nEnquire\nview more\nOpen Home 24 Oct 2026\nBy negotiation\n7/13 Grande Vue Road, Hillpark, Manukau City\n4\n2\n1\nNarinder Dhillon\nEnquire\nview more\nDeadline sale closes 06 Nov 2026 16:00\n2/36 Elizabeth Drive, West Harbour, Waitakere City\n3\n1\n4\nFrank Liang\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n4\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n3\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heig"
+      "text": "We found over16,000 houses for sale in Auckland.\nSort by:\nFeatured\n|\nMap\nview more\nAuction 08 Nov 2026 02:30\n1/10 Harding Avenue, Mount Wellington, Auckland City\n2\n1\n1\nKevin Ratnayake\nEnquire\nview more\nBy Negotiation\n382 RAZORBACK ROAD, P\u014dkeno, Franklin\n6\n2\n3\nGurjit Dhindsa\nEnquire\nview more\nAuction 18 Nov 2026 13:00\n3/53 Robert Skelton Place, Clendon Park, Manukau City\n3\n1\n3\nAnu Nehra\nEnquire\nview more\nAuction 11 Nov 2026 13:30\n58A Holbrook Street, Avondale, Auckland City\n6\n4\n7\nCalvin Roche\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 11 Nov 2026 10:00\n48 Edmund Street, Saint Heliers, Auckland City\n5\n3\n6\nAaron Foss\nEnquire\nview more\nAuction 04 Nov 2026 13:00\n1A Barrie Avenue, Papatoetoe, Manukau City\n2\n1\nAmit Kumar\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 12 Nov 2026 10:00\n5 Lancelot Road, Orewa, Rodney\n3\n2\n2\nLouise Thomson\nEnquire\nview more\nOpen Home 26 Oct 2026\nAuction 26 Nov 2026 11:00\n989 East Coast Road, Kaiaua, Franklin\n3\n2\n2\nKarl Davis\nEnquire\nview more\nOpen Home 24 Oct 2026\nBy negotiation\n7/13 Grande Vue Road, Hillpark, Manukau City\n4\n2\n1\nNarinder Dhillon\nEnquire\nview more\nDeadline sale closes 06 Nov 2026 16:00\n2/36 Elizabeth Drive, West Harbour, Waitakere City\n3\n1\n4\nFrank Liang\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n4\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n3\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heig"
     },
     "parsedTitle": {
       "saleMethod": "Auction 11 Nov 2026 13:30",
@@ -514,7 +568,22 @@
         "reason": "HTTP 404"
       }
     },
-    "homesDetails": null
+    "homesDetails": null,
+    "floodHazards": [],
+    "openHomes": [
+      {
+        "date": "2026-10-24",
+        "startTime": "14:00",
+        "endTime": "14:30",
+        "label": "Sat, 24 Oct, 02:00pm - 02:30pm"
+      },
+      {
+        "date": "2026-10-25",
+        "startTime": "14:00",
+        "endTime": "14:30",
+        "label": "Sun, 25 Oct, 02:00pm - 02:30pm"
+      }
+    ]
   },
   {
     "index": 5,
@@ -522,7 +591,7 @@
       "source": "dom",
       "title": "view more\nOpen Home 21 Oct 2026\nAuction 11 Nov 2026 10:00\n48 Edmund Street, Saint Heliers, Auckland City\n5\n3\n6\nAaron Foss\nEnquire",
       "url": "https://www.oneroof.co.nz/property/auckland/saint-heliers/48-edmund-street/NBd0P",
-      "text": "We found over16,000 houses for sale in Auckland.\nSort by:\nFeatured\n|\nMap\nview more\nAuction 08 Nov 2026 02:30\n1/10 Harding Avenue, Mount Wellington, Auckland City\n2\n1\n1\nKevin Ratnayake\nEnquire\nview more\nBy Negotiation\n382 RAZORBACK ROAD, Pōkeno, Franklin\n6\n2\n3\nGurjit Dhindsa\nEnquire\nview more\nAuction 18 Nov 2026 13:00\n3/53 Robert Skelton Place, Clendon Park, Manukau City\n3\n1\n3\nAnu Nehra\nEnquire\nview more\nAuction 11 Nov 2026 13:30\n58A Holbrook Street, Avondale, Auckland City\n6\n4\n7\nCalvin Roche\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 11 Nov 2026 10:00\n48 Edmund Street, Saint Heliers, Auckland City\n5\n3\n6\nAaron Foss\nEnquire\nview more\nAuction 04 Nov 2026 13:00\n1A Barrie Avenue, Papatoetoe, Manukau City\n2\n1\nAmit Kumar\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 12 Nov 2026 10:00\n5 Lancelot Road, Orewa, Rodney\n3\n2\n2\nLouise Thomson\nEnquire\nview more\nOpen Home 26 Oct 2026\nAuction 26 Nov 2026 11:00\n989 East Coast Road, Kaiaua, Franklin\n3\n2\n2\nKarl Davis\nEnquire\nview more\nOpen Home 24 Oct 2026\nBy negotiation\n7/13 Grande Vue Road, Hillpark, Manukau City\n4\n2\n1\nNarinder Dhillon\nEnquire\nview more\nDeadline sale closes 06 Nov 2026 16:00\n2/36 Elizabeth Drive, West Harbour, Waitakere City\n3\n1\n4\nFrank Liang\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n4\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n3\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heig"
+      "text": "We found over16,000 houses for sale in Auckland.\nSort by:\nFeatured\n|\nMap\nview more\nAuction 08 Nov 2026 02:30\n1/10 Harding Avenue, Mount Wellington, Auckland City\n2\n1\n1\nKevin Ratnayake\nEnquire\nview more\nBy Negotiation\n382 RAZORBACK ROAD, P\u014dkeno, Franklin\n6\n2\n3\nGurjit Dhindsa\nEnquire\nview more\nAuction 18 Nov 2026 13:00\n3/53 Robert Skelton Place, Clendon Park, Manukau City\n3\n1\n3\nAnu Nehra\nEnquire\nview more\nAuction 11 Nov 2026 13:30\n58A Holbrook Street, Avondale, Auckland City\n6\n4\n7\nCalvin Roche\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 11 Nov 2026 10:00\n48 Edmund Street, Saint Heliers, Auckland City\n5\n3\n6\nAaron Foss\nEnquire\nview more\nAuction 04 Nov 2026 13:00\n1A Barrie Avenue, Papatoetoe, Manukau City\n2\n1\nAmit Kumar\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 12 Nov 2026 10:00\n5 Lancelot Road, Orewa, Rodney\n3\n2\n2\nLouise Thomson\nEnquire\nview more\nOpen Home 26 Oct 2026\nAuction 26 Nov 2026 11:00\n989 East Coast Road, Kaiaua, Franklin\n3\n2\n2\nKarl Davis\nEnquire\nview more\nOpen Home 24 Oct 2026\nBy negotiation\n7/13 Grande Vue Road, Hillpark, Manukau City\n4\n2\n1\nNarinder Dhillon\nEnquire\nview more\nDeadline sale closes 06 Nov 2026 16:00\n2/36 Elizabeth Drive, West Harbour, Waitakere City\n3\n1\n4\nFrank Liang\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n4\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n3\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heig"
     },
     "parsedTitle": {
       "saleMethod": "Auction 11 Nov 2026 10:00",
@@ -701,7 +770,28 @@
         "latitude": -36.85845947265625,
         "longitude": 174.84872436523438
       }
-    }
+    },
+    "floodHazards": [
+      {
+        "type": "overland_flow_paths",
+        "sourceFeatureId": "461081",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Overland_Flow_Paths/FeatureServer/0"
+      }
+    ],
+    "openHomes": [
+      {
+        "date": "2026-10-21",
+        "startTime": "18:00",
+        "endTime": "18:30",
+        "label": "Wed, 21 Oct, 06:00pm - 06:30pm"
+      },
+      {
+        "date": "2026-10-24",
+        "startTime": "12:00",
+        "endTime": "12:30",
+        "label": "Sat, 24 Oct, 12:00pm - 12:30pm"
+      }
+    ]
   },
   {
     "index": 6,
@@ -709,7 +799,7 @@
       "source": "dom",
       "title": "view more\nAuction 04 Nov 2026 13:00\n1A Barrie Avenue, Papatoetoe, Manukau City\n2\n1\nAmit Kumar\nEnquire",
       "url": "https://www.oneroof.co.nz/property/auckland/papatoetoe/1a-barrie-avenue/wAmCJ",
-      "text": "We found over16,000 houses for sale in Auckland.\nSort by:\nFeatured\n|\nMap\nview more\nAuction 08 Nov 2026 02:30\n1/10 Harding Avenue, Mount Wellington, Auckland City\n2\n1\n1\nKevin Ratnayake\nEnquire\nview more\nBy Negotiation\n382 RAZORBACK ROAD, Pōkeno, Franklin\n6\n2\n3\nGurjit Dhindsa\nEnquire\nview more\nAuction 18 Nov 2026 13:00\n3/53 Robert Skelton Place, Clendon Park, Manukau City\n3\n1\n3\nAnu Nehra\nEnquire\nview more\nAuction 11 Nov 2026 13:30\n58A Holbrook Street, Avondale, Auckland City\n6\n4\n7\nCalvin Roche\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 11 Nov 2026 10:00\n48 Edmund Street, Saint Heliers, Auckland City\n5\n3\n6\nAaron Foss\nEnquire\nview more\nAuction 04 Nov 2026 13:00\n1A Barrie Avenue, Papatoetoe, Manukau City\n2\n1\nAmit Kumar\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 12 Nov 2026 10:00\n5 Lancelot Road, Orewa, Rodney\n3\n2\n2\nLouise Thomson\nEnquire\nview more\nOpen Home 26 Oct 2026\nAuction 26 Nov 2026 11:00\n989 East Coast Road, Kaiaua, Franklin\n3\n2\n2\nKarl Davis\nEnquire\nview more\nOpen Home 24 Oct 2026\nBy negotiation\n7/13 Grande Vue Road, Hillpark, Manukau City\n4\n2\n1\nNarinder Dhillon\nEnquire\nview more\nDeadline sale closes 06 Nov 2026 16:00\n2/36 Elizabeth Drive, West Harbour, Waitakere City\n3\n1\n4\nFrank Liang\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n4\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n3\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heig"
+      "text": "We found over16,000 houses for sale in Auckland.\nSort by:\nFeatured\n|\nMap\nview more\nAuction 08 Nov 2026 02:30\n1/10 Harding Avenue, Mount Wellington, Auckland City\n2\n1\n1\nKevin Ratnayake\nEnquire\nview more\nBy Negotiation\n382 RAZORBACK ROAD, P\u014dkeno, Franklin\n6\n2\n3\nGurjit Dhindsa\nEnquire\nview more\nAuction 18 Nov 2026 13:00\n3/53 Robert Skelton Place, Clendon Park, Manukau City\n3\n1\n3\nAnu Nehra\nEnquire\nview more\nAuction 11 Nov 2026 13:30\n58A Holbrook Street, Avondale, Auckland City\n6\n4\n7\nCalvin Roche\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 11 Nov 2026 10:00\n48 Edmund Street, Saint Heliers, Auckland City\n5\n3\n6\nAaron Foss\nEnquire\nview more\nAuction 04 Nov 2026 13:00\n1A Barrie Avenue, Papatoetoe, Manukau City\n2\n1\nAmit Kumar\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 12 Nov 2026 10:00\n5 Lancelot Road, Orewa, Rodney\n3\n2\n2\nLouise Thomson\nEnquire\nview more\nOpen Home 26 Oct 2026\nAuction 26 Nov 2026 11:00\n989 East Coast Road, Kaiaua, Franklin\n3\n2\n2\nKarl Davis\nEnquire\nview more\nOpen Home 24 Oct 2026\nBy negotiation\n7/13 Grande Vue Road, Hillpark, Manukau City\n4\n2\n1\nNarinder Dhillon\nEnquire\nview more\nDeadline sale closes 06 Nov 2026 16:00\n2/36 Elizabeth Drive, West Harbour, Waitakere City\n3\n1\n4\nFrank Liang\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n4\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n3\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heig"
     },
     "parsedTitle": {
       "saleMethod": "Auction 04 Nov 2026 13:00",
@@ -851,7 +941,15 @@
         "latitude": -36.97174835205078,
         "longitude": 174.8469696044922
       }
-    }
+    },
+    "floodHazards": [
+      {
+        "type": "flood_plains",
+        "sourceFeatureId": "1166",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Flood_Plains/FeatureServer/0"
+      }
+    ],
+    "openHomes": []
   },
   {
     "index": 7,
@@ -859,7 +957,7 @@
       "source": "dom",
       "title": "view more\nOpen Home 21 Oct 2026\nAuction 12 Nov 2026 10:00\n5 Lancelot Road, Orewa, Rodney\n3\n2\n2\nLouise Thomson\nEnquire",
       "url": "https://www.oneroof.co.nz/property/auckland/orewa/5-lancelot-road/lWwwe",
-      "text": "We found over16,000 houses for sale in Auckland.\nSort by:\nFeatured\n|\nMap\nview more\nAuction 08 Nov 2026 02:30\n1/10 Harding Avenue, Mount Wellington, Auckland City\n2\n1\n1\nKevin Ratnayake\nEnquire\nview more\nBy Negotiation\n382 RAZORBACK ROAD, Pōkeno, Franklin\n6\n2\n3\nGurjit Dhindsa\nEnquire\nview more\nAuction 18 Nov 2026 13:00\n3/53 Robert Skelton Place, Clendon Park, Manukau City\n3\n1\n3\nAnu Nehra\nEnquire\nview more\nAuction 11 Nov 2026 13:30\n58A Holbrook Street, Avondale, Auckland City\n6\n4\n7\nCalvin Roche\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 11 Nov 2026 10:00\n48 Edmund Street, Saint Heliers, Auckland City\n5\n3\n6\nAaron Foss\nEnquire\nview more\nAuction 04 Nov 2026 13:00\n1A Barrie Avenue, Papatoetoe, Manukau City\n2\n1\nAmit Kumar\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 12 Nov 2026 10:00\n5 Lancelot Road, Orewa, Rodney\n3\n2\n2\nLouise Thomson\nEnquire\nview more\nOpen Home 26 Oct 2026\nAuction 26 Nov 2026 11:00\n989 East Coast Road, Kaiaua, Franklin\n3\n2\n2\nKarl Davis\nEnquire\nview more\nOpen Home 24 Oct 2026\nBy negotiation\n7/13 Grande Vue Road, Hillpark, Manukau City\n4\n2\n1\nNarinder Dhillon\nEnquire\nview more\nDeadline sale closes 06 Nov 2026 16:00\n2/36 Elizabeth Drive, West Harbour, Waitakere City\n3\n1\n4\nFrank Liang\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n4\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n3\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heig"
+      "text": "We found over16,000 houses for sale in Auckland.\nSort by:\nFeatured\n|\nMap\nview more\nAuction 08 Nov 2026 02:30\n1/10 Harding Avenue, Mount Wellington, Auckland City\n2\n1\n1\nKevin Ratnayake\nEnquire\nview more\nBy Negotiation\n382 RAZORBACK ROAD, P\u014dkeno, Franklin\n6\n2\n3\nGurjit Dhindsa\nEnquire\nview more\nAuction 18 Nov 2026 13:00\n3/53 Robert Skelton Place, Clendon Park, Manukau City\n3\n1\n3\nAnu Nehra\nEnquire\nview more\nAuction 11 Nov 2026 13:30\n58A Holbrook Street, Avondale, Auckland City\n6\n4\n7\nCalvin Roche\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 11 Nov 2026 10:00\n48 Edmund Street, Saint Heliers, Auckland City\n5\n3\n6\nAaron Foss\nEnquire\nview more\nAuction 04 Nov 2026 13:00\n1A Barrie Avenue, Papatoetoe, Manukau City\n2\n1\nAmit Kumar\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 12 Nov 2026 10:00\n5 Lancelot Road, Orewa, Rodney\n3\n2\n2\nLouise Thomson\nEnquire\nview more\nOpen Home 26 Oct 2026\nAuction 26 Nov 2026 11:00\n989 East Coast Road, Kaiaua, Franklin\n3\n2\n2\nKarl Davis\nEnquire\nview more\nOpen Home 24 Oct 2026\nBy negotiation\n7/13 Grande Vue Road, Hillpark, Manukau City\n4\n2\n1\nNarinder Dhillon\nEnquire\nview more\nDeadline sale closes 06 Nov 2026 16:00\n2/36 Elizabeth Drive, West Harbour, Waitakere City\n3\n1\n4\nFrank Liang\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n4\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n3\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heig"
     },
     "parsedTitle": {
       "saleMethod": "Auction 12 Nov 2026 10:00",
@@ -1012,7 +1110,52 @@
         "latitude": -36.57239532470703,
         "longitude": 174.69061279296875
       }
-    }
+    },
+    "floodHazards": [],
+    "openHomes": [
+      {
+        "date": "2026-10-21",
+        "startTime": "17:00",
+        "endTime": "18:00",
+        "label": "Wed, 21 Oct, 05:00pm - 06:00pm"
+      },
+      {
+        "date": "2026-10-24",
+        "startTime": "14:00",
+        "endTime": "14:30",
+        "label": "Sat, 24 Oct, 02:00pm - 02:30pm"
+      },
+      {
+        "date": "2026-10-25",
+        "startTime": "14:00",
+        "endTime": "14:30",
+        "label": "Sun, 25 Oct, 02:00pm - 02:30pm"
+      },
+      {
+        "date": "2026-10-31",
+        "startTime": "14:00",
+        "endTime": "14:30",
+        "label": "Sat, 31 Oct, 02:00pm - 02:30pm"
+      },
+      {
+        "date": "2026-11-01",
+        "startTime": "14:00",
+        "endTime": "14:30",
+        "label": "Sun, 1 Nov, 02:00pm - 02:30pm"
+      },
+      {
+        "date": "2026-11-07",
+        "startTime": "14:00",
+        "endTime": "14:30",
+        "label": "Sat, 7 Nov, 02:00pm - 02:30pm"
+      },
+      {
+        "date": "2026-11-08",
+        "startTime": "14:00",
+        "endTime": "14:30",
+        "label": "Sun, 8 Nov, 02:00pm - 02:30pm"
+      }
+    ]
   },
   {
     "index": 8,
@@ -1020,7 +1163,7 @@
       "source": "dom",
       "title": "view more\nOpen Home 26 Oct 2026\nAuction 26 Nov 2026 11:00\n989 East Coast Road, Kaiaua, Franklin\n3\n2\n2\nKarl Davis\nEnquire",
       "url": "https://www.oneroof.co.nz/property/auckland/kaiaua/989-east-coast-road/aiJJ3",
-      "text": "We found over16,000 houses for sale in Auckland.\nSort by:\nFeatured\n|\nMap\nview more\nAuction 08 Nov 2026 02:30\n1/10 Harding Avenue, Mount Wellington, Auckland City\n2\n1\n1\nKevin Ratnayake\nEnquire\nview more\nBy Negotiation\n382 RAZORBACK ROAD, Pōkeno, Franklin\n6\n2\n3\nGurjit Dhindsa\nEnquire\nview more\nAuction 18 Nov 2026 13:00\n3/53 Robert Skelton Place, Clendon Park, Manukau City\n3\n1\n3\nAnu Nehra\nEnquire\nview more\nAuction 11 Nov 2026 13:30\n58A Holbrook Street, Avondale, Auckland City\n6\n4\n7\nCalvin Roche\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 11 Nov 2026 10:00\n48 Edmund Street, Saint Heliers, Auckland City\n5\n3\n6\nAaron Foss\nEnquire\nview more\nAuction 04 Nov 2026 13:00\n1A Barrie Avenue, Papatoetoe, Manukau City\n2\n1\nAmit Kumar\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 12 Nov 2026 10:00\n5 Lancelot Road, Orewa, Rodney\n3\n2\n2\nLouise Thomson\nEnquire\nview more\nOpen Home 26 Oct 2026\nAuction 26 Nov 2026 11:00\n989 East Coast Road, Kaiaua, Franklin\n3\n2\n2\nKarl Davis\nEnquire\nview more\nOpen Home 24 Oct 2026\nBy negotiation\n7/13 Grande Vue Road, Hillpark, Manukau City\n4\n2\n1\nNarinder Dhillon\nEnquire\nview more\nDeadline sale closes 06 Nov 2026 16:00\n2/36 Elizabeth Drive, West Harbour, Waitakere City\n3\n1\n4\nFrank Liang\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n4\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n3\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heig"
+      "text": "We found over16,000 houses for sale in Auckland.\nSort by:\nFeatured\n|\nMap\nview more\nAuction 08 Nov 2026 02:30\n1/10 Harding Avenue, Mount Wellington, Auckland City\n2\n1\n1\nKevin Ratnayake\nEnquire\nview more\nBy Negotiation\n382 RAZORBACK ROAD, P\u014dkeno, Franklin\n6\n2\n3\nGurjit Dhindsa\nEnquire\nview more\nAuction 18 Nov 2026 13:00\n3/53 Robert Skelton Place, Clendon Park, Manukau City\n3\n1\n3\nAnu Nehra\nEnquire\nview more\nAuction 11 Nov 2026 13:30\n58A Holbrook Street, Avondale, Auckland City\n6\n4\n7\nCalvin Roche\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 11 Nov 2026 10:00\n48 Edmund Street, Saint Heliers, Auckland City\n5\n3\n6\nAaron Foss\nEnquire\nview more\nAuction 04 Nov 2026 13:00\n1A Barrie Avenue, Papatoetoe, Manukau City\n2\n1\nAmit Kumar\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 12 Nov 2026 10:00\n5 Lancelot Road, Orewa, Rodney\n3\n2\n2\nLouise Thomson\nEnquire\nview more\nOpen Home 26 Oct 2026\nAuction 26 Nov 2026 11:00\n989 East Coast Road, Kaiaua, Franklin\n3\n2\n2\nKarl Davis\nEnquire\nview more\nOpen Home 24 Oct 2026\nBy negotiation\n7/13 Grande Vue Road, Hillpark, Manukau City\n4\n2\n1\nNarinder Dhillon\nEnquire\nview more\nDeadline sale closes 06 Nov 2026 16:00\n2/36 Elizabeth Drive, West Harbour, Waitakere City\n3\n1\n4\nFrank Liang\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n4\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n3\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heig"
     },
     "parsedTitle": {
       "saleMethod": "Auction 26 Nov 2026 11:00",
@@ -1080,14 +1223,7 @@
       "estimate": null,
       "saleMethod": "Auction 26 Nov 2026 11:00"
     },
-    "linz": {
-      "addressId": 1051169,
-      "fullAddress": "989 East Coast Road, Redvale, Auckland",
-      "latitude": -36.70107946579282,
-      "longitude": 174.7198860000045,
-      "suburb": "Redvale",
-      "city": "Auckland"
-    },
+    "linz": null,
     "propValuesSources": {
       "RealEstate": {
         "status": "matched",
@@ -1168,7 +1304,40 @@
         "latitude": -37.10623550415039,
         "longitude": 175.2990264892578
       }
-    }
+    },
+    "floodHazards": [],
+    "openHomes": [
+      {
+        "date": "2026-10-26",
+        "startTime": "10:00",
+        "endTime": "10:30",
+        "label": "Mon, 26 Oct, 10:00am - 10:30am"
+      },
+      {
+        "date": "2026-11-01",
+        "startTime": "10:00",
+        "endTime": "10:30",
+        "label": "Sun, 1 Nov, 10:00am - 10:30am"
+      },
+      {
+        "date": "2026-11-08",
+        "startTime": "16:30",
+        "endTime": "17:00",
+        "label": "Sun, 8 Nov, 04:30pm - 05:00pm"
+      },
+      {
+        "date": "2026-11-15",
+        "startTime": "10:00",
+        "endTime": "10:30",
+        "label": "Sun, 15 Nov, 10:00am - 10:30am"
+      },
+      {
+        "date": "2026-11-22",
+        "startTime": "09:30",
+        "endTime": "10:00",
+        "label": "Sun, 22 Nov, 09:30am - 10:00am"
+      }
+    ]
   },
   {
     "index": 9,
@@ -1176,7 +1345,7 @@
       "source": "dom",
       "title": "view more\nOpen Home 24 Oct 2026\nBy negotiation\n7/13 Grande Vue Road, Hillpark, Manukau City\n4\n2\n1\nNarinder Dhillon\nEnquire",
       "url": "https://www.oneroof.co.nz/property/auckland/hillpark/7-13-grande-vue-road/yhbY3",
-      "text": "We found over16,000 houses for sale in Auckland.\nSort by:\nFeatured\n|\nMap\nview more\nAuction 08 Nov 2026 02:30\n1/10 Harding Avenue, Mount Wellington, Auckland City\n2\n1\n1\nKevin Ratnayake\nEnquire\nview more\nBy Negotiation\n382 RAZORBACK ROAD, Pōkeno, Franklin\n6\n2\n3\nGurjit Dhindsa\nEnquire\nview more\nAuction 18 Nov 2026 13:00\n3/53 Robert Skelton Place, Clendon Park, Manukau City\n3\n1\n3\nAnu Nehra\nEnquire\nview more\nAuction 11 Nov 2026 13:30\n58A Holbrook Street, Avondale, Auckland City\n6\n4\n7\nCalvin Roche\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 11 Nov 2026 10:00\n48 Edmund Street, Saint Heliers, Auckland City\n5\n3\n6\nAaron Foss\nEnquire\nview more\nAuction 04 Nov 2026 13:00\n1A Barrie Avenue, Papatoetoe, Manukau City\n2\n1\nAmit Kumar\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 12 Nov 2026 10:00\n5 Lancelot Road, Orewa, Rodney\n3\n2\n2\nLouise Thomson\nEnquire\nview more\nOpen Home 26 Oct 2026\nAuction 26 Nov 2026 11:00\n989 East Coast Road, Kaiaua, Franklin\n3\n2\n2\nKarl Davis\nEnquire\nview more\nOpen Home 24 Oct 2026\nBy negotiation\n7/13 Grande Vue Road, Hillpark, Manukau City\n4\n2\n1\nNarinder Dhillon\nEnquire\nview more\nDeadline sale closes 06 Nov 2026 16:00\n2/36 Elizabeth Drive, West Harbour, Waitakere City\n3\n1\n4\nFrank Liang\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n4\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n3\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heig"
+      "text": "We found over16,000 houses for sale in Auckland.\nSort by:\nFeatured\n|\nMap\nview more\nAuction 08 Nov 2026 02:30\n1/10 Harding Avenue, Mount Wellington, Auckland City\n2\n1\n1\nKevin Ratnayake\nEnquire\nview more\nBy Negotiation\n382 RAZORBACK ROAD, P\u014dkeno, Franklin\n6\n2\n3\nGurjit Dhindsa\nEnquire\nview more\nAuction 18 Nov 2026 13:00\n3/53 Robert Skelton Place, Clendon Park, Manukau City\n3\n1\n3\nAnu Nehra\nEnquire\nview more\nAuction 11 Nov 2026 13:30\n58A Holbrook Street, Avondale, Auckland City\n6\n4\n7\nCalvin Roche\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 11 Nov 2026 10:00\n48 Edmund Street, Saint Heliers, Auckland City\n5\n3\n6\nAaron Foss\nEnquire\nview more\nAuction 04 Nov 2026 13:00\n1A Barrie Avenue, Papatoetoe, Manukau City\n2\n1\nAmit Kumar\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 12 Nov 2026 10:00\n5 Lancelot Road, Orewa, Rodney\n3\n2\n2\nLouise Thomson\nEnquire\nview more\nOpen Home 26 Oct 2026\nAuction 26 Nov 2026 11:00\n989 East Coast Road, Kaiaua, Franklin\n3\n2\n2\nKarl Davis\nEnquire\nview more\nOpen Home 24 Oct 2026\nBy negotiation\n7/13 Grande Vue Road, Hillpark, Manukau City\n4\n2\n1\nNarinder Dhillon\nEnquire\nview more\nDeadline sale closes 06 Nov 2026 16:00\n2/36 Elizabeth Drive, West Harbour, Waitakere City\n3\n1\n4\nFrank Liang\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n4\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n3\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heig"
     },
     "parsedTitle": {
       "saleMethod": "By negotiation",
@@ -1249,7 +1418,28 @@
         "reason": "HTTP 404"
       }
     },
-    "homesDetails": null
+    "homesDetails": null,
+    "floodHazards": [
+      {
+        "type": "overland_flow_paths",
+        "sourceFeatureId": "826729",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Overland_Flow_Paths/FeatureServer/0"
+      }
+    ],
+    "openHomes": [
+      {
+        "date": "2026-10-24",
+        "startTime": "12:00",
+        "endTime": "12:45",
+        "label": "Sat, 24 Oct, 12:00pm - 12:45pm"
+      },
+      {
+        "date": "2026-10-25",
+        "startTime": "12:00",
+        "endTime": "12:45",
+        "label": "Sun, 25 Oct, 12:00pm - 12:45pm"
+      }
+    ]
   },
   {
     "index": 10,
@@ -1257,7 +1447,7 @@
       "source": "dom",
       "title": "view more\nDeadline sale closes 06 Nov 2026 16:00\n2/36 Elizabeth Drive, West Harbour, Waitakere City\n3\n1\n4\nFrank Liang\nEnquire",
       "url": "https://www.oneroof.co.nz/property/auckland/west-harbour/2-36-elizabeth-drive/NCwgY",
-      "text": "We found over16,000 houses for sale in Auckland.\nSort by:\nFeatured\n|\nMap\nview more\nAuction 08 Nov 2026 02:30\n1/10 Harding Avenue, Mount Wellington, Auckland City\n2\n1\n1\nKevin Ratnayake\nEnquire\nview more\nBy Negotiation\n382 RAZORBACK ROAD, Pōkeno, Franklin\n6\n2\n3\nGurjit Dhindsa\nEnquire\nview more\nAuction 18 Nov 2026 13:00\n3/53 Robert Skelton Place, Clendon Park, Manukau City\n3\n1\n3\nAnu Nehra\nEnquire\nview more\nAuction 11 Nov 2026 13:30\n58A Holbrook Street, Avondale, Auckland City\n6\n4\n7\nCalvin Roche\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 11 Nov 2026 10:00\n48 Edmund Street, Saint Heliers, Auckland City\n5\n3\n6\nAaron Foss\nEnquire\nview more\nAuction 04 Nov 2026 13:00\n1A Barrie Avenue, Papatoetoe, Manukau City\n2\n1\nAmit Kumar\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 12 Nov 2026 10:00\n5 Lancelot Road, Orewa, Rodney\n3\n2\n2\nLouise Thomson\nEnquire\nview more\nOpen Home 26 Oct 2026\nAuction 26 Nov 2026 11:00\n989 East Coast Road, Kaiaua, Franklin\n3\n2\n2\nKarl Davis\nEnquire\nview more\nOpen Home 24 Oct 2026\nBy negotiation\n7/13 Grande Vue Road, Hillpark, Manukau City\n4\n2\n1\nNarinder Dhillon\nEnquire\nview more\nDeadline sale closes 06 Nov 2026 16:00\n2/36 Elizabeth Drive, West Harbour, Waitakere City\n3\n1\n4\nFrank Liang\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n4\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n3\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heig"
+      "text": "We found over16,000 houses for sale in Auckland.\nSort by:\nFeatured\n|\nMap\nview more\nAuction 08 Nov 2026 02:30\n1/10 Harding Avenue, Mount Wellington, Auckland City\n2\n1\n1\nKevin Ratnayake\nEnquire\nview more\nBy Negotiation\n382 RAZORBACK ROAD, P\u014dkeno, Franklin\n6\n2\n3\nGurjit Dhindsa\nEnquire\nview more\nAuction 18 Nov 2026 13:00\n3/53 Robert Skelton Place, Clendon Park, Manukau City\n3\n1\n3\nAnu Nehra\nEnquire\nview more\nAuction 11 Nov 2026 13:30\n58A Holbrook Street, Avondale, Auckland City\n6\n4\n7\nCalvin Roche\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 11 Nov 2026 10:00\n48 Edmund Street, Saint Heliers, Auckland City\n5\n3\n6\nAaron Foss\nEnquire\nview more\nAuction 04 Nov 2026 13:00\n1A Barrie Avenue, Papatoetoe, Manukau City\n2\n1\nAmit Kumar\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 12 Nov 2026 10:00\n5 Lancelot Road, Orewa, Rodney\n3\n2\n2\nLouise Thomson\nEnquire\nview more\nOpen Home 26 Oct 2026\nAuction 26 Nov 2026 11:00\n989 East Coast Road, Kaiaua, Franklin\n3\n2\n2\nKarl Davis\nEnquire\nview more\nOpen Home 24 Oct 2026\nBy negotiation\n7/13 Grande Vue Road, Hillpark, Manukau City\n4\n2\n1\nNarinder Dhillon\nEnquire\nview more\nDeadline sale closes 06 Nov 2026 16:00\n2/36 Elizabeth Drive, West Harbour, Waitakere City\n3\n1\n4\nFrank Liang\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n4\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n3\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heig"
     },
     "parsedTitle": {
       "saleMethod": "Deadline sale closes 06 Nov 2026 16:00",
@@ -1386,7 +1576,34 @@
         "latitude": -36.819297790527344,
         "longitude": 174.62384033203125
       }
-    }
+    },
+    "floodHazards": [
+      {
+        "type": "overland_flow_paths",
+        "sourceFeatureId": "423460",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Overland_Flow_Paths/FeatureServer/0"
+      }
+    ],
+    "openHomes": [
+      {
+        "date": "2026-10-22",
+        "startTime": "18:00",
+        "endTime": "18:30",
+        "label": "Thu, 22 Oct, 06:00pm - 06:30pm"
+      },
+      {
+        "date": "2026-10-24",
+        "startTime": "12:30",
+        "endTime": "13:00",
+        "label": "Sat, 24 Oct, 12:30pm - 01:00pm"
+      },
+      {
+        "date": "2026-10-25",
+        "startTime": "12:30",
+        "endTime": "13:00",
+        "label": "Sun, 25 Oct, 12:30pm - 01:00pm"
+      }
+    ]
   },
   {
     "index": 11,
@@ -1394,7 +1611,7 @@
       "source": "dom",
       "title": "view more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n4\n2\n1\nGazala Salmin\nEnquire",
       "url": "https://www.oneroof.co.nz/property/auckland/pakuranga-heights/10-12-wanaka-place/UwDmk",
-      "text": "We found over16,000 houses for sale in Auckland.\nSort by:\nFeatured\n|\nMap\nview more\nAuction 08 Nov 2026 02:30\n1/10 Harding Avenue, Mount Wellington, Auckland City\n2\n1\n1\nKevin Ratnayake\nEnquire\nview more\nBy Negotiation\n382 RAZORBACK ROAD, Pōkeno, Franklin\n6\n2\n3\nGurjit Dhindsa\nEnquire\nview more\nAuction 18 Nov 2026 13:00\n3/53 Robert Skelton Place, Clendon Park, Manukau City\n3\n1\n3\nAnu Nehra\nEnquire\nview more\nAuction 11 Nov 2026 13:30\n58A Holbrook Street, Avondale, Auckland City\n6\n4\n7\nCalvin Roche\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 11 Nov 2026 10:00\n48 Edmund Street, Saint Heliers, Auckland City\n5\n3\n6\nAaron Foss\nEnquire\nview more\nAuction 04 Nov 2026 13:00\n1A Barrie Avenue, Papatoetoe, Manukau City\n2\n1\nAmit Kumar\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 12 Nov 2026 10:00\n5 Lancelot Road, Orewa, Rodney\n3\n2\n2\nLouise Thomson\nEnquire\nview more\nOpen Home 26 Oct 2026\nAuction 26 Nov 2026 11:00\n989 East Coast Road, Kaiaua, Franklin\n3\n2\n2\nKarl Davis\nEnquire\nview more\nOpen Home 24 Oct 2026\nBy negotiation\n7/13 Grande Vue Road, Hillpark, Manukau City\n4\n2\n1\nNarinder Dhillon\nEnquire\nview more\nDeadline sale closes 06 Nov 2026 16:00\n2/36 Elizabeth Drive, West Harbour, Waitakere City\n3\n1\n4\nFrank Liang\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n4\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n3\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heig"
+      "text": "We found over16,000 houses for sale in Auckland.\nSort by:\nFeatured\n|\nMap\nview more\nAuction 08 Nov 2026 02:30\n1/10 Harding Avenue, Mount Wellington, Auckland City\n2\n1\n1\nKevin Ratnayake\nEnquire\nview more\nBy Negotiation\n382 RAZORBACK ROAD, P\u014dkeno, Franklin\n6\n2\n3\nGurjit Dhindsa\nEnquire\nview more\nAuction 18 Nov 2026 13:00\n3/53 Robert Skelton Place, Clendon Park, Manukau City\n3\n1\n3\nAnu Nehra\nEnquire\nview more\nAuction 11 Nov 2026 13:30\n58A Holbrook Street, Avondale, Auckland City\n6\n4\n7\nCalvin Roche\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 11 Nov 2026 10:00\n48 Edmund Street, Saint Heliers, Auckland City\n5\n3\n6\nAaron Foss\nEnquire\nview more\nAuction 04 Nov 2026 13:00\n1A Barrie Avenue, Papatoetoe, Manukau City\n2\n1\nAmit Kumar\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 12 Nov 2026 10:00\n5 Lancelot Road, Orewa, Rodney\n3\n2\n2\nLouise Thomson\nEnquire\nview more\nOpen Home 26 Oct 2026\nAuction 26 Nov 2026 11:00\n989 East Coast Road, Kaiaua, Franklin\n3\n2\n2\nKarl Davis\nEnquire\nview more\nOpen Home 24 Oct 2026\nBy negotiation\n7/13 Grande Vue Road, Hillpark, Manukau City\n4\n2\n1\nNarinder Dhillon\nEnquire\nview more\nDeadline sale closes 06 Nov 2026 16:00\n2/36 Elizabeth Drive, West Harbour, Waitakere City\n3\n1\n4\nFrank Liang\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n4\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n3\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heig"
     },
     "parsedTitle": {
       "saleMethod": "By Negotiation",
@@ -1449,12 +1666,12 @@
       "saleMethod": "By Negotiation"
     },
     "linz": {
-      "addressId": 688544,
-      "fullAddress": "10 Wanaka Place, Glenview, Hamilton",
-      "latitude": -37.82091053237752,
-      "longitude": 175.29026483331972,
-      "suburb": "Glenview",
-      "city": "Hamilton"
+      "addressId": 1224590,
+      "fullAddress": "10 Wanaka Place, Pakuranga Heights, Auckland",
+      "latitude": -36.92264126579,
+      "longitude": 174.888560633307,
+      "suburb": "Pakuranga Heights",
+      "city": "Auckland"
     },
     "propValuesSources": {
       "RealEstate": {
@@ -1478,7 +1695,15 @@
         "reason": "HTTP 404"
       }
     },
-    "homesDetails": null
+    "homesDetails": null,
+    "floodHazards": [
+      {
+        "type": "overland_flow_paths",
+        "sourceFeatureId": "203856",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Overland_Flow_Paths/FeatureServer/0"
+      }
+    ],
+    "openHomes": []
   },
   {
     "index": 12,
@@ -1486,7 +1711,7 @@
       "source": "dom",
       "title": "view more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n3\n2\n1\nGazala Salmin\nEnquire",
       "url": "https://www.oneroof.co.nz/property/auckland/pakuranga-heights/10-12-wanaka-place/7xgYL",
-      "text": "We found over16,000 houses for sale in Auckland.\nSort by:\nFeatured\n|\nMap\nview more\nAuction 08 Nov 2026 02:30\n1/10 Harding Avenue, Mount Wellington, Auckland City\n2\n1\n1\nKevin Ratnayake\nEnquire\nview more\nBy Negotiation\n382 RAZORBACK ROAD, Pōkeno, Franklin\n6\n2\n3\nGurjit Dhindsa\nEnquire\nview more\nAuction 18 Nov 2026 13:00\n3/53 Robert Skelton Place, Clendon Park, Manukau City\n3\n1\n3\nAnu Nehra\nEnquire\nview more\nAuction 11 Nov 2026 13:30\n58A Holbrook Street, Avondale, Auckland City\n6\n4\n7\nCalvin Roche\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 11 Nov 2026 10:00\n48 Edmund Street, Saint Heliers, Auckland City\n5\n3\n6\nAaron Foss\nEnquire\nview more\nAuction 04 Nov 2026 13:00\n1A Barrie Avenue, Papatoetoe, Manukau City\n2\n1\nAmit Kumar\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 12 Nov 2026 10:00\n5 Lancelot Road, Orewa, Rodney\n3\n2\n2\nLouise Thomson\nEnquire\nview more\nOpen Home 26 Oct 2026\nAuction 26 Nov 2026 11:00\n989 East Coast Road, Kaiaua, Franklin\n3\n2\n2\nKarl Davis\nEnquire\nview more\nOpen Home 24 Oct 2026\nBy negotiation\n7/13 Grande Vue Road, Hillpark, Manukau City\n4\n2\n1\nNarinder Dhillon\nEnquire\nview more\nDeadline sale closes 06 Nov 2026 16:00\n2/36 Elizabeth Drive, West Harbour, Waitakere City\n3\n1\n4\nFrank Liang\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n4\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n3\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heig"
+      "text": "We found over16,000 houses for sale in Auckland.\nSort by:\nFeatured\n|\nMap\nview more\nAuction 08 Nov 2026 02:30\n1/10 Harding Avenue, Mount Wellington, Auckland City\n2\n1\n1\nKevin Ratnayake\nEnquire\nview more\nBy Negotiation\n382 RAZORBACK ROAD, P\u014dkeno, Franklin\n6\n2\n3\nGurjit Dhindsa\nEnquire\nview more\nAuction 18 Nov 2026 13:00\n3/53 Robert Skelton Place, Clendon Park, Manukau City\n3\n1\n3\nAnu Nehra\nEnquire\nview more\nAuction 11 Nov 2026 13:30\n58A Holbrook Street, Avondale, Auckland City\n6\n4\n7\nCalvin Roche\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 11 Nov 2026 10:00\n48 Edmund Street, Saint Heliers, Auckland City\n5\n3\n6\nAaron Foss\nEnquire\nview more\nAuction 04 Nov 2026 13:00\n1A Barrie Avenue, Papatoetoe, Manukau City\n2\n1\nAmit Kumar\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 12 Nov 2026 10:00\n5 Lancelot Road, Orewa, Rodney\n3\n2\n2\nLouise Thomson\nEnquire\nview more\nOpen Home 26 Oct 2026\nAuction 26 Nov 2026 11:00\n989 East Coast Road, Kaiaua, Franklin\n3\n2\n2\nKarl Davis\nEnquire\nview more\nOpen Home 24 Oct 2026\nBy negotiation\n7/13 Grande Vue Road, Hillpark, Manukau City\n4\n2\n1\nNarinder Dhillon\nEnquire\nview more\nDeadline sale closes 06 Nov 2026 16:00\n2/36 Elizabeth Drive, West Harbour, Waitakere City\n3\n1\n4\nFrank Liang\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n4\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n3\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heig"
     },
     "parsedTitle": {
       "saleMethod": "By Negotiation",
@@ -1541,12 +1766,12 @@
       "saleMethod": "By Negotiation"
     },
     "linz": {
-      "addressId": 688544,
-      "fullAddress": "10 Wanaka Place, Glenview, Hamilton",
-      "latitude": -37.82091053237752,
-      "longitude": 175.29026483331972,
-      "suburb": "Glenview",
-      "city": "Hamilton"
+      "addressId": 1224590,
+      "fullAddress": "10 Wanaka Place, Pakuranga Heights, Auckland",
+      "latitude": -36.92264126579,
+      "longitude": 174.888560633307,
+      "suburb": "Pakuranga Heights",
+      "city": "Auckland"
     },
     "propValuesSources": {
       "RealEstate": {
@@ -1570,7 +1795,15 @@
         "reason": "HTTP 404"
       }
     },
-    "homesDetails": null
+    "homesDetails": null,
+    "floodHazards": [
+      {
+        "type": "overland_flow_paths",
+        "sourceFeatureId": "203856",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Overland_Flow_Paths/FeatureServer/0"
+      }
+    ],
+    "openHomes": []
   },
   {
     "index": 13,
@@ -1578,7 +1811,7 @@
       "source": "dom",
       "title": "view more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n2\n2\n1\nGazala Salmin\nEnquire",
       "url": "https://www.oneroof.co.nz/property/auckland/pakuranga-heights/10-12-wanaka-place/qsM26",
-      "text": "We found over16,000 houses for sale in Auckland.\nSort by:\nFeatured\n|\nMap\nview more\nAuction 08 Nov 2026 02:30\n1/10 Harding Avenue, Mount Wellington, Auckland City\n2\n1\n1\nKevin Ratnayake\nEnquire\nview more\nBy Negotiation\n382 RAZORBACK ROAD, Pōkeno, Franklin\n6\n2\n3\nGurjit Dhindsa\nEnquire\nview more\nAuction 18 Nov 2026 13:00\n3/53 Robert Skelton Place, Clendon Park, Manukau City\n3\n1\n3\nAnu Nehra\nEnquire\nview more\nAuction 11 Nov 2026 13:30\n58A Holbrook Street, Avondale, Auckland City\n6\n4\n7\nCalvin Roche\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 11 Nov 2026 10:00\n48 Edmund Street, Saint Heliers, Auckland City\n5\n3\n6\nAaron Foss\nEnquire\nview more\nAuction 04 Nov 2026 13:00\n1A Barrie Avenue, Papatoetoe, Manukau City\n2\n1\nAmit Kumar\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 12 Nov 2026 10:00\n5 Lancelot Road, Orewa, Rodney\n3\n2\n2\nLouise Thomson\nEnquire\nview more\nOpen Home 26 Oct 2026\nAuction 26 Nov 2026 11:00\n989 East Coast Road, Kaiaua, Franklin\n3\n2\n2\nKarl Davis\nEnquire\nview more\nOpen Home 24 Oct 2026\nBy negotiation\n7/13 Grande Vue Road, Hillpark, Manukau City\n4\n2\n1\nNarinder Dhillon\nEnquire\nview more\nDeadline sale closes 06 Nov 2026 16:00\n2/36 Elizabeth Drive, West Harbour, Waitakere City\n3\n1\n4\nFrank Liang\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n4\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n3\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heig"
+      "text": "We found over16,000 houses for sale in Auckland.\nSort by:\nFeatured\n|\nMap\nview more\nAuction 08 Nov 2026 02:30\n1/10 Harding Avenue, Mount Wellington, Auckland City\n2\n1\n1\nKevin Ratnayake\nEnquire\nview more\nBy Negotiation\n382 RAZORBACK ROAD, P\u014dkeno, Franklin\n6\n2\n3\nGurjit Dhindsa\nEnquire\nview more\nAuction 18 Nov 2026 13:00\n3/53 Robert Skelton Place, Clendon Park, Manukau City\n3\n1\n3\nAnu Nehra\nEnquire\nview more\nAuction 11 Nov 2026 13:30\n58A Holbrook Street, Avondale, Auckland City\n6\n4\n7\nCalvin Roche\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 11 Nov 2026 10:00\n48 Edmund Street, Saint Heliers, Auckland City\n5\n3\n6\nAaron Foss\nEnquire\nview more\nAuction 04 Nov 2026 13:00\n1A Barrie Avenue, Papatoetoe, Manukau City\n2\n1\nAmit Kumar\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 12 Nov 2026 10:00\n5 Lancelot Road, Orewa, Rodney\n3\n2\n2\nLouise Thomson\nEnquire\nview more\nOpen Home 26 Oct 2026\nAuction 26 Nov 2026 11:00\n989 East Coast Road, Kaiaua, Franklin\n3\n2\n2\nKarl Davis\nEnquire\nview more\nOpen Home 24 Oct 2026\nBy negotiation\n7/13 Grande Vue Road, Hillpark, Manukau City\n4\n2\n1\nNarinder Dhillon\nEnquire\nview more\nDeadline sale closes 06 Nov 2026 16:00\n2/36 Elizabeth Drive, West Harbour, Waitakere City\n3\n1\n4\nFrank Liang\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n4\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n3\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heig"
     },
     "parsedTitle": {
       "saleMethod": "By Negotiation",
@@ -1633,12 +1866,12 @@
       "saleMethod": "By Negotiation"
     },
     "linz": {
-      "addressId": 688544,
-      "fullAddress": "10 Wanaka Place, Glenview, Hamilton",
-      "latitude": -37.82091053237752,
-      "longitude": 175.29026483331972,
-      "suburb": "Glenview",
-      "city": "Hamilton"
+      "addressId": 1224590,
+      "fullAddress": "10 Wanaka Place, Pakuranga Heights, Auckland",
+      "latitude": -36.92264126579,
+      "longitude": 174.888560633307,
+      "suburb": "Pakuranga Heights",
+      "city": "Auckland"
     },
     "propValuesSources": {
       "RealEstate": {
@@ -1662,7 +1895,15 @@
         "reason": "HTTP 404"
       }
     },
-    "homesDetails": null
+    "homesDetails": null,
+    "floodHazards": [
+      {
+        "type": "overland_flow_paths",
+        "sourceFeatureId": "203856",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Overland_Flow_Paths/FeatureServer/0"
+      }
+    ],
+    "openHomes": []
   },
   {
     "index": 14,
@@ -1670,7 +1911,7 @@
       "source": "dom",
       "title": "view more\nOpen Home 24 Oct 2026\nAuction 04 Nov 2026 11:00\n1 Donzella Place, Conifer Grove, Papakura\n4\n2\n6\nHeather Obern\nEnquire",
       "url": "https://www.oneroof.co.nz/property/auckland/conifer-grove/1-donzella-place/vzMMT",
-      "text": "We found over16,000 houses for sale in Auckland.\nSort by:\nFeatured\n|\nMap\nview more\nAuction 08 Nov 2026 02:30\n1/10 Harding Avenue, Mount Wellington, Auckland City\n2\n1\n1\nKevin Ratnayake\nEnquire\nview more\nBy Negotiation\n382 RAZORBACK ROAD, Pōkeno, Franklin\n6\n2\n3\nGurjit Dhindsa\nEnquire\nview more\nAuction 18 Nov 2026 13:00\n3/53 Robert Skelton Place, Clendon Park, Manukau City\n3\n1\n3\nAnu Nehra\nEnquire\nview more\nAuction 11 Nov 2026 13:30\n58A Holbrook Street, Avondale, Auckland City\n6\n4\n7\nCalvin Roche\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 11 Nov 2026 10:00\n48 Edmund Street, Saint Heliers, Auckland City\n5\n3\n6\nAaron Foss\nEnquire\nview more\nAuction 04 Nov 2026 13:00\n1A Barrie Avenue, Papatoetoe, Manukau City\n2\n1\nAmit Kumar\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 12 Nov 2026 10:00\n5 Lancelot Road, Orewa, Rodney\n3\n2\n2\nLouise Thomson\nEnquire\nview more\nOpen Home 26 Oct 2026\nAuction 26 Nov 2026 11:00\n989 East Coast Road, Kaiaua, Franklin\n3\n2\n2\nKarl Davis\nEnquire\nview more\nOpen Home 24 Oct 2026\nBy negotiation\n7/13 Grande Vue Road, Hillpark, Manukau City\n4\n2\n1\nNarinder Dhillon\nEnquire\nview more\nDeadline sale closes 06 Nov 2026 16:00\n2/36 Elizabeth Drive, West Harbour, Waitakere City\n3\n1\n4\nFrank Liang\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n4\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n3\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heig"
+      "text": "We found over16,000 houses for sale in Auckland.\nSort by:\nFeatured\n|\nMap\nview more\nAuction 08 Nov 2026 02:30\n1/10 Harding Avenue, Mount Wellington, Auckland City\n2\n1\n1\nKevin Ratnayake\nEnquire\nview more\nBy Negotiation\n382 RAZORBACK ROAD, P\u014dkeno, Franklin\n6\n2\n3\nGurjit Dhindsa\nEnquire\nview more\nAuction 18 Nov 2026 13:00\n3/53 Robert Skelton Place, Clendon Park, Manukau City\n3\n1\n3\nAnu Nehra\nEnquire\nview more\nAuction 11 Nov 2026 13:30\n58A Holbrook Street, Avondale, Auckland City\n6\n4\n7\nCalvin Roche\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 11 Nov 2026 10:00\n48 Edmund Street, Saint Heliers, Auckland City\n5\n3\n6\nAaron Foss\nEnquire\nview more\nAuction 04 Nov 2026 13:00\n1A Barrie Avenue, Papatoetoe, Manukau City\n2\n1\nAmit Kumar\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 12 Nov 2026 10:00\n5 Lancelot Road, Orewa, Rodney\n3\n2\n2\nLouise Thomson\nEnquire\nview more\nOpen Home 26 Oct 2026\nAuction 26 Nov 2026 11:00\n989 East Coast Road, Kaiaua, Franklin\n3\n2\n2\nKarl Davis\nEnquire\nview more\nOpen Home 24 Oct 2026\nBy negotiation\n7/13 Grande Vue Road, Hillpark, Manukau City\n4\n2\n1\nNarinder Dhillon\nEnquire\nview more\nDeadline sale closes 06 Nov 2026 16:00\n2/36 Elizabeth Drive, West Harbour, Waitakere City\n3\n1\n4\nFrank Liang\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n4\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n3\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heig"
     },
     "parsedTitle": {
       "saleMethod": "Auction 04 Nov 2026 11:00",
@@ -1870,7 +2111,50 @@
         "latitude": -37.048362731933594,
         "longitude": 174.90902709960938
       }
-    }
+    },
+    "floodHazards": [
+      {
+        "type": "flood_plains",
+        "sourceFeatureId": "1110",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Flood_Plains/FeatureServer/0"
+      },
+      {
+        "type": "flood_prone_areas",
+        "sourceFeatureId": "27498",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Flood_Prone_Areas/FeatureServer/0"
+      },
+      {
+        "type": "overland_flow_paths",
+        "sourceFeatureId": "315654",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Overland_Flow_Paths/FeatureServer/0"
+      }
+    ],
+    "openHomes": [
+      {
+        "date": "2026-10-24",
+        "startTime": "14:00",
+        "endTime": "14:30",
+        "label": "Sat, 24 Oct, 02:00pm - 02:30pm"
+      },
+      {
+        "date": "2026-10-25",
+        "startTime": "14:00",
+        "endTime": "14:30",
+        "label": "Sun, 25 Oct, 02:00pm - 02:30pm"
+      },
+      {
+        "date": "2026-10-31",
+        "startTime": "14:00",
+        "endTime": "14:30",
+        "label": "Sat, 31 Oct, 02:00pm - 02:30pm"
+      },
+      {
+        "date": "2026-11-01",
+        "startTime": "14:00",
+        "endTime": "14:30",
+        "label": "Sun, 1 Nov, 02:00pm - 02:30pm"
+      }
+    ]
   },
   {
     "index": 15,
@@ -1878,7 +2162,7 @@
       "source": "dom",
       "title": "view more\nOpen Home 24 Oct 2026\nAuction 10 Nov 2026 16:00\n47A Boakes Road, Mount Wellington, Auckland City\n3\n2\n2\nBenjamin Neal\nEnquire",
       "url": "https://www.oneroof.co.nz/property/auckland/mount-wellington/47a-boakes-road/PJUeC",
-      "text": "We found over16,000 houses for sale in Auckland.\nSort by:\nFeatured\n|\nMap\nview more\nAuction 08 Nov 2026 02:30\n1/10 Harding Avenue, Mount Wellington, Auckland City\n2\n1\n1\nKevin Ratnayake\nEnquire\nview more\nBy Negotiation\n382 RAZORBACK ROAD, Pōkeno, Franklin\n6\n2\n3\nGurjit Dhindsa\nEnquire\nview more\nAuction 18 Nov 2026 13:00\n3/53 Robert Skelton Place, Clendon Park, Manukau City\n3\n1\n3\nAnu Nehra\nEnquire\nview more\nAuction 11 Nov 2026 13:30\n58A Holbrook Street, Avondale, Auckland City\n6\n4\n7\nCalvin Roche\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 11 Nov 2026 10:00\n48 Edmund Street, Saint Heliers, Auckland City\n5\n3\n6\nAaron Foss\nEnquire\nview more\nAuction 04 Nov 2026 13:00\n1A Barrie Avenue, Papatoetoe, Manukau City\n2\n1\nAmit Kumar\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 12 Nov 2026 10:00\n5 Lancelot Road, Orewa, Rodney\n3\n2\n2\nLouise Thomson\nEnquire\nview more\nOpen Home 26 Oct 2026\nAuction 26 Nov 2026 11:00\n989 East Coast Road, Kaiaua, Franklin\n3\n2\n2\nKarl Davis\nEnquire\nview more\nOpen Home 24 Oct 2026\nBy negotiation\n7/13 Grande Vue Road, Hillpark, Manukau City\n4\n2\n1\nNarinder Dhillon\nEnquire\nview more\nDeadline sale closes 06 Nov 2026 16:00\n2/36 Elizabeth Drive, West Harbour, Waitakere City\n3\n1\n4\nFrank Liang\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n4\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n3\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heig"
+      "text": "We found over16,000 houses for sale in Auckland.\nSort by:\nFeatured\n|\nMap\nview more\nAuction 08 Nov 2026 02:30\n1/10 Harding Avenue, Mount Wellington, Auckland City\n2\n1\n1\nKevin Ratnayake\nEnquire\nview more\nBy Negotiation\n382 RAZORBACK ROAD, P\u014dkeno, Franklin\n6\n2\n3\nGurjit Dhindsa\nEnquire\nview more\nAuction 18 Nov 2026 13:00\n3/53 Robert Skelton Place, Clendon Park, Manukau City\n3\n1\n3\nAnu Nehra\nEnquire\nview more\nAuction 11 Nov 2026 13:30\n58A Holbrook Street, Avondale, Auckland City\n6\n4\n7\nCalvin Roche\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 11 Nov 2026 10:00\n48 Edmund Street, Saint Heliers, Auckland City\n5\n3\n6\nAaron Foss\nEnquire\nview more\nAuction 04 Nov 2026 13:00\n1A Barrie Avenue, Papatoetoe, Manukau City\n2\n1\nAmit Kumar\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 12 Nov 2026 10:00\n5 Lancelot Road, Orewa, Rodney\n3\n2\n2\nLouise Thomson\nEnquire\nview more\nOpen Home 26 Oct 2026\nAuction 26 Nov 2026 11:00\n989 East Coast Road, Kaiaua, Franklin\n3\n2\n2\nKarl Davis\nEnquire\nview more\nOpen Home 24 Oct 2026\nBy negotiation\n7/13 Grande Vue Road, Hillpark, Manukau City\n4\n2\n1\nNarinder Dhillon\nEnquire\nview more\nDeadline sale closes 06 Nov 2026 16:00\n2/36 Elizabeth Drive, West Harbour, Waitakere City\n3\n1\n4\nFrank Liang\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n4\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n3\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heig"
     },
     "parsedTitle": {
       "saleMethod": "Auction 10 Nov 2026 16:00",
@@ -1903,7 +2187,7 @@
       "landArea": 323,
       "propertyType": "Residential for sale",
       "teaser": "Modern Comfort in a Location You'll Love!",
-      "description": "Modern Comfort in a Location You’ll Love!",
+      "description": "Modern Comfort in a Location You\u2019ll Love!",
       "heroCover": "https://s.oneroof.co.nz/image/9a/01/9a0168ca52acd05f60736ce7377d459f.jpg?x-oss-process=image/quality,q_80",
       "images": [
         "https://s.oneroof.co.nz/image/c5/f7/c5f742e8b4b3936a31c9ce0c01a5db16.jpg?x-oss-process=image%2Fquality%2Cq_100%2Fresize%2Cw_1200",
@@ -2008,7 +2292,22 @@
         "latitude": -36.90226745605469,
         "longitude": 174.83355712890625
       }
-    }
+    },
+    "floodHazards": [],
+    "openHomes": [
+      {
+        "date": "2026-10-24",
+        "startTime": "12:00",
+        "endTime": "12:30",
+        "label": "Sat, 24 Oct, 12:00pm - 12:30pm"
+      },
+      {
+        "date": "2026-10-25",
+        "startTime": "12:00",
+        "endTime": "12:30",
+        "label": "Sun, 25 Oct, 12:00pm - 12:30pm"
+      }
+    ]
   },
   {
     "index": 16,
@@ -2016,7 +2315,7 @@
       "source": "dom",
       "title": "view more\nOpen Home 24 Oct 2026\nAuction 12 Nov 2026 12:00\n7 Tamahere Drive, Glenfield, North Shore City\n3\n1\n2\nChong Li\nEnquire",
       "url": "https://www.oneroof.co.nz/property/auckland/glenfield/7-tamahere-drive/uJPUy",
-      "text": "We found over16,000 houses for sale in Auckland.\nSort by:\nFeatured\n|\nMap\nview more\nAuction 08 Nov 2026 02:30\n1/10 Harding Avenue, Mount Wellington, Auckland City\n2\n1\n1\nKevin Ratnayake\nEnquire\nview more\nBy Negotiation\n382 RAZORBACK ROAD, Pōkeno, Franklin\n6\n2\n3\nGurjit Dhindsa\nEnquire\nview more\nAuction 18 Nov 2026 13:00\n3/53 Robert Skelton Place, Clendon Park, Manukau City\n3\n1\n3\nAnu Nehra\nEnquire\nview more\nAuction 11 Nov 2026 13:30\n58A Holbrook Street, Avondale, Auckland City\n6\n4\n7\nCalvin Roche\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 11 Nov 2026 10:00\n48 Edmund Street, Saint Heliers, Auckland City\n5\n3\n6\nAaron Foss\nEnquire\nview more\nAuction 04 Nov 2026 13:00\n1A Barrie Avenue, Papatoetoe, Manukau City\n2\n1\nAmit Kumar\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 12 Nov 2026 10:00\n5 Lancelot Road, Orewa, Rodney\n3\n2\n2\nLouise Thomson\nEnquire\nview more\nOpen Home 26 Oct 2026\nAuction 26 Nov 2026 11:00\n989 East Coast Road, Kaiaua, Franklin\n3\n2\n2\nKarl Davis\nEnquire\nview more\nOpen Home 24 Oct 2026\nBy negotiation\n7/13 Grande Vue Road, Hillpark, Manukau City\n4\n2\n1\nNarinder Dhillon\nEnquire\nview more\nDeadline sale closes 06 Nov 2026 16:00\n2/36 Elizabeth Drive, West Harbour, Waitakere City\n3\n1\n4\nFrank Liang\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n4\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n3\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heig"
+      "text": "We found over16,000 houses for sale in Auckland.\nSort by:\nFeatured\n|\nMap\nview more\nAuction 08 Nov 2026 02:30\n1/10 Harding Avenue, Mount Wellington, Auckland City\n2\n1\n1\nKevin Ratnayake\nEnquire\nview more\nBy Negotiation\n382 RAZORBACK ROAD, P\u014dkeno, Franklin\n6\n2\n3\nGurjit Dhindsa\nEnquire\nview more\nAuction 18 Nov 2026 13:00\n3/53 Robert Skelton Place, Clendon Park, Manukau City\n3\n1\n3\nAnu Nehra\nEnquire\nview more\nAuction 11 Nov 2026 13:30\n58A Holbrook Street, Avondale, Auckland City\n6\n4\n7\nCalvin Roche\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 11 Nov 2026 10:00\n48 Edmund Street, Saint Heliers, Auckland City\n5\n3\n6\nAaron Foss\nEnquire\nview more\nAuction 04 Nov 2026 13:00\n1A Barrie Avenue, Papatoetoe, Manukau City\n2\n1\nAmit Kumar\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 12 Nov 2026 10:00\n5 Lancelot Road, Orewa, Rodney\n3\n2\n2\nLouise Thomson\nEnquire\nview more\nOpen Home 26 Oct 2026\nAuction 26 Nov 2026 11:00\n989 East Coast Road, Kaiaua, Franklin\n3\n2\n2\nKarl Davis\nEnquire\nview more\nOpen Home 24 Oct 2026\nBy negotiation\n7/13 Grande Vue Road, Hillpark, Manukau City\n4\n2\n1\nNarinder Dhillon\nEnquire\nview more\nDeadline sale closes 06 Nov 2026 16:00\n2/36 Elizabeth Drive, West Harbour, Waitakere City\n3\n1\n4\nFrank Liang\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n4\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n3\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heig"
     },
     "parsedTitle": {
       "saleMethod": "Auction 12 Nov 2026 12:00",
@@ -2142,7 +2441,28 @@
         "latitude": -36.788063049316406,
         "longitude": 174.7109375
       }
-    }
+    },
+    "floodHazards": [
+      {
+        "type": "overland_flow_paths",
+        "sourceFeatureId": "1075962",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Overland_Flow_Paths/FeatureServer/0"
+      }
+    ],
+    "openHomes": [
+      {
+        "date": "2026-10-24",
+        "startTime": "11:00",
+        "endTime": "11:30",
+        "label": "Sat, 24 Oct, 11:00am - 11:30am"
+      },
+      {
+        "date": "2026-10-25",
+        "startTime": "11:00",
+        "endTime": "11:30",
+        "label": "Sun, 25 Oct, 11:00am - 11:30am"
+      }
+    ]
   },
   {
     "index": 17,
@@ -2150,7 +2470,7 @@
       "source": "dom",
       "title": "view more\nOpen Home 24 Oct 2026\nAuction 11 Nov 2026 10:00\n10 Glenalmond Road, Mount Eden, Auckland City\n4\n3\n1\nAaron Telfar\nEnquire",
       "url": "https://www.oneroof.co.nz/property/auckland/mount-eden/10-glenalmond-road/NsHfu",
-      "text": "We found over16,000 houses for sale in Auckland.\nSort by:\nFeatured\n|\nMap\nview more\nAuction 08 Nov 2026 02:30\n1/10 Harding Avenue, Mount Wellington, Auckland City\n2\n1\n1\nKevin Ratnayake\nEnquire\nview more\nBy Negotiation\n382 RAZORBACK ROAD, Pōkeno, Franklin\n6\n2\n3\nGurjit Dhindsa\nEnquire\nview more\nAuction 18 Nov 2026 13:00\n3/53 Robert Skelton Place, Clendon Park, Manukau City\n3\n1\n3\nAnu Nehra\nEnquire\nview more\nAuction 11 Nov 2026 13:30\n58A Holbrook Street, Avondale, Auckland City\n6\n4\n7\nCalvin Roche\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 11 Nov 2026 10:00\n48 Edmund Street, Saint Heliers, Auckland City\n5\n3\n6\nAaron Foss\nEnquire\nview more\nAuction 04 Nov 2026 13:00\n1A Barrie Avenue, Papatoetoe, Manukau City\n2\n1\nAmit Kumar\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 12 Nov 2026 10:00\n5 Lancelot Road, Orewa, Rodney\n3\n2\n2\nLouise Thomson\nEnquire\nview more\nOpen Home 26 Oct 2026\nAuction 26 Nov 2026 11:00\n989 East Coast Road, Kaiaua, Franklin\n3\n2\n2\nKarl Davis\nEnquire\nview more\nOpen Home 24 Oct 2026\nBy negotiation\n7/13 Grande Vue Road, Hillpark, Manukau City\n4\n2\n1\nNarinder Dhillon\nEnquire\nview more\nDeadline sale closes 06 Nov 2026 16:00\n2/36 Elizabeth Drive, West Harbour, Waitakere City\n3\n1\n4\nFrank Liang\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n4\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n3\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heig"
+      "text": "We found over16,000 houses for sale in Auckland.\nSort by:\nFeatured\n|\nMap\nview more\nAuction 08 Nov 2026 02:30\n1/10 Harding Avenue, Mount Wellington, Auckland City\n2\n1\n1\nKevin Ratnayake\nEnquire\nview more\nBy Negotiation\n382 RAZORBACK ROAD, P\u014dkeno, Franklin\n6\n2\n3\nGurjit Dhindsa\nEnquire\nview more\nAuction 18 Nov 2026 13:00\n3/53 Robert Skelton Place, Clendon Park, Manukau City\n3\n1\n3\nAnu Nehra\nEnquire\nview more\nAuction 11 Nov 2026 13:30\n58A Holbrook Street, Avondale, Auckland City\n6\n4\n7\nCalvin Roche\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 11 Nov 2026 10:00\n48 Edmund Street, Saint Heliers, Auckland City\n5\n3\n6\nAaron Foss\nEnquire\nview more\nAuction 04 Nov 2026 13:00\n1A Barrie Avenue, Papatoetoe, Manukau City\n2\n1\nAmit Kumar\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 12 Nov 2026 10:00\n5 Lancelot Road, Orewa, Rodney\n3\n2\n2\nLouise Thomson\nEnquire\nview more\nOpen Home 26 Oct 2026\nAuction 26 Nov 2026 11:00\n989 East Coast Road, Kaiaua, Franklin\n3\n2\n2\nKarl Davis\nEnquire\nview more\nOpen Home 24 Oct 2026\nBy negotiation\n7/13 Grande Vue Road, Hillpark, Manukau City\n4\n2\n1\nNarinder Dhillon\nEnquire\nview more\nDeadline sale closes 06 Nov 2026 16:00\n2/36 Elizabeth Drive, West Harbour, Waitakere City\n3\n1\n4\nFrank Liang\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n4\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n3\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heig"
     },
     "parsedTitle": {
       "saleMethod": "Auction 11 Nov 2026 10:00",
@@ -2331,7 +2651,58 @@
         "latitude": -36.89295959472656,
         "longitude": 174.76052856445312
       }
-    }
+    },
+    "floodHazards": [
+      {
+        "type": "overland_flow_paths",
+        "sourceFeatureId": "923082",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Overland_Flow_Paths/FeatureServer/0"
+      }
+    ],
+    "openHomes": [
+      {
+        "date": "2026-10-22",
+        "startTime": "17:15",
+        "endTime": "18:00",
+        "label": "Thu, 22 Oct, 05:15pm - 06:00pm"
+      },
+      {
+        "date": "2026-10-24",
+        "startTime": "14:00",
+        "endTime": "14:30",
+        "label": "Sat, 24 Oct, 02:00pm - 02:30pm"
+      },
+      {
+        "date": "2026-10-25",
+        "startTime": "14:00",
+        "endTime": "14:30",
+        "label": "Sun, 25 Oct, 02:00pm - 02:30pm"
+      },
+      {
+        "date": "2026-10-31",
+        "startTime": "14:00",
+        "endTime": "14:30",
+        "label": "Sat, 31 Oct, 02:00pm - 02:30pm"
+      },
+      {
+        "date": "2026-11-01",
+        "startTime": "14:00",
+        "endTime": "14:30",
+        "label": "Sun, 1 Nov, 02:00pm - 02:30pm"
+      },
+      {
+        "date": "2026-11-07",
+        "startTime": "14:00",
+        "endTime": "14:30",
+        "label": "Sat, 7 Nov, 02:00pm - 02:30pm"
+      },
+      {
+        "date": "2026-11-08",
+        "startTime": "14:00",
+        "endTime": "14:30",
+        "label": "Sun, 8 Nov, 02:00pm - 02:30pm"
+      }
+    ]
   },
   {
     "index": 18,
@@ -2339,7 +2710,7 @@
       "source": "dom",
       "title": "view more\nBy negotiation\n63C Arawa Street, New Lynn, Waitakere City\n3\n3\n1\nSteven Xu\nEnquire",
       "url": "https://www.oneroof.co.nz/property/auckland/new-lynn/63c-arawa-street/LOzGA",
-      "text": "We found over16,000 houses for sale in Auckland.\nSort by:\nFeatured\n|\nMap\nview more\nAuction 08 Nov 2026 02:30\n1/10 Harding Avenue, Mount Wellington, Auckland City\n2\n1\n1\nKevin Ratnayake\nEnquire\nview more\nBy Negotiation\n382 RAZORBACK ROAD, Pōkeno, Franklin\n6\n2\n3\nGurjit Dhindsa\nEnquire\nview more\nAuction 18 Nov 2026 13:00\n3/53 Robert Skelton Place, Clendon Park, Manukau City\n3\n1\n3\nAnu Nehra\nEnquire\nview more\nAuction 11 Nov 2026 13:30\n58A Holbrook Street, Avondale, Auckland City\n6\n4\n7\nCalvin Roche\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 11 Nov 2026 10:00\n48 Edmund Street, Saint Heliers, Auckland City\n5\n3\n6\nAaron Foss\nEnquire\nview more\nAuction 04 Nov 2026 13:00\n1A Barrie Avenue, Papatoetoe, Manukau City\n2\n1\nAmit Kumar\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 12 Nov 2026 10:00\n5 Lancelot Road, Orewa, Rodney\n3\n2\n2\nLouise Thomson\nEnquire\nview more\nOpen Home 26 Oct 2026\nAuction 26 Nov 2026 11:00\n989 East Coast Road, Kaiaua, Franklin\n3\n2\n2\nKarl Davis\nEnquire\nview more\nOpen Home 24 Oct 2026\nBy negotiation\n7/13 Grande Vue Road, Hillpark, Manukau City\n4\n2\n1\nNarinder Dhillon\nEnquire\nview more\nDeadline sale closes 06 Nov 2026 16:00\n2/36 Elizabeth Drive, West Harbour, Waitakere City\n3\n1\n4\nFrank Liang\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n4\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n3\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heig"
+      "text": "We found over16,000 houses for sale in Auckland.\nSort by:\nFeatured\n|\nMap\nview more\nAuction 08 Nov 2026 02:30\n1/10 Harding Avenue, Mount Wellington, Auckland City\n2\n1\n1\nKevin Ratnayake\nEnquire\nview more\nBy Negotiation\n382 RAZORBACK ROAD, P\u014dkeno, Franklin\n6\n2\n3\nGurjit Dhindsa\nEnquire\nview more\nAuction 18 Nov 2026 13:00\n3/53 Robert Skelton Place, Clendon Park, Manukau City\n3\n1\n3\nAnu Nehra\nEnquire\nview more\nAuction 11 Nov 2026 13:30\n58A Holbrook Street, Avondale, Auckland City\n6\n4\n7\nCalvin Roche\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 11 Nov 2026 10:00\n48 Edmund Street, Saint Heliers, Auckland City\n5\n3\n6\nAaron Foss\nEnquire\nview more\nAuction 04 Nov 2026 13:00\n1A Barrie Avenue, Papatoetoe, Manukau City\n2\n1\nAmit Kumar\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 12 Nov 2026 10:00\n5 Lancelot Road, Orewa, Rodney\n3\n2\n2\nLouise Thomson\nEnquire\nview more\nOpen Home 26 Oct 2026\nAuction 26 Nov 2026 11:00\n989 East Coast Road, Kaiaua, Franklin\n3\n2\n2\nKarl Davis\nEnquire\nview more\nOpen Home 24 Oct 2026\nBy negotiation\n7/13 Grande Vue Road, Hillpark, Manukau City\n4\n2\n1\nNarinder Dhillon\nEnquire\nview more\nDeadline sale closes 06 Nov 2026 16:00\n2/36 Elizabeth Drive, West Harbour, Waitakere City\n3\n1\n4\nFrank Liang\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n4\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n3\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heig"
     },
     "parsedTitle": {
       "saleMethod": "By negotiation",
@@ -2438,7 +2809,28 @@
         "reason": "HTTP 404"
       }
     },
-    "homesDetails": null
+    "homesDetails": null,
+    "floodHazards": [
+      {
+        "type": "overland_flow_paths",
+        "sourceFeatureId": "577629",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Overland_Flow_Paths/FeatureServer/0"
+      }
+    ],
+    "openHomes": [
+      {
+        "date": "2026-10-24",
+        "startTime": "14:00",
+        "endTime": "14:30",
+        "label": "Sat, 24 Oct, 02:00pm - 02:30pm"
+      },
+      {
+        "date": "2026-10-25",
+        "startTime": "14:00",
+        "endTime": "14:30",
+        "label": "Sun, 25 Oct, 02:00pm - 02:30pm"
+      }
+    ]
   },
   {
     "index": 19,
@@ -2446,7 +2838,7 @@
       "source": "dom",
       "title": "view more\nBy negotiation\n63B Arawa Street, New Lynn, Waitakere City\n3\n3\n1\nSteven Xu\nEnquire",
       "url": "https://www.oneroof.co.nz/property/auckland/new-lynn/63b-arawa-street/Jw07I",
-      "text": "We found over16,000 houses for sale in Auckland.\nSort by:\nFeatured\n|\nMap\nview more\nAuction 08 Nov 2026 02:30\n1/10 Harding Avenue, Mount Wellington, Auckland City\n2\n1\n1\nKevin Ratnayake\nEnquire\nview more\nBy Negotiation\n382 RAZORBACK ROAD, Pōkeno, Franklin\n6\n2\n3\nGurjit Dhindsa\nEnquire\nview more\nAuction 18 Nov 2026 13:00\n3/53 Robert Skelton Place, Clendon Park, Manukau City\n3\n1\n3\nAnu Nehra\nEnquire\nview more\nAuction 11 Nov 2026 13:30\n58A Holbrook Street, Avondale, Auckland City\n6\n4\n7\nCalvin Roche\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 11 Nov 2026 10:00\n48 Edmund Street, Saint Heliers, Auckland City\n5\n3\n6\nAaron Foss\nEnquire\nview more\nAuction 04 Nov 2026 13:00\n1A Barrie Avenue, Papatoetoe, Manukau City\n2\n1\nAmit Kumar\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 12 Nov 2026 10:00\n5 Lancelot Road, Orewa, Rodney\n3\n2\n2\nLouise Thomson\nEnquire\nview more\nOpen Home 26 Oct 2026\nAuction 26 Nov 2026 11:00\n989 East Coast Road, Kaiaua, Franklin\n3\n2\n2\nKarl Davis\nEnquire\nview more\nOpen Home 24 Oct 2026\nBy negotiation\n7/13 Grande Vue Road, Hillpark, Manukau City\n4\n2\n1\nNarinder Dhillon\nEnquire\nview more\nDeadline sale closes 06 Nov 2026 16:00\n2/36 Elizabeth Drive, West Harbour, Waitakere City\n3\n1\n4\nFrank Liang\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n4\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n3\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heig"
+      "text": "We found over16,000 houses for sale in Auckland.\nSort by:\nFeatured\n|\nMap\nview more\nAuction 08 Nov 2026 02:30\n1/10 Harding Avenue, Mount Wellington, Auckland City\n2\n1\n1\nKevin Ratnayake\nEnquire\nview more\nBy Negotiation\n382 RAZORBACK ROAD, P\u014dkeno, Franklin\n6\n2\n3\nGurjit Dhindsa\nEnquire\nview more\nAuction 18 Nov 2026 13:00\n3/53 Robert Skelton Place, Clendon Park, Manukau City\n3\n1\n3\nAnu Nehra\nEnquire\nview more\nAuction 11 Nov 2026 13:30\n58A Holbrook Street, Avondale, Auckland City\n6\n4\n7\nCalvin Roche\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 11 Nov 2026 10:00\n48 Edmund Street, Saint Heliers, Auckland City\n5\n3\n6\nAaron Foss\nEnquire\nview more\nAuction 04 Nov 2026 13:00\n1A Barrie Avenue, Papatoetoe, Manukau City\n2\n1\nAmit Kumar\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 12 Nov 2026 10:00\n5 Lancelot Road, Orewa, Rodney\n3\n2\n2\nLouise Thomson\nEnquire\nview more\nOpen Home 26 Oct 2026\nAuction 26 Nov 2026 11:00\n989 East Coast Road, Kaiaua, Franklin\n3\n2\n2\nKarl Davis\nEnquire\nview more\nOpen Home 24 Oct 2026\nBy negotiation\n7/13 Grande Vue Road, Hillpark, Manukau City\n4\n2\n1\nNarinder Dhillon\nEnquire\nview more\nDeadline sale closes 06 Nov 2026 16:00\n2/36 Elizabeth Drive, West Harbour, Waitakere City\n3\n1\n4\nFrank Liang\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n4\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n3\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heig"
     },
     "parsedTitle": {
       "saleMethod": "By negotiation",
@@ -2542,7 +2934,28 @@
         "reason": "HTTP 404"
       }
     },
-    "homesDetails": null
+    "homesDetails": null,
+    "floodHazards": [
+      {
+        "type": "overland_flow_paths",
+        "sourceFeatureId": "577629",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Overland_Flow_Paths/FeatureServer/0"
+      }
+    ],
+    "openHomes": [
+      {
+        "date": "2026-10-24",
+        "startTime": "14:00",
+        "endTime": "14:30",
+        "label": "Sat, 24 Oct, 02:00pm - 02:30pm"
+      },
+      {
+        "date": "2026-10-25",
+        "startTime": "14:00",
+        "endTime": "14:30",
+        "label": "Sun, 25 Oct, 02:00pm - 02:30pm"
+      }
+    ]
   },
   {
     "index": 20,
@@ -2550,7 +2963,7 @@
       "source": "dom",
       "title": "view more\nBy negotiation\n63A Arawa Street, New Lynn, Waitakere City\n3\n3\n1\nSteven Xu\nEnquire",
       "url": "https://www.oneroof.co.nz/property/auckland/new-lynn/63a-arawa-street/R6ckn",
-      "text": "We found over16,000 houses for sale in Auckland.\nSort by:\nFeatured\n|\nMap\nview more\nAuction 08 Nov 2026 02:30\n1/10 Harding Avenue, Mount Wellington, Auckland City\n2\n1\n1\nKevin Ratnayake\nEnquire\nview more\nBy Negotiation\n382 RAZORBACK ROAD, Pōkeno, Franklin\n6\n2\n3\nGurjit Dhindsa\nEnquire\nview more\nAuction 18 Nov 2026 13:00\n3/53 Robert Skelton Place, Clendon Park, Manukau City\n3\n1\n3\nAnu Nehra\nEnquire\nview more\nAuction 11 Nov 2026 13:30\n58A Holbrook Street, Avondale, Auckland City\n6\n4\n7\nCalvin Roche\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 11 Nov 2026 10:00\n48 Edmund Street, Saint Heliers, Auckland City\n5\n3\n6\nAaron Foss\nEnquire\nview more\nAuction 04 Nov 2026 13:00\n1A Barrie Avenue, Papatoetoe, Manukau City\n2\n1\nAmit Kumar\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 12 Nov 2026 10:00\n5 Lancelot Road, Orewa, Rodney\n3\n2\n2\nLouise Thomson\nEnquire\nview more\nOpen Home 26 Oct 2026\nAuction 26 Nov 2026 11:00\n989 East Coast Road, Kaiaua, Franklin\n3\n2\n2\nKarl Davis\nEnquire\nview more\nOpen Home 24 Oct 2026\nBy negotiation\n7/13 Grande Vue Road, Hillpark, Manukau City\n4\n2\n1\nNarinder Dhillon\nEnquire\nview more\nDeadline sale closes 06 Nov 2026 16:00\n2/36 Elizabeth Drive, West Harbour, Waitakere City\n3\n1\n4\nFrank Liang\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n4\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n3\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heig"
+      "text": "We found over16,000 houses for sale in Auckland.\nSort by:\nFeatured\n|\nMap\nview more\nAuction 08 Nov 2026 02:30\n1/10 Harding Avenue, Mount Wellington, Auckland City\n2\n1\n1\nKevin Ratnayake\nEnquire\nview more\nBy Negotiation\n382 RAZORBACK ROAD, P\u014dkeno, Franklin\n6\n2\n3\nGurjit Dhindsa\nEnquire\nview more\nAuction 18 Nov 2026 13:00\n3/53 Robert Skelton Place, Clendon Park, Manukau City\n3\n1\n3\nAnu Nehra\nEnquire\nview more\nAuction 11 Nov 2026 13:30\n58A Holbrook Street, Avondale, Auckland City\n6\n4\n7\nCalvin Roche\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 11 Nov 2026 10:00\n48 Edmund Street, Saint Heliers, Auckland City\n5\n3\n6\nAaron Foss\nEnquire\nview more\nAuction 04 Nov 2026 13:00\n1A Barrie Avenue, Papatoetoe, Manukau City\n2\n1\nAmit Kumar\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 12 Nov 2026 10:00\n5 Lancelot Road, Orewa, Rodney\n3\n2\n2\nLouise Thomson\nEnquire\nview more\nOpen Home 26 Oct 2026\nAuction 26 Nov 2026 11:00\n989 East Coast Road, Kaiaua, Franklin\n3\n2\n2\nKarl Davis\nEnquire\nview more\nOpen Home 24 Oct 2026\nBy negotiation\n7/13 Grande Vue Road, Hillpark, Manukau City\n4\n2\n1\nNarinder Dhillon\nEnquire\nview more\nDeadline sale closes 06 Nov 2026 16:00\n2/36 Elizabeth Drive, West Harbour, Waitakere City\n3\n1\n4\nFrank Liang\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n4\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n3\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heig"
     },
     "parsedTitle": {
       "saleMethod": "By negotiation",
@@ -2613,14 +3026,7 @@
       "estimate": null,
       "saleMethod": "By negotiation"
     },
-    "linz": {
-      "addressId": 510929,
-      "fullAddress": "63A Arawa Street, Ohakune",
-      "latitude": -39.41292551576308,
-      "longitude": 175.40700423332476,
-      "suburb": "Ohakune",
-      "city": "Ohakune"
-    },
+    "linz": null,
     "propValuesSources": {
       "RealEstate": {
         "status": "matched",
@@ -2703,7 +3109,28 @@
         "latitude": -36.910160064697266,
         "longitude": 174.6702423095703
       }
-    }
+    },
+    "floodHazards": [
+      {
+        "type": "overland_flow_paths",
+        "sourceFeatureId": "577629",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Overland_Flow_Paths/FeatureServer/0"
+      }
+    ],
+    "openHomes": [
+      {
+        "date": "2026-10-24",
+        "startTime": "14:00",
+        "endTime": "14:30",
+        "label": "Sat, 24 Oct, 02:00pm - 02:30pm"
+      },
+      {
+        "date": "2026-10-25",
+        "startTime": "14:00",
+        "endTime": "14:30",
+        "label": "Sun, 25 Oct, 02:00pm - 02:30pm"
+      }
+    ]
   },
   {
     "index": 21,
@@ -2711,7 +3138,7 @@
       "source": "dom",
       "title": "view more\nOpen Home 24 Oct 2026\nAuction 10 Nov 2026 16:00\n50 Caen Road, Panmure, Auckland City\n3\n1\n2\nBenjamin Neal\nEnquire",
       "url": "https://www.oneroof.co.nz/property/auckland/panmure/50-caen-road/iOAPO",
-      "text": "We found over16,000 houses for sale in Auckland.\nSort by:\nFeatured\n|\nMap\nview more\nAuction 08 Nov 2026 02:30\n1/10 Harding Avenue, Mount Wellington, Auckland City\n2\n1\n1\nKevin Ratnayake\nEnquire\nview more\nBy Negotiation\n382 RAZORBACK ROAD, Pōkeno, Franklin\n6\n2\n3\nGurjit Dhindsa\nEnquire\nview more\nAuction 18 Nov 2026 13:00\n3/53 Robert Skelton Place, Clendon Park, Manukau City\n3\n1\n3\nAnu Nehra\nEnquire\nview more\nAuction 11 Nov 2026 13:30\n58A Holbrook Street, Avondale, Auckland City\n6\n4\n7\nCalvin Roche\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 11 Nov 2026 10:00\n48 Edmund Street, Saint Heliers, Auckland City\n5\n3\n6\nAaron Foss\nEnquire\nview more\nAuction 04 Nov 2026 13:00\n1A Barrie Avenue, Papatoetoe, Manukau City\n2\n1\nAmit Kumar\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 12 Nov 2026 10:00\n5 Lancelot Road, Orewa, Rodney\n3\n2\n2\nLouise Thomson\nEnquire\nview more\nOpen Home 26 Oct 2026\nAuction 26 Nov 2026 11:00\n989 East Coast Road, Kaiaua, Franklin\n3\n2\n2\nKarl Davis\nEnquire\nview more\nOpen Home 24 Oct 2026\nBy negotiation\n7/13 Grande Vue Road, Hillpark, Manukau City\n4\n2\n1\nNarinder Dhillon\nEnquire\nview more\nDeadline sale closes 06 Nov 2026 16:00\n2/36 Elizabeth Drive, West Harbour, Waitakere City\n3\n1\n4\nFrank Liang\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n4\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n3\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heig"
+      "text": "We found over16,000 houses for sale in Auckland.\nSort by:\nFeatured\n|\nMap\nview more\nAuction 08 Nov 2026 02:30\n1/10 Harding Avenue, Mount Wellington, Auckland City\n2\n1\n1\nKevin Ratnayake\nEnquire\nview more\nBy Negotiation\n382 RAZORBACK ROAD, P\u014dkeno, Franklin\n6\n2\n3\nGurjit Dhindsa\nEnquire\nview more\nAuction 18 Nov 2026 13:00\n3/53 Robert Skelton Place, Clendon Park, Manukau City\n3\n1\n3\nAnu Nehra\nEnquire\nview more\nAuction 11 Nov 2026 13:30\n58A Holbrook Street, Avondale, Auckland City\n6\n4\n7\nCalvin Roche\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 11 Nov 2026 10:00\n48 Edmund Street, Saint Heliers, Auckland City\n5\n3\n6\nAaron Foss\nEnquire\nview more\nAuction 04 Nov 2026 13:00\n1A Barrie Avenue, Papatoetoe, Manukau City\n2\n1\nAmit Kumar\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 12 Nov 2026 10:00\n5 Lancelot Road, Orewa, Rodney\n3\n2\n2\nLouise Thomson\nEnquire\nview more\nOpen Home 26 Oct 2026\nAuction 26 Nov 2026 11:00\n989 East Coast Road, Kaiaua, Franklin\n3\n2\n2\nKarl Davis\nEnquire\nview more\nOpen Home 24 Oct 2026\nBy negotiation\n7/13 Grande Vue Road, Hillpark, Manukau City\n4\n2\n1\nNarinder Dhillon\nEnquire\nview more\nDeadline sale closes 06 Nov 2026 16:00\n2/36 Elizabeth Drive, West Harbour, Waitakere City\n3\n1\n4\nFrank Liang\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n4\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n3\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heig"
     },
     "parsedTitle": {
       "saleMethod": "Auction 10 Nov 2026 16:00",
@@ -2824,7 +3251,22 @@
         "latitude": -36.90177917480469,
         "longitude": 174.8625946044922
       }
-    }
+    },
+    "floodHazards": [],
+    "openHomes": [
+      {
+        "date": "2026-10-24",
+        "startTime": "11:00",
+        "endTime": "11:30",
+        "label": "Sat, 24 Oct, 11:00am - 11:30am"
+      },
+      {
+        "date": "2026-10-25",
+        "startTime": "11:00",
+        "endTime": "11:30",
+        "label": "Sun, 25 Oct, 11:00am - 11:30am"
+      }
+    ]
   },
   {
     "index": 22,
@@ -2832,7 +3274,7 @@
       "source": "dom",
       "title": "view more\nOpen Home 24 Oct 2026\nAuction 05 Nov 2026 10:00\n11 Francis Skinner Place, Orewa, Rodney\n3\n1\n1\nLouise Thomson\nEnquire",
       "url": "https://www.oneroof.co.nz/property/auckland/orewa/11-francis-skinner-place/FYiiB",
-      "text": "We found over16,000 houses for sale in Auckland.\nSort by:\nFeatured\n|\nMap\nview more\nAuction 08 Nov 2026 02:30\n1/10 Harding Avenue, Mount Wellington, Auckland City\n2\n1\n1\nKevin Ratnayake\nEnquire\nview more\nBy Negotiation\n382 RAZORBACK ROAD, Pōkeno, Franklin\n6\n2\n3\nGurjit Dhindsa\nEnquire\nview more\nAuction 18 Nov 2026 13:00\n3/53 Robert Skelton Place, Clendon Park, Manukau City\n3\n1\n3\nAnu Nehra\nEnquire\nview more\nAuction 11 Nov 2026 13:30\n58A Holbrook Street, Avondale, Auckland City\n6\n4\n7\nCalvin Roche\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 11 Nov 2026 10:00\n48 Edmund Street, Saint Heliers, Auckland City\n5\n3\n6\nAaron Foss\nEnquire\nview more\nAuction 04 Nov 2026 13:00\n1A Barrie Avenue, Papatoetoe, Manukau City\n2\n1\nAmit Kumar\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 12 Nov 2026 10:00\n5 Lancelot Road, Orewa, Rodney\n3\n2\n2\nLouise Thomson\nEnquire\nview more\nOpen Home 26 Oct 2026\nAuction 26 Nov 2026 11:00\n989 East Coast Road, Kaiaua, Franklin\n3\n2\n2\nKarl Davis\nEnquire\nview more\nOpen Home 24 Oct 2026\nBy negotiation\n7/13 Grande Vue Road, Hillpark, Manukau City\n4\n2\n1\nNarinder Dhillon\nEnquire\nview more\nDeadline sale closes 06 Nov 2026 16:00\n2/36 Elizabeth Drive, West Harbour, Waitakere City\n3\n1\n4\nFrank Liang\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n4\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n3\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heig"
+      "text": "We found over16,000 houses for sale in Auckland.\nSort by:\nFeatured\n|\nMap\nview more\nAuction 08 Nov 2026 02:30\n1/10 Harding Avenue, Mount Wellington, Auckland City\n2\n1\n1\nKevin Ratnayake\nEnquire\nview more\nBy Negotiation\n382 RAZORBACK ROAD, P\u014dkeno, Franklin\n6\n2\n3\nGurjit Dhindsa\nEnquire\nview more\nAuction 18 Nov 2026 13:00\n3/53 Robert Skelton Place, Clendon Park, Manukau City\n3\n1\n3\nAnu Nehra\nEnquire\nview more\nAuction 11 Nov 2026 13:30\n58A Holbrook Street, Avondale, Auckland City\n6\n4\n7\nCalvin Roche\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 11 Nov 2026 10:00\n48 Edmund Street, Saint Heliers, Auckland City\n5\n3\n6\nAaron Foss\nEnquire\nview more\nAuction 04 Nov 2026 13:00\n1A Barrie Avenue, Papatoetoe, Manukau City\n2\n1\nAmit Kumar\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 12 Nov 2026 10:00\n5 Lancelot Road, Orewa, Rodney\n3\n2\n2\nLouise Thomson\nEnquire\nview more\nOpen Home 26 Oct 2026\nAuction 26 Nov 2026 11:00\n989 East Coast Road, Kaiaua, Franklin\n3\n2\n2\nKarl Davis\nEnquire\nview more\nOpen Home 24 Oct 2026\nBy negotiation\n7/13 Grande Vue Road, Hillpark, Manukau City\n4\n2\n1\nNarinder Dhillon\nEnquire\nview more\nDeadline sale closes 06 Nov 2026 16:00\n2/36 Elizabeth Drive, West Harbour, Waitakere City\n3\n1\n4\nFrank Liang\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n4\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n3\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heig"
     },
     "parsedTitle": {
       "saleMethod": "Auction 05 Nov 2026 10:00",
@@ -2962,7 +3404,45 @@
         "latitude": -36.58802032470703,
         "longitude": 174.69049072265625
       }
-    }
+    },
+    "floodHazards": [
+      {
+        "type": "flood_plains",
+        "sourceFeatureId": "11896",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Flood_Plains/FeatureServer/0"
+      },
+      {
+        "type": "overland_flow_paths",
+        "sourceFeatureId": "360337",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Overland_Flow_Paths/FeatureServer/0"
+      }
+    ],
+    "openHomes": [
+      {
+        "date": "2026-10-24",
+        "startTime": "15:00",
+        "endTime": "15:30",
+        "label": "Sat, 24 Oct, 03:00pm - 03:30pm"
+      },
+      {
+        "date": "2026-10-25",
+        "startTime": "15:00",
+        "endTime": "15:30",
+        "label": "Sun, 25 Oct, 03:00pm - 03:30pm"
+      },
+      {
+        "date": "2026-10-31",
+        "startTime": "15:00",
+        "endTime": "15:30",
+        "label": "Sat, 31 Oct, 03:00pm - 03:30pm"
+      },
+      {
+        "date": "2026-11-01",
+        "startTime": "15:00",
+        "endTime": "15:30",
+        "label": "Sun, 1 Nov, 03:00pm - 03:30pm"
+      }
+    ]
   },
   {
     "index": 23,
@@ -2970,7 +3450,7 @@
       "source": "dom",
       "title": "view more\nOpen Home 24 Oct 2026\nAuction 17 Nov 2026 15:00\n11 Cameron Town Road, Pukekohe, Franklin\n4\n2\n2\nPatrick Murphy\nEnquire",
       "url": "https://www.oneroof.co.nz/property/auckland/pukekohe/11-cameron-town-road/WBv5M",
-      "text": "We found over16,000 houses for sale in Auckland.\nSort by:\nFeatured\n|\nMap\nview more\nAuction 08 Nov 2026 02:30\n1/10 Harding Avenue, Mount Wellington, Auckland City\n2\n1\n1\nKevin Ratnayake\nEnquire\nview more\nBy Negotiation\n382 RAZORBACK ROAD, Pōkeno, Franklin\n6\n2\n3\nGurjit Dhindsa\nEnquire\nview more\nAuction 18 Nov 2026 13:00\n3/53 Robert Skelton Place, Clendon Park, Manukau City\n3\n1\n3\nAnu Nehra\nEnquire\nview more\nAuction 11 Nov 2026 13:30\n58A Holbrook Street, Avondale, Auckland City\n6\n4\n7\nCalvin Roche\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 11 Nov 2026 10:00\n48 Edmund Street, Saint Heliers, Auckland City\n5\n3\n6\nAaron Foss\nEnquire\nview more\nAuction 04 Nov 2026 13:00\n1A Barrie Avenue, Papatoetoe, Manukau City\n2\n1\nAmit Kumar\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 12 Nov 2026 10:00\n5 Lancelot Road, Orewa, Rodney\n3\n2\n2\nLouise Thomson\nEnquire\nview more\nOpen Home 26 Oct 2026\nAuction 26 Nov 2026 11:00\n989 East Coast Road, Kaiaua, Franklin\n3\n2\n2\nKarl Davis\nEnquire\nview more\nOpen Home 24 Oct 2026\nBy negotiation\n7/13 Grande Vue Road, Hillpark, Manukau City\n4\n2\n1\nNarinder Dhillon\nEnquire\nview more\nDeadline sale closes 06 Nov 2026 16:00\n2/36 Elizabeth Drive, West Harbour, Waitakere City\n3\n1\n4\nFrank Liang\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n4\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n3\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heig"
+      "text": "We found over16,000 houses for sale in Auckland.\nSort by:\nFeatured\n|\nMap\nview more\nAuction 08 Nov 2026 02:30\n1/10 Harding Avenue, Mount Wellington, Auckland City\n2\n1\n1\nKevin Ratnayake\nEnquire\nview more\nBy Negotiation\n382 RAZORBACK ROAD, P\u014dkeno, Franklin\n6\n2\n3\nGurjit Dhindsa\nEnquire\nview more\nAuction 18 Nov 2026 13:00\n3/53 Robert Skelton Place, Clendon Park, Manukau City\n3\n1\n3\nAnu Nehra\nEnquire\nview more\nAuction 11 Nov 2026 13:30\n58A Holbrook Street, Avondale, Auckland City\n6\n4\n7\nCalvin Roche\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 11 Nov 2026 10:00\n48 Edmund Street, Saint Heliers, Auckland City\n5\n3\n6\nAaron Foss\nEnquire\nview more\nAuction 04 Nov 2026 13:00\n1A Barrie Avenue, Papatoetoe, Manukau City\n2\n1\nAmit Kumar\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 12 Nov 2026 10:00\n5 Lancelot Road, Orewa, Rodney\n3\n2\n2\nLouise Thomson\nEnquire\nview more\nOpen Home 26 Oct 2026\nAuction 26 Nov 2026 11:00\n989 East Coast Road, Kaiaua, Franklin\n3\n2\n2\nKarl Davis\nEnquire\nview more\nOpen Home 24 Oct 2026\nBy negotiation\n7/13 Grande Vue Road, Hillpark, Manukau City\n4\n2\n1\nNarinder Dhillon\nEnquire\nview more\nDeadline sale closes 06 Nov 2026 16:00\n2/36 Elizabeth Drive, West Harbour, Waitakere City\n3\n1\n4\nFrank Liang\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n4\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n3\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heig"
     },
     "parsedTitle": {
       "saleMethod": "Auction 17 Nov 2026 15:00",
@@ -3116,7 +3596,22 @@
         "latitude": -37.24339294433594,
         "longitude": 174.88748168945312
       }
-    }
+    },
+    "floodHazards": [],
+    "openHomes": [
+      {
+        "date": "2026-10-24",
+        "startTime": "13:30",
+        "endTime": "14:00",
+        "label": "Sat, 24 Oct, 01:30pm - 02:00pm"
+      },
+      {
+        "date": "2026-10-25",
+        "startTime": "13:30",
+        "endTime": "14:00",
+        "label": "Sun, 25 Oct, 01:30pm - 02:00pm"
+      }
+    ]
   },
   {
     "index": 24,
@@ -3124,7 +3619,7 @@
       "source": "dom",
       "title": "view more\nOpen Home 24 Oct 2026\nAuction 17 Nov 2026 15:00\n47 Carlton Road, Pukekohe, Franklin\n4\n3\n2\nMike Murphy\nEnquire",
       "url": "https://www.oneroof.co.nz/property/auckland/pukekohe/47-carlton-road/amcBK",
-      "text": "We found over16,000 houses for sale in Auckland.\nSort by:\nFeatured\n|\nMap\nview more\nAuction 08 Nov 2026 02:30\n1/10 Harding Avenue, Mount Wellington, Auckland City\n2\n1\n1\nKevin Ratnayake\nEnquire\nview more\nBy Negotiation\n382 RAZORBACK ROAD, Pōkeno, Franklin\n6\n2\n3\nGurjit Dhindsa\nEnquire\nview more\nAuction 18 Nov 2026 13:00\n3/53 Robert Skelton Place, Clendon Park, Manukau City\n3\n1\n3\nAnu Nehra\nEnquire\nview more\nAuction 11 Nov 2026 13:30\n58A Holbrook Street, Avondale, Auckland City\n6\n4\n7\nCalvin Roche\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 11 Nov 2026 10:00\n48 Edmund Street, Saint Heliers, Auckland City\n5\n3\n6\nAaron Foss\nEnquire\nview more\nAuction 04 Nov 2026 13:00\n1A Barrie Avenue, Papatoetoe, Manukau City\n2\n1\nAmit Kumar\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 12 Nov 2026 10:00\n5 Lancelot Road, Orewa, Rodney\n3\n2\n2\nLouise Thomson\nEnquire\nview more\nOpen Home 26 Oct 2026\nAuction 26 Nov 2026 11:00\n989 East Coast Road, Kaiaua, Franklin\n3\n2\n2\nKarl Davis\nEnquire\nview more\nOpen Home 24 Oct 2026\nBy negotiation\n7/13 Grande Vue Road, Hillpark, Manukau City\n4\n2\n1\nNarinder Dhillon\nEnquire\nview more\nDeadline sale closes 06 Nov 2026 16:00\n2/36 Elizabeth Drive, West Harbour, Waitakere City\n3\n1\n4\nFrank Liang\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n4\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n3\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heig"
+      "text": "We found over16,000 houses for sale in Auckland.\nSort by:\nFeatured\n|\nMap\nview more\nAuction 08 Nov 2026 02:30\n1/10 Harding Avenue, Mount Wellington, Auckland City\n2\n1\n1\nKevin Ratnayake\nEnquire\nview more\nBy Negotiation\n382 RAZORBACK ROAD, P\u014dkeno, Franklin\n6\n2\n3\nGurjit Dhindsa\nEnquire\nview more\nAuction 18 Nov 2026 13:00\n3/53 Robert Skelton Place, Clendon Park, Manukau City\n3\n1\n3\nAnu Nehra\nEnquire\nview more\nAuction 11 Nov 2026 13:30\n58A Holbrook Street, Avondale, Auckland City\n6\n4\n7\nCalvin Roche\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 11 Nov 2026 10:00\n48 Edmund Street, Saint Heliers, Auckland City\n5\n3\n6\nAaron Foss\nEnquire\nview more\nAuction 04 Nov 2026 13:00\n1A Barrie Avenue, Papatoetoe, Manukau City\n2\n1\nAmit Kumar\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 12 Nov 2026 10:00\n5 Lancelot Road, Orewa, Rodney\n3\n2\n2\nLouise Thomson\nEnquire\nview more\nOpen Home 26 Oct 2026\nAuction 26 Nov 2026 11:00\n989 East Coast Road, Kaiaua, Franklin\n3\n2\n2\nKarl Davis\nEnquire\nview more\nOpen Home 24 Oct 2026\nBy negotiation\n7/13 Grande Vue Road, Hillpark, Manukau City\n4\n2\n1\nNarinder Dhillon\nEnquire\nview more\nDeadline sale closes 06 Nov 2026 16:00\n2/36 Elizabeth Drive, West Harbour, Waitakere City\n3\n1\n4\nFrank Liang\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n4\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n3\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heig"
     },
     "parsedTitle": {
       "saleMethod": "Auction 17 Nov 2026 15:00",
@@ -3149,7 +3644,7 @@
       "landArea": 912,
       "propertyType": "Residential for sale",
       "teaser": "Entertainer's dream with uninterrupted views",
-      "description": "Entertainer’s dream with uninterrupted views",
+      "description": "Entertainer\u2019s dream with uninterrupted views",
       "heroCover": "https://s.oneroof.co.nz/image/6c/5c/6c5cb24257fa0b12184a24d5892a6540.jpg?x-oss-process=image/quality,q_80",
       "images": [
         "https://s.oneroof.co.nz/image/67/60/676006b3741695af2857e0e459c3cf6a.jpg?x-oss-process=image%2Fquality%2Cq_100%2Fresize%2Cw_1200",
@@ -3264,7 +3759,22 @@
         "latitude": -37.20165252685547,
         "longitude": 174.9149932861328
       }
-    }
+    },
+    "floodHazards": [],
+    "openHomes": [
+      {
+        "date": "2026-10-24",
+        "startTime": "12:00",
+        "endTime": "12:30",
+        "label": "Sat, 24 Oct, 12:00pm - 12:30pm"
+      },
+      {
+        "date": "2026-10-25",
+        "startTime": "12:00",
+        "endTime": "12:30",
+        "label": "Sun, 25 Oct, 12:00pm - 12:30pm"
+      }
+    ]
   },
   {
     "index": 25,
@@ -3272,7 +3782,7 @@
       "source": "dom",
       "title": "view more\nOpen Home 24 Oct 2026\nAuction 10 Nov 2026 14:00\n24 Walworth Avenue, Pakuranga Heights, Manukau City\n3\n1\n2\nLawrence Liew\nEnquire",
       "url": "https://www.oneroof.co.nz/property/auckland/pakuranga-heights/24-walworth-avenue/LySOS",
-      "text": "We found over16,000 houses for sale in Auckland.\nSort by:\nFeatured\n|\nMap\nview more\nAuction 08 Nov 2026 02:30\n1/10 Harding Avenue, Mount Wellington, Auckland City\n2\n1\n1\nKevin Ratnayake\nEnquire\nview more\nBy Negotiation\n382 RAZORBACK ROAD, Pōkeno, Franklin\n6\n2\n3\nGurjit Dhindsa\nEnquire\nview more\nAuction 18 Nov 2026 13:00\n3/53 Robert Skelton Place, Clendon Park, Manukau City\n3\n1\n3\nAnu Nehra\nEnquire\nview more\nAuction 11 Nov 2026 13:30\n58A Holbrook Street, Avondale, Auckland City\n6\n4\n7\nCalvin Roche\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 11 Nov 2026 10:00\n48 Edmund Street, Saint Heliers, Auckland City\n5\n3\n6\nAaron Foss\nEnquire\nview more\nAuction 04 Nov 2026 13:00\n1A Barrie Avenue, Papatoetoe, Manukau City\n2\n1\nAmit Kumar\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 12 Nov 2026 10:00\n5 Lancelot Road, Orewa, Rodney\n3\n2\n2\nLouise Thomson\nEnquire\nview more\nOpen Home 26 Oct 2026\nAuction 26 Nov 2026 11:00\n989 East Coast Road, Kaiaua, Franklin\n3\n2\n2\nKarl Davis\nEnquire\nview more\nOpen Home 24 Oct 2026\nBy negotiation\n7/13 Grande Vue Road, Hillpark, Manukau City\n4\n2\n1\nNarinder Dhillon\nEnquire\nview more\nDeadline sale closes 06 Nov 2026 16:00\n2/36 Elizabeth Drive, West Harbour, Waitakere City\n3\n1\n4\nFrank Liang\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n4\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n3\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heig"
+      "text": "We found over16,000 houses for sale in Auckland.\nSort by:\nFeatured\n|\nMap\nview more\nAuction 08 Nov 2026 02:30\n1/10 Harding Avenue, Mount Wellington, Auckland City\n2\n1\n1\nKevin Ratnayake\nEnquire\nview more\nBy Negotiation\n382 RAZORBACK ROAD, P\u014dkeno, Franklin\n6\n2\n3\nGurjit Dhindsa\nEnquire\nview more\nAuction 18 Nov 2026 13:00\n3/53 Robert Skelton Place, Clendon Park, Manukau City\n3\n1\n3\nAnu Nehra\nEnquire\nview more\nAuction 11 Nov 2026 13:30\n58A Holbrook Street, Avondale, Auckland City\n6\n4\n7\nCalvin Roche\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 11 Nov 2026 10:00\n48 Edmund Street, Saint Heliers, Auckland City\n5\n3\n6\nAaron Foss\nEnquire\nview more\nAuction 04 Nov 2026 13:00\n1A Barrie Avenue, Papatoetoe, Manukau City\n2\n1\nAmit Kumar\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 12 Nov 2026 10:00\n5 Lancelot Road, Orewa, Rodney\n3\n2\n2\nLouise Thomson\nEnquire\nview more\nOpen Home 26 Oct 2026\nAuction 26 Nov 2026 11:00\n989 East Coast Road, Kaiaua, Franklin\n3\n2\n2\nKarl Davis\nEnquire\nview more\nOpen Home 24 Oct 2026\nBy negotiation\n7/13 Grande Vue Road, Hillpark, Manukau City\n4\n2\n1\nNarinder Dhillon\nEnquire\nview more\nDeadline sale closes 06 Nov 2026 16:00\n2/36 Elizabeth Drive, West Harbour, Waitakere City\n3\n1\n4\nFrank Liang\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n4\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n3\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heig"
     },
     "parsedTitle": {
       "saleMethod": "Auction 10 Nov 2026 14:00",
@@ -3430,7 +3940,28 @@
         "latitude": -36.90810775756836,
         "longitude": 174.89515686035156
       }
-    }
+    },
+    "floodHazards": [
+      {
+        "type": "overland_flow_paths",
+        "sourceFeatureId": "929031",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Overland_Flow_Paths/FeatureServer/0"
+      }
+    ],
+    "openHomes": [
+      {
+        "date": "2026-10-24",
+        "startTime": "13:00",
+        "endTime": "13:30",
+        "label": "Sat, 24 Oct, 01:00pm - 01:30pm"
+      },
+      {
+        "date": "2026-10-25",
+        "startTime": "13:00",
+        "endTime": "13:30",
+        "label": "Sun, 25 Oct, 01:00pm - 01:30pm"
+      }
+    ]
   },
   {
     "index": 26,
@@ -3438,7 +3969,7 @@
       "source": "dom",
       "title": "view more\nDeadline sale closes 12 Nov 2026 14:00\n43 Ashmore Crescent, Warkworth, Rodney\n4\n2\n2\nSylvia Graves\nEnquire",
       "url": "https://www.oneroof.co.nz/property/auckland/warkworth/43-ashmore-crescent/CFEx0",
-      "text": "We found over16,000 houses for sale in Auckland.\nSort by:\nFeatured\n|\nMap\nview more\nAuction 08 Nov 2026 02:30\n1/10 Harding Avenue, Mount Wellington, Auckland City\n2\n1\n1\nKevin Ratnayake\nEnquire\nview more\nBy Negotiation\n382 RAZORBACK ROAD, Pōkeno, Franklin\n6\n2\n3\nGurjit Dhindsa\nEnquire\nview more\nAuction 18 Nov 2026 13:00\n3/53 Robert Skelton Place, Clendon Park, Manukau City\n3\n1\n3\nAnu Nehra\nEnquire\nview more\nAuction 11 Nov 2026 13:30\n58A Holbrook Street, Avondale, Auckland City\n6\n4\n7\nCalvin Roche\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 11 Nov 2026 10:00\n48 Edmund Street, Saint Heliers, Auckland City\n5\n3\n6\nAaron Foss\nEnquire\nview more\nAuction 04 Nov 2026 13:00\n1A Barrie Avenue, Papatoetoe, Manukau City\n2\n1\nAmit Kumar\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 12 Nov 2026 10:00\n5 Lancelot Road, Orewa, Rodney\n3\n2\n2\nLouise Thomson\nEnquire\nview more\nOpen Home 26 Oct 2026\nAuction 26 Nov 2026 11:00\n989 East Coast Road, Kaiaua, Franklin\n3\n2\n2\nKarl Davis\nEnquire\nview more\nOpen Home 24 Oct 2026\nBy negotiation\n7/13 Grande Vue Road, Hillpark, Manukau City\n4\n2\n1\nNarinder Dhillon\nEnquire\nview more\nDeadline sale closes 06 Nov 2026 16:00\n2/36 Elizabeth Drive, West Harbour, Waitakere City\n3\n1\n4\nFrank Liang\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n4\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n3\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heig"
+      "text": "We found over16,000 houses for sale in Auckland.\nSort by:\nFeatured\n|\nMap\nview more\nAuction 08 Nov 2026 02:30\n1/10 Harding Avenue, Mount Wellington, Auckland City\n2\n1\n1\nKevin Ratnayake\nEnquire\nview more\nBy Negotiation\n382 RAZORBACK ROAD, P\u014dkeno, Franklin\n6\n2\n3\nGurjit Dhindsa\nEnquire\nview more\nAuction 18 Nov 2026 13:00\n3/53 Robert Skelton Place, Clendon Park, Manukau City\n3\n1\n3\nAnu Nehra\nEnquire\nview more\nAuction 11 Nov 2026 13:30\n58A Holbrook Street, Avondale, Auckland City\n6\n4\n7\nCalvin Roche\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 11 Nov 2026 10:00\n48 Edmund Street, Saint Heliers, Auckland City\n5\n3\n6\nAaron Foss\nEnquire\nview more\nAuction 04 Nov 2026 13:00\n1A Barrie Avenue, Papatoetoe, Manukau City\n2\n1\nAmit Kumar\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 12 Nov 2026 10:00\n5 Lancelot Road, Orewa, Rodney\n3\n2\n2\nLouise Thomson\nEnquire\nview more\nOpen Home 26 Oct 2026\nAuction 26 Nov 2026 11:00\n989 East Coast Road, Kaiaua, Franklin\n3\n2\n2\nKarl Davis\nEnquire\nview more\nOpen Home 24 Oct 2026\nBy negotiation\n7/13 Grande Vue Road, Hillpark, Manukau City\n4\n2\n1\nNarinder Dhillon\nEnquire\nview more\nDeadline sale closes 06 Nov 2026 16:00\n2/36 Elizabeth Drive, West Harbour, Waitakere City\n3\n1\n4\nFrank Liang\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n4\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n3\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heig"
     },
     "parsedTitle": {
       "saleMethod": "Deadline sale closes 12 Nov 2026 14:00",
@@ -3582,7 +4113,15 @@
         "latitude": -36.39054870605469,
         "longitude": 174.65771484375
       }
-    }
+    },
+    "floodHazards": [
+      {
+        "type": "overland_flow_paths",
+        "sourceFeatureId": "1095397",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Overland_Flow_Paths/FeatureServer/0"
+      }
+    ],
+    "openHomes": []
   },
   {
     "index": 27,
@@ -3590,7 +4129,7 @@
       "source": "dom",
       "title": "view more\nDeadline Sale\n153C Green Road, Dairy Flat, Rodney\n6\n3\n8\nNicky White\nEnquire",
       "url": "https://www.oneroof.co.nz/property/auckland/dairy-flat/153c-green-road/iiBgV",
-      "text": "We found over16,000 houses for sale in Auckland.\nSort by:\nFeatured\n|\nMap\nview more\nAuction 08 Nov 2026 02:30\n1/10 Harding Avenue, Mount Wellington, Auckland City\n2\n1\n1\nKevin Ratnayake\nEnquire\nview more\nBy Negotiation\n382 RAZORBACK ROAD, Pōkeno, Franklin\n6\n2\n3\nGurjit Dhindsa\nEnquire\nview more\nAuction 18 Nov 2026 13:00\n3/53 Robert Skelton Place, Clendon Park, Manukau City\n3\n1\n3\nAnu Nehra\nEnquire\nview more\nAuction 11 Nov 2026 13:30\n58A Holbrook Street, Avondale, Auckland City\n6\n4\n7\nCalvin Roche\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 11 Nov 2026 10:00\n48 Edmund Street, Saint Heliers, Auckland City\n5\n3\n6\nAaron Foss\nEnquire\nview more\nAuction 04 Nov 2026 13:00\n1A Barrie Avenue, Papatoetoe, Manukau City\n2\n1\nAmit Kumar\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 12 Nov 2026 10:00\n5 Lancelot Road, Orewa, Rodney\n3\n2\n2\nLouise Thomson\nEnquire\nview more\nOpen Home 26 Oct 2026\nAuction 26 Nov 2026 11:00\n989 East Coast Road, Kaiaua, Franklin\n3\n2\n2\nKarl Davis\nEnquire\nview more\nOpen Home 24 Oct 2026\nBy negotiation\n7/13 Grande Vue Road, Hillpark, Manukau City\n4\n2\n1\nNarinder Dhillon\nEnquire\nview more\nDeadline sale closes 06 Nov 2026 16:00\n2/36 Elizabeth Drive, West Harbour, Waitakere City\n3\n1\n4\nFrank Liang\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n4\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n3\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heig"
+      "text": "We found over16,000 houses for sale in Auckland.\nSort by:\nFeatured\n|\nMap\nview more\nAuction 08 Nov 2026 02:30\n1/10 Harding Avenue, Mount Wellington, Auckland City\n2\n1\n1\nKevin Ratnayake\nEnquire\nview more\nBy Negotiation\n382 RAZORBACK ROAD, P\u014dkeno, Franklin\n6\n2\n3\nGurjit Dhindsa\nEnquire\nview more\nAuction 18 Nov 2026 13:00\n3/53 Robert Skelton Place, Clendon Park, Manukau City\n3\n1\n3\nAnu Nehra\nEnquire\nview more\nAuction 11 Nov 2026 13:30\n58A Holbrook Street, Avondale, Auckland City\n6\n4\n7\nCalvin Roche\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 11 Nov 2026 10:00\n48 Edmund Street, Saint Heliers, Auckland City\n5\n3\n6\nAaron Foss\nEnquire\nview more\nAuction 04 Nov 2026 13:00\n1A Barrie Avenue, Papatoetoe, Manukau City\n2\n1\nAmit Kumar\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 12 Nov 2026 10:00\n5 Lancelot Road, Orewa, Rodney\n3\n2\n2\nLouise Thomson\nEnquire\nview more\nOpen Home 26 Oct 2026\nAuction 26 Nov 2026 11:00\n989 East Coast Road, Kaiaua, Franklin\n3\n2\n2\nKarl Davis\nEnquire\nview more\nOpen Home 24 Oct 2026\nBy negotiation\n7/13 Grande Vue Road, Hillpark, Manukau City\n4\n2\n1\nNarinder Dhillon\nEnquire\nview more\nDeadline sale closes 06 Nov 2026 16:00\n2/36 Elizabeth Drive, West Harbour, Waitakere City\n3\n1\n4\nFrank Liang\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n4\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n3\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heig"
     },
     "parsedTitle": {
       "saleMethod": "Deadline Sale",
@@ -3747,7 +4286,20 @@
         "latitude": -36.69157028198242,
         "longitude": 174.6519775390625
       }
-    }
+    },
+    "floodHazards": [
+      {
+        "type": "flood_plains",
+        "sourceFeatureId": "12188",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Flood_Plains/FeatureServer/0"
+      },
+      {
+        "type": "overland_flow_paths",
+        "sourceFeatureId": "90145",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Overland_Flow_Paths/FeatureServer/0"
+      }
+    ],
+    "openHomes": []
   },
   {
     "index": 28,
@@ -3755,7 +4307,7 @@
       "source": "dom",
       "title": "view more\nOpen Home 22 Oct 2026\nDeadline Sale (unless sold prior)\n24A Seon Place, Birkdale, North Shore City\n3\n1\n1\nMichael Gladding\nEnquire",
       "url": "https://www.oneroof.co.nz/property/auckland/birkdale/24a-seon-place/Arygs",
-      "text": "We found over16,000 houses for sale in Auckland.\nSort by:\nFeatured\n|\nMap\nview more\nAuction 08 Nov 2026 02:30\n1/10 Harding Avenue, Mount Wellington, Auckland City\n2\n1\n1\nKevin Ratnayake\nEnquire\nview more\nBy Negotiation\n382 RAZORBACK ROAD, Pōkeno, Franklin\n6\n2\n3\nGurjit Dhindsa\nEnquire\nview more\nAuction 18 Nov 2026 13:00\n3/53 Robert Skelton Place, Clendon Park, Manukau City\n3\n1\n3\nAnu Nehra\nEnquire\nview more\nAuction 11 Nov 2026 13:30\n58A Holbrook Street, Avondale, Auckland City\n6\n4\n7\nCalvin Roche\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 11 Nov 2026 10:00\n48 Edmund Street, Saint Heliers, Auckland City\n5\n3\n6\nAaron Foss\nEnquire\nview more\nAuction 04 Nov 2026 13:00\n1A Barrie Avenue, Papatoetoe, Manukau City\n2\n1\nAmit Kumar\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 12 Nov 2026 10:00\n5 Lancelot Road, Orewa, Rodney\n3\n2\n2\nLouise Thomson\nEnquire\nview more\nOpen Home 26 Oct 2026\nAuction 26 Nov 2026 11:00\n989 East Coast Road, Kaiaua, Franklin\n3\n2\n2\nKarl Davis\nEnquire\nview more\nOpen Home 24 Oct 2026\nBy negotiation\n7/13 Grande Vue Road, Hillpark, Manukau City\n4\n2\n1\nNarinder Dhillon\nEnquire\nview more\nDeadline sale closes 06 Nov 2026 16:00\n2/36 Elizabeth Drive, West Harbour, Waitakere City\n3\n1\n4\nFrank Liang\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n4\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n3\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heig"
+      "text": "We found over16,000 houses for sale in Auckland.\nSort by:\nFeatured\n|\nMap\nview more\nAuction 08 Nov 2026 02:30\n1/10 Harding Avenue, Mount Wellington, Auckland City\n2\n1\n1\nKevin Ratnayake\nEnquire\nview more\nBy Negotiation\n382 RAZORBACK ROAD, P\u014dkeno, Franklin\n6\n2\n3\nGurjit Dhindsa\nEnquire\nview more\nAuction 18 Nov 2026 13:00\n3/53 Robert Skelton Place, Clendon Park, Manukau City\n3\n1\n3\nAnu Nehra\nEnquire\nview more\nAuction 11 Nov 2026 13:30\n58A Holbrook Street, Avondale, Auckland City\n6\n4\n7\nCalvin Roche\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 11 Nov 2026 10:00\n48 Edmund Street, Saint Heliers, Auckland City\n5\n3\n6\nAaron Foss\nEnquire\nview more\nAuction 04 Nov 2026 13:00\n1A Barrie Avenue, Papatoetoe, Manukau City\n2\n1\nAmit Kumar\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 12 Nov 2026 10:00\n5 Lancelot Road, Orewa, Rodney\n3\n2\n2\nLouise Thomson\nEnquire\nview more\nOpen Home 26 Oct 2026\nAuction 26 Nov 2026 11:00\n989 East Coast Road, Kaiaua, Franklin\n3\n2\n2\nKarl Davis\nEnquire\nview more\nOpen Home 24 Oct 2026\nBy negotiation\n7/13 Grande Vue Road, Hillpark, Manukau City\n4\n2\n1\nNarinder Dhillon\nEnquire\nview more\nDeadline sale closes 06 Nov 2026 16:00\n2/36 Elizabeth Drive, West Harbour, Waitakere City\n3\n1\n4\nFrank Liang\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n4\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n3\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heig"
     },
     "parsedTitle": {
       "saleMethod": "Deadline Sale (unless sold prior)",
@@ -3825,7 +4377,28 @@
         "reason": "HTTP 404"
       }
     },
-    "homesDetails": null
+    "homesDetails": null,
+    "floodHazards": [
+      {
+        "type": "overland_flow_paths",
+        "sourceFeatureId": "895292",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Overland_Flow_Paths/FeatureServer/0"
+      }
+    ],
+    "openHomes": [
+      {
+        "date": "2026-10-22",
+        "startTime": "17:00",
+        "endTime": "17:30",
+        "label": "Thu, 22 Oct, 05:00pm - 05:30pm"
+      },
+      {
+        "date": "2026-10-25",
+        "startTime": "11:00",
+        "endTime": "11:30",
+        "label": "Sun, 25 Oct, 11:00am - 11:30am"
+      }
+    ]
   },
   {
     "index": 29,
@@ -3833,7 +4406,7 @@
       "source": "dom",
       "title": "view more\nAuction 03 Nov 2026 12:00\n39 Wentworth Avenue, Papatoetoe, Manukau City\n3\n1\n4\nGazala Salmin\nEnquire",
       "url": "https://www.oneroof.co.nz/property/auckland/papatoetoe/39-wentworth-avenue/bmewt",
-      "text": "We found over16,000 houses for sale in Auckland.\nSort by:\nFeatured\n|\nMap\nview more\nAuction 08 Nov 2026 02:30\n1/10 Harding Avenue, Mount Wellington, Auckland City\n2\n1\n1\nKevin Ratnayake\nEnquire\nview more\nBy Negotiation\n382 RAZORBACK ROAD, Pōkeno, Franklin\n6\n2\n3\nGurjit Dhindsa\nEnquire\nview more\nAuction 18 Nov 2026 13:00\n3/53 Robert Skelton Place, Clendon Park, Manukau City\n3\n1\n3\nAnu Nehra\nEnquire\nview more\nAuction 11 Nov 2026 13:30\n58A Holbrook Street, Avondale, Auckland City\n6\n4\n7\nCalvin Roche\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 11 Nov 2026 10:00\n48 Edmund Street, Saint Heliers, Auckland City\n5\n3\n6\nAaron Foss\nEnquire\nview more\nAuction 04 Nov 2026 13:00\n1A Barrie Avenue, Papatoetoe, Manukau City\n2\n1\nAmit Kumar\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 12 Nov 2026 10:00\n5 Lancelot Road, Orewa, Rodney\n3\n2\n2\nLouise Thomson\nEnquire\nview more\nOpen Home 26 Oct 2026\nAuction 26 Nov 2026 11:00\n989 East Coast Road, Kaiaua, Franklin\n3\n2\n2\nKarl Davis\nEnquire\nview more\nOpen Home 24 Oct 2026\nBy negotiation\n7/13 Grande Vue Road, Hillpark, Manukau City\n4\n2\n1\nNarinder Dhillon\nEnquire\nview more\nDeadline sale closes 06 Nov 2026 16:00\n2/36 Elizabeth Drive, West Harbour, Waitakere City\n3\n1\n4\nFrank Liang\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n4\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n3\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heig"
+      "text": "We found over16,000 houses for sale in Auckland.\nSort by:\nFeatured\n|\nMap\nview more\nAuction 08 Nov 2026 02:30\n1/10 Harding Avenue, Mount Wellington, Auckland City\n2\n1\n1\nKevin Ratnayake\nEnquire\nview more\nBy Negotiation\n382 RAZORBACK ROAD, P\u014dkeno, Franklin\n6\n2\n3\nGurjit Dhindsa\nEnquire\nview more\nAuction 18 Nov 2026 13:00\n3/53 Robert Skelton Place, Clendon Park, Manukau City\n3\n1\n3\nAnu Nehra\nEnquire\nview more\nAuction 11 Nov 2026 13:30\n58A Holbrook Street, Avondale, Auckland City\n6\n4\n7\nCalvin Roche\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 11 Nov 2026 10:00\n48 Edmund Street, Saint Heliers, Auckland City\n5\n3\n6\nAaron Foss\nEnquire\nview more\nAuction 04 Nov 2026 13:00\n1A Barrie Avenue, Papatoetoe, Manukau City\n2\n1\nAmit Kumar\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 12 Nov 2026 10:00\n5 Lancelot Road, Orewa, Rodney\n3\n2\n2\nLouise Thomson\nEnquire\nview more\nOpen Home 26 Oct 2026\nAuction 26 Nov 2026 11:00\n989 East Coast Road, Kaiaua, Franklin\n3\n2\n2\nKarl Davis\nEnquire\nview more\nOpen Home 24 Oct 2026\nBy negotiation\n7/13 Grande Vue Road, Hillpark, Manukau City\n4\n2\n1\nNarinder Dhillon\nEnquire\nview more\nDeadline sale closes 06 Nov 2026 16:00\n2/36 Elizabeth Drive, West Harbour, Waitakere City\n3\n1\n4\nFrank Liang\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n4\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n3\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heig"
     },
     "parsedTitle": {
       "saleMethod": "Auction 03 Nov 2026 12:00",
@@ -3964,7 +4537,15 @@
         "latitude": -36.975799560546875,
         "longitude": 174.8594512939453
       }
-    }
+    },
+    "floodHazards": [
+      {
+        "type": "overland_flow_paths",
+        "sourceFeatureId": "742256",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Overland_Flow_Paths/FeatureServer/0"
+      }
+    ],
+    "openHomes": []
   },
   {
     "index": 30,
@@ -3972,7 +4553,7 @@
       "source": "dom",
       "title": "view more\nAsking Price $965,000\n310/100 Beachcroft Avenue, Onehunga, Auckland City\n3\n2\n1\nJack Davies\nEnquire",
       "url": "https://www.oneroof.co.nz/property/auckland/onehunga/310-100-beachcroft-avenue/kJKqt",
-      "text": "We found over16,000 houses for sale in Auckland.\nSort by:\nFeatured\n|\nMap\nview more\nAuction 08 Nov 2026 02:30\n1/10 Harding Avenue, Mount Wellington, Auckland City\n2\n1\n1\nKevin Ratnayake\nEnquire\nview more\nBy Negotiation\n382 RAZORBACK ROAD, Pōkeno, Franklin\n6\n2\n3\nGurjit Dhindsa\nEnquire\nview more\nAuction 18 Nov 2026 13:00\n3/53 Robert Skelton Place, Clendon Park, Manukau City\n3\n1\n3\nAnu Nehra\nEnquire\nview more\nAuction 11 Nov 2026 13:30\n58A Holbrook Street, Avondale, Auckland City\n6\n4\n7\nCalvin Roche\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 11 Nov 2026 10:00\n48 Edmund Street, Saint Heliers, Auckland City\n5\n3\n6\nAaron Foss\nEnquire\nview more\nAuction 04 Nov 2026 13:00\n1A Barrie Avenue, Papatoetoe, Manukau City\n2\n1\nAmit Kumar\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 12 Nov 2026 10:00\n5 Lancelot Road, Orewa, Rodney\n3\n2\n2\nLouise Thomson\nEnquire\nview more\nOpen Home 26 Oct 2026\nAuction 26 Nov 2026 11:00\n989 East Coast Road, Kaiaua, Franklin\n3\n2\n2\nKarl Davis\nEnquire\nview more\nOpen Home 24 Oct 2026\nBy negotiation\n7/13 Grande Vue Road, Hillpark, Manukau City\n4\n2\n1\nNarinder Dhillon\nEnquire\nview more\nDeadline sale closes 06 Nov 2026 16:00\n2/36 Elizabeth Drive, West Harbour, Waitakere City\n3\n1\n4\nFrank Liang\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n4\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n3\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heig"
+      "text": "We found over16,000 houses for sale in Auckland.\nSort by:\nFeatured\n|\nMap\nview more\nAuction 08 Nov 2026 02:30\n1/10 Harding Avenue, Mount Wellington, Auckland City\n2\n1\n1\nKevin Ratnayake\nEnquire\nview more\nBy Negotiation\n382 RAZORBACK ROAD, P\u014dkeno, Franklin\n6\n2\n3\nGurjit Dhindsa\nEnquire\nview more\nAuction 18 Nov 2026 13:00\n3/53 Robert Skelton Place, Clendon Park, Manukau City\n3\n1\n3\nAnu Nehra\nEnquire\nview more\nAuction 11 Nov 2026 13:30\n58A Holbrook Street, Avondale, Auckland City\n6\n4\n7\nCalvin Roche\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 11 Nov 2026 10:00\n48 Edmund Street, Saint Heliers, Auckland City\n5\n3\n6\nAaron Foss\nEnquire\nview more\nAuction 04 Nov 2026 13:00\n1A Barrie Avenue, Papatoetoe, Manukau City\n2\n1\nAmit Kumar\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 12 Nov 2026 10:00\n5 Lancelot Road, Orewa, Rodney\n3\n2\n2\nLouise Thomson\nEnquire\nview more\nOpen Home 26 Oct 2026\nAuction 26 Nov 2026 11:00\n989 East Coast Road, Kaiaua, Franklin\n3\n2\n2\nKarl Davis\nEnquire\nview more\nOpen Home 24 Oct 2026\nBy negotiation\n7/13 Grande Vue Road, Hillpark, Manukau City\n4\n2\n1\nNarinder Dhillon\nEnquire\nview more\nDeadline sale closes 06 Nov 2026 16:00\n2/36 Elizabeth Drive, West Harbour, Waitakere City\n3\n1\n4\nFrank Liang\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n4\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n3\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heig"
     },
     "parsedTitle": {
       "saleMethod": "Asking Price $965,000",
@@ -4076,19 +4657,61 @@
         "latitude": -36.9246711730957,
         "longitude": 174.7782440185547
       }
-    }
+    },
+    "floodHazards": [
+      {
+        "type": "flood_plains",
+        "sourceFeatureId": "12248",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Flood_Plains/FeatureServer/0"
+      },
+      {
+        "type": "flood_prone_areas",
+        "sourceFeatureId": "22816",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Flood_Prone_Areas/FeatureServer/0"
+      },
+      {
+        "type": "overland_flow_paths",
+        "sourceFeatureId": "126036",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Overland_Flow_Paths/FeatureServer/0"
+      },
+      {
+        "type": "coastal_inundation",
+        "sourceFeatureId": "829879",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Coastal_Inundation_100_yr_return/FeatureServer/0"
+      }
+    ],
+    "openHomes": [
+      {
+        "date": "2026-10-20",
+        "startTime": "14:00",
+        "endTime": "14:30",
+        "label": "Tue, 20 Oct, 02:00pm - 02:30pm"
+      },
+      {
+        "date": "2026-10-22",
+        "startTime": "14:00",
+        "endTime": "14:30",
+        "label": "Thu, 22 Oct, 02:00pm - 02:30pm"
+      },
+      {
+        "date": "2026-10-26",
+        "startTime": "14:00",
+        "endTime": "14:30",
+        "label": "Mon, 26 Oct, 02:00pm - 02:30pm"
+      }
+    ]
   },
   {
     "index": 31,
     "item": {
       "source": "dom",
-      "title": "view more\nBy Negotiation\n9 MCLACHLAN WAY, Pōkeno, Franklin\n4\n4\n2\nAilsa Chen\nEnquire",
+      "title": "view more\nBy Negotiation\n9 MCLACHLAN WAY, P\u014dkeno, Franklin\n4\n4\n2\nAilsa Chen\nEnquire",
       "url": "https://www.oneroof.co.nz/property/auckland/pokeno/9-mclachlan-way/xRzsI",
-      "text": "We found over16,000 houses for sale in Auckland.\nSort by:\nFeatured\n|\nMap\nview more\nAuction 08 Nov 2026 02:30\n1/10 Harding Avenue, Mount Wellington, Auckland City\n2\n1\n1\nKevin Ratnayake\nEnquire\nview more\nBy Negotiation\n382 RAZORBACK ROAD, Pōkeno, Franklin\n6\n2\n3\nGurjit Dhindsa\nEnquire\nview more\nAuction 18 Nov 2026 13:00\n3/53 Robert Skelton Place, Clendon Park, Manukau City\n3\n1\n3\nAnu Nehra\nEnquire\nview more\nAuction 11 Nov 2026 13:30\n58A Holbrook Street, Avondale, Auckland City\n6\n4\n7\nCalvin Roche\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 11 Nov 2026 10:00\n48 Edmund Street, Saint Heliers, Auckland City\n5\n3\n6\nAaron Foss\nEnquire\nview more\nAuction 04 Nov 2026 13:00\n1A Barrie Avenue, Papatoetoe, Manukau City\n2\n1\nAmit Kumar\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 12 Nov 2026 10:00\n5 Lancelot Road, Orewa, Rodney\n3\n2\n2\nLouise Thomson\nEnquire\nview more\nOpen Home 26 Oct 2026\nAuction 26 Nov 2026 11:00\n989 East Coast Road, Kaiaua, Franklin\n3\n2\n2\nKarl Davis\nEnquire\nview more\nOpen Home 24 Oct 2026\nBy negotiation\n7/13 Grande Vue Road, Hillpark, Manukau City\n4\n2\n1\nNarinder Dhillon\nEnquire\nview more\nDeadline sale closes 06 Nov 2026 16:00\n2/36 Elizabeth Drive, West Harbour, Waitakere City\n3\n1\n4\nFrank Liang\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n4\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n3\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heig"
+      "text": "We found over16,000 houses for sale in Auckland.\nSort by:\nFeatured\n|\nMap\nview more\nAuction 08 Nov 2026 02:30\n1/10 Harding Avenue, Mount Wellington, Auckland City\n2\n1\n1\nKevin Ratnayake\nEnquire\nview more\nBy Negotiation\n382 RAZORBACK ROAD, P\u014dkeno, Franklin\n6\n2\n3\nGurjit Dhindsa\nEnquire\nview more\nAuction 18 Nov 2026 13:00\n3/53 Robert Skelton Place, Clendon Park, Manukau City\n3\n1\n3\nAnu Nehra\nEnquire\nview more\nAuction 11 Nov 2026 13:30\n58A Holbrook Street, Avondale, Auckland City\n6\n4\n7\nCalvin Roche\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 11 Nov 2026 10:00\n48 Edmund Street, Saint Heliers, Auckland City\n5\n3\n6\nAaron Foss\nEnquire\nview more\nAuction 04 Nov 2026 13:00\n1A Barrie Avenue, Papatoetoe, Manukau City\n2\n1\nAmit Kumar\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 12 Nov 2026 10:00\n5 Lancelot Road, Orewa, Rodney\n3\n2\n2\nLouise Thomson\nEnquire\nview more\nOpen Home 26 Oct 2026\nAuction 26 Nov 2026 11:00\n989 East Coast Road, Kaiaua, Franklin\n3\n2\n2\nKarl Davis\nEnquire\nview more\nOpen Home 24 Oct 2026\nBy negotiation\n7/13 Grande Vue Road, Hillpark, Manukau City\n4\n2\n1\nNarinder Dhillon\nEnquire\nview more\nDeadline sale closes 06 Nov 2026 16:00\n2/36 Elizabeth Drive, West Harbour, Waitakere City\n3\n1\n4\nFrank Liang\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n4\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n3\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heig"
     },
     "parsedTitle": {
       "saleMethod": "By Negotiation",
-      "address": "9 MCLACHLAN WAY, Pōkeno, Franklin",
+      "address": "9 MCLACHLAN WAY, P\u014dkeno, Franklin",
       "beds": 4,
       "baths": 4,
       "cars": 2
@@ -4142,11 +4765,11 @@
     },
     "linz": {
       "addressId": 2020155,
-      "fullAddress": "9 McLachlan Way, Pōkeno",
+      "fullAddress": "9 McLachlan Way, P\u014dkeno",
       "latitude": -37.24612351208599,
       "longitude": 175.03453764791072,
-      "suburb": "Pōkeno",
-      "city": "Pōkeno"
+      "suburb": "P\u014dkeno",
+      "city": "P\u014dkeno"
     },
     "propValuesSources": {
       "RealEstate": {
@@ -4173,7 +4796,9 @@
     "homesDetails": {
       "status": "wrong_address",
       "pageAddress": "9 MCLACHLAN WAY, Pokeno, Franklin, Auckland"
-    }
+    },
+    "floodHazards": [],
+    "openHomes": []
   },
   {
     "index": 32,
@@ -4181,7 +4806,7 @@
       "source": "dom",
       "title": "view more\nPrice by Negotiation\n447 Glenbrook Waiuku Road, Glenbrook, Franklin\n3\n2\nDylan Turner\nEnquire",
       "url": "https://www.oneroof.co.nz/property/auckland/glenbrook/447-glenbrook-waiuku/5kLae",
-      "text": "We found over16,000 houses for sale in Auckland.\nSort by:\nFeatured\n|\nMap\nview more\nAuction 08 Nov 2026 02:30\n1/10 Harding Avenue, Mount Wellington, Auckland City\n2\n1\n1\nKevin Ratnayake\nEnquire\nview more\nBy Negotiation\n382 RAZORBACK ROAD, Pōkeno, Franklin\n6\n2\n3\nGurjit Dhindsa\nEnquire\nview more\nAuction 18 Nov 2026 13:00\n3/53 Robert Skelton Place, Clendon Park, Manukau City\n3\n1\n3\nAnu Nehra\nEnquire\nview more\nAuction 11 Nov 2026 13:30\n58A Holbrook Street, Avondale, Auckland City\n6\n4\n7\nCalvin Roche\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 11 Nov 2026 10:00\n48 Edmund Street, Saint Heliers, Auckland City\n5\n3\n6\nAaron Foss\nEnquire\nview more\nAuction 04 Nov 2026 13:00\n1A Barrie Avenue, Papatoetoe, Manukau City\n2\n1\nAmit Kumar\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 12 Nov 2026 10:00\n5 Lancelot Road, Orewa, Rodney\n3\n2\n2\nLouise Thomson\nEnquire\nview more\nOpen Home 26 Oct 2026\nAuction 26 Nov 2026 11:00\n989 East Coast Road, Kaiaua, Franklin\n3\n2\n2\nKarl Davis\nEnquire\nview more\nOpen Home 24 Oct 2026\nBy negotiation\n7/13 Grande Vue Road, Hillpark, Manukau City\n4\n2\n1\nNarinder Dhillon\nEnquire\nview more\nDeadline sale closes 06 Nov 2026 16:00\n2/36 Elizabeth Drive, West Harbour, Waitakere City\n3\n1\n4\nFrank Liang\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n4\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n3\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heig"
+      "text": "We found over16,000 houses for sale in Auckland.\nSort by:\nFeatured\n|\nMap\nview more\nAuction 08 Nov 2026 02:30\n1/10 Harding Avenue, Mount Wellington, Auckland City\n2\n1\n1\nKevin Ratnayake\nEnquire\nview more\nBy Negotiation\n382 RAZORBACK ROAD, P\u014dkeno, Franklin\n6\n2\n3\nGurjit Dhindsa\nEnquire\nview more\nAuction 18 Nov 2026 13:00\n3/53 Robert Skelton Place, Clendon Park, Manukau City\n3\n1\n3\nAnu Nehra\nEnquire\nview more\nAuction 11 Nov 2026 13:30\n58A Holbrook Street, Avondale, Auckland City\n6\n4\n7\nCalvin Roche\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 11 Nov 2026 10:00\n48 Edmund Street, Saint Heliers, Auckland City\n5\n3\n6\nAaron Foss\nEnquire\nview more\nAuction 04 Nov 2026 13:00\n1A Barrie Avenue, Papatoetoe, Manukau City\n2\n1\nAmit Kumar\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 12 Nov 2026 10:00\n5 Lancelot Road, Orewa, Rodney\n3\n2\n2\nLouise Thomson\nEnquire\nview more\nOpen Home 26 Oct 2026\nAuction 26 Nov 2026 11:00\n989 East Coast Road, Kaiaua, Franklin\n3\n2\n2\nKarl Davis\nEnquire\nview more\nOpen Home 24 Oct 2026\nBy negotiation\n7/13 Grande Vue Road, Hillpark, Manukau City\n4\n2\n1\nNarinder Dhillon\nEnquire\nview more\nDeadline sale closes 06 Nov 2026 16:00\n2/36 Elizabeth Drive, West Harbour, Waitakere City\n3\n1\n4\nFrank Liang\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n4\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n3\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heig"
     },
     "parsedTitle": {
       "saleMethod": "Price by Negotiation",
@@ -4308,7 +4933,15 @@
         "latitude": -37.20521926879883,
         "longitude": 174.74998474121094
       }
-    }
+    },
+    "floodHazards": [
+      {
+        "type": "overland_flow_paths",
+        "sourceFeatureId": "138934",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Overland_Flow_Paths/FeatureServer/0"
+      }
+    ],
+    "openHomes": []
   },
   {
     "index": 33,
@@ -4316,7 +4949,7 @@
       "source": "dom",
       "title": "view more\nAsking Price $625,000\n209/100 Beachcroft Avenue, Onehunga, Auckland City\n1\n1\n1\nBrittany Broadbent\nEnquire",
       "url": "https://www.oneroof.co.nz/property/auckland/onehunga/209-100-beachcroft-avenue/LBFUc",
-      "text": "We found over16,000 houses for sale in Auckland.\nSort by:\nFeatured\n|\nMap\nview more\nAuction 08 Nov 2026 02:30\n1/10 Harding Avenue, Mount Wellington, Auckland City\n2\n1\n1\nKevin Ratnayake\nEnquire\nview more\nBy Negotiation\n382 RAZORBACK ROAD, Pōkeno, Franklin\n6\n2\n3\nGurjit Dhindsa\nEnquire\nview more\nAuction 18 Nov 2026 13:00\n3/53 Robert Skelton Place, Clendon Park, Manukau City\n3\n1\n3\nAnu Nehra\nEnquire\nview more\nAuction 11 Nov 2026 13:30\n58A Holbrook Street, Avondale, Auckland City\n6\n4\n7\nCalvin Roche\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 11 Nov 2026 10:00\n48 Edmund Street, Saint Heliers, Auckland City\n5\n3\n6\nAaron Foss\nEnquire\nview more\nAuction 04 Nov 2026 13:00\n1A Barrie Avenue, Papatoetoe, Manukau City\n2\n1\nAmit Kumar\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 12 Nov 2026 10:00\n5 Lancelot Road, Orewa, Rodney\n3\n2\n2\nLouise Thomson\nEnquire\nview more\nOpen Home 26 Oct 2026\nAuction 26 Nov 2026 11:00\n989 East Coast Road, Kaiaua, Franklin\n3\n2\n2\nKarl Davis\nEnquire\nview more\nOpen Home 24 Oct 2026\nBy negotiation\n7/13 Grande Vue Road, Hillpark, Manukau City\n4\n2\n1\nNarinder Dhillon\nEnquire\nview more\nDeadline sale closes 06 Nov 2026 16:00\n2/36 Elizabeth Drive, West Harbour, Waitakere City\n3\n1\n4\nFrank Liang\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n4\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n3\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heig"
+      "text": "We found over16,000 houses for sale in Auckland.\nSort by:\nFeatured\n|\nMap\nview more\nAuction 08 Nov 2026 02:30\n1/10 Harding Avenue, Mount Wellington, Auckland City\n2\n1\n1\nKevin Ratnayake\nEnquire\nview more\nBy Negotiation\n382 RAZORBACK ROAD, P\u014dkeno, Franklin\n6\n2\n3\nGurjit Dhindsa\nEnquire\nview more\nAuction 18 Nov 2026 13:00\n3/53 Robert Skelton Place, Clendon Park, Manukau City\n3\n1\n3\nAnu Nehra\nEnquire\nview more\nAuction 11 Nov 2026 13:30\n58A Holbrook Street, Avondale, Auckland City\n6\n4\n7\nCalvin Roche\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 11 Nov 2026 10:00\n48 Edmund Street, Saint Heliers, Auckland City\n5\n3\n6\nAaron Foss\nEnquire\nview more\nAuction 04 Nov 2026 13:00\n1A Barrie Avenue, Papatoetoe, Manukau City\n2\n1\nAmit Kumar\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 12 Nov 2026 10:00\n5 Lancelot Road, Orewa, Rodney\n3\n2\n2\nLouise Thomson\nEnquire\nview more\nOpen Home 26 Oct 2026\nAuction 26 Nov 2026 11:00\n989 East Coast Road, Kaiaua, Franklin\n3\n2\n2\nKarl Davis\nEnquire\nview more\nOpen Home 24 Oct 2026\nBy negotiation\n7/13 Grande Vue Road, Hillpark, Manukau City\n4\n2\n1\nNarinder Dhillon\nEnquire\nview more\nDeadline sale closes 06 Nov 2026 16:00\n2/36 Elizabeth Drive, West Harbour, Waitakere City\n3\n1\n4\nFrank Liang\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n4\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n3\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heig"
     },
     "parsedTitle": {
       "saleMethod": "Asking Price $625,000",
@@ -4421,19 +5054,61 @@
         "latitude": -36.92467498779297,
         "longitude": 174.7781982421875
       }
-    }
+    },
+    "floodHazards": [
+      {
+        "type": "flood_plains",
+        "sourceFeatureId": "12248",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Flood_Plains/FeatureServer/0"
+      },
+      {
+        "type": "flood_prone_areas",
+        "sourceFeatureId": "22816",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Flood_Prone_Areas/FeatureServer/0"
+      },
+      {
+        "type": "overland_flow_paths",
+        "sourceFeatureId": "126036",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Overland_Flow_Paths/FeatureServer/0"
+      },
+      {
+        "type": "coastal_inundation",
+        "sourceFeatureId": "829879",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Coastal_Inundation_100_yr_return/FeatureServer/0"
+      }
+    ],
+    "openHomes": [
+      {
+        "date": "2026-10-20",
+        "startTime": "14:00",
+        "endTime": "14:30",
+        "label": "Tue, 20 Oct, 02:00pm - 02:30pm"
+      },
+      {
+        "date": "2026-10-22",
+        "startTime": "14:00",
+        "endTime": "14:30",
+        "label": "Thu, 22 Oct, 02:00pm - 02:30pm"
+      },
+      {
+        "date": "2026-10-26",
+        "startTime": "14:00",
+        "endTime": "14:30",
+        "label": "Mon, 26 Oct, 02:00pm - 02:30pm"
+      }
+    ]
   },
   {
     "index": 34,
     "item": {
       "source": "dom",
-      "title": "view more\nAsking Price $699,000\n1152A Miranda Road, Pūkorokoro / Miranda, Franklin\n3\n1\nKarl Davis\nEnquire",
+      "title": "view more\nAsking Price $699,000\n1152A Miranda Road, P\u016bkorokoro / Miranda, Franklin\n3\n1\nKarl Davis\nEnquire",
       "url": "https://www.oneroof.co.nz/property/auckland/miranda/1152a-miranda-road/LMSgl",
-      "text": "We found over16,000 houses for sale in Auckland.\nSort by:\nFeatured\n|\nMap\nview more\nAuction 08 Nov 2026 02:30\n1/10 Harding Avenue, Mount Wellington, Auckland City\n2\n1\n1\nKevin Ratnayake\nEnquire\nview more\nBy Negotiation\n382 RAZORBACK ROAD, Pōkeno, Franklin\n6\n2\n3\nGurjit Dhindsa\nEnquire\nview more\nAuction 18 Nov 2026 13:00\n3/53 Robert Skelton Place, Clendon Park, Manukau City\n3\n1\n3\nAnu Nehra\nEnquire\nview more\nAuction 11 Nov 2026 13:30\n58A Holbrook Street, Avondale, Auckland City\n6\n4\n7\nCalvin Roche\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 11 Nov 2026 10:00\n48 Edmund Street, Saint Heliers, Auckland City\n5\n3\n6\nAaron Foss\nEnquire\nview more\nAuction 04 Nov 2026 13:00\n1A Barrie Avenue, Papatoetoe, Manukau City\n2\n1\nAmit Kumar\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 12 Nov 2026 10:00\n5 Lancelot Road, Orewa, Rodney\n3\n2\n2\nLouise Thomson\nEnquire\nview more\nOpen Home 26 Oct 2026\nAuction 26 Nov 2026 11:00\n989 East Coast Road, Kaiaua, Franklin\n3\n2\n2\nKarl Davis\nEnquire\nview more\nOpen Home 24 Oct 2026\nBy negotiation\n7/13 Grande Vue Road, Hillpark, Manukau City\n4\n2\n1\nNarinder Dhillon\nEnquire\nview more\nDeadline sale closes 06 Nov 2026 16:00\n2/36 Elizabeth Drive, West Harbour, Waitakere City\n3\n1\n4\nFrank Liang\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n4\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n3\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heig"
+      "text": "We found over16,000 houses for sale in Auckland.\nSort by:\nFeatured\n|\nMap\nview more\nAuction 08 Nov 2026 02:30\n1/10 Harding Avenue, Mount Wellington, Auckland City\n2\n1\n1\nKevin Ratnayake\nEnquire\nview more\nBy Negotiation\n382 RAZORBACK ROAD, P\u014dkeno, Franklin\n6\n2\n3\nGurjit Dhindsa\nEnquire\nview more\nAuction 18 Nov 2026 13:00\n3/53 Robert Skelton Place, Clendon Park, Manukau City\n3\n1\n3\nAnu Nehra\nEnquire\nview more\nAuction 11 Nov 2026 13:30\n58A Holbrook Street, Avondale, Auckland City\n6\n4\n7\nCalvin Roche\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 11 Nov 2026 10:00\n48 Edmund Street, Saint Heliers, Auckland City\n5\n3\n6\nAaron Foss\nEnquire\nview more\nAuction 04 Nov 2026 13:00\n1A Barrie Avenue, Papatoetoe, Manukau City\n2\n1\nAmit Kumar\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 12 Nov 2026 10:00\n5 Lancelot Road, Orewa, Rodney\n3\n2\n2\nLouise Thomson\nEnquire\nview more\nOpen Home 26 Oct 2026\nAuction 26 Nov 2026 11:00\n989 East Coast Road, Kaiaua, Franklin\n3\n2\n2\nKarl Davis\nEnquire\nview more\nOpen Home 24 Oct 2026\nBy negotiation\n7/13 Grande Vue Road, Hillpark, Manukau City\n4\n2\n1\nNarinder Dhillon\nEnquire\nview more\nDeadline sale closes 06 Nov 2026 16:00\n2/36 Elizabeth Drive, West Harbour, Waitakere City\n3\n1\n4\nFrank Liang\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n4\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n3\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heig"
     },
     "parsedTitle": {
       "saleMethod": "Asking Price $699,000",
-      "address": "1152A Miranda Road, Pūkorokoro / Miranda, Franklin",
+      "address": "1152A Miranda Road, P\u016bkorokoro / Miranda, Franklin",
       "beds": 3,
       "baths": 1,
       "cars": null
@@ -4453,8 +5128,8 @@
       "floorArea": null,
       "landArea": 2679,
       "propertyType": "Residential for sale",
-      "teaser": "Motivated vendor – priced below GV",
-      "description": "Motivated vendor – priced below GV",
+      "teaser": "Motivated vendor \u2013 priced below GV",
+      "description": "Motivated vendor \u2013 priced below GV",
       "heroCover": "https://s.oneroof.co.nz/image/6c/5c/6c5cb24257fa0b12184a24d5892a6540.jpg?x-oss-process=image/quality,q_80",
       "images": [
         "https://s.oneroof.co.nz/image/24/21/2421effed61f2f7ec2ee05ba1560fb92.jpg?x-oss-process=image%2Fquality%2Cq_100%2Fresize%2Cw_1200",
@@ -4499,7 +5174,9 @@
         "reason": "HTTP 404"
       }
     },
-    "homesDetails": null
+    "homesDetails": null,
+    "floodHazards": [],
+    "openHomes": []
   },
   {
     "index": 35,
@@ -4507,7 +5184,7 @@
       "source": "dom",
       "title": "Asking Price $715,000\n320/100 Beachcroft Avenue, Onehunga, Auckland City\n2\n1\n1\nGlenn Baker\nEnquire",
       "url": "https://www.oneroof.co.nz/property/auckland/onehunga/320-100-beachcroft-avenue/YfrEn",
-      "text": "We found over16,000 houses for sale in Auckland.\nSort by:\nFeatured\n|\nMap\nview more\nAuction 08 Nov 2026 02:30\n1/10 Harding Avenue, Mount Wellington, Auckland City\n2\n1\n1\nKevin Ratnayake\nEnquire\nview more\nBy Negotiation\n382 RAZORBACK ROAD, Pōkeno, Franklin\n6\n2\n3\nGurjit Dhindsa\nEnquire\nview more\nAuction 18 Nov 2026 13:00\n3/53 Robert Skelton Place, Clendon Park, Manukau City\n3\n1\n3\nAnu Nehra\nEnquire\nview more\nAuction 11 Nov 2026 13:30\n58A Holbrook Street, Avondale, Auckland City\n6\n4\n7\nCalvin Roche\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 11 Nov 2026 10:00\n48 Edmund Street, Saint Heliers, Auckland City\n5\n3\n6\nAaron Foss\nEnquire\nview more\nAuction 04 Nov 2026 13:00\n1A Barrie Avenue, Papatoetoe, Manukau City\n2\n1\nAmit Kumar\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 12 Nov 2026 10:00\n5 Lancelot Road, Orewa, Rodney\n3\n2\n2\nLouise Thomson\nEnquire\nview more\nOpen Home 26 Oct 2026\nAuction 26 Nov 2026 11:00\n989 East Coast Road, Kaiaua, Franklin\n3\n2\n2\nKarl Davis\nEnquire\nview more\nOpen Home 24 Oct 2026\nBy negotiation\n7/13 Grande Vue Road, Hillpark, Manukau City\n4\n2\n1\nNarinder Dhillon\nEnquire\nview more\nDeadline sale closes 06 Nov 2026 16:00\n2/36 Elizabeth Drive, West Harbour, Waitakere City\n3\n1\n4\nFrank Liang\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n4\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n3\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heig"
+      "text": "We found over16,000 houses for sale in Auckland.\nSort by:\nFeatured\n|\nMap\nview more\nAuction 08 Nov 2026 02:30\n1/10 Harding Avenue, Mount Wellington, Auckland City\n2\n1\n1\nKevin Ratnayake\nEnquire\nview more\nBy Negotiation\n382 RAZORBACK ROAD, P\u014dkeno, Franklin\n6\n2\n3\nGurjit Dhindsa\nEnquire\nview more\nAuction 18 Nov 2026 13:00\n3/53 Robert Skelton Place, Clendon Park, Manukau City\n3\n1\n3\nAnu Nehra\nEnquire\nview more\nAuction 11 Nov 2026 13:30\n58A Holbrook Street, Avondale, Auckland City\n6\n4\n7\nCalvin Roche\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 11 Nov 2026 10:00\n48 Edmund Street, Saint Heliers, Auckland City\n5\n3\n6\nAaron Foss\nEnquire\nview more\nAuction 04 Nov 2026 13:00\n1A Barrie Avenue, Papatoetoe, Manukau City\n2\n1\nAmit Kumar\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 12 Nov 2026 10:00\n5 Lancelot Road, Orewa, Rodney\n3\n2\n2\nLouise Thomson\nEnquire\nview more\nOpen Home 26 Oct 2026\nAuction 26 Nov 2026 11:00\n989 East Coast Road, Kaiaua, Franklin\n3\n2\n2\nKarl Davis\nEnquire\nview more\nOpen Home 24 Oct 2026\nBy negotiation\n7/13 Grande Vue Road, Hillpark, Manukau City\n4\n2\n1\nNarinder Dhillon\nEnquire\nview more\nDeadline sale closes 06 Nov 2026 16:00\n2/36 Elizabeth Drive, West Harbour, Waitakere City\n3\n1\n4\nFrank Liang\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n4\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n3\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heig"
     },
     "parsedTitle": {
       "saleMethod": "Asking Price $715,000",
@@ -4610,7 +5287,49 @@
         "latitude": -36.9246711730957,
         "longitude": 174.7782440185547
       }
-    }
+    },
+    "floodHazards": [
+      {
+        "type": "flood_plains",
+        "sourceFeatureId": "12248",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Flood_Plains/FeatureServer/0"
+      },
+      {
+        "type": "flood_prone_areas",
+        "sourceFeatureId": "22816",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Flood_Prone_Areas/FeatureServer/0"
+      },
+      {
+        "type": "overland_flow_paths",
+        "sourceFeatureId": "126036",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Overland_Flow_Paths/FeatureServer/0"
+      },
+      {
+        "type": "coastal_inundation",
+        "sourceFeatureId": "829879",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Coastal_Inundation_100_yr_return/FeatureServer/0"
+      }
+    ],
+    "openHomes": [
+      {
+        "date": "2026-10-20",
+        "startTime": "14:00",
+        "endTime": "14:30",
+        "label": "Tue, 20 Oct, 02:00pm - 02:30pm"
+      },
+      {
+        "date": "2026-10-22",
+        "startTime": "14:00",
+        "endTime": "14:30",
+        "label": "Thu, 22 Oct, 02:00pm - 02:30pm"
+      },
+      {
+        "date": "2026-10-26",
+        "startTime": "14:00",
+        "endTime": "14:30",
+        "label": "Mon, 26 Oct, 02:00pm - 02:30pm"
+      }
+    ]
   },
   {
     "index": 36,
@@ -4618,7 +5337,7 @@
       "source": "dom",
       "title": "view more\nAsking Price $1,655,000\n413/100 Beachcroft Avenue, Onehunga, Auckland City\n3\n2\n2\nGlenn Baker\nEnquire",
       "url": "https://www.oneroof.co.nz/property/auckland/onehunga/413-100-beachcroft-avenue/hnHek",
-      "text": "We found over16,000 houses for sale in Auckland.\nSort by:\nFeatured\n|\nMap\nview more\nAuction 08 Nov 2026 02:30\n1/10 Harding Avenue, Mount Wellington, Auckland City\n2\n1\n1\nKevin Ratnayake\nEnquire\nview more\nBy Negotiation\n382 RAZORBACK ROAD, Pōkeno, Franklin\n6\n2\n3\nGurjit Dhindsa\nEnquire\nview more\nAuction 18 Nov 2026 13:00\n3/53 Robert Skelton Place, Clendon Park, Manukau City\n3\n1\n3\nAnu Nehra\nEnquire\nview more\nAuction 11 Nov 2026 13:30\n58A Holbrook Street, Avondale, Auckland City\n6\n4\n7\nCalvin Roche\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 11 Nov 2026 10:00\n48 Edmund Street, Saint Heliers, Auckland City\n5\n3\n6\nAaron Foss\nEnquire\nview more\nAuction 04 Nov 2026 13:00\n1A Barrie Avenue, Papatoetoe, Manukau City\n2\n1\nAmit Kumar\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 12 Nov 2026 10:00\n5 Lancelot Road, Orewa, Rodney\n3\n2\n2\nLouise Thomson\nEnquire\nview more\nOpen Home 26 Oct 2026\nAuction 26 Nov 2026 11:00\n989 East Coast Road, Kaiaua, Franklin\n3\n2\n2\nKarl Davis\nEnquire\nview more\nOpen Home 24 Oct 2026\nBy negotiation\n7/13 Grande Vue Road, Hillpark, Manukau City\n4\n2\n1\nNarinder Dhillon\nEnquire\nview more\nDeadline sale closes 06 Nov 2026 16:00\n2/36 Elizabeth Drive, West Harbour, Waitakere City\n3\n1\n4\nFrank Liang\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n4\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n3\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heig"
+      "text": "We found over16,000 houses for sale in Auckland.\nSort by:\nFeatured\n|\nMap\nview more\nAuction 08 Nov 2026 02:30\n1/10 Harding Avenue, Mount Wellington, Auckland City\n2\n1\n1\nKevin Ratnayake\nEnquire\nview more\nBy Negotiation\n382 RAZORBACK ROAD, P\u014dkeno, Franklin\n6\n2\n3\nGurjit Dhindsa\nEnquire\nview more\nAuction 18 Nov 2026 13:00\n3/53 Robert Skelton Place, Clendon Park, Manukau City\n3\n1\n3\nAnu Nehra\nEnquire\nview more\nAuction 11 Nov 2026 13:30\n58A Holbrook Street, Avondale, Auckland City\n6\n4\n7\nCalvin Roche\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 11 Nov 2026 10:00\n48 Edmund Street, Saint Heliers, Auckland City\n5\n3\n6\nAaron Foss\nEnquire\nview more\nAuction 04 Nov 2026 13:00\n1A Barrie Avenue, Papatoetoe, Manukau City\n2\n1\nAmit Kumar\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 12 Nov 2026 10:00\n5 Lancelot Road, Orewa, Rodney\n3\n2\n2\nLouise Thomson\nEnquire\nview more\nOpen Home 26 Oct 2026\nAuction 26 Nov 2026 11:00\n989 East Coast Road, Kaiaua, Franklin\n3\n2\n2\nKarl Davis\nEnquire\nview more\nOpen Home 24 Oct 2026\nBy negotiation\n7/13 Grande Vue Road, Hillpark, Manukau City\n4\n2\n1\nNarinder Dhillon\nEnquire\nview more\nDeadline sale closes 06 Nov 2026 16:00\n2/36 Elizabeth Drive, West Harbour, Waitakere City\n3\n1\n4\nFrank Liang\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n4\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n3\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heig"
     },
     "parsedTitle": {
       "saleMethod": "Asking Price $1,655,000",
@@ -4724,7 +5443,44 @@
         "latitude": -36.92466735839844,
         "longitude": 174.77828979492188
       }
-    }
+    },
+    "floodHazards": [
+      {
+        "type": "flood_plains",
+        "sourceFeatureId": "12248",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Flood_Plains/FeatureServer/0"
+      },
+      {
+        "type": "flood_prone_areas",
+        "sourceFeatureId": "22816",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Flood_Prone_Areas/FeatureServer/0"
+      },
+      {
+        "type": "coastal_inundation",
+        "sourceFeatureId": "829879",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Coastal_Inundation_100_yr_return/FeatureServer/0"
+      }
+    ],
+    "openHomes": [
+      {
+        "date": "2026-10-20",
+        "startTime": "14:00",
+        "endTime": "14:30",
+        "label": "Tue, 20 Oct, 02:00pm - 02:30pm"
+      },
+      {
+        "date": "2026-10-22",
+        "startTime": "14:00",
+        "endTime": "14:30",
+        "label": "Thu, 22 Oct, 02:00pm - 02:30pm"
+      },
+      {
+        "date": "2026-10-26",
+        "startTime": "14:00",
+        "endTime": "14:30",
+        "label": "Mon, 26 Oct, 02:00pm - 02:30pm"
+      }
+    ]
   },
   {
     "index": 37,
@@ -4732,7 +5488,7 @@
       "source": "dom",
       "title": "view more\nOpen Home 24 Oct 2026\nSet Sale Date (unless sold prior)\n4 Charles Street, Mahurangi East, Rodney\n8\n5\n10\nVictoria Turner\nEnquire",
       "url": "https://www.oneroof.co.nz/property/auckland/mahurangi-east/4-charles-street/92XuC",
-      "text": "We found over16,000 houses for sale in Auckland.\nSort by:\nFeatured\n|\nMap\nview more\nAuction 08 Nov 2026 02:30\n1/10 Harding Avenue, Mount Wellington, Auckland City\n2\n1\n1\nKevin Ratnayake\nEnquire\nview more\nBy Negotiation\n382 RAZORBACK ROAD, Pōkeno, Franklin\n6\n2\n3\nGurjit Dhindsa\nEnquire\nview more\nAuction 18 Nov 2026 13:00\n3/53 Robert Skelton Place, Clendon Park, Manukau City\n3\n1\n3\nAnu Nehra\nEnquire\nview more\nAuction 11 Nov 2026 13:30\n58A Holbrook Street, Avondale, Auckland City\n6\n4\n7\nCalvin Roche\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 11 Nov 2026 10:00\n48 Edmund Street, Saint Heliers, Auckland City\n5\n3\n6\nAaron Foss\nEnquire\nview more\nAuction 04 Nov 2026 13:00\n1A Barrie Avenue, Papatoetoe, Manukau City\n2\n1\nAmit Kumar\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 12 Nov 2026 10:00\n5 Lancelot Road, Orewa, Rodney\n3\n2\n2\nLouise Thomson\nEnquire\nview more\nOpen Home 26 Oct 2026\nAuction 26 Nov 2026 11:00\n989 East Coast Road, Kaiaua, Franklin\n3\n2\n2\nKarl Davis\nEnquire\nview more\nOpen Home 24 Oct 2026\nBy negotiation\n7/13 Grande Vue Road, Hillpark, Manukau City\n4\n2\n1\nNarinder Dhillon\nEnquire\nview more\nDeadline sale closes 06 Nov 2026 16:00\n2/36 Elizabeth Drive, West Harbour, Waitakere City\n3\n1\n4\nFrank Liang\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n4\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n3\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heig"
+      "text": "We found over16,000 houses for sale in Auckland.\nSort by:\nFeatured\n|\nMap\nview more\nAuction 08 Nov 2026 02:30\n1/10 Harding Avenue, Mount Wellington, Auckland City\n2\n1\n1\nKevin Ratnayake\nEnquire\nview more\nBy Negotiation\n382 RAZORBACK ROAD, P\u014dkeno, Franklin\n6\n2\n3\nGurjit Dhindsa\nEnquire\nview more\nAuction 18 Nov 2026 13:00\n3/53 Robert Skelton Place, Clendon Park, Manukau City\n3\n1\n3\nAnu Nehra\nEnquire\nview more\nAuction 11 Nov 2026 13:30\n58A Holbrook Street, Avondale, Auckland City\n6\n4\n7\nCalvin Roche\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 11 Nov 2026 10:00\n48 Edmund Street, Saint Heliers, Auckland City\n5\n3\n6\nAaron Foss\nEnquire\nview more\nAuction 04 Nov 2026 13:00\n1A Barrie Avenue, Papatoetoe, Manukau City\n2\n1\nAmit Kumar\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 12 Nov 2026 10:00\n5 Lancelot Road, Orewa, Rodney\n3\n2\n2\nLouise Thomson\nEnquire\nview more\nOpen Home 26 Oct 2026\nAuction 26 Nov 2026 11:00\n989 East Coast Road, Kaiaua, Franklin\n3\n2\n2\nKarl Davis\nEnquire\nview more\nOpen Home 24 Oct 2026\nBy negotiation\n7/13 Grande Vue Road, Hillpark, Manukau City\n4\n2\n1\nNarinder Dhillon\nEnquire\nview more\nDeadline sale closes 06 Nov 2026 16:00\n2/36 Elizabeth Drive, West Harbour, Waitakere City\n3\n1\n4\nFrank Liang\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n4\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n3\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heig"
     },
     "parsedTitle": {
       "saleMethod": "Set Sale Date (unless sold prior)",
@@ -4802,14 +5558,7 @@
       "estimate": null,
       "saleMethod": "Set Sale Date (unless sold prior)"
     },
-    "linz": {
-      "addressId": 70230,
-      "fullAddress": "4 Charles Street, Weston, Oamaru",
-      "latitude": -45.07905696575003,
-      "longitude": 170.91991328329098,
-      "suburb": "Weston",
-      "city": "Oamaru"
-    },
+    "linz": null,
     "propValuesSources": {
       "RealEstate": {
         "status": "matched",
@@ -4832,19 +5581,34 @@
         "reason": "HTTP 404"
       }
     },
-    "homesDetails": null
+    "homesDetails": null,
+    "floodHazards": [],
+    "openHomes": [
+      {
+        "date": "2026-10-24",
+        "startTime": "15:00",
+        "endTime": "16:00",
+        "label": "Sat, 24 Oct, 03:00pm - 04:00pm"
+      },
+      {
+        "date": "2026-10-25",
+        "startTime": "14:00",
+        "endTime": "15:00",
+        "label": "Sun, 25 Oct, 02:00pm - 03:00pm"
+      }
+    ]
   },
   {
     "index": 38,
     "item": {
       "source": "dom",
-      "title": "view more\nOpen Home 24 Oct 2026\nBy Negotiation\n13 WESTMUIR CRESCENT, Pōkeno, Franklin\n4\n2\n2\nGinni Parvezz\nEnquire",
+      "title": "view more\nOpen Home 24 Oct 2026\nBy Negotiation\n13 WESTMUIR CRESCENT, P\u014dkeno, Franklin\n4\n2\n2\nGinni Parvezz\nEnquire",
       "url": "https://www.oneroof.co.nz/property/auckland/pokeno/13-westmuir-crescent/gVjWV",
-      "text": "We found over16,000 houses for sale in Auckland.\nSort by:\nFeatured\n|\nMap\nview more\nAuction 08 Nov 2026 02:30\n1/10 Harding Avenue, Mount Wellington, Auckland City\n2\n1\n1\nKevin Ratnayake\nEnquire\nview more\nBy Negotiation\n382 RAZORBACK ROAD, Pōkeno, Franklin\n6\n2\n3\nGurjit Dhindsa\nEnquire\nview more\nAuction 18 Nov 2026 13:00\n3/53 Robert Skelton Place, Clendon Park, Manukau City\n3\n1\n3\nAnu Nehra\nEnquire\nview more\nAuction 11 Nov 2026 13:30\n58A Holbrook Street, Avondale, Auckland City\n6\n4\n7\nCalvin Roche\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 11 Nov 2026 10:00\n48 Edmund Street, Saint Heliers, Auckland City\n5\n3\n6\nAaron Foss\nEnquire\nview more\nAuction 04 Nov 2026 13:00\n1A Barrie Avenue, Papatoetoe, Manukau City\n2\n1\nAmit Kumar\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 12 Nov 2026 10:00\n5 Lancelot Road, Orewa, Rodney\n3\n2\n2\nLouise Thomson\nEnquire\nview more\nOpen Home 26 Oct 2026\nAuction 26 Nov 2026 11:00\n989 East Coast Road, Kaiaua, Franklin\n3\n2\n2\nKarl Davis\nEnquire\nview more\nOpen Home 24 Oct 2026\nBy negotiation\n7/13 Grande Vue Road, Hillpark, Manukau City\n4\n2\n1\nNarinder Dhillon\nEnquire\nview more\nDeadline sale closes 06 Nov 2026 16:00\n2/36 Elizabeth Drive, West Harbour, Waitakere City\n3\n1\n4\nFrank Liang\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n4\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n3\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heig"
+      "text": "We found over16,000 houses for sale in Auckland.\nSort by:\nFeatured\n|\nMap\nview more\nAuction 08 Nov 2026 02:30\n1/10 Harding Avenue, Mount Wellington, Auckland City\n2\n1\n1\nKevin Ratnayake\nEnquire\nview more\nBy Negotiation\n382 RAZORBACK ROAD, P\u014dkeno, Franklin\n6\n2\n3\nGurjit Dhindsa\nEnquire\nview more\nAuction 18 Nov 2026 13:00\n3/53 Robert Skelton Place, Clendon Park, Manukau City\n3\n1\n3\nAnu Nehra\nEnquire\nview more\nAuction 11 Nov 2026 13:30\n58A Holbrook Street, Avondale, Auckland City\n6\n4\n7\nCalvin Roche\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 11 Nov 2026 10:00\n48 Edmund Street, Saint Heliers, Auckland City\n5\n3\n6\nAaron Foss\nEnquire\nview more\nAuction 04 Nov 2026 13:00\n1A Barrie Avenue, Papatoetoe, Manukau City\n2\n1\nAmit Kumar\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 12 Nov 2026 10:00\n5 Lancelot Road, Orewa, Rodney\n3\n2\n2\nLouise Thomson\nEnquire\nview more\nOpen Home 26 Oct 2026\nAuction 26 Nov 2026 11:00\n989 East Coast Road, Kaiaua, Franklin\n3\n2\n2\nKarl Davis\nEnquire\nview more\nOpen Home 24 Oct 2026\nBy negotiation\n7/13 Grande Vue Road, Hillpark, Manukau City\n4\n2\n1\nNarinder Dhillon\nEnquire\nview more\nDeadline sale closes 06 Nov 2026 16:00\n2/36 Elizabeth Drive, West Harbour, Waitakere City\n3\n1\n4\nFrank Liang\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n4\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n3\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heig"
     },
     "parsedTitle": {
       "saleMethod": "By Negotiation",
-      "address": "13 WESTMUIR CRESCENT, Pōkeno, Franklin",
+      "address": "13 WESTMUIR CRESCENT, P\u014dkeno, Franklin",
       "beds": 4,
       "baths": 2,
       "cars": 2
@@ -4892,11 +5656,11 @@
     },
     "linz": {
       "addressId": 1954326,
-      "fullAddress": "13 Westmuir Crescent, Pōkeno",
+      "fullAddress": "13 Westmuir Crescent, P\u014dkeno",
       "latitude": -37.230917199086306,
       "longitude": 175.01370908331015,
-      "suburb": "Pōkeno",
-      "city": "Pōkeno"
+      "suburb": "P\u014dkeno",
+      "city": "P\u014dkeno"
     },
     "propValuesSources": {
       "RealEstate": {
@@ -4923,7 +5687,22 @@
     "homesDetails": {
       "status": "wrong_address",
       "pageAddress": "13 WESTMUIR CRESCENT, Pokeno, Franklin, Auckland"
-    }
+    },
+    "floodHazards": [],
+    "openHomes": [
+      {
+        "date": "2026-10-24",
+        "startTime": "11:30",
+        "endTime": "12:00",
+        "label": "Sat, 24 Oct, 11:30am - 12:00pm"
+      },
+      {
+        "date": "2026-10-25",
+        "startTime": "11:30",
+        "endTime": "12:00",
+        "label": "Sun, 25 Oct, 11:30am - 12:00pm"
+      }
+    ]
   },
   {
     "index": 39,
@@ -4931,7 +5710,7 @@
       "source": "dom",
       "title": "view more\nAuction 05 Nov 2026 12:30\n1401/30 Beach Road, Auckland Central, Auckland City\n2\n1\n2\nRyan Bridgman\nEnquire",
       "url": "https://www.oneroof.co.nz/property/auckland/auckland-central/1401-30-beach-road/d0qqp",
-      "text": "We found over16,000 houses for sale in Auckland.\nSort by:\nFeatured\n|\nMap\nview more\nAuction 08 Nov 2026 02:30\n1/10 Harding Avenue, Mount Wellington, Auckland City\n2\n1\n1\nKevin Ratnayake\nEnquire\nview more\nBy Negotiation\n382 RAZORBACK ROAD, Pōkeno, Franklin\n6\n2\n3\nGurjit Dhindsa\nEnquire\nview more\nAuction 18 Nov 2026 13:00\n3/53 Robert Skelton Place, Clendon Park, Manukau City\n3\n1\n3\nAnu Nehra\nEnquire\nview more\nAuction 11 Nov 2026 13:30\n58A Holbrook Street, Avondale, Auckland City\n6\n4\n7\nCalvin Roche\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 11 Nov 2026 10:00\n48 Edmund Street, Saint Heliers, Auckland City\n5\n3\n6\nAaron Foss\nEnquire\nview more\nAuction 04 Nov 2026 13:00\n1A Barrie Avenue, Papatoetoe, Manukau City\n2\n1\nAmit Kumar\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 12 Nov 2026 10:00\n5 Lancelot Road, Orewa, Rodney\n3\n2\n2\nLouise Thomson\nEnquire\nview more\nOpen Home 26 Oct 2026\nAuction 26 Nov 2026 11:00\n989 East Coast Road, Kaiaua, Franklin\n3\n2\n2\nKarl Davis\nEnquire\nview more\nOpen Home 24 Oct 2026\nBy negotiation\n7/13 Grande Vue Road, Hillpark, Manukau City\n4\n2\n1\nNarinder Dhillon\nEnquire\nview more\nDeadline sale closes 06 Nov 2026 16:00\n2/36 Elizabeth Drive, West Harbour, Waitakere City\n3\n1\n4\nFrank Liang\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n4\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n3\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heig"
+      "text": "We found over16,000 houses for sale in Auckland.\nSort by:\nFeatured\n|\nMap\nview more\nAuction 08 Nov 2026 02:30\n1/10 Harding Avenue, Mount Wellington, Auckland City\n2\n1\n1\nKevin Ratnayake\nEnquire\nview more\nBy Negotiation\n382 RAZORBACK ROAD, P\u014dkeno, Franklin\n6\n2\n3\nGurjit Dhindsa\nEnquire\nview more\nAuction 18 Nov 2026 13:00\n3/53 Robert Skelton Place, Clendon Park, Manukau City\n3\n1\n3\nAnu Nehra\nEnquire\nview more\nAuction 11 Nov 2026 13:30\n58A Holbrook Street, Avondale, Auckland City\n6\n4\n7\nCalvin Roche\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 11 Nov 2026 10:00\n48 Edmund Street, Saint Heliers, Auckland City\n5\n3\n6\nAaron Foss\nEnquire\nview more\nAuction 04 Nov 2026 13:00\n1A Barrie Avenue, Papatoetoe, Manukau City\n2\n1\nAmit Kumar\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 12 Nov 2026 10:00\n5 Lancelot Road, Orewa, Rodney\n3\n2\n2\nLouise Thomson\nEnquire\nview more\nOpen Home 26 Oct 2026\nAuction 26 Nov 2026 11:00\n989 East Coast Road, Kaiaua, Franklin\n3\n2\n2\nKarl Davis\nEnquire\nview more\nOpen Home 24 Oct 2026\nBy negotiation\n7/13 Grande Vue Road, Hillpark, Manukau City\n4\n2\n1\nNarinder Dhillon\nEnquire\nview more\nDeadline sale closes 06 Nov 2026 16:00\n2/36 Elizabeth Drive, West Harbour, Waitakere City\n3\n1\n4\nFrank Liang\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n4\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n3\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heig"
     },
     "parsedTitle": {
       "saleMethod": "Auction 05 Nov 2026 12:30",
@@ -5018,7 +5797,25 @@
     "homesDetails": {
       "status": "wrong_address",
       "pageAddress": "1401/30 Beach Road, City Centre, Auckland City, Auckland"
-    }
+    },
+    "floodHazards": [
+      {
+        "type": "flood_plains",
+        "sourceFeatureId": "12536",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Flood_Plains/FeatureServer/0"
+      },
+      {
+        "type": "flood_prone_areas",
+        "sourceFeatureId": "19555",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Flood_Prone_Areas/FeatureServer/0"
+      },
+      {
+        "type": "overland_flow_paths",
+        "sourceFeatureId": "912374",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Overland_Flow_Paths/FeatureServer/0"
+      }
+    ],
+    "openHomes": []
   },
   {
     "index": 40,
@@ -5026,7 +5823,7 @@
       "source": "dom",
       "title": "Set Date of Sale (Unless Sold Prior)\n49 Wynyard Road, Mount Eden, Auckland City\n4\n1\nJane Horgan\nEnquire",
       "url": "https://www.oneroof.co.nz/property/auckland/mount-eden/49-wynyard-road/ZQIHB",
-      "text": "We found over16,000 houses for sale in Auckland.\nSort by:\nFeatured\n|\nMap\nview more\nAuction 08 Nov 2026 02:30\n1/10 Harding Avenue, Mount Wellington, Auckland City\n2\n1\n1\nKevin Ratnayake\nEnquire\nview more\nBy Negotiation\n382 RAZORBACK ROAD, Pōkeno, Franklin\n6\n2\n3\nGurjit Dhindsa\nEnquire\nview more\nAuction 18 Nov 2026 13:00\n3/53 Robert Skelton Place, Clendon Park, Manukau City\n3\n1\n3\nAnu Nehra\nEnquire\nview more\nAuction 11 Nov 2026 13:30\n58A Holbrook Street, Avondale, Auckland City\n6\n4\n7\nCalvin Roche\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 11 Nov 2026 10:00\n48 Edmund Street, Saint Heliers, Auckland City\n5\n3\n6\nAaron Foss\nEnquire\nview more\nAuction 04 Nov 2026 13:00\n1A Barrie Avenue, Papatoetoe, Manukau City\n2\n1\nAmit Kumar\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 12 Nov 2026 10:00\n5 Lancelot Road, Orewa, Rodney\n3\n2\n2\nLouise Thomson\nEnquire\nview more\nOpen Home 26 Oct 2026\nAuction 26 Nov 2026 11:00\n989 East Coast Road, Kaiaua, Franklin\n3\n2\n2\nKarl Davis\nEnquire\nview more\nOpen Home 24 Oct 2026\nBy negotiation\n7/13 Grande Vue Road, Hillpark, Manukau City\n4\n2\n1\nNarinder Dhillon\nEnquire\nview more\nDeadline sale closes 06 Nov 2026 16:00\n2/36 Elizabeth Drive, West Harbour, Waitakere City\n3\n1\n4\nFrank Liang\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n4\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n3\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heig"
+      "text": "We found over16,000 houses for sale in Auckland.\nSort by:\nFeatured\n|\nMap\nview more\nAuction 08 Nov 2026 02:30\n1/10 Harding Avenue, Mount Wellington, Auckland City\n2\n1\n1\nKevin Ratnayake\nEnquire\nview more\nBy Negotiation\n382 RAZORBACK ROAD, P\u014dkeno, Franklin\n6\n2\n3\nGurjit Dhindsa\nEnquire\nview more\nAuction 18 Nov 2026 13:00\n3/53 Robert Skelton Place, Clendon Park, Manukau City\n3\n1\n3\nAnu Nehra\nEnquire\nview more\nAuction 11 Nov 2026 13:30\n58A Holbrook Street, Avondale, Auckland City\n6\n4\n7\nCalvin Roche\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 11 Nov 2026 10:00\n48 Edmund Street, Saint Heliers, Auckland City\n5\n3\n6\nAaron Foss\nEnquire\nview more\nAuction 04 Nov 2026 13:00\n1A Barrie Avenue, Papatoetoe, Manukau City\n2\n1\nAmit Kumar\nEnquire\nview more\nOpen Home 21 Oct 2026\nAuction 12 Nov 2026 10:00\n5 Lancelot Road, Orewa, Rodney\n3\n2\n2\nLouise Thomson\nEnquire\nview more\nOpen Home 26 Oct 2026\nAuction 26 Nov 2026 11:00\n989 East Coast Road, Kaiaua, Franklin\n3\n2\n2\nKarl Davis\nEnquire\nview more\nOpen Home 24 Oct 2026\nBy negotiation\n7/13 Grande Vue Road, Hillpark, Manukau City\n4\n2\n1\nNarinder Dhillon\nEnquire\nview more\nDeadline sale closes 06 Nov 2026 16:00\n2/36 Elizabeth Drive, West Harbour, Waitakere City\n3\n1\n4\nFrank Liang\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n4\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heights, Manukau City\n3\n2\n1\nGazala Salmin\nEnquire\nview more\nBy Negotiation\n10 & 12 Wanaka Place, Pakuranga Heig"
     },
     "parsedTitle": {
       "saleMethod": "Set Date of Sale (Unless Sold Prior)",
@@ -5134,6 +5931,14 @@
         "latitude": -36.87184524536133,
         "longitude": 174.75509643554688
       }
-    }
+    },
+    "floodHazards": [
+      {
+        "type": "overland_flow_paths",
+        "sourceFeatureId": "589125",
+        "sourceUrl": "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Overland_Flow_Paths/FeatureServer/0"
+      }
+    ],
+    "openHomes": []
   }
 ]

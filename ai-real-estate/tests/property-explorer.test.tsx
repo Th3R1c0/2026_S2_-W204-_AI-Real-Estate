@@ -351,7 +351,7 @@ describe("PropertyExplorer", () => {
       screen.getByRole("button", { name: /view details for 2\/30 hardington street/i }),
     );
     const details = screen.getByRole("dialog", { name: /property details/i });
-    await user.click(within(details).getByRole("button", { name: /schools & walkability/i }));
+    await user.click(within(details).getByRole("button", { name: /^schools$/i }));
 
     expect(within(details).getAllByText("Kauri Park School")).toHaveLength(2);
     expect(within(details).getByText("Contributing · 1.24 km away")).toBeInTheDocument();
@@ -654,5 +654,44 @@ describe("PropertyExplorer", () => {
       expect(patchCalls.some(call => call.field === "savedPropertyIds" && Array.isArray(call.value) && call.value.includes("modern-townhouse"))).toBe(true);
     });
   });
+
+  it("links each property card to its dedicated property page and displays open home times and photo gallery", async () => {
+    const user = userEvent.setup();
+    const enrichedProperties: Property[] = [
+      {
+        ...properties[0],
+        photoGallery: [
+          "https://example.com/photo-1.jpg",
+          "https://example.com/photo-2.jpg",
+        ],
+        openHomes: [
+          {
+            date: "2026-04-26",
+            startTime: "12:00",
+            endTime: "12:30",
+            label: "Sun, 26 Apr · 12:00pm – 12:30pm",
+          },
+        ],
+        saleMethod: "Auction",
+      },
+      ...properties.slice(1),
+    ];
+
+    render(<PropertyExplorer properties={enrichedProperties} comparableSales={comparableSales} />);
+
+    // Verify dedicated property page link
+    const propertyLinks = screen.getAllByRole("link", { name: /2\/30 hardington street/i });
+    expect(propertyLinks.some((link) => link.getAttribute("href") === "/properties/modern-townhouse")).toBe(true);
+
+    // Verify open home badge is displayed
+    expect(screen.getByText(/Open Home: Sun, 26 Apr · 12:00pm – 12:30pm/i)).toBeInTheDocument();
+
+    // Verify photo gallery carousel navigation on the card
+    const nextPhotoButton = screen.getByRole("button", { name: /next photo for 2\/30 hardington street/i });
+    expect(nextPhotoButton).toBeInTheDocument();
+    await user.click(nextPhotoButton);
+    expect(screen.getByText("2 / 3")).toBeInTheDocument();
+  });
 });
+
 

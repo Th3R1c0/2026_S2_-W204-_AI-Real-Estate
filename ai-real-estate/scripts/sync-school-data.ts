@@ -191,8 +191,7 @@ async function createStagingTables(client: PoolClient): Promise<void> {
       org_type varchar(100) NOT NULL,
       latitude double precision,
       longitude double precision,
-      enrolment_scheme boolean NOT NULL,
-      location geography(Point, 4326)
+      enrolment_scheme boolean NOT NULL
     ) ON COMMIT PRESERVE ROWS
   `);
   await client.query(`
@@ -201,7 +200,7 @@ async function createStagingTables(client: PoolClient): Promise<void> {
       zone_index integer NOT NULL,
       zone_name varchar(200),
       zone_type varchar(100),
-      geom geometry(MultiPolygon, 4326) NOT NULL CHECK (NOT ST_IsEmpty(geom)),
+      geometry jsonb,
       PRIMARY KEY (school_id, zone_index)
     ) ON COMMIT PRESERVE ROWS
   `);
@@ -216,7 +215,7 @@ async function stageSchools(
     await client.query(
       `
         INSERT INTO school_import_stage (
-          school_id, org_name, org_type, latitude, longitude, enrolment_scheme, location
+          school_id, org_name, org_type, latitude, longitude, enrolment_scheme
         )
         SELECT
           school.school_id,
@@ -224,13 +223,7 @@ async function stageSchools(
           school.org_type,
           school.latitude,
           school.longitude,
-          school.enrolment_scheme,
-          CASE WHEN school.latitude IS NULL THEN NULL ELSE
-            ST_SetSRID(
-              ST_MakePoint(school.longitude, school.latitude),
-              4326
-            )::geography(Point, 4326)
-          END
+          school.enrolment_scheme
         FROM jsonb_to_recordset($1::jsonb) AS school(
           school_id integer,
           org_name varchar,
@@ -262,19 +255,14 @@ async function stageZones(client: PoolClient, zones: SchoolZoneFeature[]): Promi
     await client.query(
       `
         INSERT INTO school_zone_import_stage (
-          school_id, zone_index, zone_name, zone_type, geom
+          school_id, zone_index, zone_name, zone_type, geometry
         )
         SELECT
           zone.school_id,
           zone.zone_index,
           zone.zone_name,
           zone.zone_type,
-          ST_Multi(
-            ST_CollectionExtract(
-              ST_MakeValid(ST_SetSRID(ST_GeomFromGeoJSON(zone.geometry::text), 4326)),
-              3
-            )
-          )::geometry(MultiPolygon, 4326)
+          zone.geometry
         FROM jsonb_to_recordset($1::jsonb) AS zone(
           school_id integer,
           zone_index integer,
@@ -307,15 +295,15 @@ async function replaceSchoolData(client: PoolClient): Promise<{
     await client.query("DELETE FROM schools");
     await client.query(`
       INSERT INTO schools (
-        school_id, org_name, org_type, latitude, longitude, enrolment_scheme, location
+        school_id, org_name, org_type, latitude, longitude, enrolment_scheme
       )
       SELECT
-        school_id, org_name, org_type, latitude, longitude, enrolment_scheme, location
+        school_id, org_name, org_type, latitude, longitude, enrolment_scheme
       FROM school_import_stage
     `);
     await client.query(`
-      INSERT INTO school_zones (school_id, zone_name, zone_type, geom)
-      SELECT school_id, zone_name, zone_type, geom
+      INSERT INTO school_zones (school_id, zone_name, zone_type, geometry)
+      SELECT school_id, zone_name, zone_type, geometry
       FROM school_zone_import_stage
       ORDER BY school_id, zone_index
     `);

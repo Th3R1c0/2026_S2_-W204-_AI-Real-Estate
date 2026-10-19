@@ -3,13 +3,50 @@ import type { Property, SchoolOption } from "./property-types";
 
 const bundledListingsById = new Map(localProperties.map(property => [property.id, property]));
 
-function withSourceAgent(property: Property): Property {
-  if (property.listingAgent) return property;
-  const listingAgent = bundledListingsById.get(property.id)?.listingAgent;
-  if (!listingAgent || !property.sources?.some(source =>
-    source.publisher === listingAgent.source && source.url === listingAgent.contactUrl
-  )) return property;
-  return { ...property, listingAgent };
+function withSourceEnrichment(property: Property): Property {
+  const bundled = bundledListingsById.get(property.id);
+  if (!bundled) return property;
+
+  const expectedUrl =
+    bundled.listingAgent?.contactUrl ??
+    bundled.sources?.find(s => s.publisher === "OneRoof")?.url;
+  const hasMatchingSource = expectedUrl
+    ? property.sources?.some(
+        source => source.publisher === "OneRoof" && source.url === expectedUrl,
+      )
+    : false;
+
+  if (!hasMatchingSource) return property;
+
+  const needsAgent = !property.listingAgent && Boolean(bundled.listingAgent);
+  const needsFlood =
+    property.floodHazards === undefined && bundled.floodHazards !== undefined;
+  const needsOpenHomes =
+    (!property.openHomes || property.openHomes.length === 0) &&
+    Boolean(bundled.openHomes && bundled.openHomes.length > 0);
+  const needsGallery =
+    (!property.photoGallery || property.photoGallery.length <= 1) &&
+    Boolean(bundled.photoGallery && bundled.photoGallery.length > 1);
+  const needsSaleMethod = !property.saleMethod && Boolean(bundled.saleMethod);
+
+  if (
+    !needsAgent &&
+    !needsFlood &&
+    !needsOpenHomes &&
+    !needsGallery &&
+    !needsSaleMethod
+  ) {
+    return property;
+  }
+
+  return {
+    ...property,
+    ...(needsAgent ? { listingAgent: bundled.listingAgent } : {}),
+    ...(needsFlood ? { floodHazards: bundled.floodHazards } : {}),
+    ...(needsOpenHomes ? { openHomes: bundled.openHomes } : {}),
+    ...(needsGallery ? { photoGallery: bundled.photoGallery } : {}),
+    ...(needsSaleMethod ? { saleMethod: bundled.saleMethod } : {}),
+  };
 }
 
 export interface PropertyCatalogResult {
@@ -51,8 +88,8 @@ export async function loadPropertyCatalog(includeComparableSales = false): Promi
     if (!properties || properties.length === 0) return fallback;
 
     return {
-      properties: properties.some(property => withSourceAgent(property) !== property)
-        ? properties.map(withSourceAgent)
+      properties: properties.some(property => withSourceEnrichment(property) !== property)
+        ? properties.map(withSourceEnrichment)
         : properties,
       comparableSales: comparableSales ?? localSales,
       schoolCatalog: schoolCatalog ?? { synced: false, schools: [] },

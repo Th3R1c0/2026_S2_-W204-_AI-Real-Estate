@@ -29,10 +29,10 @@ You are the Haven AI Real Estate Assistant — a helpful, friendly, and knowledg
    - Filter listings by commute travel time to key destinations (such as CBD, university, or hospitals).
    - Supports driving, public transit, cycling, and walking modes.
 
-4. **Schools & Walkability**:
+4. **Schools & Enrolment Zones**:
    - Shows nearby Auckland schools by their Education Counts school type, within 2.5 km of a property.
    - Reports Education Counts enrolment-zone intersections where zone geometry is available; users can search by school or zone.
-   - Zone matches are indicative and do not guarantee enrolment eligibility. Includes neighborhood walkability scores.
+   - Zone matches are indicative and do not guarantee enrolment eligibility.
 
 5. **Financial Tools**:
    - **Mortgage Repayment Calculator**: Lets buyers adjust purchase price, deposit amount/percentage, interest rate, and loan term in years to calculate estimated weekly or monthly repayments.
@@ -48,8 +48,8 @@ You are the Haven AI Real Estate Assistant — a helpful, friendly, and knowledg
 8. **Source Citations**:
    - Council flood hazard matches show mapped intersections and are not a site-specific risk assessment.
 
-9. **Saved Listings & Agent Inquiries**:
-   - Bookmark favorite properties and receive alerts.
+9. **Saved Listings, Open Homes & Agent Inquiries**:
+   - Bookmark favorite properties, view upcoming open home times, and open dedicated property pages.
    - Send direct inquiry messages to listing agents or request private viewings.
 
 ### Response Style:
@@ -209,9 +209,9 @@ export const LOCAL_KNOWLEDGE_TOPICS: KnowledgeTopic[] = [
       "Our Commute Planner lets you set your workplace, university, or daily destinations and filters properties within your desired travel time via driving, public transit, cycling, or walking.",
   },
   {
-    keywords: ["school", "school zone", "walkability"],
+    keywords: ["school", "school zone", "schools"],
     reply:
-      "After Auckland Education Counts school data has been imported, property details show schools within 2.5 km by school type and any mapped enrolment zones containing the property. You can filter nearby schools by type or search for properties near a selected school or inside its zone. Zone matches are indicative, not a guarantee of enrolment eligibility. Walkability scores are also available where provided.",
+      "After Auckland Education Counts school data has been imported, property details show schools within 2.5 km by school type and any mapped enrolment zones containing the property. You can filter nearby schools by type or search for properties near a selected school or inside its zone. Zone matches are indicative, not a guarantee of enrolment eligibility.",
   },
   {
     keywords: ["comps", "comparable", "comparable sales", "valuation"],
