@@ -1,20 +1,27 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import type { NearbySchool } from "../../lib/property-types";
+import { Skeleton } from "@/components/ui/skeleton";
 import type { SavedLocation } from "../../lib/saved-locations";
+
+const noSchools: NearbySchool[] = [];
 
 export default function PropertyLocationMap({
   latitude,
   longitude,
   address,
   locations,
+  schools = noSchools,
 }: {
   latitude: number;
   longitude: number;
   address: string;
   locations: SavedLocation[];
+  schools?: NearbySchool[];
 }) {
   const container = useRef<HTMLDivElement>(null);
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -22,32 +29,89 @@ export default function PropertyLocationMap({
     import("leaflet").then((leaflet) => {
       if (cancelled || !container.current) return;
       map = leaflet.map(container.current).setView([latitude, longitude], 15);
-      leaflet.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        maxZoom: 19,
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-      }).addTo(map);
+      leaflet
+        .tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          maxZoom: 19,
+          attribution:
+            '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        })
+        .addTo(map);
       const propertyLabel = document.createElement("span");
       propertyLabel.textContent = address;
-      leaflet.circleMarker([latitude, longitude], {
-        radius: 9, color: "#163f32", fillColor: "#285e4a", fillOpacity: 1,
-      }).addTo(map).bindTooltip(propertyLabel);
+      leaflet
+        .circleMarker([latitude, longitude], {
+          radius: 9,
+          color: "#163f32",
+          fillColor: "#285e4a",
+          fillOpacity: 1,
+        })
+        .addTo(map)
+        .bindTooltip(propertyLabel);
 
       const points: [number, number][] = [[latitude, longitude]];
       locations.forEach((location) => {
-        if (location.latitude === undefined || location.longitude === undefined) return;
+        if (location.latitude === undefined || location.longitude === undefined)
+          return;
         const point: [number, number] = [location.latitude, location.longitude];
         points.push(point);
         const label = document.createElement("span");
         label.textContent = location.name || location.address;
-        leaflet.circleMarker(point, {
-          radius: 8, color: "#a35a27", fillColor: "#e48b50", fillOpacity: 1,
-        }).addTo(map!).bindTooltip(label, { permanent: true, direction: "top", offset: [0, -8] });
-        leaflet.polyline([[latitude, longitude], point], { color: "#a35a27", dashArray: "5 6" }).addTo(map!);
+        leaflet
+          .circleMarker(point, {
+            radius: 8,
+            color: "#a35a27",
+            fillColor: "#e48b50",
+            fillOpacity: 1,
+          })
+          .addTo(map!)
+          .bindTooltip(label, {
+            permanent: true,
+            direction: "top",
+            offset: [0, -8],
+          });
+        leaflet
+          .polyline([[latitude, longitude], point], {
+            color: "#a35a27",
+            dashArray: "5 6",
+          })
+          .addTo(map!);
       });
-      if (points.length > 1) map.fitBounds(points, { padding: [28, 28], maxZoom: 15 });
+      schools.forEach((school) => {
+        if (school.latitude === undefined || school.longitude === undefined)
+          return;
+        const point: [number, number] = [school.latitude, school.longitude];
+        points.push(point);
+        const label = document.createElement("span");
+        label.textContent = `${school.name} · ${school.orgType}`;
+        leaflet
+          .circleMarker(point, {
+            radius: 7,
+            color: "#61518c",
+            fillColor: "#9382bc",
+            fillOpacity: 1,
+          })
+          .addTo(map!)
+          .bindTooltip(label, { direction: "top", offset: [0, -8] });
+      });
+      setReady(true);
+      if (points.length > 1)
+        map.fitBounds(points, { padding: [28, 28], maxZoom: 15 });
     });
-    return () => { cancelled = true; map?.remove(); };
-  }, [latitude, longitude, address, locations]);
+    return () => {
+      cancelled = true;
+      map?.remove();
+    };
+  }, [latitude, longitude, address, locations, schools]);
 
-  return <div aria-label={`Map of ${address}`} className="property-location-map" ref={container} role="region" />;
+  return (
+    <div className="map-container">
+      {!ready && <Skeleton aria-label="Loading map" className="map-skeleton" />}
+      <div
+        aria-label={`Map of ${address}`}
+        className="property-location-map"
+        ref={container}
+        role="region"
+      />
+    </div>
+  );
 }

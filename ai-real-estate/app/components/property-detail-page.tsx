@@ -1,8 +1,27 @@
 "use client";
+import { Slider } from "@/components/ui/slider";
 
-import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { Heart } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { NativeSelect } from "@/components/ui/native-select";
+import { Switch } from "@/components/ui/switch";
+import {
+  Accordion,
+  AccordionItem,
+  AccordionTrigger,
+  AccordionContent,
+} from "@/components/ui/accordion";
+import { propertyPhotos } from "@/lib/property-photos";
+import PropertyGallery from "./property-gallery";
+import SiteHeader from "./site-header";
+import CommutePlanner from "./commute-planner";
+import {
+  SourceCitations,
+  SourceDetailsDialog,
+  type SourceSelection,
+} from "./property-sources";
+import { useEffect, useMemo, useState, useRef } from "react";
 import MortgageCalculator from "./mortgage-calculator";
 import PropertyNotes from "./property-notes";
 import PropertyLocationMap from "./property-location-map";
@@ -16,27 +35,14 @@ import {
   floodHazardDisclaimer,
   floodHazardOptions,
 } from "../../lib/flood-hazards";
-import type {
-  ComparableSalesResult,
-  Property,
-} from "../../lib/property-types";
+import type { ComparableSalesResult, Property } from "../../lib/property-types";
 import { SCHOOL_NEARBY_RADIUS_METRES } from "../../lib/school-data";
 import {
+  commuteStorageKey,
   readSavedLocations,
   straightLineDistanceKm,
   type SavedLocation,
 } from "../../lib/saved-locations";
-
-type DetailTab =
-  | "overview"
-  | "photos"
-  | "flood"
-  | "comps"
-  | "schools"
-  | "commute"
-  | "mortgage"
-  | "history"
-  | "notes";
 
 const numberFormatter = new Intl.NumberFormat("en-NZ");
 const moneyFormatter = new Intl.NumberFormat("en-NZ", {
@@ -57,45 +63,73 @@ export default function PropertyDetailPage({
   comparableSales: Property[];
 }) {
   const account = useAccountWorkspace();
-  const [tab, setTab] = useState<DetailTab>("overview");
-  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const [research, setResearch] = useState<string[]>([]);
+  const [showSchools, setShowSchools] = useState(false);
+  const [source, setSource] = useState<SourceSelection | null>(null);
   const [savedIds, setSavedIds] = useState<string[]>([]);
   const [destinations, setDestinations] = useState<SavedLocation[]>([]);
   const [showSavedLocations, setShowSavedLocations] = useState(true);
   const [nearbySchoolType, setNearbySchoolType] = useState("");
   const [radius, setRadius] = useState(2);
   const [months, setMonths] = useState(6);
-  const [postgisComps, setPostgisComps] = useState<ComparableSalesResult | null>(null);
+  const [postgisComps, setPostgisComps] =
+    useState<ComparableSalesResult | null>(null);
 
-  const allPhotos = useMemo(() => {
-    const raw = [property.image, ...(property.photoGallery ?? [])].filter(Boolean);
-    return Array.from(new Set(raw));
-  }, [property.image, property.photoGallery]);
-
+  const savedIdsRef = useRef<string[]>([]);
+  const destinationsRef = useRef<SavedLocation[]>([]);
   useEffect(() => {
-    if (account?.status === "signedIn") {
-      setSavedIds(account.workspace.savedPropertyIds);
-      setDestinations(account.workspace.destinations);
-    } else {
-      setDestinations(readSavedLocations());
-      try {
-        const raw = localStorage.getItem("haven_saved_property_ids");
-        if (raw) {
-          const parsed = JSON.parse(raw);
-          if (Array.isArray(parsed)) {
-            setSavedIds(parsed.filter((id): id is string => typeof id === "string"));
-          }
+    if (account && account.status !== "signedIn" && account.status !== "guest")
+      return;
+    let active = true;
+    queueMicrotask(() => {
+      if (!active) return;
+      if (account?.status === "signedIn") {
+        savedIdsRef.current = account.workspace.savedPropertyIds;
+        destinationsRef.current = account.workspace.destinations;
+      } else {
+        destinationsRef.current = readSavedLocations();
+        try {
+          const parsed: unknown = JSON.parse(
+            localStorage.getItem("haven_saved_property_ids") ?? "[]",
+          );
+          savedIdsRef.current = Array.isArray(parsed)
+            ? parsed.filter((id): id is string => typeof id === "string")
+            : [];
+        } catch {
+          savedIdsRef.current = [];
         }
+      }
+      setSavedIds(savedIdsRef.current);
+      setDestinations(destinationsRef.current);
+    });
+    return () => {
+      active = false;
+    };
+    // Identity changes hydrate once; workspace writes must not reset current edits.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [account?.status, account?.user?.userId]);
+
+  function persistDestinations(update: React.SetStateAction<SavedLocation[]>) {
+    const next =
+      typeof update === "function" ? update(destinationsRef.current) : update;
+    destinationsRef.current = next;
+    setDestinations(next);
+    if (account?.status === "signedIn") void account.save("destinations", next);
+    else if (!account || account.status === "guest") {
+      try {
+        localStorage.setItem(commuteStorageKey, JSON.stringify(next));
       } catch {}
     }
-  }, [account?.status, account?.workspace]);
+  }
 
   const isSaved = savedIds.includes(property.id);
 
   function toggleSave() {
-    const next = isSaved
-      ? savedIds.filter((id) => id !== property.id)
-      : [...savedIds, property.id];
+    const current = savedIdsRef.current;
+    const next = current.includes(property.id)
+      ? current.filter((id) => id !== property.id)
+      : [...current, property.id];
+    savedIdsRef.current = next;
     setSavedIds(next);
     if (account?.status === "signedIn") {
       void account.save("savedPropertyIds", next);
@@ -105,7 +139,6 @@ export default function PropertyDetailPage({
       } catch {}
     }
   }
-
 
   const fallbackCompResult = useMemo(
     () =>
@@ -117,8 +150,9 @@ export default function PropertyDetailPage({
     [property, comparableSales, radius, months],
   );
 
+  const compsOpen = research.includes("comps");
   useEffect(() => {
-    if (tab !== "comps") return;
+    if (!compsOpen) return;
     const controller = new AbortController();
     const params = new URLSearchParams({
       propertyKey: property.id,
@@ -137,15 +171,30 @@ export default function PropertyDetailPage({
       .catch(() => {});
 
     return () => controller.abort();
-  }, [tab, property.id, radius, months]);
+  }, [compsOpen, property.id, radius, months]);
 
   const compResult = postgisComps ?? fallbackCompResult;
-  const historyData = useMemo(() => generateValuationHistory(property), [property]);
+  const historyData = useMemo(
+    () => generateValuationHistory(property),
+    [property],
+  );
   const nearbySchoolTypes = Array.from(
     new Set((property.nearbySchools ?? []).map(({ orgType }) => orgType)),
   ).sort((a, b) => a.localeCompare(b));
-  const visibleNearbySchools = (property.nearbySchools ?? []).filter(
-    (school) => !nearbySchoolType || school.orgType === nearbySchoolType,
+  const visibleNearbySchools = useMemo(
+    () =>
+      (property.nearbySchools ?? []).filter(
+        (school) => !nearbySchoolType || school.orgType === nearbySchoolType,
+      ),
+    [property.nearbySchools, nearbySchoolType],
+  );
+  const mapSchools = useMemo(
+    () => (showSchools ? visibleNearbySchools : []),
+    [showSchools, visibleNearbySchools],
+  );
+  const mapLocations = useMemo(
+    () => (showSavedLocations ? destinations : []),
+    [showSavedLocations, destinations],
   );
 
   const mappedFloodLabels = useMemo(() => {
@@ -155,84 +204,33 @@ export default function PropertyDetailPage({
       .map(({ label }) => label);
   }, [property.floodHazards]);
 
-  const tabs: Array<{ id: DetailTab; label: string }> = [
-    { id: "overview", label: "Overview" },
-    { id: "photos", label: `Photos (${allPhotos.length})` },
-    { id: "flood", label: "Flood hazard" },
-    { id: "comps", label: "Comparable sales" },
-    { id: "schools", label: "Schools" },
-    { id: "commute", label: "Commute" },
-    { id: "mortgage", label: "Mortgage" },
-    { id: "history", label: "Market History" },
-    { id: "notes", label: "My Notes" },
-  ];
-
   return (
     <div className="site-shell property-page-shell">
-      <header className="site-header">
-        <Link className="brand" href="/" aria-label="Haven home">
-          <span className="brand-mark">⌂</span>
-          <span>
-            haven<span className="brand-dot">.</span>
-          </span>
+      <SiteHeader />
+      <main className="property-page-main" aria-label="Property details">
+        <Link className="back-link" href="/">
+          ← All homes
         </Link>
-
-        <nav aria-label="Property navigation" className="main-nav">
-          <Link href="/">← All Auckland Properties</Link>
-          <Link href="/profile">
-            {account?.status === "signedIn" && account.user
-              ? `Account (${account.user.username})`
-              : "Profile"}
-          </Link>
-        </nav>
-
-        <div className="header-actions">
-          <button
-            className={`shortlist-button ${isSaved ? "is-saved-btn" : ""}`}
-            onClick={toggleSave}
-            type="button"
-          >
-            {isSaved ? "♥ Saved to Shortlist" : "♡ Save Property"}
-          </button>
-        </div>
-      </header>
-
-      <main className="property-page-main">
         {/* Top Breadcrumb & Title Header */}
         <div className="property-page-header">
           <div>
-            <div className="property-page-badges">
-              <span className="property-badge-pill">{property.propertyType}</span>
-              {property.architecturalStyle && (
-                <span className="property-badge-pill">{property.architecturalStyle}</span>
-              )}
-              {property.ownershipType && (
-                <span className="property-badge-pill">{property.ownershipType}</span>
-              )}
-              {property.orientation && (
-                <span className="property-badge-pill">
-                  ☀️ {property.orientation}-facing ({property.sunlightHours} hrs sun)
-                </span>
-              )}
-              {property.floodHazards !== undefined && (
-                <button
-                  type="button"
-                  onClick={() => setTab("flood")}
-                  className={`property-badge-pill ${
-                    mappedFloodLabels.length > 0
-                      ? "property-badge-warning"
-                      : "property-badge-safe"
-                  }`}
-                >
-                  {mappedFloodLabels.length > 0
-                    ? `⚠️ Mapped flood hazard: ${mappedFloodLabels.join(", ")}`
-                    : "✓ No mapped Council flood hazard"}
-                </button>
-              )}
-            </div>
-            <h1>{property.address}</h1>
+            <p className="property-type-line">
+              {[property.propertyType, property.architecturalStyle]
+                .filter(Boolean)
+                .join(" · ")}
+            </p>
+            <h1>
+              {property.address}
+              <SourceCitations
+                property={property}
+                field="address"
+                onOpen={(source, field) =>
+                  setSource({ source, field, property })
+                }
+              />
+            </h1>
             <p className="property-page-suburb">
-              {property.suburb}, {property.city}, {property.region}
+              {property.suburb}, {property.city}
             </p>
           </div>
 
@@ -251,64 +249,10 @@ export default function PropertyDetailPage({
           </div>
         </div>
 
-        {/* Airbnb-style 5-Photo Mosaic Gallery */}
-        <section className="property-mosaic-section" aria-label="Property photo gallery">
-          <div
-            className={`property-mosaic-grid ${
-              allPhotos.length === 1
-                ? "mosaic-single"
-                : allPhotos.length < 5
-                  ? "mosaic-few"
-                  : ""
-            }`}
-          >
-            <div
-              className="mosaic-main-item"
-              onClick={() => setLightboxIndex(0)}
-              role="button"
-              tabIndex={0}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") setLightboxIndex(0);
-              }}
-            >
-              <Image
-                alt={property.imageAlt}
-                fill
-                priority
-                sizes="(max-width: 900px) 100vw, 60vw"
-                src={allPhotos[0]}
-              />
-            </div>
-            {allPhotos.slice(1, 5).map((url, idx) => (
-              <div
-                className="mosaic-sub-item"
-                key={url}
-                onClick={() => setLightboxIndex(idx + 1)}
-                role="button"
-                tabIndex={0}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") setLightboxIndex(idx + 1);
-                }}
-              >
-                <Image
-                  alt={`${property.address} photo ${idx + 2}`}
-                  fill
-                  sizes="(max-width: 900px) 50vw, 25vw"
-                  src={url}
-                />
-              </div>
-            ))}
-          </div>
-          {allPhotos.length > 1 && (
-            <button
-              className="show-all-photos-btn"
-              onClick={() => setLightboxIndex(0)}
-              type="button"
-            >
-              ⊞ Show all {allPhotos.length} photos
-            </button>
-          )}
-        </section>
+        <PropertyGallery
+          address={property.address}
+          photos={propertyPhotos(property)}
+        />
 
         {/* Two-Column Airbnb Detail Layout */}
         <div className="property-page-columns">
@@ -317,11 +261,29 @@ export default function PropertyDetailPage({
             <div className="property-key-specs">
               <div className="key-spec-item">
                 <strong>{property.bedrooms}</strong>
-                <span>Bedrooms</span>
+                <span>
+                  Bedrooms
+                  <SourceCitations
+                    property={property}
+                    field="bedrooms"
+                    onOpen={(source, field) =>
+                      setSource({ source, field, property })
+                    }
+                  />
+                </span>
               </div>
               <div className="key-spec-item">
                 <strong>{property.bathrooms}</strong>
-                <span>Bathrooms</span>
+                <span>
+                  Bathrooms
+                  <SourceCitations
+                    property={property}
+                    field="bathrooms"
+                    onOpen={(source, field) =>
+                      setSource({ source, field, property })
+                    }
+                  />
+                </span>
               </div>
               {property.parkingSpaces ? (
                 <div className="key-spec-item">
@@ -331,13 +293,24 @@ export default function PropertyDetailPage({
               ) : null}
               {property.floorArea > 0 ? (
                 <div className="key-spec-item">
-                  <strong>{numberFormatter.format(property.floorArea)} m²</strong>
+                  <strong>
+                    {numberFormatter.format(property.floorArea)} m²
+                  </strong>
                   <span>Floor area</span>
                 </div>
               ) : null}
               <div className="key-spec-item">
                 <strong>{numberFormatter.format(property.landArea)} m²</strong>
-                <span>Land area</span>
+                <span>
+                  Land area
+                  <SourceCitations
+                    property={property}
+                    field="landArea"
+                    onOpen={(source, field) =>
+                      setSource({ source, field, property })
+                    }
+                  />
+                </span>
               </div>
               <div className="key-spec-item">
                 <strong>{property.yearBuilt || "Unknown"}</strong>
@@ -345,22 +318,8 @@ export default function PropertyDetailPage({
               </div>
             </div>
 
-            {/* Section Tabs */}
-            <nav aria-label="Property detail sections" className="detail-tabs property-page-tabs">
-              {tabs.map(({ id, label }) => (
-                <button
-                  className={tab === id ? "active" : ""}
-                  key={id}
-                  onClick={() => setTab(id)}
-                  type="button"
-                >
-                  {label}
-                </button>
-              ))}
-            </nav>
-
             <div className="property-page-tab-body">
-              {tab === "overview" && (
+              {
                 <div className="overview-panel">
                   <div className="property-attributes-grid">
                     <div className="attr-card">
@@ -388,74 +347,96 @@ export default function PropertyDetailPage({
                     {property.estimatedWeeklyRent ? (
                       <div className="attr-card">
                         <span>Estimated Weekly Rent</span>
-                        <strong>{formatMoney(property.estimatedWeeklyRent)} / week</strong>
+                        <strong>
+                          {formatMoney(property.estimatedWeeklyRent)} / week
+                        </strong>
                       </div>
                     ) : null}
                     {property.orientation && (
                       <div className="attr-card">
                         <span>Orientation & Sunlight</span>
                         <strong>
-                          {property.orientation} ({property.sunlightHours} hrs/day)
+                          {property.orientation} ({property.sunlightHours}{" "}
+                          hrs/day)
                         </strong>
                       </div>
                     )}
                   </div>
 
-                  {/* Flood Hazard Quick Summary Card on Overview */}
-                  <div className="property-overview-flood-card">
-                    <div>
-                      <p className="eyebrow">Auckland Council GIS Check</p>
-                      <h4>
-                        {mappedFloodLabels.length > 0
-                          ? `Intersects ${mappedFloodLabels.join(", ")}`
-                          : "No mapped Council flood hazards"}
-                      </h4>
-                      <p>
-                        {property.floodHazards !== undefined
-                          ? describeFloodHazards(property.floodHazards)
-                          : "Auckland Council flood data has not been synced for this property yet."}
-                      </p>
-                    </div>
-                    <button
-                      className="secondary-btn"
-                      onClick={() => setTab("flood")}
-                      type="button"
-                    >
-                      View flood details →
-                    </button>
-                  </div>
+                  <p className="flood-summary">
+                    Council flood mapping:{" "}
+                    {property.floodHazards === undefined
+                      ? "data not synced"
+                      : mappedFloodLabels.length
+                        ? mappedFloodLabels.join(", ")
+                        : "no mapped intersection"}
+                    .
+                  </p>
+                  <Accordion
+                    type="single"
+                    collapsible
+                    className="flood-provenance"
+                  >
+                    <AccordionItem value="flood">
+                      <AccordionTrigger>About flood mapping</AccordionTrigger>
+                      <AccordionContent>
+                        <p>
+                          {property.floodHazards !== undefined
+                            ? describeFloodHazards(property.floodHazards)
+                            : "Council data has not been synced for this property yet."}
+                        </p>
+                        <p className="disclaimer">{floodHazardDisclaimer}</p>
+                        {property.floodHazards?.map((hazard) => (
+                          <a
+                            key={hazard.type}
+                            href={hazard.sourceUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            Council {hazard.type.replaceAll("_", " ")} layer ↗
+                          </a>
+                        ))}
+                      </AccordionContent>
+                    </AccordionItem>
+                  </Accordion>
 
                   {/* Map Section */}
                   <div className="property-map-block">
                     <div className="property-map-header">
                       <div>
-                        <h3>Location & Map</h3>
-                        <p>
-                          {property.latitude.toFixed(6)}, {property.longitude.toFixed(6)} ·
-                          Verified LINZ NZ Address
-                        </p>
+                        <h2>The neighbourhood</h2>
                       </div>
-                      <label className="saved-location-toggle">
-                        <input
-                          checked={showSavedLocations}
-                          onChange={(e) => setShowSavedLocations(e.target.checked)}
-                          type="checkbox"
-                        />
-                        Show saved locations
-                      </label>
+                      <div className="map-toggles">
+                        <label className="saved-location-toggle">
+                          <Switch
+                            checked={showSavedLocations}
+                            onCheckedChange={setShowSavedLocations}
+                          />
+                          Show saved locations
+                        </label>
+                        <label className="saved-location-toggle">
+                          <Switch
+                            checked={showSchools}
+                            onCheckedChange={setShowSchools}
+                          />
+                          Show schools on map
+                        </label>
+                      </div>
                     </div>
                     <PropertyLocationMap
+                      schools={mapSchools}
                       address={property.address}
                       latitude={property.latitude}
                       longitude={property.longitude}
-                      locations={showSavedLocations ? destinations : []}
+                      locations={mapLocations}
                     />
                     {showSavedLocations && (
                       <ul className="saved-location-distances">
                         {destinations
                           .filter(
                             (loc) =>
-                              loc.latitude !== undefined && loc.longitude !== undefined,
+                              loc.latitude !== undefined &&
+                              loc.longitude !== undefined,
                           )
                           .map((loc) => (
                             <li key={loc.id}>
@@ -473,166 +454,44 @@ export default function PropertyDetailPage({
                     )}
                   </div>
                 </div>
-              )}
+              }
 
-              {tab === "photos" && (
-                <div className="property-all-photos-grid">
-                  {allPhotos.map((url, idx) => (
-                    <div
-                      className="property-photo-card"
-                      key={url}
-                      onClick={() => setLightboxIndex(idx)}
-                      role="button"
-                      tabIndex={0}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" || e.key === " ") setLightboxIndex(idx);
-                      }}
-                    >
-                      <div className="property-photo-card-img">
-                        <Image
-                          alt={`${property.address} photo ${idx + 1}`}
-                          fill
-                          sizes="(max-width: 768px) 100vw, 400px"
-                          src={url}
-                        />
-                      </div>
-                      <span>Photo {idx + 1} of {allPhotos.length}</span>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {tab === "flood" && (
-                <div className="flood-risk-panel">
-                  <div className="tool-heading">
-                    <div>
-                      <p className="eyebrow">Auckland Council mapped layers</p>
-                      <h3>Flood hazard information</h3>
-                    </div>
-                  </div>
-                  {property.floodHazards === undefined ? (
-                    <p>
-                      Auckland Council flood data has not been synced for this property yet.
-                    </p>
-                  ) : property.floodHazards.length === 0 ? (
-                    <p>
-                      No imported Auckland Council flood-hazard layers intersect this
-                      property&apos;s mapped location.
-                    </p>
-                  ) : (
-                    <>
-                      <ul className="flood-hazard-list">
-                        {floodHazardOptions
-                          .filter(({ type }) =>
-                            property.floodHazards?.some((hazard) => hazard.type === type),
-                          )
-                          .map(({ type, label }) => (
-                            <li key={type}>{label}</li>
-                          ))}
-                      </ul>
-                      <p>{describeFloodHazards(property.floodHazards)}</p>
-                    </>
-                  )}
-                  <p className="flood-data-disclaimer">{floodHazardDisclaimer}</p>
-                </div>
-              )}
-
-              {tab === "comps" && (
-                <div className="tool-panel">
-                  <div className="tool-heading">
-                    <div>
-                      <p className="eyebrow">Recent market evidence</p>
-                      <h3>Nearby comparable sales</h3>
-                    </div>
-                    <div className="average-pill">
-                      {compResult.averagePrice
-                        ? `${formatMoney(compResult.averagePrice)} average`
-                        : "No average"}
-                    </div>
-                  </div>
-                  <div className="range-grid">
-                    <label>
-                      Search radius <strong>{radius} km</strong>
-                      <input
-                        aria-label="Search radius"
-                        max="10"
-                        min="1"
-                        onChange={(e) => setRadius(Number(e.target.value))}
-                        type="range"
-                        value={radius}
-                      />
-                    </label>
-                    <label>
-                      Sale timeframe <strong>{months} months</strong>
-                      <input
-                        aria-label="Sale timeframe"
-                        max="12"
-                        min="3"
-                        onChange={(e) => setMonths(Number(e.target.value))}
-                        step="3"
-                        type="range"
-                        value={months}
-                      />
-                    </label>
-                  </div>
-                  <div className="comp-list">
-                    {compResult.comps.length ? (
-                      compResult.comps.map(({ property: comp, distanceKm }) => (
-                        <article className="comp-row" key={comp.id}>
-                          <div>
-                            <strong>{comp.address}</strong>
-                            <span>
-                              {comp.bedrooms} bed · {comp.floorArea} m² ·{" "}
-                              {distanceKm.toFixed(1)} km away
-                            </span>
-                          </div>
-                          <div>
-                            <strong>{formatMoney(comp.price)}</strong>
-                            {comp.soldDate && (
-                              <span>
-                                Sold{" "}
-                                {new Date(comp.soldDate).toLocaleDateString("en-NZ", {
-                                  month: "short",
-                                  year: "numeric",
-                                })}
-                              </span>
-                            )}
-                          </div>
-                        </article>
-                      ))
-                    ) : (
-                      <div className="empty-inline">
-                        No similar sales fit this radius and timeframe. Try widening either
-                        control.
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {tab === "schools" && (
+              {showSchools && (
                 <div
                   className="family-panel"
-                  style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "1.5rem",
+                  }}
                 >
                   {property.schoolDataSynced ? (
                     <>
                       <p className="disclaimer" role="note">
-                        <strong>School-zone matches are approximate.</strong> Ministry of
-                        Education boundaries have limited resolution and alignment accuracy,
-                        so results may be inaccurate. Confirm enrolment eligibility with the
-                        school or Ministry.
+                        <strong>School-zone matches are approximate.</strong>{" "}
+                        Ministry of Education boundaries have limited resolution
+                        and alignment accuracy, so results may be inaccurate.
+                        Confirm enrolment eligibility with the school or
+                        Ministry.
                       </p>
                       <div>
-                        <h4 style={{ marginBottom: "0.25rem", fontWeight: 600 }}>
-                          Nearby schools within {SCHOOL_NEARBY_RADIUS_METRES / 1000} km
+                        <h4
+                          style={{ marginBottom: "0.25rem", fontWeight: "600" }}
+                        >
+                          Nearby schools within{" "}
+                          {SCHOOL_NEARBY_RADIUS_METRES / 1000} km
                         </h4>
                         {nearbySchoolTypes.length > 0 && (
-                          <label className="field-label" htmlFor="page-nearby-school-type">
+                          <label
+                            className="field-label"
+                            htmlFor="nearby-school-type"
+                          >
                             Filter nearby schools by type
-                            <select
-                              id="page-nearby-school-type"
-                              onChange={(e) => setNearbySchoolType(e.target.value)}
+                            <NativeSelect
+                              id="nearby-school-type"
+                              onChange={(event) =>
+                                setNearbySchoolType(event.target.value)
+                              }
                               value={nearbySchoolType}
                             >
                               <option value="">All school types</option>
@@ -641,7 +500,7 @@ export default function PropertyDetailPage({
                                   {type}
                                 </option>
                               ))}
-                            </select>
+                            </NativeSelect>
                           </label>
                         )}
                         {visibleNearbySchools.length ? (
@@ -661,9 +520,9 @@ export default function PropertyDetailPage({
                                 <div
                                   key={school.schoolId}
                                   style={{
-                                    padding: "0.75rem",
-                                    border: "1px solid var(--border-color, #e5e7eb)",
-                                    borderRadius: "8px",
+                                    padding: "0.5rem 0",
+                                    border: "none",
+                                    borderRadius: "6px",
                                   }}
                                 >
                                   <strong>{school.name}</strong>
@@ -674,7 +533,8 @@ export default function PropertyDetailPage({
                                       opacity: 0.8,
                                     }}
                                   >
-                                    {school.orgType} · {school.distanceKm.toFixed(2)} km away
+                                    {school.orgType} ·{" "}
+                                    {school.distanceKm.toFixed(2)} km away
                                   </span>
                                   <small
                                     style={{
@@ -697,21 +557,80 @@ export default function PropertyDetailPage({
                           </div>
                         ) : (
                           <p style={{ opacity: 0.7, fontSize: "0.9rem" }}>
-                            No schools mapped within {SCHOOL_NEARBY_RADIUS_METRES / 1000} km.
+                            {nearbySchoolType
+                              ? `No ${nearbySchoolType} schools are mapped within ${SCHOOL_NEARBY_RADIUS_METRES / 1000} km.`
+                              : `No schools are mapped within ${SCHOOL_NEARBY_RADIUS_METRES / 1000} km.`}
+                          </p>
+                        )}
+                      </div>
+                      <div>
+                        <h4
+                          style={{ marginBottom: "0.75rem", fontWeight: "600" }}
+                        >
+                          School zones containing this property
+                        </h4>
+                        {property.schoolZones?.length ? (
+                          <div
+                            style={{
+                              display: "flex",
+                              flexDirection: "column",
+                              gap: "0.5rem",
+                            }}
+                          >
+                            {property.schoolZones.map((zone) => (
+                              <div
+                                key={`${zone.schoolId}-${zone.zoneName ?? zone.zoneType ?? ""}`}
+                              >
+                                <strong>{zone.schoolName}</strong>
+                                <span
+                                  style={{
+                                    display: "block",
+                                    fontSize: "0.85rem",
+                                    opacity: 0.8,
+                                  }}
+                                >
+                                  {[
+                                    zone.zoneName &&
+                                    zone.zoneName !== zone.schoolName
+                                      ? zone.zoneName
+                                      : undefined,
+                                    zone.zoneType || zone.schoolType,
+                                  ]
+                                    .filter(Boolean)
+                                    .join(" · ")}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <p style={{ opacity: 0.7, fontSize: "0.9rem" }}>
+                            No imported school zone contains this property.
                           </p>
                         )}
                       </div>
                     </>
                   ) : property.schoolZones?.length ? (
                     <div>
-                      <h4 style={{ marginBottom: "0.75rem", fontWeight: 600 }}>
+                      <h4
+                        style={{ marginBottom: "0.75rem", fontWeight: "600" }}
+                      >
                         School Catchments
                       </h4>
-                      <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: "0.5rem",
+                        }}
+                      >
                         {property.schoolZones.map((school, index) => {
-                          const name = school.name ?? school.schoolName ?? "School";
+                          const name =
+                            school.name ?? school.schoolName ?? "School";
                           const type =
-                            school.type ?? school.schoolType ?? school.zoneType ?? "";
+                            school.type ??
+                            school.schoolType ??
+                            school.zoneType ??
+                            "";
                           const isInZone = school.isInZone ?? true;
                           return (
                             <div
@@ -720,9 +639,9 @@ export default function PropertyDetailPage({
                                 display: "flex",
                                 justifyContent: "space-between",
                                 alignItems: "center",
-                                padding: "0.75rem 1rem",
-                                border: "1px solid var(--border-color, #e5e7eb)",
-                                borderRadius: "8px",
+                                padding: "0.5rem 0",
+                                border: "none",
+                                borderRadius: "6px",
                               }}
                             >
                               <div>
@@ -745,9 +664,7 @@ export default function PropertyDetailPage({
                                 </span>
                               </div>
                               <span
-                                className={`badge ${
-                                  isInZone ? "badge-success" : "badge-outline"
-                                }`}
+                                className={`badge ${isInZone ? "badge-success" : "badge-outline"}`}
                                 style={{ fontSize: "0.75rem" }}
                               >
                                 {isInZone ? "In Zone" : "Out of Zone"}
@@ -765,134 +682,247 @@ export default function PropertyDetailPage({
                 </div>
               )}
 
-              {tab === "commute" && (
-                <div className="commute-panel">
-                  <p className="eyebrow">Directions & Travel</p>
-                  <h3>Plan your commute from {property.address}</h3>
-                  <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", marginTop: "1rem" }}>
-                    {["driving", "transit", "bicycling", "walking"].map((mode) => {
-                      const mapsUrl = new URL("https://www.google.com/maps/dir/");
-                      mapsUrl.searchParams.set("api", "1");
-                      mapsUrl.searchParams.set(
-                        "origin",
-                        `${property.latitude},${property.longitude}`,
-                      );
-                      mapsUrl.searchParams.set("destination", "Auckland CBD");
-                      mapsUrl.searchParams.set("travelmode", mode);
-                      return (
-                        <a
-                          key={mode}
-                          className="secondary-btn"
-                          href={mapsUrl.toString()}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          Google Maps ({mode}) to Auckland CBD ↗
-                        </a>
-                      );
-                    })}
-                  </div>
-                  {destinations.length > 0 && (
-                    <div style={{ marginTop: "1.5rem" }}>
-                      <h4>Your Saved Locations</h4>
-                      <ul className="saved-location-distances">
-                        {destinations.map((d) => (
-                          <li key={d.id}>
-                            <strong>{d.name || d.address}</strong> — {d.address}
-                          </li>
-                        ))}
-                      </ul>
+              <Accordion
+                type="multiple"
+                value={research}
+                onValueChange={setResearch}
+                className="property-research"
+              >
+                <AccordionItem value="comps">
+                  <AccordionTrigger>Comparable sales</AccordionTrigger>
+                  <AccordionContent>
+                    <div className="tool-panel">
+                      <div className="tool-heading">
+                        <div>
+                          <h3>Nearby comparable sales</h3>
+                        </div>
+                        <div className="average-pill">
+                          {compResult.averagePrice
+                            ? `${formatMoney(compResult.averagePrice)} average`
+                            : "No average"}
+                        </div>
+                      </div>
+                      <div className="range-grid">
+                        <label>
+                          Search radius <strong>{radius} km</strong>
+                          <Slider
+                            aria-label="Search radius"
+                            min={1}
+                            max={10}
+                            value={[radius]}
+                            onValueChange={([value]) => setRadius(value)}
+                          />
+                        </label>
+                        <label>
+                          Sale timeframe <strong>{months} months</strong>
+                          <Slider
+                            aria-label="Sale timeframe"
+                            min={3}
+                            max={12}
+                            step={3}
+                            value={[months]}
+                            onValueChange={([value]) => setMonths(value)}
+                          />
+                        </label>
+                      </div>
+                      <div className="comp-list">
+                        {compResult.comps.length ? (
+                          compResult.comps.map(
+                            ({ property: comp, distanceKm }) => (
+                              <article className="comp-row" key={comp.id}>
+                                <div>
+                                  <strong>{comp.address}</strong>
+                                  <span>
+                                    {comp.bedrooms} bed · {comp.floorArea} m² ·{" "}
+                                    {distanceKm.toFixed(1)} km away
+                                  </span>
+                                </div>
+                                <div>
+                                  <strong>{formatMoney(comp.price)}</strong>
+                                  {comp.soldDate && (
+                                    <span>
+                                      Sold{" "}
+                                      {new Date(
+                                        comp.soldDate,
+                                      ).toLocaleDateString("en-NZ", {
+                                        month: "short",
+                                        year: "numeric",
+                                      })}
+                                    </span>
+                                  )}
+                                </div>
+                              </article>
+                            ),
+                          )
+                        ) : (
+                          <div className="empty-inline">
+                            No similar sales fit this radius and timeframe. Try
+                            widening either control.
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  )}
-                </div>
-              )}
+                  </AccordionContent>
+                </AccordionItem>
 
-              {tab === "mortgage" && (
-                <div className="mortgage-panel">
-                  <MortgageCalculator defaultPrice={property.price} />
-                </div>
-              )}
-
-              {tab === "history" && (
-                <div
-                  className="tool-panel"
-                  style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}
-                >
-                  <div>
-                    <h4 style={{ marginBottom: "0.75rem", fontWeight: 600 }}>
-                      Past Sale History
-                    </h4>
-                    <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-                      {historyData.pastSales.length === 0 && (
-                        <p>No verified past sales are available for this property.</p>
+                <AccordionItem value="commute">
+                  <AccordionTrigger>Commute</AccordionTrigger>
+                  <AccordionContent>
+                    <CommutePlanner
+                      destinations={destinations}
+                      property={property}
+                      setDestinations={persistDestinations}
+                    />
+                    <div className="commute-cbd-links">
+                      {["driving", "transit", "bicycling", "walking"].map(
+                        (mode) => (
+                          <Button variant="outline" asChild key={mode}>
+                            <a
+                              href={`https://www.google.com/maps/dir/?api=1&origin=${property.latitude},${property.longitude}&destination=Auckland+CBD&travelmode=${mode}`}
+                              target="_blank"
+                              rel="noreferrer"
+                            >
+                              {mode} to Auckland CBD ↗
+                            </a>
+                          </Button>
+                        ),
                       )}
-                      {historyData.pastSales.map((sale, i) => (
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+
+                <AccordionItem value="mortgage">
+                  <AccordionTrigger>Mortgage calculator</AccordionTrigger>
+                  <AccordionContent>
+                    <div className="mortgage-panel">
+                      <MortgageCalculator defaultPrice={property.price} />
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+
+                <AccordionItem value="history">
+                  <AccordionTrigger>Market history</AccordionTrigger>
+                  <AccordionContent>
+                    <div
+                      className="tool-panel"
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "1.5rem",
+                      }}
+                    >
+                      <div>
+                        <h4
+                          style={{ marginBottom: "0.75rem", fontWeight: 600 }}
+                        >
+                          Past Sale History
+                        </h4>
                         <div
-                          key={i}
                           style={{
                             display: "flex",
-                            justifyContent: "space-between",
-                            alignItems: "center",
-                            padding: "0.85rem 1rem",
-                            border: "1px solid var(--border-color, #e5e7eb)",
-                            borderRadius: "8px",
+                            flexDirection: "column",
+                            gap: "0.75rem",
                           }}
                         >
-                          <div>
-                            <strong>{formatMoney(sale.price)}</strong>{" "}
-                            <span style={{ fontSize: "0.8rem", opacity: 0.75 }}>
-                              ({sale.saleType})
-                            </span>
-                            <p style={{ margin: "0.2rem 0 0", fontSize: "0.85rem", opacity: 0.75 }}>
-                              Sold on {sale.date} · Source: {sale.source}
+                          {historyData.pastSales.length === 0 && (
+                            <p>
+                              No verified past sales are available for this
+                              property.
                             </p>
-                          </div>
+                          )}
+                          {historyData.pastSales.map((sale, i) => (
+                            <div
+                              key={i}
+                              style={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                alignItems: "center",
+                                padding: "0.85rem 1rem",
+                                border:
+                                  "1px solid var(--border-color, #e5e7eb)",
+                                borderRadius: "8px",
+                              }}
+                            >
+                              <div>
+                                <strong>{formatMoney(sale.price)}</strong>{" "}
+                                <span
+                                  style={{ fontSize: "0.8rem", opacity: 0.75 }}
+                                >
+                                  ({sale.saleType})
+                                </span>
+                                <p
+                                  style={{
+                                    margin: "0.2rem 0 0",
+                                    fontSize: "0.85rem",
+                                    opacity: 0.75,
+                                  }}
+                                >
+                                  Sold on {sale.date} · Source: {sale.source}
+                                </p>
+                              </div>
+                            </div>
+                          ))}
                         </div>
-                      ))}
-                    </div>
-                  </div>
+                      </div>
 
-                  <div>
-                    <h4 style={{ marginBottom: "0.75rem", fontWeight: 600 }}>
-                      Valuation History (CV / AVM)
-                    </h4>
-                    <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-                      {historyData.valuationHistory.map((rec, i) => (
+                      <div>
+                        <h4
+                          style={{ marginBottom: "0.75rem", fontWeight: 600 }}
+                        >
+                          Valuation History (CV / AVM)
+                        </h4>
                         <div
-                          key={i}
                           style={{
                             display: "flex",
-                            justifyContent: "space-between",
-                            alignItems: "center",
-                            padding: "0.75rem 1rem",
-                            border: "1px solid var(--border-color, #e5e7eb)",
-                            borderRadius: "8px",
+                            flexDirection: "column",
+                            gap: "0.5rem",
                           }}
                         >
-                          <div>
-                            <span style={{ fontWeight: 600, marginRight: "1rem" }}>
-                              {rec.date}
-                            </span>
-                            <span style={{ fontSize: "0.85rem", opacity: 0.75 }}>
-                              {rec.source}
-                            </span>
-                          </div>
-                          <strong>{formatMoney(rec.value)}</strong>
+                          {historyData.valuationHistory.map((rec, i) => (
+                            <div
+                              key={i}
+                              style={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                alignItems: "center",
+                                padding: "0.75rem 1rem",
+                                border:
+                                  "1px solid var(--border-color, #e5e7eb)",
+                                borderRadius: "8px",
+                              }}
+                            >
+                              <div>
+                                <span
+                                  style={{
+                                    fontWeight: 600,
+                                    marginRight: "1rem",
+                                  }}
+                                >
+                                  {rec.date}
+                                </span>
+                                <span
+                                  style={{ fontSize: "0.85rem", opacity: 0.75 }}
+                                >
+                                  {rec.source}
+                                </span>
+                              </div>
+                              <strong>{formatMoney(rec.value)}</strong>
+                            </div>
+                          ))}
                         </div>
-                      ))}
+                      </div>
                     </div>
-                  </div>
-                </div>
-              )}
-
-              {tab === "notes" && (
-                <div className="notes-panel" style={{ padding: "0.5rem 0" }}>
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
+              {
+                <div className="notes-panel" id="property-notes">
                   <PropertyNotes
                     propertyId={property.id}
                     propertyTitle={property.address}
                   />
                 </div>
-              )}
+              }
             </div>
           </div>
 
@@ -904,7 +934,9 @@ export default function PropertyDetailPage({
                   <span className="eyebrow">
                     {property.saleMethod || "Indicative Value"}
                   </span>
-                  <strong className="sidebar-price">{formatMoney(property.price)}</strong>
+                  <strong className="sidebar-price">
+                    {formatMoney(property.price)}
+                  </strong>
                 </div>
                 {property.estimatedWeeklyRent ? (
                   <div className="sidebar-rent-pill">
@@ -915,7 +947,7 @@ export default function PropertyDetailPage({
 
               {/* Open Homes Box */}
               <div className="sidebar-open-homes">
-                <h4>📅 Open Home Times</h4>
+                <h4>Open homes</h4>
                 {property.openHomes && property.openHomes.length > 0 ? (
                   <ul className="open-home-list">
                     {property.openHomes.map((oh, idx) => (
@@ -934,12 +966,11 @@ export default function PropertyDetailPage({
 
               {/* Listing Agent */}
               <div className="sidebar-agent-box">
-                <p className="eyebrow">Listing Agent</p>
                 {property.listingAgent ? (
                   <>
                     <h3>{property.listingAgent.name}</h3>
                     <p className="sidebar-agent-source">
-                      Verified via {property.listingAgent.source}
+                      {property.listingAgent.source}
                     </p>
                     <a
                       className="primary-agent-cta"
@@ -953,109 +984,66 @@ export default function PropertyDetailPage({
                 ) : (
                   <p>Agent details available on source listing.</p>
                 )}
-                <button
+                <Button
+                  variant="outline"
                   className="secondary-save-cta"
                   onClick={toggleSave}
+                  disabled={
+                    account?.status === "loading" || account?.status === "error"
+                  }
                   type="button"
                 >
-                  {isSaved ? "♥ Saved in Your Shortlist" : "♡ Save to Shortlist"}
-                </button>
+                  <Heart data-icon="inline-start" />
+                  {isSaved ? "Saved" : "Save home"}
+                </Button>
               </div>
 
               {property.sources && property.sources.length > 0 && (
-                <div className="sidebar-sources">
-                  <p className="eyebrow">Verified Data Sources</p>
-                  <ul>
-                    {property.sources.map((src) => (
-                      <li key={src.id}>
-                        <a href={src.url} target="_blank" rel="noopener noreferrer">
-                          {src.publisher} ↗
+                <Accordion
+                  type="single"
+                  collapsible
+                  className="sidebar-sources"
+                >
+                  <AccordionItem value="sources">
+                    <AccordionTrigger>Sources</AccordionTrigger>
+                    <AccordionContent>
+                      <ul>
+                        {property.sources.map((src) => (
+                          <li key={src.id}>
+                            <a
+                              href={src.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              {src.publisher} ↗
+                            </a>
+                            <span>{src.reference}</span>
+                          </li>
+                        ))}
+                      </ul>
+                      {property.imageSourceUrl && (
+                        <a
+                          href={property.imageSourceUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          Photo source ↗
                         </a>
-                        <span>{src.reference}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+                      )}
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
               )}
             </div>
           </aside>
         </div>
       </main>
 
-      {/* Fullscreen Photo Gallery Lightbox */}
-      {lightboxIndex !== null && (
-        <div
-          className="modal-backdrop photo-lightbox-backdrop"
-          role="dialog"
-          aria-label="Property photo gallery viewer"
-          aria-modal="true"
-        >
-          <div className="photo-lightbox-header">
-            <span>
-              {property.address} — Photo {lightboxIndex + 1} of {allPhotos.length}
-            </span>
-            <button
-              className="lightbox-close-btn"
-              onClick={() => setLightboxIndex(null)}
-              type="button"
-            >
-              ✕ Close
-            </button>
-          </div>
-          <div className="photo-lightbox-stage">
-            <button
-              aria-label="Previous photo"
-              className="lightbox-nav-btn"
-              onClick={() =>
-                setLightboxIndex((curr) =>
-                  curr === null ? 0 : (curr - 1 + allPhotos.length) % allPhotos.length,
-                )
-              }
-              type="button"
-            >
-              ‹
-            </button>
-            <div className="photo-lightbox-image-wrap">
-              <Image
-                alt={`${property.address} photo ${lightboxIndex + 1}`}
-                fill
-                sizes="90vw"
-                src={allPhotos[lightboxIndex]}
-                style={{ objectFit: "contain" }}
-              />
-            </div>
-            <button
-              aria-label="Next photo"
-              className="lightbox-nav-btn"
-              onClick={() =>
-                setLightboxIndex((curr) =>
-                  curr === null ? 0 : (curr + 1) % allPhotos.length,
-                )
-              }
-              type="button"
-            >
-              ›
-            </button>
-          </div>
-          <div className="photo-lightbox-thumbs">
-            {allPhotos.map((url, idx) => (
-              <button
-                key={url}
-                className={`lightbox-thumb-btn ${idx === lightboxIndex ? "active" : ""}`}
-                onClick={() => setLightboxIndex(idx)}
-                type="button"
-              >
-                <Image
-                  alt={`Thumbnail ${idx + 1}`}
-                  fill
-                  sizes="80px"
-                  src={url}
-                  style={{ objectFit: "cover" }}
-                />
-              </button>
-            ))}
-          </div>
-        </div>
+      {source && (
+        <SourceDetailsDialog
+          selection={source}
+          onClose={() => setSource(null)}
+        />
       )}
     </div>
   );
