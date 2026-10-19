@@ -15,7 +15,6 @@ import {
   Fence,
   Trees,
   Sparkles,
-  Sun,
   Bed,
   Bath,
   Car,
@@ -1220,22 +1219,7 @@ export default function PropertyExplorer({
                         {count}
                       </ToggleGroupItem>
                     ))}
-                  </ToggleGroup>{" "}
-                  <label className="north-check">
-                    <Checkbox
-                      checked={filters.northFacingOnly ?? false}
-                      onCheckedChange={(checked) =>
-                        setFilters((current) => ({
-                          ...current,
-                          northFacingOnly: checked === true || undefined,
-                        }))
-                      }
-                    />
-                    <Sun />
-                    <span>
-                      <strong>North-facing only</strong>
-                    </span>
-                  </label>
+                  </ToggleGroup>
                 </Field>
                 {/* Mapped Flood Hazard */}
                 <div className="filter-card-box">
