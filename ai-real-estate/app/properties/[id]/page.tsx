@@ -2,7 +2,14 @@ import { notFound } from "next/navigation";
 import PropertyDetailPage from "../../components/property-detail-page";
 import { loadPropertyCatalog } from "../../../lib/property-catalog";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
+
+export async function generateStaticParams() {
+  const { properties } = await loadPropertyCatalog(false);
+  return properties.map((property) => ({
+    id: encodeURIComponent(property.id),
+  }));
+}
 
 export default async function PropertyPage({
   params,

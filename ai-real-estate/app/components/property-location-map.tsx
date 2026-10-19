@@ -426,7 +426,9 @@ export default function PropertyLocationMap({
   useEffect(() => {
     if (mode !== "flood" || floodGeoJson) return;
     let cancelled = false;
-    setLoadingFlood(true);
+    queueMicrotask(() => {
+      if (!cancelled) setLoadingFlood(true);
+    });
     fetch(`/api/flood-zones?lat=${latitude}&lng=${longitude}`)
       .then(async (res) => {
         if (!res.ok) return;
@@ -500,6 +502,7 @@ export default function PropertyLocationMap({
         className="map-container property-location-map"
         role="region"
       >
+        <div className="map-skeleton -z-10 rounded-xl bg-muted" aria-hidden="true" />
         <APIProvider apiKey={apiKey}>
           <GoogleMap
             defaultCenter={{ lat: latitude, lng: longitude }}

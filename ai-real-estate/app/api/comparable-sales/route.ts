@@ -25,5 +25,10 @@ export async function GET(request: Request) {
   }
 
   const result = await getNearbyComparableSales(propertyKey, radiusKm, months);
-  return Response.json(result);
+  return Response.json(result, {
+    headers: {
+      "Cache-Control":
+        "public, max-age=600, s-maxage=3600, stale-while-revalidate=86400",
+    },
+  });
 }

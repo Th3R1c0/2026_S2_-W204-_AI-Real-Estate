@@ -82,8 +82,16 @@ export async function GET(request: Request) {
     }),
   );
 
-  return NextResponse.json({
-    type: "FeatureCollection",
-    features: layerResults.flat(),
-  });
+  return NextResponse.json(
+    {
+      type: "FeatureCollection",
+      features: layerResults.flat(),
+    },
+    {
+      headers: {
+        "Cache-Control":
+          "public, max-age=3600, s-maxage=3600, stale-while-revalidate=86400",
+      },
+    },
+  );
 }

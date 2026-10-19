@@ -67,7 +67,7 @@ export default function SiteHeader({ children }: { children?: ReactNode }) {
       <div className="header-actions">
         {children}
         {account?.status === "loading" ? (
-          <Skeleton className="h-9 w-20" />
+          <Skeleton className="h-9 w-[88px] rounded-md" />
         ) : (
           <Button
             variant="outline"

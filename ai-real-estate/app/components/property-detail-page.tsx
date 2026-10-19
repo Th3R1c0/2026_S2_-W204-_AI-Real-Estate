@@ -92,31 +92,24 @@ export default function PropertyDetailPage({
   useEffect(() => {
     if (account && account.status !== "signedIn" && account.status !== "guest")
       return;
-    let active = true;
-    queueMicrotask(() => {
-      if (!active) return;
-      if (account?.status === "signedIn") {
-        savedIdsRef.current = account.workspace.savedPropertyIds;
-        destinationsRef.current = account.workspace.destinations;
-      } else {
-        destinationsRef.current = readSavedLocations();
-        try {
-          const parsed: unknown = JSON.parse(
-            localStorage.getItem("haven_saved_property_ids") ?? "[]",
-          );
-          savedIdsRef.current = Array.isArray(parsed)
-            ? parsed.filter((id): id is string => typeof id === "string")
-            : [];
-        } catch {
-          savedIdsRef.current = [];
-        }
+    if (account?.status === "signedIn") {
+      savedIdsRef.current = account.workspace.savedPropertyIds;
+      destinationsRef.current = account.workspace.destinations;
+    } else {
+      destinationsRef.current = readSavedLocations();
+      try {
+        const parsed: unknown = JSON.parse(
+          localStorage.getItem("haven_saved_property_ids") ?? "[]",
+        );
+        savedIdsRef.current = Array.isArray(parsed)
+          ? parsed.filter((id): id is string => typeof id === "string")
+          : [];
+      } catch {
+        savedIdsRef.current = [];
       }
-      setSavedIds(savedIdsRef.current);
-      setDestinations(destinationsRef.current);
-    });
-    return () => {
-      active = false;
-    };
+    }
+    setSavedIds(savedIdsRef.current);
+    setDestinations(destinationsRef.current);
     // Identity changes hydrate once; workspace writes must not reset current edits.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [account?.status, account?.user?.userId]);
