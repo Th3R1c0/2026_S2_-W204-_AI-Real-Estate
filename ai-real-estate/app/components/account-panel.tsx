@@ -52,11 +52,34 @@ export default function AccountPanel() {
     } finally { setBusy(false); }
   }
 
+  async function handleDeleteAccount() {
+    setError("");
+    setBusy(true);
+    try {
+      const response = await fetch("/api/auth?action=delete_account", { method: "DELETE" });
+      if (!response.ok) throw new Error("Could not delete account.");
+      setUser(null);
+      window.dispatchEvent(new Event("haven_account_changed"));
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "Could not delete account.");
+    } finally { setBusy(false); }
+  }
+
   const signedInUser = account?.status === "signedIn" ? account.user : user;
   if (signedInUser) return <section className="account-panel">
     <h2>Your account</h2><p>Signed in as {signedInUser.username}</p><p>{signedInUser.email}</p>
     {error && <p role="alert">{error}</p>}
-    <button type="button" disabled={busy} onClick={() => void signOut()}>Sign out</button>
+    <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", marginTop: "0.5rem" }}>
+      <button type="button" disabled={busy} onClick={() => void signOut()}>Sign out</button>
+      <button
+        type="button"
+        disabled={busy}
+        onClick={() => void handleDeleteAccount()}
+        style={{ background: "transparent", color: "var(--danger, #bd684f)", borderColor: "var(--danger, #bd684f)" }}
+      >
+        Delete Account
+      </button>
+    </div>
   </section>;
   if (account?.status === "loading") return <section className="account-panel"><p>Loading account...</p></section>;
 

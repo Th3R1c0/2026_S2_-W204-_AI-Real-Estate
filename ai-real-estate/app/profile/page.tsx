@@ -4,9 +4,142 @@ import { useState } from "react";
 import Link from "next/link";
 import UserNotes from "../components/user-notes";
 import AccountPanel from "../components/account-panel";
+import PropertyNotes from "../components/property-notes";
+import { useAccountWorkspace } from "../components/account-workspace-provider";
+import { properties } from "../../lib/property-data";
+
+function SavedHomesTab() {
+  const account = useAccountWorkspace();
+  const savedIds = account?.status === "signedIn"
+    ? account.workspace.savedPropertyIds
+    : (typeof window !== "undefined" ? JSON.parse(localStorage.getItem("haven_saved_property_ids") || "[]") : []);
+
+  const handleUnsave = (id: string) => {
+    const nextIds = savedIds.filter((item: string) => item !== id);
+    if (account?.status === "signedIn") {
+      void account.save("savedPropertyIds", nextIds);
+    } else {
+      try {
+        localStorage.setItem("haven_saved_property_ids", JSON.stringify(nextIds));
+        window.dispatchEvent(new Event("haven_account_changed"));
+      } catch {}
+    }
+  };
+
+  if (!savedIds || savedIds.length === 0) {
+    return (
+      <div
+        style={{
+          textAlign: "center",
+          padding: "3rem 1.5rem",
+          background: "var(--cream, #f4f2e9)",
+          borderRadius: "12px",
+          border: "1px dashed var(--line, #dfe4dc)",
+        }}
+      >
+        <p style={{ margin: 0, fontWeight: 700, fontSize: "1.1rem", color: "var(--ink-deep, #0e241d)" }}>
+          No saved homes yet
+        </p>
+        <p style={{ margin: "0.5rem 0 1.25rem 0", fontSize: "0.9rem", color: "var(--muted, #6f7d76)", lineHeight: 1.5 }}>
+          Browse listings on Discover and save properties you&apos;re interested in to review them and add private inspection notes here.
+        </p>
+        <Link
+          href="/"
+          style={{
+            display: "inline-block",
+            padding: "0.6rem 1.2rem",
+            background: "var(--forest, #285e4a)",
+            color: "var(--white, #fff)",
+            borderRadius: "8px",
+            textDecoration: "none",
+            fontWeight: 650,
+            fontSize: "0.9rem",
+          }}
+        >
+          Explore Properties
+        </Link>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
+      {savedIds.map((id: string) => {
+        const prop = properties.find((p) => p.id === id) || {
+          id,
+          address: id,
+          suburb: "Auckland",
+          price: 0,
+          bedrooms: 0,
+          bathrooms: 0,
+          image: "/properties/address-placeholder.svg",
+        };
+
+        return (
+          <div
+            key={id}
+            style={{
+              border: "1px solid var(--line, #dfe4dc)",
+              borderRadius: "14px",
+              background: "var(--white, #fff)",
+              padding: "1.5rem",
+              boxShadow: "0 2px 10px rgba(0, 0, 0, 0.04)",
+              display: "flex",
+              flexDirection: "column",
+              gap: "1.25rem",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "flex-start",
+                gap: "1rem",
+                flexWrap: "wrap",
+                borderBottom: "1px solid var(--line, #dfe4dc)",
+                paddingBottom: "1rem",
+              }}
+            >
+              <div>
+                <h3 style={{ margin: "0 0 0.35rem 0", fontSize: "1.2rem", color: "var(--ink-deep, #0e241d)", fontWeight: 700 }}>
+                  {prop.address}
+                </h3>
+                <p style={{ margin: 0, fontSize: "0.9rem", color: "var(--muted, #6f7d76)" }}>
+                  {prop.suburb ? `${prop.suburb} • ` : ""}{prop.price ? `$${prop.price.toLocaleString("en-NZ")}` : "Price by negotiation"}
+                  {prop.bedrooms ? ` • ${prop.bedrooms} bed` : ""}{prop.bathrooms ? ` • ${prop.bathrooms} bath` : ""}
+                </p>
+              </div>
+
+              <div style={{ display: "flex", gap: "0.5rem" }}>
+                <button
+                  type="button"
+                  onClick={() => handleUnsave(id)}
+                  style={{
+                    padding: "0.45rem 0.85rem",
+                    border: "1px solid var(--line, #dfe4dc)",
+                    background: "var(--paper, #fcfcf8)",
+                    color: "var(--danger, #bd684f)",
+                    borderRadius: "6px",
+                    fontSize: "0.85rem",
+                    fontWeight: 600,
+                    cursor: "pointer",
+                  }}
+                >
+                  Unsave
+                </button>
+              </div>
+            </div>
+
+            <PropertyNotes propertyId={id} propertyTitle={prop.address} />
+          </div>
+        );
+      })}
+    </div>
+  );
+}
 
 export default function ProfilePage() {
-  const [activeTab, setActiveTab] = useState<"notes" | "account">("notes");
+  const [activeTab, setActiveTab] = useState<"notes" | "saved" | "account">("notes");
 
   return (
     <div className="site-shell" style={{ minHeight: "100vh", background: "var(--paper, #fcfcf8)" }}>
@@ -103,6 +236,7 @@ export default function ProfilePage() {
             gap: "1rem",
             marginBottom: "2rem",
             borderBottom: "1px solid var(--line, #dfe4dc)",
+            flexWrap: "wrap",
           }}
         >
           <button
@@ -123,6 +257,25 @@ export default function ProfilePage() {
             type="button"
           >
             General Notes
+          </button>
+          <button
+            onClick={() => setActiveTab("saved")}
+            style={{
+              padding: "0.85rem 1.25rem",
+              fontWeight: activeTab === "saved" ? 700 : 500,
+              borderBottom: activeTab === "saved" ? "3px solid var(--forest, #285e4a)" : "3px solid transparent",
+              background: "none",
+              borderTop: "none",
+              borderLeft: "none",
+              borderRight: "none",
+              cursor: "pointer",
+              color: activeTab === "saved" ? "var(--forest, #285e4a)" : "var(--muted, #6f7d76)",
+              fontSize: "0.95rem",
+              transition: "color 0.15s ease",
+            }}
+            type="button"
+          >
+            My Saved Homes
           </button>
           <button
             onClick={() => setActiveTab("account")}
@@ -149,12 +302,14 @@ export default function ProfilePage() {
         <div>
           {activeTab === "notes" ? (
             <UserNotes />
+          ) : activeTab === "saved" ? (
+            <SavedHomesTab />
           ) : (
             <AccountPanel />
-
           )}
         </div>
       </main>
     </div>
   );
 }
+
