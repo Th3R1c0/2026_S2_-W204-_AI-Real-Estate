@@ -28,13 +28,39 @@ function withSourceEnrichment(property: Property): Property {
     (!property.photoGallery || property.photoGallery.length <= 1) &&
     Boolean(bundled.photoGallery && bundled.photoGallery.length > 1);
   const needsSaleMethod = !property.saleMethod && Boolean(bundled.saleMethod);
+  const needsSummary = !property.summary && Boolean(bundled.summary);
+  const needsTeaser = !property.teaser && Boolean(bundled.teaser);
+  const needsValuations =
+    (!property.valuationHistory || property.valuationHistory.length === 0) &&
+    Boolean(bundled.valuationHistory && bundled.valuationHistory.length > 0);
+  const needsAvmHistory =
+    (!property.avmHistory || property.avmHistory.length === 0) &&
+    Boolean(bundled.avmHistory && bundled.avmHistory.length > 0);
+  const needsPastSales =
+    (!property.pastSales || property.pastSales.length === 0) &&
+    Boolean(bundled.pastSales && bundled.pastSales.length > 0);
+  const needsPropertyHistory =
+    (!property.propertyHistory || property.propertyHistory.length === 0) &&
+    Boolean(bundled.propertyHistory && bundled.propertyHistory.length > 0);
+  const needsPublicRecords =
+    (!property.titleNumber && Boolean(bundled.titleNumber)) ||
+    (!property.unitaryPlanZone && Boolean(bundled.unitaryPlanZone)) ||
+    (property.landValue === undefined && bundled.landValue !== undefined) ||
+    (property.estimateMedian === undefined && bundled.estimateMedian !== undefined);
 
   if (
     !needsAgent &&
     !needsFlood &&
     !needsOpenHomes &&
     !needsGallery &&
-    !needsSaleMethod
+    !needsSaleMethod &&
+    !needsSummary &&
+    !needsTeaser &&
+    !needsValuations &&
+    !needsAvmHistory &&
+    !needsPastSales &&
+    !needsPropertyHistory &&
+    !needsPublicRecords
   ) {
     return property;
   }
@@ -46,6 +72,52 @@ function withSourceEnrichment(property: Property): Property {
     ...(needsOpenHomes ? { openHomes: bundled.openHomes } : {}),
     ...(needsGallery ? { photoGallery: bundled.photoGallery } : {}),
     ...(needsSaleMethod ? { saleMethod: bundled.saleMethod } : {}),
+    ...(needsSummary ? { summary: bundled.summary } : {}),
+    ...(needsTeaser ? { teaser: bundled.teaser } : {}),
+    ...(needsValuations ? { valuationHistory: bundled.valuationHistory } : {}),
+    ...(needsAvmHistory ? { avmHistory: bundled.avmHistory } : {}),
+    ...(needsPastSales ? { pastSales: bundled.pastSales } : {}),
+    ...(needsPropertyHistory ? { propertyHistory: bundled.propertyHistory } : {}),
+    ...(property.landValue === undefined && bundled.landValue !== undefined
+      ? { landValue: bundled.landValue }
+      : {}),
+    ...(property.improvementValue === undefined && bundled.improvementValue !== undefined
+      ? { improvementValue: bundled.improvementValue }
+      : {}),
+    ...(!property.valuationDate && bundled.valuationDate
+      ? { valuationDate: bundled.valuationDate }
+      : {}),
+    ...(!property.rateableValueChange && bundled.rateableValueChange
+      ? { rateableValueChange: bundled.rateableValueChange }
+      : {}),
+    ...(property.estimateLow === undefined && bundled.estimateLow !== undefined
+      ? { estimateLow: bundled.estimateLow }
+      : {}),
+    ...(property.estimateMedian === undefined && bundled.estimateMedian !== undefined
+      ? { estimateMedian: bundled.estimateMedian }
+      : {}),
+    ...(property.estimateHigh === undefined && bundled.estimateHigh !== undefined
+      ? { estimateHigh: bundled.estimateHigh }
+      : {}),
+    ...(!property.estimateConfidence && bundled.estimateConfidence
+      ? { estimateConfidence: bundled.estimateConfidence }
+      : {}),
+    ...(!property.titleNumber && bundled.titleNumber ? { titleNumber: bundled.titleNumber } : {}),
+    ...(!property.legalDescription && bundled.legalDescription
+      ? { legalDescription: bundled.legalDescription }
+      : {}),
+    ...(!property.estateDescription && bundled.estateDescription
+      ? { estateDescription: bundled.estateDescription }
+      : {}),
+    ...(!property.unitaryPlanZone && bundled.unitaryPlanZone
+      ? { unitaryPlanZone: bundled.unitaryPlanZone }
+      : {}),
+    ...(!property.contour && bundled.contour ? { contour: bundled.contour } : {}),
+    ...(!property.construction && bundled.construction
+      ? { construction: bundled.construction }
+      : {}),
+    ...(!property.condition && bundled.condition ? { condition: bundled.condition } : {}),
+    ...(!property.council && bundled.council ? { council: bundled.council } : {}),
   };
 }
 

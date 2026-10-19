@@ -4,7 +4,7 @@ import { loadPropertyCatalog } from "../lib/property-catalog";
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  const { properties, comparableSales, schoolCatalog } = await loadPropertyCatalog(true);
+  const { properties, comparableSales, schoolCatalog } = await loadPropertyCatalog(false);
 
   return (
     <PropertyExplorer

@@ -35,7 +35,9 @@ function getSchoolZones(suburb, city, region) {
 const seenIds = new Set();
 
 function toProperty(item, idx) {
-  const o = item.oneRoofData;
+  const o = item.oneRoofData || {};
+  const r = item.oneRoofRich || {};
+  const pub = r.publicRecords || {};
   const h = item.homesDetails;
   const l = item.linz;
   const method = item.parsedTitle.saleMethod;
@@ -59,10 +61,12 @@ function toProperty(item, idx) {
   const city = l?.city || o.district || parts[2] || 'Auckland';
   const region = o.region || parts[3] || parts[2] || 'Auckland';
 
-  // Price calculation
+  // Price calculation from real sources
   const priceFromMethod = (method.match(/\$([\d,]+)/) || [])[1];
   let price = priceFromMethod ? Number(priceFromMethod.replace(/,/g, '')) : null;
+  if (!price && r.avm?.median) price = r.avm.median;
   if (!price && h?.estimate?.medium) price = h.estimate.medium;
+  if (!price && pub.capitalValue) price = pub.capitalValue;
   if (!price && o.capitalValue) price = o.capitalValue;
   if (!price && h?.facts?.capitalValue) price = h.facts.capitalValue;
   if (!price && o.estimate) price = o.estimate;
@@ -73,44 +77,32 @@ function toProperty(item, idx) {
   }
 
   // Specs
-  const bedrooms = o.bedrooms ?? h?.facts?.bedrooms ?? item.parsedTitle.beds ?? 3;
-  const bathrooms = o.bathrooms ?? h?.facts?.bathrooms ?? item.parsedTitle.baths ?? 1;
-  const parkingSpaces = o.carspaces ?? h?.facts?.parkingSpaces ?? item.parsedTitle.cars ?? 2;
+  const bedrooms = o.bedrooms ?? h?.facts?.bedrooms ?? item.parsedTitle.beds ?? 0;
+  const bathrooms = o.bathrooms ?? h?.facts?.bathrooms ?? item.parsedTitle.baths ?? 0;
+  const parkingSpaces = o.carspaces ?? h?.facts?.parkingSpaces ?? item.parsedTitle.cars ?? 0;
 
-  // Land & Floor area
-  const landArea = o.landArea || h?.facts?.landArea || 500;
-  const floorArea = o.floorArea || h?.facts?.floorArea || 140;
+  // Land & Floor area (real scraped values)
+  const landArea = o.landArea || pub.landArea || h?.facts?.landArea || 0;
+  const floorArea = o.floorArea || pub.floorArea || h?.facts?.floorArea || 0;
 
-  // Year built
+  // Year built (real scraped values only — 0 if unknown)
   const decadeStr = h?.facts?.decadeBuilt ? String(h.facts.decadeBuilt) : '';
-  const yearBuilt = decadeStr ? Number(decadeStr) : (idx % 2 === 0 ? 2018 : 2012);
+  const yearBuilt = pub.yearBuilt || (decadeStr ? Number(decadeStr) : 0);
 
   // Property Type
   let propertyType = 'House';
   if (o.propertyType === 'Rural & Lifestyle' || landArea >= 10000) {
     propertyType = 'Lifestyle block';
-  } else if (bedrooms === 0 || (landArea > 20000 && !floorArea)) {
+  } else if (bedrooms === 0 && !floorArea) {
     propertyType = 'Section';
-  } else if (street.includes('/') || o.propertyType === 'Apartment' || o.propertyType === 'Unit') {
+  } else if (street.includes('/') && floorArea > 0 && floorArea < 95 && !landArea) {
+    propertyType = 'Apartment';
+  } else if (o.propertyType === 'Apartment' || o.propertyType === 'Unit') {
     propertyType = 'Apartment';
   } else if (o.propertyType === 'Townhouse') {
     propertyType = 'Townhouse';
-  } else if (yearBuilt < 1930) {
+  } else if (yearBuilt > 0 && yearBuilt < 1930) {
     propertyType = 'Villa';
-  }
-
-  // Architectural style
-  let architecturalStyle = 'Contemporary';
-  if (propertyType === 'Villa' || yearBuilt < 1930) {
-    architecturalStyle = idx % 3 === 0 ? 'Craftsman' : 'Character';
-  } else if (yearBuilt >= 1930 && yearBuilt < 1950) {
-    architecturalStyle = idx % 2 === 0 ? 'Craftsman' : 'Character';
-  } else if (yearBuilt >= 1950 && yearBuilt <= 1970) {
-    architecturalStyle = 'Mid-Century';
-  } else if (yearBuilt > 1970 && yearBuilt < 2005) {
-    architecturalStyle = idx % 3 === 0 ? 'Modernist' : 'Contemporary';
-  } else {
-    architecturalStyle = idx % 4 === 0 ? 'Modernist' : 'Contemporary';
   }
 
   // Coords
@@ -147,26 +139,6 @@ function toProperty(item, idx) {
     },
   ];
 
-  // Orientation and sunlight
-  let orientation = 'North';
-  let sunlightHours = 7.8;
-  if (idx % 4 === 0) {
-    orientation = 'North';
-    sunlightHours = 8.2;
-  } else if (idx % 4 === 1) {
-    orientation = 'North';
-    sunlightHours = 7.4;
-  } else if (idx % 4 === 2) {
-    orientation = 'West';
-    sunlightHours = 6.4;
-  } else if (idx % 8 === 3) {
-    orientation = 'East';
-    sunlightHours = 5.9;
-  } else {
-    orientation = 'South';
-    sunlightHours = 4.6;
-  }
-
   // Images
   const gallery = [...new Set([...(o.images || []), ...(h?.images || [])])];
   const image = o.heroCover || gallery[0] || '/properties/address-placeholder.svg';
@@ -176,10 +148,49 @@ function toProperty(item, idx) {
   const floodHazards = Array.isArray(item.floodHazards) ? item.floodHazards : [];
   const openHomes = Array.isArray(item.openHomes) ? item.openHomes : [];
 
+  // Valuations & Past Sales from OneRoof + Homes
+  const valuationHistory = Array.isArray(r.valuationHistory) ? [...r.valuationHistory] : [];
+  if (h?.estimate?.medium) {
+    valuationHistory.push({
+      date: h?.facts?.valuationDate || '2026-10-01',
+      value: h.estimate.medium,
+      source: 'Homes.co.nz Estimate',
+      kind: 'avm',
+      medianEstimate: h.estimate.medium,
+      ...(h.estimate.low ? { lowEstimate: h.estimate.low } : {}),
+      ...(h.estimate.high ? { highEstimate: h.estimate.high } : {}),
+    });
+  }
+  if (!valuationHistory.some(v => v.kind === 'rv') && h?.facts?.capitalValue) {
+    valuationHistory.push({
+      date: h.facts.valuationDate || '2024-05-01',
+      value: h.facts.capitalValue,
+      source: 'Council RV (Homes)',
+      kind: 'rv',
+      capitalValue: h.facts.capitalValue,
+      ...(h.facts.landValue ? { landValue: h.facts.landValue } : {}),
+      ...(h.facts.improvementValue ? { improvementValue: h.facts.improvementValue } : {}),
+    });
+  }
+
+  const pastSales = Array.isArray(r.pastSales) ? [...r.pastSales] : [];
+  const avmHistory = Array.isArray(r.avmHistory) ? r.avmHistory : [];
+  const propertyHistory = Array.isArray(r.propertyHistory) ? r.propertyHistory : [];
+
+  const capitalValue = pub.capitalValue || o.capitalValue || h?.facts?.capitalValue || undefined;
+  const landValue = pub.landValue || h?.facts?.landValue || undefined;
+  const improvementValue = pub.improvementValue || h?.facts?.improvementValue || undefined;
+  const valuationDate = pub.valuationDate || h?.facts?.valuationDate || undefined;
+  const ownershipType = pub.ownershipType || h?.facts?.ownershipType || undefined;
+  const legalDescription = pub.legalDescription || h?.facts?.legalDescription || undefined;
+  const titleNumber = pub.titleNumber || h?.facts?.certificateOfTitle || undefined;
+  const estimatedWeeklyRent = h?.facts?.estimatedWeeklyRent || undefined;
+  const teaser = r.teaser || o.teaser || undefined;
+  const summary = r.description || (o.description && o.description !== o.teaser ? o.description : undefined);
+
   // Multi-source attributions
   const sources = [];
 
-  // OneRoof primary source
   const oneRoofFields = ['price'];
   if (bedrooms > 0) oneRoofFields.push('bedrooms');
   if (bathrooms > 0) oneRoofFields.push('bathrooms');
@@ -189,12 +200,11 @@ function toProperty(item, idx) {
     title: 'OneRoof active listing',
     publisher: 'OneRoof',
     reference: `Active listing: ${method}`,
-    material: `Active for-sale listing (${method}). ${gallery.length} verified photo URL(s). Council RV $${(o.capitalValue || price).toLocaleString('en-NZ')}. ${o.teaser || ''}`,
+    material: `Active for-sale listing (${method}). ${gallery.length} verified photo URL(s).${capitalValue ? ` Council RV $${capitalValue.toLocaleString('en-NZ')}.` : ''} ${teaser || ''}`.trim(),
     url: item.item.url,
     fields: oneRoofFields
   });
 
-  // LINZ official address source
   if (l) {
     sources.push({
       id: `linz-${l.addressId}`,
@@ -207,7 +217,6 @@ function toProperty(item, idx) {
     });
   }
 
-  // Homes independent valuation source
   if (item.propValuesSources?.Homes?.status === 'matched') {
     const homesFields = [];
     if (h?.estimate?.medium) homesFields.push('price');
@@ -219,13 +228,12 @@ function toProperty(item, idx) {
       title: 'Homes.co.nz property record',
       publisher: 'Homes',
       reference: 'Independent valuation record',
-      material: `Estimated value: ${h?.estimate?.medium ? '$' + h.estimate.medium.toLocaleString('en-NZ') : 'unavailable'}${h?.estimate?.low ? ' (range $' + h.estimate.low.toLocaleString('en-NZ') + ' - $' + h.estimate.high.toLocaleString('en-NZ') + ')' : ''}. Council capital value: $${(h?.facts?.capitalValue || 0).toLocaleString('en-NZ')}. ${h?.images?.length || 0} source image(s).`,
+      material: `Estimated value: ${h?.estimate?.medium ? '$' + h.estimate.medium.toLocaleString('en-NZ') : 'unavailable'}${h?.estimate?.low ? ' (range $' + h.estimate.low.toLocaleString('en-NZ') + ' - $' + h.estimate.high.toLocaleString('en-NZ') + ')' : ''}.${h?.facts?.capitalValue ? ' Council capital value: $' + h.facts.capitalValue.toLocaleString('en-NZ') + '.' : ''} ${h?.images?.length || 0} source image(s).`,
       url: item.propValuesSources.Homes.url,
       fields: homesFields.length > 0 ? homesFields : ['address']
     });
   }
 
-  // RealEstate portal match
   if (item.propValuesSources?.RealEstate?.status === 'matched') {
     sources.push({
       id: 'realestate',
@@ -238,7 +246,6 @@ function toProperty(item, idx) {
     });
   }
 
-  // TradeMe property insights match
   if (item.propValuesSources?.TradeMe?.status === 'matched') {
     sources.push({
       id: 'trademe',
@@ -251,7 +258,6 @@ function toProperty(item, idx) {
     });
   }
 
-  // QV council valuation match
   if (item.propValuesSources?.QV?.status === 'matched') {
     sources.push({
       id: 'qv',
@@ -279,11 +285,8 @@ function toProperty(item, idx) {
     floorArea,
     yearBuilt,
     propertyType,
-    architecturalStyle,
     floodHazards,
     openHomes,
-    orientation,
-    sunlightHours,
     latitude,
     longitude,
     image,
@@ -291,9 +294,31 @@ function toProperty(item, idx) {
     imageSourceUrl: item.item.url,
     ...(agentName ? { listingAgent: { name: agentName, source: 'OneRoof', contactUrl: item.item.url } } : {}),
     photoGallery: gallery,
-    capitalValue: o.capitalValue || h?.facts?.capitalValue || price,
-    estimatedWeeklyRent: h?.facts?.estimatedWeeklyRent || Math.round((price * 0.045) / 52),
-    ownershipType: h?.facts?.ownershipType || 'Freehold',
+    ...(capitalValue ? { capitalValue } : {}),
+    ...(landValue ? { landValue } : {}),
+    ...(improvementValue ? { improvementValue } : {}),
+    ...(valuationDate ? { valuationDate } : {}),
+    ...(pub.rateableValueChange !== undefined ? { rateableValueChange: pub.rateableValueChange } : {}),
+    ...(r.avm?.low ? { estimateLow: r.avm.low } : h?.estimate?.low ? { estimateLow: h.estimate.low } : {}),
+    ...(r.avm?.median ? { estimateMedian: r.avm.median } : h?.estimate?.medium ? { estimateMedian: h.estimate.medium } : {}),
+    ...(r.avm?.high ? { estimateHigh: r.avm.high } : h?.estimate?.high ? { estimateHigh: h.estimate.high } : {}),
+    ...(r.avm?.confidence ? { estimateConfidence: r.avm.confidence } : {}),
+    ...(estimatedWeeklyRent ? { estimatedWeeklyRent } : {}),
+    ...(ownershipType ? { ownershipType } : {}),
+    ...(titleNumber ? { titleNumber } : {}),
+    ...(legalDescription ? { legalDescription } : {}),
+    ...(pub.estateDescription ? { estateDescription: pub.estateDescription } : {}),
+    ...(pub.unitaryPlanZone ? { unitaryPlanZone: pub.unitaryPlanZone } : {}),
+    ...(pub.contour ? { contour: pub.contour } : {}),
+    ...(pub.construction ? { construction: pub.construction } : {}),
+    ...(pub.condition ? { condition: pub.condition } : {}),
+    ...(pub.council ? { council: pub.council } : {}),
+    ...(teaser ? { teaser } : {}),
+    ...(summary ? { summary } : {}),
+    valuationHistory,
+    avmHistory,
+    pastSales,
+    propertyHistory,
     schoolZones: getSchoolZones(suburb, city, region),
     commuteOptions,
     sources
@@ -302,7 +327,7 @@ function toProperty(item, idx) {
 
 const properties = harvest.map((item, idx) => toProperty(item, idx));
 
-console.log(`Built ${properties.length} for-sale properties.`);
+console.log(`Built ${properties.length} for-sale properties with real OneRoof descriptions and valuation histories.`);
 
 await writeFile(new URL('../reports/forsale-properties.json', import.meta.url), JSON.stringify(properties, null, 2));
 console.log('Saved reports/forsale-properties.json');

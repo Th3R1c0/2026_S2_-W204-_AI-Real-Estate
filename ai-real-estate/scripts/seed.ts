@@ -11,6 +11,7 @@ import {
   propertyPrice,
   propertySales,
   propertySources,
+  propertyValuations,
 } from "../lib/db/schema";
 import { comparableSales, properties } from "../lib/property-data";
 import type { Property, PropertyType } from "../lib/property-types";
@@ -95,14 +96,17 @@ async function insertProperty(
     propertyType: propertyTypeForSql[property.propertyType],
     displayPropertyType: property.propertyType,
     architecturalStyle: property.architecturalStyle ?? null,
-    orientation: property.orientation,
-    sunlightHours: String(property.sunlightHours),
-    landArea: String(property.landArea),
-    floorArea: String(property.floorArea),
-    bedrooms: property.bedrooms,
-    bathrooms: property.bathrooms,
+    orientation: property.orientation ?? null,
+    sunlightHours:
+      property.sunlightHours !== undefined
+        ? String(property.sunlightHours)
+        : null,
+    landArea: String(property.landArea ?? 0),
+    floorArea: String(property.floorArea ?? 0),
+    bedrooms: property.bedrooms ?? 0,
+    bathrooms: property.bathrooms ?? 0,
     offStreetParking: property.parkingSpaces ?? 0,
-    yearBuilt: property.yearBuilt,
+    yearBuilt: property.yearBuilt || null,
     capitalValue: property.capitalValue ? String(property.capitalValue) : null,
     estimatedWeeklyRent: property.estimatedWeeklyRent
       ? String(property.estimatedWeeklyRent)
@@ -163,6 +167,30 @@ async function insertProperty(
       reference: source.reference,
       material: source.material,
       fields: source.fields,
+    });
+  }
+
+  for (const val of property.valuationHistory ?? []) {
+    if (!val.date || !val.value) continue;
+    await tx.insert(propertyValuations).values({
+      propertyId,
+      valuationDate: val.date,
+      capitalValue: val.capitalValue ? String(val.capitalValue) : val.kind === "rv" ? String(val.value) : null,
+      landValue: val.landValue ? String(val.landValue) : null,
+      improvementValue: val.improvementValue ? String(val.improvementValue) : null,
+      lowEstimate: val.lowEstimate ? String(val.lowEstimate) : null,
+      medianEstimate: val.medianEstimate ? String(val.medianEstimate) : val.kind === "avm" ? String(val.value) : null,
+      highEstimate: val.highEstimate ? String(val.highEstimate) : null,
+      source: val.source,
+    });
+  }
+
+  for (const sale of property.pastSales ?? []) {
+    if (!sale.date || !sale.price) continue;
+    await tx.insert(propertySales).values({
+      propertyId,
+      soldPrice: String(sale.price),
+      soldDate: sale.date,
     });
   }
 

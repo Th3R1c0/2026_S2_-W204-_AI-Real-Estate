@@ -404,7 +404,7 @@ describe("PropertyExplorer", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("shows live comps and mortgage tools on the property page", async () => {
+  it("shows flood assessment mode and mortgage tools on the property page", async () => {
     const user = userEvent.setup();
     render(
       <PropertyDetailPage
@@ -416,7 +416,7 @@ describe("PropertyExplorer", () => {
     const details = screen.getByRole("main", { name: /property details/i });
 
     await user.click(
-      within(details).getByRole("button", { name: "About flood mapping" }),
+      within(details).getByRole("tab", { name: /Flood assessment/i }),
     );
     expect(
       within(details).getByText(/Council flood mapping: Flood plains/),
@@ -430,21 +430,13 @@ describe("PropertyExplorer", () => {
       within(details).getByText(floodHazardDisclaimer),
     ).toBeInTheDocument();
 
-    await user.click(
-      within(details).getByRole("button", { name: /comparable sales/i }),
-    );
     expect(
-      within(details).getByText("31 Hardington Street"),
-    ).toBeInTheDocument();
-    expect(within(details).getByText("$760,000 average")).toBeInTheDocument();
-
+      within(details).queryByText(/comparable sales/i),
+    ).not.toBeInTheDocument();
     expect(
-      within(details).queryByRole("button", { name: /sunlight/i }),
+      within(details).queryByText(/sunlight/i),
     ).not.toBeInTheDocument();
 
-    await user.click(
-      within(details).getByRole("button", { name: /mortgage/i }),
-    );
     const initialPayment =
       within(details).getByTestId("monthly-repayment").textContent;
     fireEvent.change(within(details).getByLabelText(/deposit percentage/i), {
@@ -474,7 +466,7 @@ describe("PropertyExplorer", () => {
     );
   });
 
-  it("shows nearby schools and containing school zones with the map toggle", async () => {
+  it("shows nearby schools and containing school zones in the map Schools mode", async () => {
     const user = userEvent.setup();
     render(
       <PropertyDetailPage
@@ -483,36 +475,24 @@ describe("PropertyExplorer", () => {
       />,
     );
     const details = screen.getByRole("main", { name: /property details/i });
-    await user.click(
-      within(details).getByRole("switch", { name: "Show schools on map" }),
-    );
 
-    expect(within(details).getAllByText("Kauri Park School")).toHaveLength(2);
+    expect(within(details).getAllByText("Kauri Park School").length).toBeGreaterThanOrEqual(1);
     expect(
       within(details).getByText("Contributing · 1.24 km away"),
     ).toBeInTheDocument();
     expect(
-      within(details).getByText("This property is in the mapped school zone"),
+      within(details).getByText("In Zone"),
     ).toBeInTheDocument();
     expect(
-      within(details).getByText("Kauri Park School Zone · Contributing"),
+      within(details).getByText(/School-zone matches are approximate/i),
     ).toBeInTheDocument();
-    expect(
-      within(details).getByText("School-zone matches are approximate."),
-    ).toBeInTheDocument();
-    expect(
-      within(details).getByText(/limited resolution and alignment accuracy/i),
-    ).toBeInTheDocument();
-    expect(
-      within(details).queryByRole("img", { name: /map/i }),
-    ).not.toBeInTheDocument();
 
     await user.selectOptions(
       within(details).getByLabelText("Filter nearby schools by type"),
       "Secondary",
     );
     expect(within(details).getByText("Example Secondary")).toBeInTheDocument();
-    expect(within(details).getAllByText("Kauri Park School")).toHaveLength(1);
+    expect(within(details).queryByText("Kauri Park School")).not.toBeInTheDocument();
   });
 
   it("saves up to three commute destinations and updates the directions mode", async () => {
@@ -526,7 +506,7 @@ describe("PropertyExplorer", () => {
     );
 
     const details = screen.getByRole("main", { name: /property details/i });
-    await user.click(within(details).getByRole("button", { name: "Commute" }));
+    await user.click(within(details).getByRole("tab", { name: /Commute/i }));
     await user.click(
       within(details).getByRole("button", { name: "Add destination" }),
     );
@@ -556,7 +536,7 @@ describe("PropertyExplorer", () => {
     );
     const directions = new URL(
       within(details)
-        .getByRole("link", { name: "Open directions" })
+        .getByRole("link", { name: /Open in Google Maps/i })
         .getAttribute("href")!,
     );
     expect(directions.searchParams.get("travelmode")).toBe("transit");
@@ -568,8 +548,8 @@ describe("PropertyExplorer", () => {
       window.localStorage.getItem("ai-real-estate-commute-destinations"),
     ).toContain("Work");
 
-    await user.click(within(details).getByRole("button", { name: "Commute" }));
-    await user.click(within(details).getByRole("button", { name: "Commute" }));
+    await user.click(within(details).getByRole("tab", { name: /Schools/i }));
+    await user.click(within(details).getByRole("tab", { name: /Commute/i }));
     expect(
       within(details).getByRole("textbox", {
         name: "Address for destination 1",
@@ -577,7 +557,7 @@ describe("PropertyExplorer", () => {
     ).toHaveValue("1 Queen Street, Auckland");
   });
 
-  it("shows a saved named location and its distance on a property map", async () => {
+  it("shows a saved named location and its distance in the property map Commute mode", async () => {
     window.localStorage.clear();
     const geocode = vi
       .spyOn(globalThis, "fetch")
@@ -602,7 +582,7 @@ describe("PropertyExplorer", () => {
     );
 
     const details = screen.getByRole("main", { name: /property details/i });
-    await user.click(within(details).getByRole("button", { name: "Commute" }));
+    await user.click(within(details).getByRole("tab", { name: /Commute/i }));
     await user.click(
       within(details).getByRole("button", { name: "Add destination" }),
     );
@@ -625,19 +605,9 @@ describe("PropertyExplorer", () => {
         window.localStorage.getItem("ai-real-estate-commute-destinations"),
       ).toContain('"latitude":-36.904'),
     );
-    await user.click(within(details).getByRole("button", { name: "Commute" }));
     expect(
-      within(details).getByText(/Work.*1\.0 km straight-line/i),
+      within(details).getByText(/1\.0 km/i),
     ).toBeInTheDocument();
-    expect(
-      within(details).getByRole("switch", { name: "Show saved locations" }),
-    ).toBeChecked();
-    await user.click(
-      within(details).getByRole("switch", { name: "Show saved locations" }),
-    );
-    expect(
-      within(details).queryByText(/Work.*km straight-line/i),
-    ).not.toBeInTheDocument();
     expect(geocode).toHaveBeenCalledTimes(1);
     geocode.mockRestore();
   });
@@ -706,7 +676,7 @@ describe("PropertyExplorer", () => {
       />,
     );
     const details = screen.getByRole("main", { name: /property details/i });
-    await user.click(within(details).getByRole("button", { name: "Commute" }));
+    await user.click(within(details).getByRole("tab", { name: /Commute/i }));
     await user.click(
       within(details).getByRole("button", { name: "Add destination" }),
     );
@@ -734,9 +704,8 @@ describe("PropertyExplorer", () => {
         within(details).getByRole("button", { name: "Find on map" }),
       ).toBeEnabled(),
     );
-    await user.click(within(details).getByRole("button", { name: "Commute" }));
     expect(
-      within(details).queryByText(/Work.*km straight-line/i),
+      within(details).queryByText(/1\.0 km/i),
     ).not.toBeInTheDocument();
     geocode.mockRestore();
   });

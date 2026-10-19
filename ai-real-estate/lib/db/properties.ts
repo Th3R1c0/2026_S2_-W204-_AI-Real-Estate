@@ -13,6 +13,7 @@ import {
   propertyPrice,
   propertySales,
   propertySources,
+  propertyValuations,
   schoolDataSync,
   schools as schoolsTable,
 } from "./schema";
@@ -22,12 +23,14 @@ import type {
   ComparableSalesResult,
   NearbySchool,
   OpenHome,
+  PastSale,
   Property,
   PropertySource,
   PropertySourceField,
   PropertyType,
   SchoolOption,
   SchoolZone,
+  ValuationRecord,
 } from "../property-types";
 import { SCHOOL_NEARBY_RADIUS_METRES } from "../school-data";
 
@@ -246,6 +249,7 @@ export async function getPropertiesByStatus(status: PropertyStatus): Promise<Pro
     .select({
       propertyId: propertyTable.propertyId,
       demoKey: propertyTable.demoKey,
+      body: propertyTable.body,
       salePrice: propertyPrice.salePrice,
       unitNumber: address.unitNumber,
       streetNumber: address.streetNumber,
@@ -290,7 +294,7 @@ export async function getPropertiesByStatus(status: PropertyStatus): Promise<Pro
     longitude: decimalNumber(row.longitude, "longitude"),
   }));
 
-  const [images, sources, openHomeRows, schoolData] = await Promise.all([
+  const [images, sources, openHomeRows, valuationRows, saleRows, schoolData] = await Promise.all([
     db
       .select()
       .from(propertyImages)
@@ -306,6 +310,18 @@ export async function getPropertiesByStatus(status: PropertyStatus): Promise<Pro
       .from(openHomes)
       .where(inArray(openHomes.propertyId, ids))
       .orderBy(openHomes.openDate, openHomes.startTime)
+      .catch(() => []),
+    db
+      .select()
+      .from(propertyValuations)
+      .where(inArray(propertyValuations.propertyId, ids))
+      .orderBy(desc(propertyValuations.valuationDate))
+      .catch(() => []),
+    db
+      .select()
+      .from(propertySales)
+      .where(inArray(propertySales.propertyId, ids))
+      .orderBy(desc(propertySales.soldDate))
       .catch(() => []),
     getPropertySchoolData(propertyCoords),
   ]);
@@ -386,6 +402,50 @@ export async function getPropertiesByStatus(status: PropertyStatus): Promise<Pro
     (floodSyncRows.length === 4 &&
       new Set(floodSyncRows.map(({ hazardType }) => hazardType)).size === 4);
 
+  const valuationsByProperty = new Map<number, ValuationRecord[]>();
+  for (const val of valuationRows) {
+    const list = valuationsByProperty.get(val.propertyId) ?? [];
+    const cv =
+      val.capitalValue !== null
+        ? decimalNumber(val.capitalValue, "capital value")
+        : undefined;
+    const med =
+      val.medianEstimate !== null
+        ? decimalNumber(val.medianEstimate, "median estimate")
+        : undefined;
+    list.push({
+      source: val.source ?? "Valuation",
+      date: val.valuationDate,
+      value: cv ?? med ?? 0,
+      ...(cv !== undefined ? { capitalValue: cv } : {}),
+      ...(val.landValue !== null
+        ? { landValue: decimalNumber(val.landValue, "land value") }
+        : {}),
+      ...(val.improvementValue !== null
+        ? { improvementValue: decimalNumber(val.improvementValue, "improvement value") }
+        : {}),
+      ...(val.lowEstimate !== null
+        ? { lowEstimate: decimalNumber(val.lowEstimate, "low estimate") }
+        : {}),
+      ...(med !== undefined ? { medianEstimate: med } : {}),
+      ...(val.highEstimate !== null
+        ? { highEstimate: decimalNumber(val.highEstimate, "high estimate") }
+        : {}),
+    });
+    valuationsByProperty.set(val.propertyId, list);
+  }
+
+  const salesByProperty = new Map<number, PastSale[]>();
+  for (const sale of saleRows) {
+    const list = salesByProperty.get(sale.propertyId) ?? [];
+    list.push({
+      date: sale.soldDate,
+      price: decimalNumber(sale.soldPrice, "sold price"),
+      source: "OneRoof / Public Records",
+    });
+    salesByProperty.set(sale.propertyId, list);
+  }
+
   return rows.map((row) => {
     const propImages = imagesByProperty.get(row.propertyId) ?? [];
     const coverImage = propImages[0];
@@ -394,6 +454,12 @@ export async function getPropertiesByStatus(status: PropertyStatus): Promise<Pro
     }
     const gallery = propImages.map((img) => img.url);
     const totalParking = (row.garageParking ?? 0) + (row.offStreetParking ?? 0);
+    const propValuations = valuationsByProperty.get(row.propertyId) ?? [];
+    const latestAvm = propValuations.find((v) => v.medianEstimate !== undefined);
+    const latestRv = propValuations.find(
+      (v) => v.landValue !== undefined || v.improvementValue !== undefined,
+    );
+    const propSales = salesByProperty.get(row.propertyId) ?? [];
 
     return {
       id: row.demoKey ?? String(row.propertyId),
@@ -418,10 +484,23 @@ export async function getPropertiesByStatus(status: PropertyStatus): Promise<Pro
       ...(row.capitalValue !== null
         ? { capitalValue: decimalNumber(row.capitalValue, "capital value") }
         : {}),
+      ...(latestRv?.landValue !== undefined ? { landValue: latestRv.landValue } : {}),
+      ...(latestRv?.improvementValue !== undefined
+        ? { improvementValue: latestRv.improvementValue }
+        : {}),
+      ...(latestRv?.date ? { valuationDate: latestRv.date } : {}),
+      ...(latestAvm?.lowEstimate !== undefined ? { estimateLow: latestAvm.lowEstimate } : {}),
+      ...(latestAvm?.medianEstimate !== undefined
+        ? { estimateMedian: latestAvm.medianEstimate }
+        : {}),
+      ...(latestAvm?.highEstimate !== undefined ? { estimateHigh: latestAvm.highEstimate } : {}),
       ...(row.estimatedWeeklyRent !== null
         ? { estimatedWeeklyRent: decimalNumber(row.estimatedWeeklyRent, "weekly rent") }
         : {}),
       ...(row.ownershipType ? { ownershipType: row.ownershipType } : {}),
+      ...(row.body ? { summary: row.body } : {}),
+      ...(propValuations.length > 0 ? { valuationHistory: propValuations } : {}),
+      ...(propSales.length > 0 ? { pastSales: propSales } : {}),
       latitude: decimalNumber(row.latitude, "latitude"),
       longitude: decimalNumber(row.longitude, "longitude"),
       image: coverImage.url,

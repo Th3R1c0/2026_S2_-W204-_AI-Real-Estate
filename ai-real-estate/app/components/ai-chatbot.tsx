@@ -626,7 +626,6 @@ export default function AIChatbot({
           showCloseButton={false}
           onOpenAutoFocus={(event) => {
             event.preventDefault();
-            inputRef.current?.focus();
           }}
         >
           <div className="chat-header">

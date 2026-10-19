@@ -11,17 +11,12 @@ export default async function PropertyPage({
 }) {
   const { id } = await params;
   const decodedId = decodeURIComponent(id);
-  const { properties, comparableSales } = await loadPropertyCatalog(true);
+  const { properties } = await loadPropertyCatalog(false);
 
   const property = properties.find((item) => item.id === decodedId);
   if (!property) {
     notFound();
   }
 
-  return (
-    <PropertyDetailPage
-      comparableSales={comparableSales}
-      property={property}
-    />
-  );
+  return <PropertyDetailPage property={property} />;
 }
