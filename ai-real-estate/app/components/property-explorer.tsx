@@ -1011,6 +1011,23 @@ function DetailDialog({
                   <span>Year built</span>
                 </div>
               </div>
+              <section className="listing-agent-card" aria-label="Listing agent and contact">
+                <div>
+                  <p className="eyebrow">Real estate agent</p>
+                  {property.listingAgent ? (
+                    <>
+                      <h3>{property.listingAgent.name}</h3>
+                      <div className="listing-agent-actions">
+                        {property.listingAgent.phone && <a href={`tel:${property.listingAgent.phone}`}>Call {property.listingAgent.phone}</a>}
+                        {property.listingAgent.email && <a href={`mailto:${property.listingAgent.email}`}>Email agent</a>}
+                        <a href={property.listingAgent.contactUrl} target="_blank" rel="noopener noreferrer">Enquire on {property.listingAgent.source} ↗</a>
+                      </div>
+                    </>
+                  ) : (
+                    <p>Agent details unavailable.</p>
+                  )}
+                </div>
+              </section>
               {property.imageSourceUrl ? (
                 <div style={{ marginTop: 18, fontSize: 13 }}>
                   <a href={property.imageSourceUrl} target="_blank" rel="noopener noreferrer">Photo source ↗</a>

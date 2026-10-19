@@ -1,5 +1,16 @@
 import { comparableSales as localSales, properties as localProperties } from "./property-data";
-import type { SchoolOption } from "./property-types";
+import type { Property, SchoolOption } from "./property-types";
+
+const bundledListingsById = new Map(localProperties.map(property => [property.id, property]));
+
+function withSourceAgent(property: Property): Property {
+  if (property.listingAgent) return property;
+  const listingAgent = bundledListingsById.get(property.id)?.listingAgent;
+  if (!listingAgent || !property.sources?.some(source =>
+    source.publisher === listingAgent.source && source.url === listingAgent.contactUrl
+  )) return property;
+  return { ...property, listingAgent };
+}
 
 export interface PropertyCatalogResult {
   properties: typeof localProperties;
@@ -40,7 +51,9 @@ export async function loadPropertyCatalog(includeComparableSales = false): Promi
     if (!properties || properties.length === 0) return fallback;
 
     return {
-      properties,
+      properties: properties.some(property => withSourceAgent(property) !== property)
+        ? properties.map(withSourceAgent)
+        : properties,
       comparableSales: comparableSales ?? localSales,
       schoolCatalog: schoolCatalog ?? { synced: false, schools: [] },
     };

@@ -68,4 +68,39 @@ describe("property catalogue without a connected database", () => {
     expect(catalog.properties).toBe(dbProperties);
     expect(catalog.comparableSales).toBe(dbSales);
   });
+
+  it("adds source-captured agent details to matching database listings", async () => {
+    process.env.DATABASE_URL = "postgresql://ready";
+    const databaseProperty = { ...localProperties[0], listingAgent: undefined };
+    db.getPropertiesByStatus.mockResolvedValue([databaseProperty]);
+
+    const catalog = await loadPropertyCatalog();
+
+    expect(catalog.properties[0].listingAgent).toEqual(localProperties[0].listingAgent);
+  });
+
+  it("does not attribute a bundled agent to an unrelated database listing", async () => {
+    process.env.DATABASE_URL = "postgresql://ready";
+    const databaseProperty = { ...localProperties[0], listingAgent: undefined };
+    db.getPropertiesByStatus.mockResolvedValue([{ ...databaseProperty, id: "unrelated-listing" }]);
+
+    const catalog = await loadPropertyCatalog();
+
+    expect(catalog.properties[0].listingAgent).toBeUndefined();
+  });
+
+  it("does not attach an agent when the database listing source has changed", async () => {
+    process.env.DATABASE_URL = "postgresql://ready";
+    const databaseProperty = { ...localProperties[0], listingAgent: undefined };
+    db.getPropertiesByStatus.mockResolvedValue([{
+      ...databaseProperty,
+      sources: databaseProperty.sources?.map(source => source.publisher === "OneRoof"
+        ? { ...source, url: "https://www.oneroof.co.nz/a-different-listing" }
+        : source),
+    }]);
+
+    const catalog = await loadPropertyCatalog();
+
+    expect(catalog.properties[0].listingAgent).toBeUndefined();
+  });
 });

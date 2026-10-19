@@ -182,6 +182,8 @@ function toProperty(item, idx) {
   // Images
   const gallery = [...new Set([...(o.images || []), ...(h?.images || [])])];
   const image = o.heroCover || gallery[0] || '/properties/address-placeholder.svg';
+  // The saved OneRoof search card names the listing agent immediately before "Enquire".
+  const agentName = item.item.title.match(/\n([^\n]+)\nEnquire\s*$/)?.[1]?.trim();
 
   // Multi-source attributions
   const sources = [];
@@ -294,6 +296,7 @@ function toProperty(item, idx) {
     image,
     imageAlt: `Photo of ${street}, ${suburb} (${method})`,
     imageSourceUrl: item.item.url,
+    ...(agentName ? { listingAgent: { name: agentName, source: 'OneRoof', contactUrl: item.item.url } } : {}),
     photoGallery: gallery,
     capitalValue: o.capitalValue || h?.facts?.capitalValue || price,
     estimatedWeeklyRent: h?.facts?.estimatedWeeklyRent || Math.round((price * 0.045) / 52),
