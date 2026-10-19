@@ -583,4 +583,24 @@ describe("PropertyExplorer", () => {
     await user.click(screen.getByRole("button", { name: "Clear all filters" }));
     expect(screen.getByText("54 Kelmarna Avenue")).toBeInTheDocument();
   });
+
+  it("displays signed-in account name or Account link in header navigation", async () => {
+    const { AccountWorkspaceProvider } = await import("../app/components/account-workspace-provider");
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        user: { userId: 10, username: "Jordan", email: "jordan@example.nz" },
+        workspace: { savedPropertyIds: [], destinations: [], generalNotes: [], propertyNotes: {}, chatHistory: [] },
+      }),
+    }));
+
+    render(
+      <AccountWorkspaceProvider>
+        <PropertyExplorer properties={properties} comparableSales={comparableSales} />
+      </AccountWorkspaceProvider>
+    );
+
+    expect(await screen.findByRole("link", { name: /Account \(Jordan\)|Jordan/i })).toBeInTheDocument();
+  });
 });
+

@@ -1977,9 +1977,10 @@ export default function PropertyExplorer({
           <a className="active" href="#discover">
             Discover
           </a>
-          <a href="#calculator">Calculator</a>
           <a href="#how-it-works">How it works</a>
-          <a href="/profile">Profile</a>
+          <a href="/profile">
+            {account?.status === "signedIn" && account.user ? `Account (${account.user.username})` : "Profile"}
+          </a>
         </nav>
 
         <div className="header-actions">
