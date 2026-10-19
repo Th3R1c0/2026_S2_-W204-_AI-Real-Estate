@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import UserNotes from "../components/user-notes";
+import AccountPanel from "../components/account-panel";
 
 export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState<"notes" | "account">("notes");
@@ -149,86 +150,8 @@ export default function ProfilePage() {
           {activeTab === "notes" ? (
             <UserNotes />
           ) : (
-            <div
-              style={{
-                background: "var(--white, #fff)",
-                padding: "2rem",
-                borderRadius: "14px",
-                border: "1px solid var(--line, #dfe4dc)",
-                boxShadow: "var(--shadow-soft, 0 8px 30px rgba(21, 48, 39, 0.05))",
-                display: "flex",
-                flexDirection: "column",
-                gap: "1.5rem",
-              }}
-            >
-              <div>
-                <h3
-                  style={{
-                    fontSize: "1.25rem",
-                    fontWeight: 700,
-                    margin: "0 0 0.5rem 0",
-                    color: "var(--ink-deep, #0e241d)",
-                  }}
-                >
-                  Account Profile
-                </h3>
-                <p style={{ margin: 0, fontSize: "0.9rem", color: "var(--muted, #6f7d76)" }}>
-                  Your profile is active with local preferences and session persistence.
-                </p>
-              </div>
+            <AccountPanel />
 
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-                  gap: "1.25rem",
-                  padding: "1.25rem",
-                  background: "var(--cream, #f4f2e9)",
-                  borderRadius: "10px",
-                }}
-              >
-                <div>
-                  <small style={{ color: "var(--muted, #6f7d76)", display: "block", marginBottom: "0.2rem" }}>
-                    Username
-                  </small>
-                  <strong style={{ color: "var(--ink-deep, #0e241d)" }}>demo_buyer</strong>
-                </div>
-                <div>
-                  <small style={{ color: "var(--muted, #6f7d76)", display: "block", marginBottom: "0.2rem" }}>
-                    Email
-                  </small>
-                  <strong style={{ color: "var(--ink-deep, #0e241d)" }}>buyer@example.nz</strong>
-                </div>
-                <div>
-                  <small style={{ color: "var(--muted, #6f7d76)", display: "block", marginBottom: "0.2rem" }}>
-                    Account Tier
-                  </small>
-                  <span
-                    style={{
-                      display: "inline-block",
-                      padding: "0.2rem 0.6rem",
-                      background: "var(--sage, #dce8da)",
-                      color: "var(--forest, #285e4a)",
-                      borderRadius: "6px",
-                      fontSize: "0.8rem",
-                      fontWeight: 700,
-                    }}
-                  >
-                    Active Buyer
-                  </span>
-                </div>
-              </div>
-
-              <div style={{ borderTop: "1px solid var(--line, #dfe4dc)", paddingTop: "1.25rem" }}>
-                <h4 style={{ margin: "0 0 0.5rem 0", fontSize: "1rem", color: "var(--ink-deep, #0e241d)" }}>
-                  Storage & Data Privacy
-                </h4>
-                <p style={{ fontSize: "0.88rem", color: "var(--muted, #6f7d76)", lineHeight: 1.5, margin: 0 }}>
-                  Notes, saved properties, and mortgage calculations are saved locally to your device.
-                  No private notes are shared or transmitted to external servers without your permission.
-                </p>
-              </div>
-            </div>
           )}
         </div>
       </main>

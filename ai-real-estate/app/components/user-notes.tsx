@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useAccountWorkspace } from "./account-workspace-provider";
 
 export interface UserNote {
   id: string;
@@ -17,23 +18,38 @@ export default function UserNotes() {
   const [editTitle, setEditTitle] = useState("");
   const [editContent, setEditContent] = useState("");
   const [mounted, setMounted] = useState(false);
+  const account = useAccountWorkspace();
+  const accountStatus = account?.status;
+  const accountUserId = account?.user?.userId;
+  const accountNotes = account?.workspace.generalNotes;
 
   const storageKey = "general_user_notes";
 
   useEffect(() => {
-    setMounted(true);
-    try {
-      const saved = localStorage.getItem(storageKey);
-      if (saved) {
-        setNotes(JSON.parse(saved));
+    if (accountStatus === "loading" || accountStatus === "error") return;
+    let active = true;
+    queueMicrotask(() => {
+      if (!active) return;
+      if (accountStatus === "signedIn") setNotes(accountNotes ?? []);
+      else {
+        try {
+          const saved = localStorage.getItem(storageKey);
+          setNotes(saved ? JSON.parse(saved) : []);
+        } catch (e) { console.error("Failed to parse general user notes:", e); }
       }
-    } catch (e) {
-      console.error("Failed to parse general user notes:", e);
-    }
-  }, []);
+      setMounted(true);
+    });
+    return () => { active = false; };
+  }, [accountStatus, accountUserId, accountNotes]);
 
   const saveToStorage = (updatedNotes: UserNote[]) => {
     setNotes(updatedNotes);
+    if (account?.status === "signedIn") {
+      void account.save("generalNotes", updatedNotes).then(ok => {
+        if (!ok) setNotes(account.workspace.generalNotes);
+      });
+      return;
+    }
     try {
       localStorage.setItem(storageKey, JSON.stringify(updatedNotes));
     } catch (e) {
@@ -81,12 +97,13 @@ export default function UserNotes() {
     setEditingId(null);
   };
 
-  if (!mounted) {
+  if (!mounted || account?.status === "loading" || account?.status === "error") {
     return <div style={{ padding: "2rem 0", color: "var(--muted, #6b7280)" }}>Loading notes...</div>;
   }
 
   return (
     <div className="user-notes-container" style={{ maxWidth: "680px", margin: "0 auto", padding: "1rem 0" }}>
+      {account?.error && <p role="alert">{account.error}</p>}
       <div
         style={{
           display: "flex",

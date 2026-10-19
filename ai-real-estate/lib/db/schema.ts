@@ -23,6 +23,7 @@ import {
   varchar,
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
+import type { BuyerWorkspace } from "../account/workspace";
 
 export const listingTypeEnum = pgEnum("listing_type", ["sale", "rent", "lease"]);
 export const propertyStatusEnum = pgEnum("property_status", [
@@ -92,6 +93,22 @@ export const users = pgTable(
     uniqueIndex("uq_users_email").on(table.email),
   ],
 );
+
+export const userSessions = pgTable("user_sessions", {
+  tokenHash: char("token_hash", { length: 64 }).primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.userId, { onDelete: "cascade" }),
+  expiresAt: timestamp("expires_at").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, table => [index("idx_user_sessions_user").on(table.userId)]);
+
+export const buyerWorkspaces = pgTable("buyer_workspaces", {
+  userId: integer("user_id").primaryKey().references(() => users.userId, { onDelete: "cascade" }),
+  savedPropertyIds: jsonb("saved_property_ids").$type<BuyerWorkspace["savedPropertyIds"]>().default([]).notNull(),
+  generalNotes: jsonb("general_notes").$type<BuyerWorkspace["generalNotes"]>().default([]).notNull(),
+  propertyNotes: jsonb("property_notes").$type<BuyerWorkspace["propertyNotes"]>().default({}).notNull(),
+  destinations: jsonb("destinations").$type<BuyerWorkspace["destinations"]>().default([]).notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().$onUpdateFn(() => new Date()).notNull(),
+});
 
 export const agencies = pgTable("agencies", {
   agencyId: serial("agency_id").primaryKey(),

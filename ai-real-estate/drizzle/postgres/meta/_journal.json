@@ -43,6 +43,13 @@
       "when": 1792378747049,
       "tag": "0005_school_zone_geometry_check",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1792402324937,
+      "tag": "0006_simple_mongu",
+      "breakpoints": true
     }
   ]
 }

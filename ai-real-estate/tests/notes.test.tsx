@@ -1,6 +1,6 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import UserNotes from "../app/components/user-notes";
 import PropertyNotes from "../app/components/property-notes";
@@ -10,6 +10,7 @@ describe("Notes and Profile Components", () => {
   beforeEach(() => {
     localStorage.clear();
   });
+  afterEach(() => vi.unstubAllGlobals());
 
   describe("UserNotes", () => {
     it("renders empty state initially", async () => {
@@ -182,6 +183,30 @@ describe("Notes and Profile Components", () => {
   });
 
   describe("ProfilePage", () => {
+    it("offers account registration and sign in instead of a demo identity", async () => {
+      const user = userEvent.setup();
+      render(<ProfilePage />);
+      await user.click(screen.getByRole("button", { name: /Account Management/i }));
+      expect(screen.getByRole("button", { name: /Create account/i })).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /Sign in/i })).toBeInTheDocument();
+      expect(screen.queryByText("demo_buyer")).not.toBeInTheDocument();
+    });
+
+    it("registers a buyer and reports the signed-in account", async () => {
+      const fetchStub = vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({ user: { username: "morgan", email: "morgan@example.nz" } }),
+      });
+      vi.stubGlobal("fetch", fetchStub);
+      const user = userEvent.setup();
+      render(<ProfilePage />);
+      await user.click(screen.getByRole("button", { name: /Account Management/i }));
+      await user.type(screen.getByLabelText("Username"), "morgan");
+      await user.type(screen.getByLabelText("Email"), "morgan@example.nz");
+      await user.type(screen.getByLabelText("Password"), "long-secret-password");
+      await user.click(screen.getByRole("button", { name: "Create account" }));
+      expect(await screen.findByText(/Signed in as morgan/i)).toBeInTheDocument();
+    });
     it("renders buyer workspace and switches tabs", async () => {
       const user = userEvent.setup();
       render(<ProfilePage />);
@@ -190,15 +215,14 @@ describe("Notes and Profile Components", () => {
       expect(screen.getByRole("heading", { name: /Account & Notes/i })).toBeInTheDocument();
 
       // Default tab is General Notes
-      expect(screen.getByText(/General Account Notes/i)).toBeInTheDocument();
+      expect(await screen.findByText(/General Account Notes/i)).toBeInTheDocument();
 
       // Switch to Account Management tab
       const accountTab = screen.getByRole("button", { name: /Account Management/i });
       await user.click(accountTab);
 
-      expect(screen.getByText(/Account Profile/i)).toBeInTheDocument();
-      expect(screen.getByText(/demo_buyer/i)).toBeInTheDocument();
-      expect(screen.getByText(/buyer@example.nz/i)).toBeInTheDocument();
+      expect(screen.getByRole("heading", { name: /Your account/i })).toBeInTheDocument();
+      expect(screen.getByLabelText(/Email/i)).toBeInTheDocument();
     });
   });
 });
