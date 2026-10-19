@@ -181,11 +181,6 @@ export default function PropertyNotes({
       <div className="notes-heading">
         <div>
           <h3>My notes</h3>
-          <p>
-            {account?.status === "signedIn"
-              ? "Private to your account."
-              : "Saved on this device."}
-          </p>
         </div>
         <Badge variant="secondary">
           {notes.length} {notes.length === 1 ? "note" : "notes"}

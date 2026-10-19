@@ -16,6 +16,10 @@ import {
   Trees,
   Sparkles,
   Sun,
+  Bed,
+  Bath,
+  Car,
+  LandPlot,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -237,10 +241,40 @@ function PropertyCard({
           <p className="property-location">
             {property.suburb}, {property.city}
           </p>
-          <p className="property-specs">
-            {property.bedrooms} beds · {property.bathrooms} baths ·{" "}
-            {numberFormatter.format(property.landArea)} m²
-          </p>
+          <div className="property-specs" aria-label="Property features">
+            <span
+              className="property-spec-item"
+              title={`${property.bedrooms} bedrooms`}
+            >
+              <Bed aria-hidden="true" />
+              <span>{property.bedrooms}</span>
+            </span>
+            <span
+              className="property-spec-item"
+              title={`${property.bathrooms} bathrooms`}
+            >
+              <Bath aria-hidden="true" />
+              <span>{property.bathrooms}</span>
+            </span>
+            {property.parkingSpaces ? (
+              <span
+                className="property-spec-item"
+                title={`${property.parkingSpaces} parking spaces`}
+              >
+                <Car aria-hidden="true" />
+                <span>{property.parkingSpaces}</span>
+              </span>
+            ) : null}
+            {property.landArea > 0 ? (
+              <span
+                className="property-spec-item"
+                title={`${numberFormatter.format(property.landArea)} m² land area`}
+              >
+                <LandPlot aria-hidden="true" />
+                <span>{numberFormatter.format(property.landArea)} m²</span>
+              </span>
+            ) : null}
+          </div>
           <p className="property-price">{formatMoney(property.price)}</p>
         </div>
       </Link>
@@ -880,7 +914,8 @@ export default function PropertyExplorer({
           type="button"
         >
           <Heart data-icon="inline-start" />
-          Saved Homes <Badge variant="secondary">{savedIds.length}</Badge>
+          <span className="saved-homes-label">Saved Homes</span>{" "}
+          <Badge variant="secondary">{savedIds.length}</Badge>
         </Button>
       </SiteHeader>
       <main id="top">
@@ -1997,13 +2032,6 @@ export default function PropertyExplorer({
 
         {/* Standalone Mortgage Calculator Section on Home Screen */}
         <section className="calculator-section" id="calculator">
-          <div className="section-title">
-            <h2>Make the numbers work</h2>
-            <p>
-              Explore estimated repayments and compare two fixed-rate loan
-              options.
-            </p>
-          </div>
           <div className="calculator-container">
             <MortgageCalculator defaultPrice={1250000} />
           </div>

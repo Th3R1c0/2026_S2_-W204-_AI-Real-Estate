@@ -121,13 +121,35 @@ export type PastSale = {
   date: string;
   price: number;
   source: string;
-  saleType?: "Auction" | "Private Sale" | "Deadline Treaty";
+  saleType?: string;
 };
 
 export type ValuationRecord = {
   date: string;
   value: number;
   source: string;
+  kind?: "avm" | "rv";
+  capitalValue?: number;
+  landValue?: number;
+  improvementValue?: number;
+  lowEstimate?: number;
+  medianEstimate?: number;
+  highEstimate?: number;
+  changePercent?: number;
+};
+
+export type AvmHistoryPoint = {
+  date: string;
+  value: number;
+  suburbMedian?: number;
+};
+
+export type PropertyHistoryEvent = {
+  type: "list" | "cv" | "sale" | "build" | string;
+  date: string;
+  label: string;
+  value?: string | number;
+  detail?: string;
 };
 
 export type Property = {
@@ -159,9 +181,26 @@ export type Property = {
   photoGallery?: string[];
   parkingSpaces?: number;
   capitalValue?: number;
+  landValue?: number;
+  improvementValue?: number;
+  valuationDate?: string;
+  rateableValueChange?: number | string;
+  estimateLow?: number;
+  estimateMedian?: number;
+  estimateHigh?: number;
+  estimateConfidence?: string;
   estimatedWeeklyRent?: number;
   ownershipType?: string;
+  titleNumber?: string;
+  legalDescription?: string;
+  estateDescription?: string;
+  unitaryPlanZone?: string;
+  contour?: string;
+  construction?: string;
+  condition?: string;
+  council?: string;
   soldDate?: string;
+  teaser?: string;
   summary?: string;
   sources?: PropertySource[];
   schoolZones?: SchoolZone[];
@@ -171,6 +210,8 @@ export type Property = {
   commuteOptions?: CommuteOption[];
   pastSales?: PastSale[];
   valuationHistory?: ValuationRecord[];
+  avmHistory?: AvmHistoryPoint[];
+  propertyHistory?: PropertyHistoryEvent[];
   notifications?: PropertyNotification[];
 };
 

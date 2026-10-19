@@ -1,4 +1,5 @@
 import { readFile, writeFile } from "node:fs/promises";
+import { parseOneRoofRichHtml } from "../lib/oneroof-parser.ts";
 
 const ARCGIS_SERVICES =
   "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services";
@@ -207,10 +208,17 @@ async function main() {
         const url = entry.item?.url;
         const rawTitle = entry.item?.title ?? "";
 
-        const [floodHazards, openHomes] = await Promise.all([
-          queryFloodHazardsForPoint(lat, lng),
+        const [floodHazards, oneRoofPageData] = await Promise.all([
+          Array.isArray(entry.floodHazards)
+            ? Promise.resolve(entry.floodHazards)
+            : queryFloodHazardsForPoint(lat, lng),
           (async () => {
-            if (!url) return parseOpenHomesFromHtml("", rawTitle);
+            if (!url) {
+              return {
+                openHomes: parseOpenHomesFromHtml("", rawTitle),
+                rich: null,
+              };
+            }
             try {
               const res = await fetch(url, {
                 headers: {
@@ -219,23 +227,44 @@ async function main() {
                 },
                 signal: AbortSignal.timeout(15_000),
               });
-              if (!res.ok) return parseOpenHomesFromHtml("", rawTitle);
+              if (!res.ok) {
+                return {
+                  openHomes: parseOpenHomesFromHtml("", rawTitle),
+                  rich: null,
+                };
+              }
               const html = await res.text();
-              return parseOpenHomesFromHtml(html, rawTitle);
+              return {
+                openHomes: parseOpenHomesFromHtml(html, rawTitle),
+                rich: parseOneRoofRichHtml(html),
+              };
             } catch {
-              return parseOpenHomesFromHtml("", rawTitle);
+              return {
+                openHomes: parseOpenHomesFromHtml("", rawTitle),
+                rich: null,
+              };
             }
           })(),
         ]);
 
+        const openHomes = oneRoofPageData.openHomes;
         entry.floodHazards = floodHazards;
         entry.openHomes = openHomes;
+        if (oneRoofPageData.rich) {
+          entry.oneRoofRich = oneRoofPageData.rich;
+          if (oneRoofPageData.rich.description) {
+            entry.oneRoofData.description = oneRoofPageData.rich.description;
+          }
+          if (oneRoofPageData.rich.teaser) {
+            entry.oneRoofData.teaser = oneRoofPageData.rich.teaser;
+          }
+        }
 
         if (floodHazards.length > 0) floodHitCount += 1;
         if (openHomes.length > 0) openHomeHitCount += 1;
 
         console.log(
-          `[${i + 1}/${harvest.length}] ${entry.oneRoofData?.street || entry.parsedTitle?.address}: ${floodHazards.length} flood hazard(s) [${floodHazards.map((h) => h.type).join(", ")}], ${openHomes.length} open home(s)`,
+          `[${i + 1}/${harvest.length}] ${entry.oneRoofData?.street || entry.parsedTitle?.address}: desc=${entry.oneRoofRich?.description?.length ?? 0}c, valuations=${entry.oneRoofRich?.valuationHistory?.length ?? 0}, sales=${entry.oneRoofRich?.pastSales?.length ?? 0}, flood=${floodHazards.length}, openHomes=${openHomes.length}`,
         );
       }),
     );

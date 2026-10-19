@@ -1,46 +1,54 @@
 "use client";
-import { Slider } from "@/components/ui/slider";
 
 import Link from "next/link";
-import { Heart } from "lucide-react";
+import {
+  Bath,
+  Bed,
+  Building2,
+  Calendar,
+  Car,
+  ChevronDown,
+  ChevronUp,
+  FileText,
+  Heart,
+  History,
+  LandPlot,
+  Maximize2,
+  TrendingUp,
+} from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { NativeSelect } from "@/components/ui/native-select";
-import { Switch } from "@/components/ui/switch";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   Accordion,
+  AccordionContent,
   AccordionItem,
   AccordionTrigger,
-  AccordionContent,
 } from "@/components/ui/accordion";
 import { propertyPhotos } from "@/lib/property-photos";
 import PropertyGallery from "./property-gallery";
 import SiteHeader from "./site-header";
-import CommutePlanner from "./commute-planner";
 import {
   SourceCitations,
   SourceDetailsDialog,
   type SourceSelection,
 } from "./property-sources";
-import { useEffect, useMemo, useState, useRef } from "react";
 import MortgageCalculator from "./mortgage-calculator";
 import PropertyNotes from "./property-notes";
 import PropertyLocationMap from "./property-location-map";
 import { useAccountWorkspace } from "./account-workspace-provider";
-import {
-  findComparableSales,
-  generateValuationHistory,
-} from "../../lib/property-engine";
-import {
-  describeFloodHazards,
-  floodHazardDisclaimer,
-  floodHazardOptions,
-} from "../../lib/flood-hazards";
-import type { ComparableSalesResult, Property } from "../../lib/property-types";
-import { SCHOOL_NEARBY_RADIUS_METRES } from "../../lib/school-data";
+import { generateValuationHistory } from "../../lib/property-engine";
+import type { Property } from "../../lib/property-types";
 import {
   commuteStorageKey,
   readSavedLocations,
-  straightLineDistanceKm,
   type SavedLocation,
 } from "../../lib/saved-locations";
 
@@ -55,28 +63,32 @@ function formatMoney(value: number) {
   return moneyFormatter.format(value).replace("NZ", "");
 }
 
+function formatDateLabel(dateStr: string): string {
+  if (!dateStr) return "";
+  const parsed = new Date(dateStr);
+  if (Number.isNaN(parsed.getTime())) return dateStr;
+  return parsed.toLocaleDateString("en-NZ", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+}
+
 export default function PropertyDetailPage({
   property,
-  comparableSales,
 }: {
   property: Property;
-  comparableSales: Property[];
+  comparableSales?: Property[];
 }) {
   const account = useAccountWorkspace();
-  const [research, setResearch] = useState<string[]>([]);
-  const [showSchools, setShowSchools] = useState(false);
   const [source, setSource] = useState<SourceSelection | null>(null);
   const [savedIds, setSavedIds] = useState<string[]>([]);
   const [destinations, setDestinations] = useState<SavedLocation[]>([]);
-  const [showSavedLocations, setShowSavedLocations] = useState(true);
-  const [nearbySchoolType, setNearbySchoolType] = useState("");
-  const [radius, setRadius] = useState(2);
-  const [months, setMonths] = useState(6);
-  const [postgisComps, setPostgisComps] =
-    useState<ComparableSalesResult | null>(null);
+  const [descriptionExpanded, setDescriptionExpanded] = useState(false);
 
   const savedIdsRef = useRef<string[]>([]);
   const destinationsRef = useRef<SavedLocation[]>([]);
+
   useEffect(() => {
     if (account && account.status !== "signedIn" && account.status !== "guest")
       return;
@@ -140,69 +152,61 @@ export default function PropertyDetailPage({
     }
   }
 
-  const fallbackCompResult = useMemo(
-    () =>
-      findComparableSales(property, comparableSales, {
-        radiusKm: radius,
-        months,
-        asOf: new Date("2026-09-18T00:00:00Z"),
-      }),
-    [property, comparableSales, radius, months],
-  );
-
-  const compsOpen = research.includes("comps");
-  useEffect(() => {
-    if (!compsOpen) return;
-    const controller = new AbortController();
-    const params = new URLSearchParams({
-      propertyKey: property.id,
-      radiusKm: String(radius),
-      months: String(months),
-    });
-
-    fetch(`/api/comparable-sales?${params}`, { signal: controller.signal })
-      .then(async (res) => {
-        if (!res.ok) return;
-        const data = await res.json();
-        if (data && Array.isArray(data.comps)) {
-          setPostgisComps(data);
-        }
-      })
-      .catch(() => {});
-
-    return () => controller.abort();
-  }, [compsOpen, property.id, radius, months]);
-
-  const compResult = postgisComps ?? fallbackCompResult;
-  const historyData = useMemo(
+  const fallbackHistory = useMemo(
     () => generateValuationHistory(property),
     [property],
   );
-  const nearbySchoolTypes = Array.from(
-    new Set((property.nearbySchools ?? []).map(({ orgType }) => orgType)),
-  ).sort((a, b) => a.localeCompare(b));
-  const visibleNearbySchools = useMemo(
-    () =>
-      (property.nearbySchools ?? []).filter(
-        (school) => !nearbySchoolType || school.orgType === nearbySchoolType,
-      ),
-    [property.nearbySchools, nearbySchoolType],
-  );
-  const mapSchools = useMemo(
-    () => (showSchools ? visibleNearbySchools : []),
-    [showSchools, visibleNearbySchools],
-  );
-  const mapLocations = useMemo(
-    () => (showSavedLocations ? destinations : []),
-    [showSavedLocations, destinations],
-  );
 
-  const mappedFloodLabels = useMemo(() => {
-    if (!property.floodHazards) return [];
-    return floodHazardOptions
-      .filter(({ type }) => property.floodHazards?.some((h) => h.type === type))
-      .map(({ label }) => label);
-  }, [property.floodHazards]);
+  const valuationRecords = useMemo(() => {
+    if (property.valuationHistory && property.valuationHistory.length > 0) {
+      return property.valuationHistory;
+    }
+    return fallbackHistory.valuationHistory.map((item) => ({
+      source: item.source,
+      date: item.date,
+      value: item.value,
+      capitalValue: item.value,
+      landValue: undefined as number | undefined,
+      medianEstimate: undefined as number | undefined,
+    }));
+  }, [property.valuationHistory, fallbackHistory.valuationHistory]);
+
+  const pastSalesList = useMemo(() => {
+    if (property.pastSales && property.pastSales.length > 0) {
+      return property.pastSales;
+    }
+    return fallbackHistory.pastSales.map((s) => ({
+      date: s.date,
+      price: s.price,
+      source: s.source,
+      saleType: s.saleType,
+    }));
+  }, [property.pastSales, fallbackHistory.pastSales]);
+
+  const descriptionParagraphs = useMemo(() => {
+    if (!property.summary) return [];
+    return property.summary
+      .split(/\n{2,}/)
+      .map((p) => p.trim())
+      .filter(Boolean);
+  }, [property.summary]);
+
+  const isLongDescription =
+    (property.summary?.length ?? 0) > 280 || descriptionParagraphs.length > 2;
+
+  const landSharePct = useMemo(() => {
+    if (!property.landValue || !property.capitalValue) return null;
+    return Math.min(
+      100,
+      Math.max(0, Math.round((property.landValue / property.capitalValue) * 100)),
+    );
+  }, [property.landValue, property.capitalValue]);
+
+  const avmChartPoints = useMemo(() => {
+    const pts = property.avmHistory ?? [];
+    if (pts.length === 0) return [];
+    return pts.slice(-12);
+  }, [property.avmHistory]);
 
   return (
     <div className="site-shell property-page-shell">
@@ -211,11 +215,12 @@ export default function PropertyDetailPage({
         <Link className="back-link" href="/">
           ← All homes
         </Link>
+
         {/* Top Breadcrumb & Title Header */}
         <div className="property-page-header">
           <div>
             <p className="property-type-line">
-              {[property.propertyType, property.architecturalStyle]
+              {[property.propertyType, property.ownershipType]
                 .filter(Boolean)
                 .join(" · ")}
             </p>
@@ -224,8 +229,8 @@ export default function PropertyDetailPage({
               <SourceCitations
                 property={property}
                 field="address"
-                onOpen={(source, field) =>
-                  setSource({ source, field, property })
+                onOpen={(selectedSource, field) =>
+                  setSource({ source: selectedSource, field, property })
                 }
               />
             </h1>
@@ -257,672 +262,527 @@ export default function PropertyDetailPage({
         {/* Two-Column Airbnb Detail Layout */}
         <div className="property-page-columns">
           <div className="property-page-left">
-            {/* Key Specs Strip */}
+            {/* Key Specs Strip with Icons */}
             <div className="property-key-specs">
               <div className="key-spec-item">
-                <strong>{property.bedrooms}</strong>
+                <div className="key-spec-value-row">
+                  <Bed className="key-spec-icon" aria-hidden="true" />
+                  <strong>{property.bedrooms}</strong>
+                </div>
                 <span>
                   Bedrooms
                   <SourceCitations
                     property={property}
                     field="bedrooms"
-                    onOpen={(source, field) =>
-                      setSource({ source, field, property })
+                    onOpen={(selectedSource, field) =>
+                      setSource({ source: selectedSource, field, property })
                     }
                   />
                 </span>
               </div>
+
               <div className="key-spec-item">
-                <strong>{property.bathrooms}</strong>
+                <div className="key-spec-value-row">
+                  <Bath className="key-spec-icon" aria-hidden="true" />
+                  <strong>{property.bathrooms}</strong>
+                </div>
                 <span>
                   Bathrooms
                   <SourceCitations
                     property={property}
                     field="bathrooms"
-                    onOpen={(source, field) =>
-                      setSource({ source, field, property })
+                    onOpen={(selectedSource, field) =>
+                      setSource({ source: selectedSource, field, property })
                     }
                   />
                 </span>
               </div>
+
               {property.parkingSpaces ? (
                 <div className="key-spec-item">
-                  <strong>{property.parkingSpaces}</strong>
+                  <div className="key-spec-value-row">
+                    <Car className="key-spec-icon" aria-hidden="true" />
+                    <strong>{property.parkingSpaces}</strong>
+                  </div>
                   <span>Parking</span>
                 </div>
               ) : null}
+
               {property.floorArea > 0 ? (
                 <div className="key-spec-item">
-                  <strong>
-                    {numberFormatter.format(property.floorArea)} m²
-                  </strong>
+                  <div className="key-spec-value-row">
+                    <Maximize2 className="key-spec-icon" aria-hidden="true" />
+                    <strong>
+                      {numberFormatter.format(property.floorArea)} m²
+                    </strong>
+                  </div>
                   <span>Floor area</span>
                 </div>
               ) : null}
+
               <div className="key-spec-item">
-                <strong>{numberFormatter.format(property.landArea)} m²</strong>
+                <div className="key-spec-value-row">
+                  <LandPlot className="key-spec-icon" aria-hidden="true" />
+                  <strong>{numberFormatter.format(property.landArea)} m²</strong>
+                </div>
                 <span>
                   Land area
                   <SourceCitations
                     property={property}
                     field="landArea"
-                    onOpen={(source, field) =>
-                      setSource({ source, field, property })
+                    onOpen={(selectedSource, field) =>
+                      setSource({ source: selectedSource, field, property })
                     }
                   />
                 </span>
               </div>
+
               <div className="key-spec-item">
-                <strong>{property.yearBuilt || "Unknown"}</strong>
+                <div className="key-spec-value-row">
+                  <Calendar className="key-spec-icon" aria-hidden="true" />
+                  <strong>{property.yearBuilt || "Unknown"}</strong>
+                </div>
                 <span>Year built</span>
               </div>
             </div>
 
             <div className="property-page-tab-body">
-              {
-                <div className="overview-panel">
-                  <div className="property-attributes-grid">
-                    <div className="attr-card">
-                      <span>Property Type</span>
-                      <strong>{property.propertyType}</strong>
-                    </div>
-                    {property.architecturalStyle && (
-                      <div className="attr-card">
-                        <span>Architectural Style</span>
-                        <strong>{property.architecturalStyle}</strong>
-                      </div>
-                    )}
-                    {property.ownershipType && (
-                      <div className="attr-card">
-                        <span>Title / Ownership</span>
-                        <strong>{property.ownershipType}</strong>
-                      </div>
-                    )}
-                    {property.capitalValue ? (
-                      <div className="attr-card">
-                        <span>Council Capital Value (CV)</span>
-                        <strong>{formatMoney(property.capitalValue)}</strong>
-                      </div>
-                    ) : null}
-                    {property.estimatedWeeklyRent ? (
-                      <div className="attr-card">
-                        <span>Estimated Weekly Rent</span>
-                        <strong>
-                          {formatMoney(property.estimatedWeeklyRent)} / week
-                        </strong>
-                      </div>
-                    ) : null}
-                    {property.orientation && (
-                      <div className="attr-card">
-                        <span>Orientation & Sunlight</span>
-                        <strong>
-                          {property.orientation} ({property.sunlightHours}{" "}
-                          hrs/day)
-                        </strong>
-                      </div>
-                    )}
-                  </div>
-
-                  <p className="flood-summary">
-                    Council flood mapping:{" "}
-                    {property.floodHazards === undefined
-                      ? "data not synced"
-                      : mappedFloodLabels.length
-                        ? mappedFloodLabels.join(", ")
-                        : "no mapped intersection"}
-                    .
-                  </p>
-                  <Accordion
-                    type="single"
-                    collapsible
-                    className="flood-provenance"
+              <div className="overview-panel">
+                {/* Scraped Property Description with collapsible Read more */}
+                {property.summary && (
+                  <section
+                    aria-label="About this property"
+                    className="property-description-section"
                   >
-                    <AccordionItem value="flood">
-                      <AccordionTrigger>About flood mapping</AccordionTrigger>
-                      <AccordionContent>
-                        <p>
-                          {property.floodHazards !== undefined
-                            ? describeFloodHazards(property.floodHazards)
-                            : "Council data has not been synced for this property yet."}
-                        </p>
-                        <p className="disclaimer">{floodHazardDisclaimer}</p>
-                        {property.floodHazards?.map((hazard) => (
-                          <a
-                            key={hazard.type}
-                            href={hazard.sourceUrl}
-                            target="_blank"
-                            rel="noreferrer"
-                          >
-                            Council {hazard.type.replaceAll("_", " ")} layer ↗
-                          </a>
-                        ))}
-                      </AccordionContent>
-                    </AccordionItem>
-                  </Accordion>
-
-                  {/* Map Section */}
-                  <div className="property-map-block">
-                    <div className="property-map-header">
-                      <div>
-                        <h2>The neighbourhood</h2>
-                      </div>
-                      <div className="map-toggles">
-                        <label className="saved-location-toggle">
-                          <Switch
-                            checked={showSavedLocations}
-                            onCheckedChange={setShowSavedLocations}
-                          />
-                          Show saved locations
-                        </label>
-                        <label className="saved-location-toggle">
-                          <Switch
-                            checked={showSchools}
-                            onCheckedChange={setShowSchools}
-                          />
-                          Show schools on map
-                        </label>
-                      </div>
-                    </div>
-                    <PropertyLocationMap
-                      schools={mapSchools}
-                      address={property.address}
-                      latitude={property.latitude}
-                      longitude={property.longitude}
-                      locations={mapLocations}
-                    />
-                    {showSavedLocations && (
-                      <ul className="saved-location-distances">
-                        {destinations
-                          .filter(
-                            (loc) =>
-                              loc.latitude !== undefined &&
-                              loc.longitude !== undefined,
-                          )
-                          .map((loc) => (
-                            <li key={loc.id}>
-                              {loc.name || loc.address} ·{" "}
-                              {straightLineDistanceKm(
-                                property.latitude,
-                                property.longitude,
-                                loc.latitude!,
-                                loc.longitude!,
-                              ).toFixed(1)}{" "}
-                              km straight-line
-                            </li>
-                          ))}
-                      </ul>
+                    {property.teaser && (
+                      <h2 className="property-description-teaser">
+                        {property.teaser}
+                      </h2>
                     )}
-                  </div>
-                </div>
-              }
-
-              {showSchools && (
-                <div
-                  className="family-panel"
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "1.5rem",
-                  }}
-                >
-                  {property.schoolDataSynced ? (
-                    <>
-                      <p className="disclaimer" role="note">
-                        <strong>School-zone matches are approximate.</strong>{" "}
-                        Ministry of Education boundaries have limited resolution
-                        and alignment accuracy, so results may be inaccurate.
-                        Confirm enrolment eligibility with the school or
-                        Ministry.
-                      </p>
-                      <div>
-                        <h4
-                          style={{ marginBottom: "0.25rem", fontWeight: "600" }}
-                        >
-                          Nearby schools within{" "}
-                          {SCHOOL_NEARBY_RADIUS_METRES / 1000} km
-                        </h4>
-                        {nearbySchoolTypes.length > 0 && (
-                          <label
-                            className="field-label"
-                            htmlFor="nearby-school-type"
-                          >
-                            Filter nearby schools by type
-                            <NativeSelect
-                              id="nearby-school-type"
-                              onChange={(event) =>
-                                setNearbySchoolType(event.target.value)
-                              }
-                              value={nearbySchoolType}
-                            >
-                              <option value="">All school types</option>
-                              {nearbySchoolTypes.map((type) => (
-                                <option key={type} value={type}>
-                                  {type}
-                                </option>
-                              ))}
-                            </NativeSelect>
-                          </label>
-                        )}
-                        {visibleNearbySchools.length ? (
-                          <div
-                            style={{
-                              display: "flex",
-                              flexDirection: "column",
-                              gap: "0.5rem",
-                              marginTop: "0.5rem",
-                            }}
-                          >
-                            {visibleNearbySchools.map((school) => {
-                              const matchingZone = property.schoolZones?.find(
-                                (zone) => zone.schoolId === school.schoolId,
-                              );
-                              return (
-                                <div
-                                  key={school.schoolId}
-                                  style={{
-                                    padding: "0.5rem 0",
-                                    border: "none",
-                                    borderRadius: "6px",
-                                  }}
-                                >
-                                  <strong>{school.name}</strong>
-                                  <span
-                                    style={{
-                                      display: "block",
-                                      fontSize: "0.85rem",
-                                      opacity: 0.8,
-                                    }}
-                                  >
-                                    {school.orgType} ·{" "}
-                                    {school.distanceKm.toFixed(2)} km away
-                                  </span>
-                                  <small
-                                    style={{
-                                      display: "block",
-                                      marginTop: "0.25rem",
-                                      opacity: 0.7,
-                                    }}
-                                  >
-                                    {!school.hasEnrolmentZone
-                                      ? "No enrolment zone published"
-                                      : !school.hasZoneGeometry
-                                        ? "Enrolment scheme listed, but zone geometry is unavailable"
-                                        : matchingZone
-                                          ? "This property is in the mapped school zone"
-                                          : "This property is not in the mapped school zone"}
-                                  </small>
-                                </div>
-                              );
-                            })}
-                          </div>
-                        ) : (
-                          <p style={{ opacity: 0.7, fontSize: "0.9rem" }}>
-                            {nearbySchoolType
-                              ? `No ${nearbySchoolType} schools are mapped within ${SCHOOL_NEARBY_RADIUS_METRES / 1000} km.`
-                              : `No schools are mapped within ${SCHOOL_NEARBY_RADIUS_METRES / 1000} km.`}
-                          </p>
-                        )}
-                      </div>
-                      <div>
-                        <h4
-                          style={{ marginBottom: "0.75rem", fontWeight: "600" }}
-                        >
-                          School zones containing this property
-                        </h4>
-                        {property.schoolZones?.length ? (
-                          <div
-                            style={{
-                              display: "flex",
-                              flexDirection: "column",
-                              gap: "0.5rem",
-                            }}
-                          >
-                            {property.schoolZones.map((zone) => (
-                              <div
-                                key={`${zone.schoolId}-${zone.zoneName ?? zone.zoneType ?? ""}`}
-                              >
-                                <strong>{zone.schoolName}</strong>
-                                <span
-                                  style={{
-                                    display: "block",
-                                    fontSize: "0.85rem",
-                                    opacity: 0.8,
-                                  }}
-                                >
-                                  {[
-                                    zone.zoneName &&
-                                    zone.zoneName !== zone.schoolName
-                                      ? zone.zoneName
-                                      : undefined,
-                                    zone.zoneType || zone.schoolType,
-                                  ]
-                                    .filter(Boolean)
-                                    .join(" · ")}
-                                </span>
-                              </div>
-                            ))}
-                          </div>
-                        ) : (
-                          <p style={{ opacity: 0.7, fontSize: "0.9rem" }}>
-                            No imported school zone contains this property.
-                          </p>
-                        )}
-                      </div>
-                    </>
-                  ) : property.schoolZones?.length ? (
-                    <div>
-                      <h4
-                        style={{ marginBottom: "0.75rem", fontWeight: "600" }}
-                      >
-                        School Catchments
-                      </h4>
-                      <div
-                        style={{
-                          display: "flex",
-                          flexDirection: "column",
-                          gap: "0.5rem",
-                        }}
-                      >
-                        {property.schoolZones.map((school, index) => {
-                          const name =
-                            school.name ?? school.schoolName ?? "School";
-                          const type =
-                            school.type ??
-                            school.schoolType ??
-                            school.zoneType ??
-                            "";
-                          const isInZone = school.isInZone ?? true;
-                          return (
-                            <div
-                              key={`${school.schoolId ?? name}-${index}`}
-                              style={{
-                                display: "flex",
-                                justifyContent: "space-between",
-                                alignItems: "center",
-                                padding: "0.5rem 0",
-                                border: "none",
-                                borderRadius: "6px",
-                              }}
-                            >
-                              <div>
-                                <strong>{name}</strong>
-                                <span
-                                  style={{
-                                    display: "block",
-                                    fontSize: "0.8rem",
-                                    opacity: 0.7,
-                                  }}
-                                >
-                                  {[
-                                    type,
-                                    school.distanceKm !== undefined
-                                      ? `${school.distanceKm} km away`
-                                      : undefined,
-                                  ]
-                                    .filter(Boolean)
-                                    .join(" · ")}
-                                </span>
-                              </div>
-                              <span
-                                className={`badge ${isInZone ? "badge-success" : "badge-outline"}`}
-                                style={{ fontSize: "0.75rem" }}
-                              >
-                                {isInZone ? "In Zone" : "Out of Zone"}
-                              </span>
-                            </div>
-                          );
-                        })}
-                      </div>
+                    <div
+                      className={`property-description-body ${
+                        isLongDescription && !descriptionExpanded
+                          ? "is-clamped"
+                          : ""
+                      }`}
+                    >
+                      {descriptionParagraphs.map((paragraph, index) => (
+                        <p key={index}>{paragraph}</p>
+                      ))}
                     </div>
-                  ) : (
-                    <p style={{ opacity: 0.7, fontSize: "0.9rem" }}>
-                      Auckland school data has not been imported yet.
-                    </p>
+                    {isLongDescription && (
+                      <Button
+                        className="description-read-more-btn"
+                        onClick={() =>
+                          setDescriptionExpanded((current) => !current)
+                        }
+                        size="sm"
+                        type="button"
+                        variant="ghost"
+                      >
+                        {descriptionExpanded ? (
+                          <>
+                            Show less <ChevronUp className="size-4" />
+                          </>
+                        ) : (
+                          <>
+                            Read more <ChevronDown className="size-4" />
+                          </>
+                        )}
+                      </Button>
+                    )}
+                  </section>
+                )}
+
+                {/* Real Scraped Property Attributes Grid */}
+                <div className="property-attributes-grid">
+                  <div className="attr-card">
+                    <span>Property Type</span>
+                    <strong>{property.propertyType}</strong>
+                  </div>
+                  {(property.ownershipType || property.estateDescription) && (
+                    <div className="attr-card">
+                      <span>Title / Ownership</span>
+                      <strong>
+                        {property.estateDescription || property.ownershipType}
+                      </strong>
+                    </div>
+                  )}
+                  {property.titleNumber && (
+                    <div className="attr-card">
+                      <span>Title Number</span>
+                      <strong>{property.titleNumber}</strong>
+                    </div>
+                  )}
+                  {property.capitalValue ? (
+                    <div className="attr-card">
+                      <span>Council Capital Value (CV)</span>
+                      <strong>{formatMoney(property.capitalValue)}</strong>
+                    </div>
+                  ) : null}
+                  {property.estimateMedian ? (
+                    <div className="attr-card">
+                      <span>OneRoof Estimate</span>
+                      <strong>{formatMoney(property.estimateMedian)}</strong>
+                    </div>
+                  ) : null}
+                  {property.estimatedWeeklyRent ? (
+                    <div className="attr-card">
+                      <span>Estimated Weekly Rent</span>
+                      <strong>
+                        {formatMoney(property.estimatedWeeklyRent)} / week
+                      </strong>
+                    </div>
+                  ) : null}
+                  {property.unitaryPlanZone && (
+                    <div className="attr-card">
+                      <span>Unitary Plan Zone</span>
+                      <strong>{property.unitaryPlanZone}</strong>
+                    </div>
+                  )}
+                  {property.construction && (
+                    <div className="attr-card">
+                      <span>Construction</span>
+                      <strong>{property.construction}</strong>
+                    </div>
+                  )}
+                  {property.contour && (
+                    <div className="attr-card">
+                      <span>Land Contour</span>
+                      <strong>{property.contour}</strong>
+                    </div>
+                  )}
+                  {property.legalDescription && (
+                    <div className="attr-card">
+                      <span>Legal Description</span>
+                      <strong>{property.legalDescription}</strong>
+                    </div>
                   )}
                 </div>
-              )}
 
-              <Accordion
-                type="multiple"
-                value={research}
-                onValueChange={setResearch}
-                className="property-research"
+                {/* Unified 3-Mode Google Map Section (Schools, Commute, Flood assessment) */}
+                <section
+                  aria-labelledby="neighbourhood-heading"
+                  className="property-map-block"
+                >
+                  <div className="property-map-header">
+                    <div>
+                      <h2 id="neighbourhood-heading">The neighbourhood</h2>
+                      <p className="property-section-subtitle">
+                        Explore school catchments, live commute routes, and Council flood overlays in one interactive map.
+                      </p>
+                    </div>
+                  </div>
+                  <PropertyLocationMap
+                    address={property.address}
+                    floodHazards={property.floodHazards}
+                    latitude={property.latitude}
+                    locations={destinations}
+                    longitude={property.longitude}
+                    schoolDataSynced={property.schoolDataSynced}
+                    schoolZones={property.schoolZones ?? []}
+                    schools={property.nearbySchools ?? []}
+                    setLocations={persistDestinations}
+                  />
+                </section>
+              </div>
+
+              {/* Non-Collapsible Market History & Valuations Section */}
+              <section
+                aria-labelledby="market-history-heading"
+                className="property-section-block"
               >
-                <AccordionItem value="comps">
-                  <AccordionTrigger>Comparable sales</AccordionTrigger>
-                  <AccordionContent>
-                    <div className="tool-panel">
-                      <div className="tool-heading">
-                        <div>
-                          <h3>Nearby comparable sales</h3>
-                        </div>
-                        <div className="average-pill">
-                          {compResult.averagePrice
-                            ? `${formatMoney(compResult.averagePrice)} average`
-                            : "No average"}
-                        </div>
-                      </div>
-                      <div className="range-grid">
-                        <label>
-                          Search radius <strong>{radius} km</strong>
-                          <Slider
-                            aria-label="Search radius"
-                            min={1}
-                            max={10}
-                            value={[radius]}
-                            onValueChange={([value]) => setRadius(value)}
-                          />
-                        </label>
-                        <label>
-                          Sale timeframe <strong>{months} months</strong>
-                          <Slider
-                            aria-label="Sale timeframe"
-                            min={3}
-                            max={12}
-                            step={3}
-                            value={[months]}
-                            onValueChange={([value]) => setMonths(value)}
-                          />
-                        </label>
-                      </div>
-                      <div className="comp-list">
-                        {compResult.comps.length ? (
-                          compResult.comps.map(
-                            ({ property: comp, distanceKm }) => (
-                              <article className="comp-row" key={comp.id}>
-                                <div>
-                                  <strong>{comp.address}</strong>
-                                  <span>
-                                    {comp.bedrooms} bed · {comp.floorArea} m² ·{" "}
-                                    {distanceKm.toFixed(1)} km away
-                                  </span>
-                                </div>
-                                <div>
-                                  <strong>{formatMoney(comp.price)}</strong>
-                                  {comp.soldDate && (
-                                    <span>
-                                      Sold{" "}
-                                      {new Date(
-                                        comp.soldDate,
-                                      ).toLocaleDateString("en-NZ", {
-                                        month: "short",
-                                        year: "numeric",
-                                      })}
-                                    </span>
-                                  )}
-                                </div>
-                              </article>
-                            ),
-                          )
-                        ) : (
-                          <div className="empty-inline">
-                            No similar sales fit this radius and timeframe. Try
-                            widening either control.
-                          </div>
+                <div className="property-section-header">
+                  <div>
+                    <h2 id="market-history-heading">
+                      Market history & valuations
+                    </h2>
+                    <p className="property-section-subtitle">
+                      Automated valuation estimates, Council rating split, and verified property timeline.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Valuation Summary Cards */}
+                <div className="valuation-cards-grid">
+                  <Card className="valuation-summary-card">
+                    <CardHeader className="pb-2">
+                      <div className="flex items-center justify-between gap-2">
+                        <CardDescription>OneRoof Estimate (AVM)</CardDescription>
+                        {property.estimateConfidence && (
+                          <Badge variant="secondary">
+                            {property.estimateConfidence} confidence
+                          </Badge>
                         )}
                       </div>
-                    </div>
-                  </AccordionContent>
-                </AccordionItem>
-
-                <AccordionItem value="commute">
-                  <AccordionTrigger>Commute</AccordionTrigger>
-                  <AccordionContent>
-                    <CommutePlanner
-                      destinations={destinations}
-                      property={property}
-                      setDestinations={persistDestinations}
-                    />
-                    <div className="commute-cbd-links">
-                      {["driving", "transit", "bicycling", "walking"].map(
-                        (mode) => (
-                          <Button variant="outline" asChild key={mode}>
-                            <a
-                              href={`https://www.google.com/maps/dir/?api=1&origin=${property.latitude},${property.longitude}&destination=Auckland+CBD&travelmode=${mode}`}
-                              target="_blank"
-                              rel="noreferrer"
-                            >
-                              {mode} to Auckland CBD ↗
-                            </a>
-                          </Button>
-                        ),
+                      <CardTitle className="text-2xl">
+                        {formatMoney(property.estimateMedian ?? property.price)}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      {property.estimateLow && property.estimateHigh ? (
+                        <div className="valuation-range-box">
+                          <div className="valuation-range-labels">
+                            <span>Low: {formatMoney(property.estimateLow)}</span>
+                            <span>High: {formatMoney(property.estimateHigh)}</span>
+                          </div>
+                          <div className="valuation-range-track">
+                            <div className="valuation-range-fill" />
+                            <div className="valuation-range-Dot" />
+                          </div>
+                        </div>
+                      ) : (
+                        <p className="text-xs text-muted-foreground">
+                          Current market indication based on listing & public records.
+                        </p>
                       )}
-                    </div>
-                  </AccordionContent>
-                </AccordionItem>
+                    </CardContent>
+                  </Card>
 
-                <AccordionItem value="mortgage">
-                  <AccordionTrigger>Mortgage calculator</AccordionTrigger>
-                  <AccordionContent>
-                    <div className="mortgage-panel">
-                      <MortgageCalculator defaultPrice={property.price} />
-                    </div>
-                  </AccordionContent>
-                </AccordionItem>
+                  <Card className="valuation-summary-card">
+                    <CardHeader className="pb-2">
+                      <div className="flex items-center justify-between gap-2">
+                        <CardDescription>
+                          Council Capital Value (RV)
+                        </CardDescription>
+                        {property.rateableValueChange && (
+                          <Badge variant="outline">
+                            {property.rateableValueChange}
+                          </Badge>
+                        )}
+                      </div>
+                      <CardTitle className="text-2xl">
+                        {property.capitalValue
+                          ? formatMoney(property.capitalValue)
+                          : "Not published"}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      {property.landValue && property.improvementValue ? (
+                        <div className="rv-split-box">
+                          <div className="rv-split-labels">
+                            <span>
+                              Land: <strong>{formatMoney(property.landValue)}</strong>
+                            </span>
+                            <span>
+                              Improvements:{" "}
+                              <strong>
+                                {formatMoney(property.improvementValue)}
+                              </strong>
+                            </span>
+                          </div>
+                          {landSharePct !== null && (
+                            <div
+                              aria-label="Land vs Improvements ratio"
+                              className="rv-split-bar"
+                            >
+                              <div
+                                className="rv-split-land"
+                                style={{ width: `${landSharePct}%` }}
+                              />
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <p className="text-xs text-muted-foreground">
+                          {property.valuationDate
+                            ? `Assessed ${formatDateLabel(property.valuationDate)}`
+                            : "Auckland Council rating valuation."}
+                        </p>
+                      )}
+                    </CardContent>
+                  </Card>
+                </div>
 
-                <AccordionItem value="history">
-                  <AccordionTrigger>Market history</AccordionTrigger>
-                  <AccordionContent>
-                    <div
-                      className="tool-panel"
-                      style={{
-                        display: "flex",
-                        flexDirection: "column",
-                        gap: "1.5rem",
-                      }}
-                    >
-                      <div>
-                        <h4
-                          style={{ marginBottom: "0.75rem", fontWeight: 600 }}
-                        >
-                          Past Sale History
-                        </h4>
+                {/* AVM Trend Bars if scraped */}
+                {avmChartPoints.length > 1 && (
+                  <Card className="mt-4">
+                    <CardHeader className="pb-2">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <CardTitle className="text-sm font-medium flex items-center gap-2">
+                            <TrendingUp className="size-4 text-primary" />
+                            Estimated value trajectory
+                          </CardTitle>
+                          <CardDescription className="text-xs">
+                            Recent OneRoof automated valuation movement
+                          </CardDescription>
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="avm-spark-bars">
+                        {(() => {
+                          const values = avmChartPoints.map((p) => p.value);
+                          const minVal = Math.min(...values) * 0.92;
+                          const maxVal = Math.max(...values) * 1.02;
+                          const span = Math.max(1, maxVal - minVal);
+                          return avmChartPoints.map((pt) => {
+                            const heightPct = Math.round(
+                              ((pt.value - minVal) / span) * 100,
+                            );
+                            return (
+                              <div
+                                className="avm-spark-col"
+                                key={pt.date}
+                                title={`${formatDateLabel(pt.date)}: ${formatMoney(pt.value)}`}
+                              >
+                                <div className="avm-spark-bar-wrap">
+                                  <div
+                                    className="avm-spark-bar"
+                                    style={{
+                                      height: `${Math.max(18, heightPct)}%`,
+                                    }}
+                                  />
+                                </div>
+                                <span className="avm-spark-date">
+                                  {pt.date.slice(0, 7)}
+                                </span>
+                              </div>
+                            );
+                          });
+                        })()}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Two-column or stacked History Cards: Past Sales & Valuation Records + Timeline */}
+                <div className="market-history-columns mt-4">
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-sm font-medium flex items-center gap-2">
+                        <Building2 className="size-4 text-primary" />
+                        Valuations & Past Sales
+                      </CardTitle>
+                      <CardDescription className="text-xs">
+                        Verified sales and official valuation assessments
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      {pastSalesList.map((sale, i) => (
                         <div
-                          style={{
-                            display: "flex",
-                            flexDirection: "column",
-                            gap: "0.75rem",
-                          }}
+                          className="history-record-row"
+                          key={`sale-${sale.date}-${i}`}
                         >
-                          {historyData.pastSales.length === 0 && (
-                            <p>
-                              No verified past sales are available for this
-                              property.
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <strong>{formatMoney(sale.price)}</strong>
+                              <Badge variant="default">Sold</Badge>
+                            </div>
+                            <span className="history-record-meta">
+                              {formatDateLabel(sale.date)}
+                              {sale.saleType ? ` · ${sale.saleType}` : ""}
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+
+                      {valuationRecords.map((rec, i) => {
+                        const val = rec.value || rec.capitalValue || rec.medianEstimate;
+                        if (!val) return null;
+                        return (
+                          <div
+                            className="history-record-row"
+                            key={`val-${rec.date}-${i}`}
+                          >
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <strong>{formatMoney(val)}</strong>
+                                <Badge variant="secondary">{rec.source}</Badge>
+                              </div>
+                              <span className="history-record-meta">
+                                {formatDateLabel(rec.date)}
+                                {rec.landValue
+                                  ? ` · Land ${formatMoney(rec.landValue)}`
+                                  : ""}
+                              </span>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-sm font-medium flex items-center gap-2">
+                        <History className="size-4 text-primary" />
+                        Property history timeline
+                      </CardTitle>
+                      <CardDescription className="text-xs">
+                        Chronological events recorded for this property
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      {property.propertyHistory &&
+                      property.propertyHistory.length > 0 ? (
+                        <ol className="property-timeline-list">
+                          {property.propertyHistory.map((ev, idx) => (
+                            <li
+                              className="property-timeline-item"
+                              key={`${ev.date}-${ev.label}-${idx}`}
+                            >
+                              <div className="property-timeline-dot" />
+                              <div className="property-timeline-content">
+                                <div className="property-timeline-head">
+                                  <strong>{ev.label}</strong>
+                                  {ev.value && (
+                                    <Badge variant="outline">
+                                      {typeof ev.value === "number"
+                                        ? formatMoney(ev.value)
+                                        : ev.value}
+                                    </Badge>
+                                  )}
+                                </div>
+                                <span className="property-timeline-meta">
+                                  {[formatDateLabel(ev.date), ev.detail]
+                                    .filter(Boolean)
+                                    .join(" · ")}
+                                </span>
+                              </div>
+                            </li>
+                          ))}
+                        </ol>
+                      ) : (
+                        <div className="space-y-2 text-xs text-muted-foreground">
+                          <div className="flex items-center gap-2">
+                            <FileText className="size-3.5" />
+                            <span>
+                              {property.yearBuilt
+                                ? `Built in ${property.yearBuilt}`
+                                : "Public title & rating history synced"}
+                            </span>
+                          </div>
+                          {property.legalDescription && (
+                            <p className="m-0">
+                              Legal description: {property.legalDescription}
                             </p>
                           )}
-                          {historyData.pastSales.map((sale, i) => (
-                            <div
-                              key={i}
-                              style={{
-                                display: "flex",
-                                justifyContent: "space-between",
-                                alignItems: "center",
-                                padding: "0.85rem 1rem",
-                                border:
-                                  "1px solid var(--border-color, #e5e7eb)",
-                                borderRadius: "8px",
-                              }}
-                            >
-                              <div>
-                                <strong>{formatMoney(sale.price)}</strong>{" "}
-                                <span
-                                  style={{ fontSize: "0.8rem", opacity: 0.75 }}
-                                >
-                                  ({sale.saleType})
-                                </span>
-                                <p
-                                  style={{
-                                    margin: "0.2rem 0 0",
-                                    fontSize: "0.85rem",
-                                    opacity: 0.75,
-                                  }}
-                                >
-                                  Sold on {sale.date} · Source: {sale.source}
-                                </p>
-                              </div>
-                            </div>
-                          ))}
                         </div>
-                      </div>
-
-                      <div>
-                        <h4
-                          style={{ marginBottom: "0.75rem", fontWeight: 600 }}
-                        >
-                          Valuation History (CV / AVM)
-                        </h4>
-                        <div
-                          style={{
-                            display: "flex",
-                            flexDirection: "column",
-                            gap: "0.5rem",
-                          }}
-                        >
-                          {historyData.valuationHistory.map((rec, i) => (
-                            <div
-                              key={i}
-                              style={{
-                                display: "flex",
-                                justifyContent: "space-between",
-                                alignItems: "center",
-                                padding: "0.75rem 1rem",
-                                border:
-                                  "1px solid var(--border-color, #e5e7eb)",
-                                borderRadius: "8px",
-                              }}
-                            >
-                              <div>
-                                <span
-                                  style={{
-                                    fontWeight: 600,
-                                    marginRight: "1rem",
-                                  }}
-                                >
-                                  {rec.date}
-                                </span>
-                                <span
-                                  style={{ fontSize: "0.85rem", opacity: 0.75 }}
-                                >
-                                  {rec.source}
-                                </span>
-                              </div>
-                              <strong>{formatMoney(rec.value)}</strong>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  </AccordionContent>
-                </AccordionItem>
-              </Accordion>
-              {
-                <div className="notes-panel" id="property-notes">
-                  <PropertyNotes
-                    propertyId={property.id}
-                    propertyTitle={property.address}
-                  />
+                      )}
+                    </CardContent>
+                  </Card>
                 </div>
-              }
+              </section>
+
+              {/* Non-Collapsible Mortgage Calculator at the Bottom */}
+              <section
+                aria-labelledby="mortgage-calculator-heading"
+                className="property-section-block"
+                id="calculator"
+              >
+                <div className="mortgage-panel">
+                  <MortgageCalculator defaultPrice={property.price} />
+                </div>
+              </section>
+
+              <div className="notes-panel" id="property-notes">
+                <PropertyNotes
+                  propertyId={property.id}
+                  propertyTitle={property.address}
+                />
+              </div>
             </div>
           </div>
 
