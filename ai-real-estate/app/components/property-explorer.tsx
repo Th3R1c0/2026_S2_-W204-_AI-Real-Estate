@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import MortgageCalculator from "./mortgage-calculator";
+import PropertyNotes from "./property-notes";
 
 import {
   filterProperties,
@@ -49,7 +50,8 @@ type DetailTab =
   | "family"
   | "commute"
   | "mortgage"
-  | "history";
+  | "history"
+  | "notes";
 type CommuteMode = "driving" | "transit" | "bicycling" | "walking";
 type CommuteDestination = { name: string; address: string };
 type SourceSelection = {
@@ -862,6 +864,7 @@ function DetailDialog({
     { id: "commute", label: "Commute" },
     { id: "mortgage", label: "Mortgage" },
     { id: "history", label: "Market History" },
+    { id: "notes", label: "My Notes" },
   ];
 
   return (
@@ -1328,6 +1331,11 @@ function DetailDialog({
               </p>
             </div>
           )}
+          {tab === "notes" && (
+            <div className="notes-panel" style={{ padding: "0.5rem 0" }}>
+              <PropertyNotes propertyId={property.id} propertyTitle={property.address} />
+            </div>
+          )}
         </div>
       </section>
     </div>
@@ -1653,6 +1661,7 @@ export default function PropertyExplorer({
           </a>
           <a href="#calculator">Calculator</a>
           <a href="#how-it-works">How it works</a>
+          <a href="/profile">Profile & Notes</a>
         </nav>
 
         <div style={{ display: "flex", gap: "0.75rem", alignItems: "center" }}>
