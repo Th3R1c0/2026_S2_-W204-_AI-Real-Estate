@@ -14,6 +14,17 @@ export type ArchitecturalStyle =
   | "Mid-Century";
 
 export type FloodRisk = "Low" | "Moderate" | "High";
+export type FloodHazardType =
+  | "flood_plains"
+  | "flood_prone_areas"
+  | "overland_flow_paths"
+  | "coastal_inundation";
+
+export type PropertyFloodHazard = {
+  type: FloodHazardType;
+  sourceFeatureId: string;
+  sourceUrl: string;
+};
 
 export type PropertySourceField =
   | "address"
@@ -93,6 +104,7 @@ export type Property = {
   propertyType: PropertyType;
   architecturalStyle?: ArchitecturalStyle;
   floodRisk?: FloodRisk;
+  floodHazards?: PropertyFloodHazard[];
   orientation?: "North" | "South" | "East" | "West";
   sunlightHours?: number;
   latitude: number;
@@ -118,7 +130,8 @@ export type Property = {
 export type PropertyFilters = {
   propertyTypes?: PropertyType[];
   architecturalStyles?: ArchitecturalStyle[];
-  floodRisks?: FloodRisk[];
+  floodHazardTypes?: FloodHazardType[];
+  noMappedFloodHazard?: boolean;
   northFacingOnly?: boolean;
   yearBuiltFrom?: number;
   yearBuiltTo?: number;

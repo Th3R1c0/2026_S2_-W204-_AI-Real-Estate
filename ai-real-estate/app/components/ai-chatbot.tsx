@@ -256,25 +256,25 @@ export default function AIChatbot({
     if (comparedProperties.length >= 2) {
       if (userHasSentMessages) {
         if (conversationTopic.includes("flood") || conversationTopic.includes("hazard")) {
-          list.push("Which compared home has lower flood risk?");
+          list.push("Which compared home has mapped Council flood hazards?");
           list.push("What is the price difference between them?");
           list.push("Compare my selected homes");
           list.push("What is a LIM report?");
         } else if (conversationTopic.includes("price") || conversationTopic.includes("cost") || conversationTopic.includes("difference")) {
           list.push("What is the price difference between them?");
-          list.push("Which compared home has lower flood risk?");
+          list.push("Which compared home has mapped Council flood hazards?");
           list.push("Compare my selected homes");
           list.push("What is a LIM report?");
         } else {
           list.push("Compare my selected homes");
           list.push("What is the price difference between them?");
-          list.push("Which compared home has lower flood risk?");
+          list.push("Which compared home has mapped Council flood hazards?");
           list.push("What is a LIM report?");
         }
       } else {
         list.push("Compare my selected homes");
         list.push("What is the price difference between them?");
-        list.push("Which compared home has lower flood risk?");
+        list.push("Which compared home has mapped Council flood hazards?");
         list.push("What is a LIM report?");
       }
     } else if (comparedProperties.length === 1) {
@@ -297,8 +297,8 @@ export default function AIChatbot({
           list.push("How do I request a LIM report in Auckland?");
           list.push("Help me think about my search campaign");
         } else if (conversationTopic.includes("flood") || conversationTopic.includes("hazard")) {
-          list.push("How does Haven classify flood risks?");
-          list.push("Which suburbs have lowest flood risk?");
+          list.push("Which flood hazard layers does Haven show?");
+          list.push("How do I interpret mapped flood hazards?");
           list.push("What is a LIM report?");
           list.push("Help me think about my search campaign");
         } else if (conversationTopic.includes("mortgage") || conversationTopic.includes("calculator") || conversationTopic.includes("price") || conversationTopic.includes("deposit")) {

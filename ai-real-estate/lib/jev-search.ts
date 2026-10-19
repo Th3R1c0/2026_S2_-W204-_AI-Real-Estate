@@ -1,7 +1,7 @@
 import { TypeSafeClient } from "@typesafe-ai/sdk";
 import type {
   ArchitecturalStyle,
-  FloodRisk,
+  FloodHazardType,
   Property,
   PropertyFilters,
   PropertyType,
@@ -143,10 +143,11 @@ export function buildCatalogState(properties: Property[]) {
           { style: "Craftsman", description: "Craftsman, bungalow, or artisan carpentry" },
           { style: "Mid-Century", description: "1940s to 1960s classic retro mid-century" },
         ],
-        available_flood_risks: [
-          { risk: "Low", description: "Safe from flooding hazards" },
-          { risk: "Moderate", description: "Moderate overland flow or catchment" },
-          { risk: "High", description: "High flood plain hazard" },
+        available_flood_hazards: [
+          { type: "flood_plains", description: "Auckland Council mapped flood plains" },
+          { type: "flood_prone_areas", description: "Auckland Council mapped flood-prone areas" },
+          { type: "overland_flow_paths", description: "Auckland Council mapped overland flow paths" },
+          { type: "coastal_inundation", description: "Auckland Council mapped coastal inundation" },
         ],
         known_locations: locations,
         property_fields: {
@@ -165,6 +166,7 @@ export function buildCatalogState(properties: Property[]) {
           sunlightHours: "Daily sunlight exposure",
           walkability: "Walk score out of 100 with nearby cafes, parks, supermarkets",
           schoolZones: "School catchments with in-zone enrolment entitlements",
+          floodHazards: "Auckland Council mapped hazard intersections, if data has been synced",
         },
       },
     },
@@ -205,14 +207,17 @@ export function buildJevQuestions(locations: string[]) {
         none: "No specific architectural style requested",
       },
     },
-    flood_risk: {
+    flood_hazard: {
       type: "choice" as const,
-      instructions: "Does the buyer specify a flood risk requirement in `user_query`?",
+      instructions: "Which mapped Auckland Council flood hazard does `user_query` request? Do not infer a low, moderate or high risk rating from mapped layers.",
       criteria: {
-        Low: "Explicitly requested low flood risk, flood-free, or safe from flooding",
-        Moderate: "Moderate flood risk acceptable",
-        High: "High flood risk acceptable",
-        none: "No flood risk requirement specified",
+        flood_plains: "Homes intersecting mapped flood plains",
+        flood_prone_areas: "Homes intersecting mapped flood-prone areas",
+        overland_flow_paths: "Homes intersecting mapped overland flow paths",
+        coastal_inundation: "Homes intersecting mapped coastal inundation",
+        any_mapped: "Homes with any mapped flood hazard intersection",
+        no_mapped: "Homes with no mapped flood hazard intersection; do not treat this as flood-free or safe",
+        none: "No specific mapped hazard requirement, or only an unsupported risk rating",
       },
     },
     location: {
@@ -281,11 +286,23 @@ export function cleanJevFilters(
     applied.push(`${style.toLowerCase()} style`);
   }
 
-  // Flood risk
-  const flood = answers.flood_risk?.choice;
-  if (flood && flood !== "none") {
-    filters.floodRisks = [flood as FloodRisk];
-    applied.push(`${flood.toLowerCase()} flood risk`);
+  // Mapped flood hazards
+  const flood = answers.flood_hazard?.choice;
+  const hazardTypes: FloodHazardType[] = [
+    "flood_plains",
+    "flood_prone_areas",
+    "overland_flow_paths",
+    "coastal_inundation",
+  ];
+  if (flood === "no_mapped") {
+    filters.noMappedFloodHazard = true;
+    applied.push("no mapped flood hazard intersection");
+  } else if (flood === "any_mapped") {
+    filters.floodHazardTypes = hazardTypes;
+    applied.push("a mapped flood hazard intersection");
+  } else if (hazardTypes.includes(flood as FloodHazardType)) {
+    filters.floodHazardTypes = [flood as FloodHazardType];
+    applied.push(`mapped ${flood!.replaceAll("_", " ")}`);
   }
 
   // Location

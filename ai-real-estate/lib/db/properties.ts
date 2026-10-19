@@ -4,9 +4,12 @@ import { desc, eq, inArray } from "drizzle-orm";
 import { getDb } from ".";
 import {
   address,
+  floodHazardSync,
+  floodHazardZones,
   properties as propertyTable,
   propertyDetails,
   propertyDemoDetails,
+  propertyFloodHazards,
   propertyImages,
   propertyPrice,
   propertySales,
@@ -168,6 +171,22 @@ export async function getPropertiesByStatus(status: PropertyStatus): Promise<Pro
     db.select().from(propertySources).where(inArray(propertySources.propertyId, ids)),
     db.select().from(propertySchoolZones).where(inArray(propertySchoolZones.propertyId, ids)),
   ]);
+  const [floodZones, floodSyncRows] = await Promise.all([
+    db
+      .select({
+        propertyId: propertyFloodHazards.propertyId,
+        type: floodHazardZones.hazardType,
+        sourceFeatureId: floodHazardZones.sourceFeatureId,
+        sourceUrl: floodHazardZones.sourceUrl,
+      })
+      .from(propertyFloodHazards)
+      .innerJoin(
+        floodHazardZones,
+        eq(propertyFloodHazards.floodHazardZoneId, floodHazardZones.floodHazardZoneId),
+      )
+      .where(inArray(propertyFloodHazards.propertyId, ids)),
+    db.select({ hazardType: floodHazardSync.hazardType }).from(floodHazardSync),
+  ]);
 
   const imageByProperty = new Map<number, (typeof images)[number]>();
   for (const image of images) {
@@ -204,6 +223,23 @@ export async function getPropertiesByStatus(status: PropertyStatus): Promise<Pro
     });
     zonesByProperty.set(zone.propertyId, items);
   }
+
+  const floodHazardsByProperty = new Map<
+    number,
+    NonNullable<Property["floodHazards"]>
+  >();
+  for (const hazard of floodZones) {
+    const items = floodHazardsByProperty.get(hazard.propertyId) ?? [];
+    items.push({
+      type: hazard.type,
+      sourceFeatureId: hazard.sourceFeatureId,
+      sourceUrl: hazard.sourceUrl,
+    });
+    floodHazardsByProperty.set(hazard.propertyId, items);
+  }
+  const floodDataSynced =
+    floodSyncRows.length === 4 &&
+    new Set(floodSyncRows.map(({ hazardType }) => hazardType)).size === 4;
 
   return rows.map((row) => {
     const image = imageByProperty.get(row.propertyId);
@@ -267,6 +303,9 @@ export async function getPropertiesByStatus(status: PropertyStatus): Promise<Pro
         : {}),
       ...(zonesByProperty.has(row.propertyId)
         ? { schoolZones: zonesByProperty.get(row.propertyId) }
+        : {}),
+      ...(floodDataSynced
+        ? { floodHazards: floodHazardsByProperty.get(row.propertyId) ?? [] }
         : {}),
       ...(walkability ? { walkability } : {}),
     };

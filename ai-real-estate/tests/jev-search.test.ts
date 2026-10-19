@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  cleanJevFilters,
   interpretPropertyQuery,
   interpretPropertyQueryWithJev,
   parseBedroomsFromQuery,
@@ -110,7 +111,7 @@ describe("TypeSafe Jev search interpreter", () => {
           catalog: {
             available_property_types: Array<{ type: string }>;
             available_architectural_styles: Array<{ style: string }>;
-            available_flood_risks: Array<{ risk: string }>;
+            available_flood_hazards: Array<{ type: string }>;
             known_locations: string[];
             property_fields: Record<string, string>;
           };
@@ -126,12 +127,16 @@ describe("TypeSafe Jev search interpreter", () => {
       expect(body.state.catalog.property_fields).toHaveProperty("price");
       expect(body.state.catalog.property_fields).toHaveProperty("bedrooms");
       expect(body.state.catalog.property_fields).toHaveProperty("orientation");
+      expect(body.state.catalog.available_flood_hazards).toContainEqual(
+        expect.objectContaining({ type: "flood_plains" }),
+      );
 
       expect(body.questions).toHaveProperty("property_type");
       expect(body.questions).toHaveProperty("architectural_style");
       expect(body.questions).toHaveProperty("location");
       expect(body.questions).toHaveProperty("is_sunny_or_north_facing");
       expect(body.questions).toHaveProperty("price_intent");
+      expect(body.questions).toHaveProperty("flood_hazard");
 
       return Response.json({
         model: "jev-1.13.0",
@@ -210,6 +215,19 @@ describe("TypeSafe Jev search interpreter", () => {
       yearBuiltTo: 1940,
     });
     expect(result.message).toContain("villa");
+  });
+
+  it("turns Jev flood answers into mapped hazard filters", () => {
+    expect(
+      cleanJevFilters("homes in flood plains", {
+        flood_hazard: { choice: "flood_plains" },
+      }).filters,
+    ).toEqual({ floodHazardTypes: ["flood_plains"] });
+    expect(
+      cleanJevFilters("homes with no mapped flood hazard", {
+        flood_hazard: { choice: "no_mapped" },
+      }).filters,
+    ).toEqual({ noMappedFloodHazard: true });
   });
 
   it("handles queries needing clarification", async () => {

@@ -1,5 +1,6 @@
-import type { Property, PropertyFilters } from "./property-types";
+import type { FloodHazardType, Property, PropertyFilters } from "./property-types";
 import { parseNaturalLanguageSearch } from "./property-engine";
+import { floodHazardOptions } from "./flood-hazards";
 
 export type InterpretedSearch = {
   status: "ready" | "needs-clarification";
@@ -11,7 +12,8 @@ export type InterpretedSearch = {
 type GeminiFilters = {
   propertyTypes?: string[];
   architecturalStyles?: string[];
-  floodRisks?: string[];
+  floodHazardTypes?: FloodHazardType[];
+  noMappedFloodHazard?: boolean;
   location?: string | null;
   maxPrice?: number | null;
   minPrice?: number | null;
@@ -43,10 +45,14 @@ const responseSchema = {
         enum: ["Character", "Contemporary", "Craftsman", "Mid-Century", "Modernist"],
       },
     },
-    floodRisks: {
+    floodHazardTypes: {
       type: "array",
-      items: { type: "string", enum: ["Low", "Moderate", "High"] },
+      items: {
+        type: "string",
+        enum: floodHazardOptions.map(({ type }) => type),
+      },
     },
+    noMappedFloodHazard: { type: "boolean" },
     location: { type: "string", nullable: true },
     maxPrice: { type: "number", nullable: true },
     minPrice: { type: "number", nullable: true },
@@ -60,7 +66,8 @@ const responseSchema = {
   required: [
     "propertyTypes",
     "architecturalStyles",
-    "floodRisks",
+    "floodHazardTypes",
+    "noMappedFloodHazard",
     "location",
     "maxPrice",
     "minPrice",
@@ -88,9 +95,10 @@ function cleanGeminiFilters(result: GeminiFilters): PropertyFilters {
     filters.architecturalStyles =
       result.architecturalStyles as PropertyFilters["architecturalStyles"];
   }
-  if (result.floodRisks?.length) {
-    filters.floodRisks = result.floodRisks as PropertyFilters["floodRisks"];
+  if (result.floodHazardTypes?.length) {
+    filters.floodHazardTypes = result.floodHazardTypes;
   }
+  if (result.noMappedFloodHazard) filters.noMappedFloodHazard = true;
   if (result.location) filters.location = result.location;
   if (result.maxPrice !== null && result.maxPrice !== undefined) {
     filters.maxPrice = result.maxPrice;
@@ -137,6 +145,7 @@ export async function interpretPropertyQuery(
                 "Interpret this New Zealand property search into filters.",
                 "Only include requirements the buyer explicitly stated or clearly implied.",
                 "Treat villa as a property type; character villa means Character style plus Villa type.",
+                "Flood filters must refer only to mapped Council hazard layers: flood_plains, flood_prone_areas, overland_flow_paths, coastal_inundation. Interpret a generic flood-risk request as any mapped flood hazard; interpret a request for no flood hazard as no mapped intersection.",
                 `Known listing locations: ${locations.join(", ")}.`,
                 `Buyer request: ${query}`,
               ].join("\n"),

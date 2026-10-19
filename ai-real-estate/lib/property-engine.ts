@@ -1,5 +1,6 @@
 import type {
   ArchitecturalStyle,
+  FloodHazardType,
   PastSale,
   Property,
   PropertyFilters,
@@ -25,8 +26,12 @@ export function filterProperties(
       (!filters.architecturalStyles?.length ||
         (property.architecturalStyle !== undefined &&
           filters.architecturalStyles.includes(property.architecturalStyle))) &&
-      (!filters.floodRisks?.length ||
-        (property.floodRisk !== undefined && filters.floodRisks.includes(property.floodRisk))) &&
+      (!filters.floodHazardTypes?.length ||
+        property.floodHazards?.some((hazard) =>
+          filters.floodHazardTypes?.includes(hazard.type),
+        ) === true) &&
+      (!filters.noMappedFloodHazard ||
+        (property.floodHazards !== undefined && property.floodHazards.length === 0)) &&
       (!location || propertyLocation.includes(location)) &&
       (filters.maxPrice === undefined || property.price <= filters.maxPrice) &&
       (filters.minPrice === undefined || property.price >= filters.minPrice) &&
@@ -86,6 +91,13 @@ const styleMatchers: Array<[RegExp, ArchitecturalStyle]> = [
   [/\bcharacter\b/i, "Character"],
 ];
 
+const floodHazardMatchers: Array<[RegExp, FloodHazardType]> = [
+  [/\bflood\s+plains?\b/i, "flood_plains"],
+  [/\bflood[-\s]+prone\s+areas?\b/i, "flood_prone_areas"],
+  [/\boverland\s+flow\s+paths?\b/i, "overland_flow_paths"],
+  [/\bcoastal\s+inundation\b/i, "coastal_inundation"],
+];
+
 const wordNumbers: Record<string, number> = {
   one: 1,
   two: 2,
@@ -113,9 +125,26 @@ export function parseNaturalLanguageSearch(
   const filters: PropertyFilters = {};
   const propertyType = typeMatchers.find(([matcher]) => matcher.test(query))?.[1];
   const style = styleMatchers.find(([matcher]) => matcher.test(query))?.[1];
+  const floodHazards = floodHazardMatchers
+    .filter(([matcher]) => matcher.test(query))
+    .map(([, hazard]) => hazard);
+  const noFloodHazard = /\bno\s+(?:mapped\s+)?flood\s+(?:hazards?|risks?)\b/i.test(query);
+  const unsupportedFloodRating = /\b(?:low|moderate|high)\s+flood\s+risk\b/i.test(query);
 
   if (propertyType) filters.propertyTypes = [propertyType];
   if (style) filters.architecturalStyles = [style];
+  if (floodHazards.length) filters.floodHazardTypes = floodHazards;
+  else if (/\bflood\s+(?:risk|hazards?)\b/i.test(query) && !noFloodHazard && !unsupportedFloodRating) {
+    filters.floodHazardTypes = [
+      "flood_plains",
+      "flood_prone_areas",
+      "overland_flow_paths",
+      "coastal_inundation",
+    ];
+  }
+  if (noFloodHazard) {
+    filters.noMappedFloodHazard = true;
+  }
 
   const places = Array.from(
     new Set(properties.flatMap(({ city, region, suburb }) => [city, region, suburb])),
@@ -143,8 +172,9 @@ export function parseNaturalLanguageSearch(
     return {
       status: "needs-clarification",
       filters,
-      message:
-        "Try adding a location, property type, architectural style, bedroom count or budget.",
+      message: unsupportedFloodRating
+        ? "Council mapping does not provide a low, moderate or high risk rating. Try a mapped flood hazard instead."
+        : "Try adding a location, property type, mapped flood hazard, architectural style, bedroom count or budget.",
     };
   }
 

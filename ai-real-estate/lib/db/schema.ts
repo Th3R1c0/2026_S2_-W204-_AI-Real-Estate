@@ -5,37 +5,84 @@ import {
   char,
   customType,
   date,
-  datetime,
   decimal,
+  foreignKey,
   index,
-  int,
+  integer,
   json,
-  mysqlEnum,
-  mysqlTable,
+  jsonb,
+  pgEnum,
+  pgTable,
   primaryKey,
   smallint,
   text,
   time,
   timestamp,
-  tinyint,
+  serial,
   uniqueIndex,
   varchar,
-} from "drizzle-orm/mysql-core";
+} from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
+
+export const listingTypeEnum = pgEnum("listing_type", ["sale", "rent", "lease"]);
+export const propertyStatusEnum = pgEnum("property_status", [
+  "draft",
+  "active",
+  "under_offer",
+  "sold",
+  "rented",
+  "withdrawn",
+]);
+export const pricingMethodEnum = pgEnum("pricing_method", [
+  "fixed",
+  "negotiation",
+  "auction",
+  "tender",
+  "enquiries_over",
+  "price_on_application",
+]);
+export const rentPeriodEnum = pgEnum("rent_period", ["week", "fortnight", "month"]);
+export const propertyTypeEnum = pgEnum("property_type", [
+  "house",
+  "apartment",
+  "townhouse",
+  "unit",
+  "section",
+  "lifestyle",
+  "commercial",
+  "other",
+]);
+export const floodRiskEnum = pgEnum("flood_risk", ["Low", "Moderate", "High"]);
+export const orientationEnum = pgEnum("orientation", ["North", "East", "South", "West"]);
+export const schoolZoneTypeEnum = pgEnum("school_zone_type", [
+  "Primary",
+  "Intermediate",
+  "Secondary",
+]);
+export const floodHazardTypeEnum = pgEnum("flood_hazard_type", [
+  "flood_plains",
+  "flood_prone_areas",
+  "overland_flow_paths",
+  "coastal_inundation",
+]);
 
 const point = customType<{ data: string; driverData: string }>({
   dataType: () => "point",
 });
 
-export const users = mysqlTable(
+const postgisGeometry = customType<{ data: string; driverData: string }>({
+  dataType: () => "geometry(Geometry, 4326)",
+});
+
+export const users = pgTable(
   "users",
   {
-    userId: int("user_id", { unsigned: true }).autoincrement().primaryKey(),
+    userId: serial("user_id").primaryKey(),
     username: varchar("username", { length: 50 }).notNull(),
     email: varchar("email", { length: 255 }).notNull(),
     passwordHash: varchar("password_hash", { length: 255 }).notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().$onUpdateFn(() => new Date()).notNull(),
   },
   (table) => [
     uniqueIndex("uq_users_username").on(table.username),
@@ -43,19 +90,19 @@ export const users = mysqlTable(
   ],
 );
 
-export const agencies = mysqlTable("agencies", {
-  agencyId: int("agency_id", { unsigned: true }).autoincrement().primaryKey(),
+export const agencies = pgTable("agencies", {
+  agencyId: serial("agency_id").primaryKey(),
   name: varchar("name", { length: 150 }).notNull(),
   website: varchar("website", { length: 255 }),
   phone: varchar("phone", { length: 30 }),
   email: varchar("email", { length: 255 }),
 });
 
-export const realEstateAgents = mysqlTable(
+export const realEstateAgents = pgTable(
   "real_estate_agents",
   {
-    agentId: int("agent_id", { unsigned: true }).autoincrement().primaryKey(),
-    agencyId: int("agency_id", { unsigned: true }).references(() => agencies.agencyId, {
+    agentId: serial("agent_id").primaryKey(),
+    agencyId: integer("agency_id").references(() => agencies.agencyId, {
       onDelete: "set null",
     }),
     firstName: varchar("first_name", { length: 80 }).notNull(),
@@ -68,27 +115,20 @@ export const realEstateAgents = mysqlTable(
   (table) => [uniqueIndex("uq_agents_email").on(table.email)],
 );
 
-export const properties = mysqlTable(
+export const properties = pgTable(
   "properties",
   {
-    propertyId: int("property_id", { unsigned: true }).autoincrement().primaryKey(),
+    propertyId: serial("property_id").primaryKey(),
     demoKey: varchar("demo_key", { length: 80 }),
     title: varchar("title", { length: 200 }).notNull(),
     body: text("body"),
-    listingType: mysqlEnum("listing_type", ["sale", "rent", "lease"]).notNull(),
-    status: mysqlEnum("status", [
-      "draft",
-      "active",
-      "under_offer",
-      "sold",
-      "rented",
-      "withdrawn",
-    ])
+    listingType: listingTypeEnum("listing_type").notNull(),
+    status: propertyStatusEnum("status")
       .default("draft")
       .notNull(),
-    listedAt: datetime("listed_at"),
+    listedAt: timestamp("listed_at"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().$onUpdateFn(() => new Date()).notNull(),
   },
   (table) => [
     uniqueIndex("uq_properties_demo_key").on(table.demoKey),
@@ -96,25 +136,18 @@ export const properties = mysqlTable(
   ],
 );
 
-export const propertyPrice = mysqlTable(
+export const propertyPrice = pgTable(
   "property_price",
   {
-    propertyId: int("property_id", { unsigned: true })
+    propertyId: integer("property_id")
       .primaryKey()
       .references(() => properties.propertyId, { onDelete: "cascade" }),
-    pricingMethod: mysqlEnum("pricing_method", [
-      "fixed",
-      "negotiation",
-      "auction",
-      "tender",
-      "enquiries_over",
-      "price_on_application",
-    ])
+    pricingMethod: pricingMethodEnum("pricing_method")
       .default("fixed")
       .notNull(),
     salePrice: decimal("sale_price", { precision: 12, scale: 2 }),
     rentPrice: decimal("rent_price", { precision: 10, scale: 2 }),
-    rentPeriod: mysqlEnum("rent_period", ["week", "fortnight", "month"]),
+    rentPeriod: rentPeriodEnum("rent_period"),
     leasePrice: decimal("lease_price", { precision: 12, scale: 2 }),
     currency: char("currency", { length: 3 }).default("NZD").notNull(),
   },
@@ -124,10 +157,10 @@ export const propertyPrice = mysqlTable(
   ],
 );
 
-export const address = mysqlTable(
+export const address = pgTable(
   "address",
   {
-    propertyId: int("property_id", { unsigned: true })
+    propertyId: integer("property_id")
       .primaryKey()
       .references(() => properties.propertyId, { onDelete: "cascade" }),
     unitNumber: varchar("unit_number", { length: 20 }),
@@ -145,48 +178,56 @@ export const address = mysqlTable(
   (table) => [
     index("idx_address_city_suburb").on(table.city, table.suburb),
     index("idx_address_post_code").on(table.postCode),
+    index("sp_address_location").using("gist", table.location),
   ],
 );
 
-export const propertyDetails = mysqlTable(
+export const propertyDetails = pgTable(
   "property_details",
   {
-    propertyId: int("property_id", { unsigned: true })
+    propertyId: integer("property_id")
       .primaryKey()
       .references(() => properties.propertyId, { onDelete: "cascade" }),
-    propertyType: mysqlEnum("property_type", [
-      "house",
-      "apartment",
-      "townhouse",
-      "unit",
-      "section",
-      "lifestyle",
-      "commercial",
-      "other",
-    ])
+    propertyType: propertyTypeEnum("property_type")
       .default("house")
       .notNull(),
     landArea: decimal("land_area", { precision: 10, scale: 2 }),
     floorArea: decimal("floor_area", { precision: 10, scale: 2 }),
-    bedrooms: tinyint("bedrooms", { unsigned: true }).default(0).notNull(),
-    bathrooms: tinyint("bathrooms", { unsigned: true }).default(0).notNull(),
-    ensuites: tinyint("ensuites", { unsigned: true }).default(0).notNull(),
-    toilets: tinyint("toilets", { unsigned: true }).default(0).notNull(),
-    livingRooms: tinyint("living_rooms", { unsigned: true }).default(0).notNull(),
-    garageParking: tinyint("garage_parking", { unsigned: true }).default(0).notNull(),
-    offStreetParking: tinyint("off_street_parking", { unsigned: true }).default(0).notNull(),
-    yearBuilt: smallint("year_built", { unsigned: true }),
+    bedrooms: smallint("bedrooms").default(0).notNull(),
+    bathrooms: smallint("bathrooms").default(0).notNull(),
+    ensuites: smallint("ensuites").default(0).notNull(),
+    toilets: smallint("toilets").default(0).notNull(),
+    livingRooms: smallint("living_rooms").default(0).notNull(),
+    garageParking: smallint("garage_parking").default(0).notNull(),
+    offStreetParking: smallint("off_street_parking").default(0).notNull(),
+    yearBuilt: integer("year_built"),
   },
-  (table) => [index("idx_details_beds_baths").on(table.bedrooms, table.bathrooms)],
+  (table) => [
+    index("idx_details_beds_baths").on(table.bedrooms, table.bathrooms),
+    check(
+      "chk_details_unsigned_counts",
+      sql`${table.bedrooms} BETWEEN 0 AND 255
+        AND ${table.bathrooms} BETWEEN 0 AND 255
+        AND ${table.ensuites} BETWEEN 0 AND 255
+        AND ${table.toilets} BETWEEN 0 AND 255
+        AND ${table.livingRooms} BETWEEN 0 AND 255
+        AND ${table.garageParking} BETWEEN 0 AND 255
+        AND ${table.offStreetParking} BETWEEN 0 AND 255`,
+    ),
+    check(
+      "chk_details_year_built",
+      sql`${table.yearBuilt} IS NULL OR ${table.yearBuilt} BETWEEN 0 AND 65535`,
+    ),
+  ],
 );
 
-export const propertyAgents = mysqlTable(
+export const propertyAgents = pgTable(
   "property_agent",
   {
-    propertyId: int("property_id", { unsigned: true })
+    propertyId: integer("property_id")
       .notNull()
       .references(() => properties.propertyId, { onDelete: "cascade" }),
-    agentId: int("agent_id", { unsigned: true })
+    agentId: integer("agent_id")
       .notNull()
       .references(() => realEstateAgents.agentId, { onDelete: "cascade" }),
     isPrimary: boolean("is_primary").default(false).notNull(),
@@ -194,11 +235,11 @@ export const propertyAgents = mysqlTable(
   (table) => [primaryKey({ columns: [table.propertyId, table.agentId] })],
 );
 
-export const openHomes = mysqlTable(
+export const openHomes = pgTable(
   "open_homes",
   {
-    openHomeId: int("open_home_id", { unsigned: true }).autoincrement().primaryKey(),
-    propertyId: int("property_id", { unsigned: true })
+    openHomeId: serial("open_home_id").primaryKey(),
+    propertyId: integer("property_id")
       .notNull()
       .references(() => properties.propertyId, { onDelete: "cascade" }),
     openDate: date("open_date", { mode: "string" }).notNull(),
@@ -211,11 +252,11 @@ export const openHomes = mysqlTable(
   ],
 );
 
-export const propertyValuations = mysqlTable(
+export const propertyValuations = pgTable(
   "property_valuations",
   {
-    valuationId: int("valuation_id", { unsigned: true }).autoincrement().primaryKey(),
-    propertyId: int("property_id", { unsigned: true })
+    valuationId: serial("valuation_id").primaryKey(),
+    propertyId: integer("property_id")
       .notNull()
       .references(() => properties.propertyId, { onDelete: "cascade" }),
     valuationDate: date("valuation_date", { mode: "string" }).notNull(),
@@ -230,11 +271,11 @@ export const propertyValuations = mysqlTable(
   (table) => [index("idx_val_property_date").on(table.propertyId, table.valuationDate)],
 );
 
-export const propertySales = mysqlTable(
+export const propertySales = pgTable(
   "property_sales",
   {
-    saleId: int("sale_id", { unsigned: true }).autoincrement().primaryKey(),
-    propertyId: int("property_id", { unsigned: true })
+    saleId: serial("sale_id").primaryKey(),
+    propertyId: integer("property_id")
       .notNull()
       .references(() => properties.propertyId, { onDelete: "cascade" }),
     soldPrice: decimal("sold_price", { precision: 12, scale: 2 }).notNull(),
@@ -243,50 +284,53 @@ export const propertySales = mysqlTable(
   (table) => [index("idx_sales_property_date").on(table.propertyId, table.soldDate)],
 );
 
-export const propertyImages = mysqlTable(
+export const propertyImages = pgTable(
   "property_images",
   {
-    imageId: int("image_id", { unsigned: true }).autoincrement().primaryKey(),
-    propertyId: int("property_id", { unsigned: true })
+    imageId: serial("image_id").primaryKey(),
+    propertyId: integer("property_id")
       .notNull()
       .references(() => properties.propertyId, { onDelete: "cascade" }),
     url: varchar("url", { length: 500 }).notNull(),
     caption: varchar("caption", { length: 200 }),
-    sortOrder: smallint("sort_order", { unsigned: true }).default(0).notNull(),
+    sortOrder: integer("sort_order").default(0).notNull(),
     isCover: boolean("is_cover").default(false).notNull(),
   },
-  (table) => [index("idx_images_property").on(table.propertyId, table.sortOrder)],
+  (table) => [
+    index("idx_images_property").on(table.propertyId, table.sortOrder),
+    check("chk_images_sort_order", sql`${table.sortOrder} BETWEEN 0 AND 65535`),
+  ],
 );
 
-export const features = mysqlTable(
+export const features = pgTable(
   "features",
   {
-    featureId: int("feature_id", { unsigned: true }).autoincrement().primaryKey(),
+    featureId: serial("feature_id").primaryKey(),
     name: varchar("name", { length: 80 }).notNull(),
   },
   (table) => [uniqueIndex("uq_features_name").on(table.name)],
 );
 
-export const propertyFeatures = mysqlTable(
+export const propertyFeatures = pgTable(
   "property_features",
   {
-    propertyId: int("property_id", { unsigned: true })
+    propertyId: integer("property_id")
       .notNull()
       .references(() => properties.propertyId, { onDelete: "cascade" }),
-    featureId: int("feature_id", { unsigned: true })
+    featureId: integer("feature_id")
       .notNull()
       .references(() => features.featureId, { onDelete: "cascade" }),
   },
   (table) => [primaryKey({ columns: [table.propertyId, table.featureId] })],
 );
 
-export const savedProperties = mysqlTable(
+export const savedProperties = pgTable(
   "saved_properties",
   {
-    userId: int("user_id", { unsigned: true })
+    userId: integer("user_id")
       .notNull()
       .references(() => users.userId, { onDelete: "cascade" }),
-    propertyId: int("property_id", { unsigned: true })
+    propertyId: integer("property_id")
       .notNull()
       .references(() => properties.propertyId, { onDelete: "cascade" }),
     savedAt: timestamp("saved_at").defaultNow().notNull(),
@@ -297,17 +341,17 @@ export const savedProperties = mysqlTable(
   ],
 );
 
-export const enquiries = mysqlTable(
+export const enquiries = pgTable(
   "enquiries",
   {
-    enquiryId: int("enquiry_id", { unsigned: true }).autoincrement().primaryKey(),
-    propertyId: int("property_id", { unsigned: true })
+    enquiryId: serial("enquiry_id").primaryKey(),
+    propertyId: integer("property_id")
       .notNull()
       .references(() => properties.propertyId, { onDelete: "cascade" }),
-    userId: int("user_id", { unsigned: true }).references(() => users.userId, {
+    userId: integer("user_id").references(() => users.userId, {
       onDelete: "set null",
     }),
-    agentId: int("agent_id", { unsigned: true }).references(() => realEstateAgents.agentId, {
+    agentId: integer("agent_id").references(() => realEstateAgents.agentId, {
       onDelete: "set null",
     }),
     name: varchar("name", { length: 120 }).notNull(),
@@ -319,44 +363,107 @@ export const enquiries = mysqlTable(
   (table) => [index("idx_enquiries_property").on(table.propertyId)],
 );
 
-export const propertyDemoDetails = mysqlTable("property_demo_details", {
-  propertyId: int("property_id", { unsigned: true })
+export const propertyDemoDetails = pgTable("property_demo_details", {
+  propertyId: integer("property_id")
     .primaryKey()
     .references(() => properties.propertyId, { onDelete: "cascade" }),
   displayPropertyType: varchar("display_property_type", { length: 40 }),
   architecturalStyle: varchar("architectural_style", { length: 40 }),
-  floodRisk: mysqlEnum("flood_risk", ["Low", "Moderate", "High"]),
-  orientation: mysqlEnum("orientation", ["North", "East", "South", "West"]),
+  floodRisk: floodRiskEnum("flood_risk"),
+  orientation: orientationEnum("orientation"),
   sunlightHours: decimal("sunlight_hours", { precision: 4, scale: 1 }),
-  walkabilityScore: tinyint("walkability_score", { unsigned: true }),
+  walkabilityScore: smallint("walkability_score"),
   walkabilityLabel: varchar("walkability_label", { length: 40 }),
-  parksNearby: tinyint("parks_nearby", { unsigned: true }),
-  cafesNearby: tinyint("cafes_nearby", { unsigned: true }),
-  supermarketsNearby: tinyint("supermarkets_nearby", { unsigned: true }),
-});
+  parksNearby: smallint("parks_nearby"),
+  cafesNearby: smallint("cafes_nearby"),
+  supermarketsNearby: smallint("supermarkets_nearby"),
+}, (table) => [
+  check(
+    "chk_demo_unsigned_ranges",
+    sql`(${table.walkabilityScore} IS NULL OR ${table.walkabilityScore} BETWEEN 0 AND 255)
+      AND (${table.parksNearby} IS NULL OR ${table.parksNearby} BETWEEN 0 AND 255)
+      AND (${table.cafesNearby} IS NULL OR ${table.cafesNearby} BETWEEN 0 AND 255)
+      AND (${table.supermarketsNearby} IS NULL OR ${table.supermarketsNearby} BETWEEN 0 AND 255)`,
+  ),
+]);
 
-export const propertySchoolZones = mysqlTable(
+export const propertySchoolZones = pgTable(
   "property_school_zones",
   {
-    propertySchoolZoneId: int("property_school_zone_id", { unsigned: true })
-      .autoincrement()
-      .primaryKey(),
-    propertyId: int("property_id", { unsigned: true })
+    propertySchoolZoneId: serial("property_school_zone_id").primaryKey(),
+    propertyId: integer("property_id")
       .notNull()
       .references(() => properties.propertyId, { onDelete: "cascade" }),
     name: varchar("name", { length: 150 }).notNull(),
-    type: mysqlEnum("type", ["Primary", "Intermediate", "Secondary"]).notNull(),
+    type: schoolZoneTypeEnum("type").notNull(),
     distanceKm: decimal("distance_km", { precision: 5, scale: 2 }).notNull(),
     isInZone: boolean("is_in_zone").default(false).notNull(),
   },
   (table) => [index("idx_school_zones_property").on(table.propertyId)],
 );
 
-export const propertySources = mysqlTable(
+export const floodHazardZones = pgTable(
+  "flood_hazard_zones",
+  {
+    floodHazardZoneId: serial("flood_hazard_zone_id").primaryKey(),
+    hazardType: floodHazardTypeEnum("hazard_type").notNull(),
+    sourceFeatureId: varchar("source_feature_id", { length: 100 }).notNull(),
+    sourceUrl: varchar("source_url", { length: 500 }).notNull(),
+    sourceAttributes: jsonb("source_attributes")
+      .$type<Record<string, unknown>>()
+      .default({})
+      .notNull(),
+    geom: postgisGeometry("geom").notNull(),
+    importedAt: timestamp("imported_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    uniqueIndex("uq_flood_hazard_zones_source").on(
+      table.hazardType,
+      table.sourceFeatureId,
+    ),
+    index("sp_flood_hazard_zones_geom").using("gist", table.geom),
+  ],
+);
+
+export const floodHazardSync = pgTable("flood_hazard_sync", {
+  hazardType: floodHazardTypeEnum("hazard_type").primaryKey(),
+  importedFeatureCount: integer("imported_feature_count").notNull(),
+  importedAt: timestamp("imported_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+});
+
+export const propertyFloodHazards = pgTable(
+  "property_flood_hazards",
+  {
+    propertyId: integer("property_id").notNull(),
+    floodHazardZoneId: integer("flood_hazard_zone_id").notNull(),
+  },
+  (table) => [
+    primaryKey({
+      columns: [table.propertyId, table.floodHazardZoneId],
+    }),
+    foreignKey({
+      name: "fk_property_flood_hazards_property",
+      columns: [table.propertyId],
+      foreignColumns: [properties.propertyId],
+    }).onDelete("cascade"),
+    foreignKey({
+      name: "fk_property_flood_hazards_zone",
+      columns: [table.floodHazardZoneId],
+      foreignColumns: [floodHazardZones.floodHazardZoneId],
+    }).onDelete("cascade"),
+    index("idx_property_flood_hazards_zone").on(table.floodHazardZoneId),
+  ],
+);
+
+export const propertySources = pgTable(
   "property_sources",
   {
-    propertySourceId: int("property_source_id", { unsigned: true }).autoincrement().primaryKey(),
-    propertyId: int("property_id", { unsigned: true })
+    propertySourceId: serial("property_source_id").primaryKey(),
+    propertyId: integer("property_id")
       .notNull()
       .references(() => properties.propertyId, { onDelete: "cascade" }),
     sourceKey: varchar("source_key", { length: 80 }).notNull(),
@@ -378,5 +485,13 @@ export const propertiesRelations = relations(properties, ({ one, many }) => ({
   images: many(propertyImages),
   sales: many(propertySales),
   schoolZones: many(propertySchoolZones),
+  floodHazards: many(propertyFloodHazards),
   sources: many(propertySources),
 }));
+
+export const floodHazardZonesRelations = relations(
+  floodHazardZones,
+  ({ many }) => ({
+    properties: many(propertyFloodHazards),
+  }),
+);

@@ -18,7 +18,7 @@ All features and acceptance criteria are aligned with the Sprint One user storie
 - Search criteria not typically accessible on mainstream property platforms:
   - **Architectural Style**: Character, Modernist, Contemporary, Craftsman, Mid-Century.
   - **Property Type**: Villa, Townhouse, Apartment, House, Lifestyle block, Section.
-  - **Flood Risk Bands**: Low, Moderate, High demo hazard bands.
+  - **Mapped Flood Hazards**: Filter by Auckland Council flood plains, flood-prone areas, overland flow paths, coastal inundation, or properties with no mapped intersection.
   - **Building Age**: Interactive slider filtering by construction era (e.g., pre-1920s villas to 2020s modern builds).
   - **North-Facing Orientation**: Instant toggle for homes oriented to the northern sun.
 
@@ -27,6 +27,21 @@ All features and acceptance criteria are aligned with the Sprint One user storie
 - Analyzes nearby transactions matching property type, bedroom counts, and floor area.
 - Uses the **Haversine formula** to calculate physical distance.
 - **Adjustable Controls**: Customise distance radius (1–10 km) and timeframe (3–12 months, default 6 months) with real-time recalculation of local market averages.
+
+### Auckland Council Flood Hazard Data
+- A developer-run importer stores only Council flood features intersecting the current property-coordinate extent (buffered by 1 km) in PostGIS. It imports Flood Plains, Flood Prone Areas, Overland Flow Paths, and Coastal Inundation (100-year return); source attributes and geometries are retained.
+- PostGIS computes point/geometry intersections and records each matching property/hazard feature in `property_flood_hazards`. Hazard extents are not converted into a single risk rating.
+- The property details panel includes a Flood risk tab with mapped hazard types, a brief explanation, and a research-use disclaimer. Flood filters use those imported hazard types rather than the legacy demo risk bands.
+- The source Overland Flow Paths service contains over a million features, so the importer queries the Council services by the current property extent rather than downloading the entire regional service.
+- There is no active automatic schedule. Run the import manually after applying migrations and seeding properties:
+  ```bash
+  npm run db:sync-flood-data
+  ```
+- To opt into a yearly run later, uncomment and adapt a local crontab entry:
+  ```cron
+  # 0 3 1 1 * cd /path/to/ai-real-estate && npm run db:sync-flood-data >> /path/to/flood-sync.log 2>&1
+  ```
+- Council sources: [Flood Plains](https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Flood_Plains/FeatureServer/0), [Flood Prone Areas](https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Flood_Prone_Areas/FeatureServer/0), [Overland Flow Paths](https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Overland_Flow_Paths/FeatureServer/0), and [Coastal Inundation](https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Coastal_Inundation_100_yr_return/FeatureServer/0).
 
 ### 4. Side-by-Side Property Comparison
 - Select two or more properties to inspect specs side-by-side in parallel columns.
@@ -60,7 +75,7 @@ ai-real-estate/
 │   └── sprint-one-implementation-summary.md # Architectural summary, test coverage, and decisions
 ├── lib/
 │   ├── db/
-│   │   ├── index.ts            # MySQL connection pool and Drizzle client
+│   │   ├── index.ts            # PostgreSQL connection pool and Drizzle client
 │   │   ├── properties.ts       # Server-side property and comparable-sale queries
 │   │   └── schema.ts           # Drizzle schema for backend/schema.SQL
 │   ├── gemini-search.ts         # Gemini API client, response schema, console logging & fallback
@@ -105,17 +120,23 @@ ai-real-estate/
    npm install
    ```
 
-3. Start MySQL 8 (for a Homebrew installation, run `brew services start mysql@8.4`).
+3. Start PostgreSQL and create a local database, for example with `createdb real_estate`.
+   Install PostGIS for the PostgreSQL server used by this database.
 
-4. Create a local database and app user, apply migrations, and seed the demo records:
+4. Set `DATABASE_URL` in `.env.local` to your PostgreSQL connection string, for example:
+   ```dotenv
+   DATABASE_URL=postgresql://your-postgres-user@localhost:5432/real_estate
+   ```
+
+5. Apply migrations and seed the demo records:
    ```bash
    npm run db:setup-local
    ```
-   This generates a local-only password and writes `DATABASE_URL` to `.env.local` with owner-only permissions, runs the migrations, creates the coordinate triggers as the local MySQL administrator, then imports demo records. The seed command refuses to run if the `properties` table already contains records. Do not also run `backend/schema.SQL`; Drizzle migrations create the tables.
+   This runs the PostgreSQL migrations, then imports demo records. The seed command refuses to run if the `properties` table already contains records. Existing MySQL data is not migrated automatically.
 
-5. Optionally add `GEMINI_API_KEY=your_gemini_api_key_here` to `.env.local`. If no key is set, AI search uses the local parser.
+6. Optionally add `GEMINI_API_KEY=your_gemini_api_key_here` to `.env.local`. If no key is set, AI search uses the local parser.
 
-6. Run the development server:
+7. Run the development server:
    ```bash
    npm run dev
    ```
@@ -126,7 +147,7 @@ After changing `lib/db/schema.ts`, generate a migration with:
 npm run db:generate
 ```
 
-The SQL design is maintained in [`../backend/schema.SQL`](../backend/schema.SQL). `lib/db/schema.ts` is its Drizzle representation, including added metadata tables for fields used by the current demo UI.
+The PostgreSQL SQL reference is maintained in [`../backend/schema.SQL`](../backend/schema.SQL). `lib/db/schema.ts` is its Drizzle representation, including PostGIS-backed flood geometries and the property-to-hazard intersection table. Drizzle's PostgreSQL migrations are stored in `drizzle/postgres`; the original MySQL migration history in `drizzle/` is not applied.
 
 ---
 

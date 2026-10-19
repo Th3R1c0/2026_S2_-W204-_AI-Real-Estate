@@ -10,9 +10,14 @@ import {
   generateSampleNotifications,
   generateValuationHistory,
 } from "../../lib/property-engine";
+import {
+  describeFloodHazards,
+  floodHazardDisclaimer,
+  floodHazardOptions,
+} from "../../lib/flood-hazards";
 import type {
   ArchitecturalStyle,
-  FloodRisk,
+  FloodHazardType,
   Property,
   PropertyFilters,
   PropertyNotification,
@@ -34,7 +39,15 @@ type PropertyExplorerProps = {
   aiSearch?: (query: string) => Promise<AiSearchResult>;
 };
 
-type DetailTab = "overview" | "comps" | "sunlight" | "family" | "commute" | "mortgage" | "history";
+type DetailTab =
+  | "overview"
+  | "flood"
+  | "comps"
+  | "sunlight"
+  | "family"
+  | "commute"
+  | "mortgage"
+  | "history";
 type CommuteMode = "driving" | "transit" | "bicycling" | "walking";
 type CommuteDestination = { name: string; address: string };
 type SourceSelection = {
@@ -67,8 +80,6 @@ const architecturalStyles: ArchitecturalStyle[] = [
   "Craftsman",
   "Mid-Century",
 ];
-
-const floodRisks: FloodRisk[] = ["Low", "Moderate", "High"];
 
 const numberFormatter = new Intl.NumberFormat("en-NZ");
 const moneyFormatter = new Intl.NumberFormat("en-NZ", {
@@ -445,14 +456,9 @@ function PropertyCard({
               {property.suburb}, {property.city}
             </p>
           </div>
-          {property.floodRisk ? (
-            <span
-              className={`risk-dot risk-${property.floodRisk.toLowerCase()}`}
-              title={`${property.floodRisk} flood risk`}
-            />
-          ) : (
-            <span className="risk-dot" title="Flood risk not provided" />
-          )}
+          {property.floodHazards?.length ? (
+            <span className="flood-hazard-badge">Mapped flood hazard</span>
+          ) : null}
         </div>
         <div className="property-specs" aria-label="Property features">
           <span>
@@ -685,7 +691,16 @@ function ComparisonDialog({
     "Land area": properties.map(({ landArea }) => `${numberFormatter.format(landArea)} m²`),
     "Built in": properties.map(({ yearBuilt }) => yearBuilt ? String(yearBuilt) : "Unknown"),
     Style: properties.map(({ architecturalStyle }) => architecturalStyle ?? "N/A"),
-    "Flood risk": properties.map(({ floodRisk }) => floodRisk ?? "N/A"),
+    "Mapped flood hazards": properties.map(({ floodHazards }) =>
+      floodHazards === undefined
+        ? "Not synced"
+        : floodHazards.length
+          ? floodHazardOptions
+              .filter(({ type }) => floodHazards.some((hazard) => hazard.type === type))
+              .map(({ label }) => label)
+              .join(", ")
+          : "No mapped intersection",
+    ),
     Sunlight: properties.map(({ sunlightHours }) =>
       sunlightHours === undefined ? "N/A" : `${sunlightHours} hrs/day`
     ),
@@ -809,6 +824,7 @@ function DetailDialog({
       : Math.min(100, Math.round((property.sunlightHours / 9) * 100));
   const tabs: Array<{ id: DetailTab; label: string }> = [
     { id: "overview", label: "Overview" },
+    { id: "flood", label: "Flood risk" },
     { id: "comps", label: "Comparable sales" },
     { id: "sunlight", label: "Sunlight" },
     { id: "family", label: "Schools & Walkability" },
@@ -960,8 +976,13 @@ function DetailDialog({
                       property.architecturalStyle
                         ? `${property.architecturalStyle} design`
                         : undefined,
-                      property.floodRisk
-                        ? `${property.floodRisk.toLowerCase()} demo flood band`
+                      property.floodHazards?.length
+                        ? `mapped flood hazard: ${floodHazardOptions
+                            .filter(({ type }) =>
+                              property.floodHazards?.some((hazard) => hazard.type === type),
+                            )
+                            .map(({ label }) => label)
+                            .join(", ")}`
                         : undefined,
                       property.sunlightHours === undefined
                         ? undefined
@@ -972,6 +993,41 @@ function DetailDialog({
                   </p>
                 </div>
               </div>
+            </div>
+          )}
+
+          {tab === "flood" && (
+            <div className="flood-risk-panel">
+              <div className="tool-heading">
+                <div>
+                  <p className="eyebrow">Auckland Council mapped layers</p>
+                  <h3>Flood hazard information</h3>
+                </div>
+              </div>
+              {property.floodHazards === undefined ? (
+                <p>
+                  Auckland Council flood data has not been synced for this property yet.
+                </p>
+              ) : property.floodHazards.length === 0 ? (
+                <p>
+                  No imported Auckland Council flood-hazard layers intersect this property&apos;s
+                  mapped location.
+                </p>
+              ) : (
+                <>
+                  <ul className="flood-hazard-list">
+                    {floodHazardOptions
+                      .filter(({ type }) =>
+                        property.floodHazards?.some((hazard) => hazard.type === type),
+                      )
+                      .map(({ type, label }) => (
+                        <li key={type}>{label}</li>
+                      ))}
+                  </ul>
+                  <p>{describeFloodHazards(property.floodHazards)}</p>
+                  <p className="flood-data-disclaimer">{floodHazardDisclaimer}</p>
+                </>
+              )}
             </div>
           )}
 
@@ -1365,7 +1421,7 @@ export default function PropertyExplorer({
         yearBuilt: p.yearBuilt,
         propertyType: p.propertyType,
         architecturalStyle: p.architecturalStyle,
-        floodRisk: p.floodRisk,
+        floodHazards: p.floodHazards?.map(({ type }) => type),
         orientation: p.orientation,
         sunlightHours: p.sunlightHours,
       }));
@@ -1383,7 +1439,7 @@ export default function PropertyExplorer({
         yearBuilt: p.yearBuilt,
         propertyType: p.propertyType,
         architecturalStyle: p.architecturalStyle,
-        floodRisk: p.floodRisk,
+        floodHazards: p.floodHazards?.map(({ type }) => type),
         orientation: p.orientation,
         sunlightHours: p.sunlightHours,
       }));
@@ -1617,7 +1673,7 @@ export default function PropertyExplorer({
               <em>Find your fit.</em>
             </h1>
             <p>
-              Search homes the way you think—by architecture, sunlight, flood risk, building age and the details that actually matter.
+              Search homes the way you think—by architecture, sunlight, mapped flood hazards, building age and the details that actually matter.
             </p>
             <form className="ai-search" onSubmit={submitAiSearch}>
               <span className="ai-search-icon">
@@ -1655,7 +1711,7 @@ export default function PropertyExplorer({
               {[
                 "North-facing character villa",
                 "Modernist under $1.5m",
-                "Low flood risk with 3 beds",
+                "Homes in flood plains",
                 "High walkability near schools",
               ].map((prompt) => (
                 <button key={prompt} onClick={() => handlePromptClick(prompt)} type="button">
@@ -1878,23 +1934,41 @@ export default function PropertyExplorer({
             {/* Risk & Environment */}
             <details className="filter-details" open>
               <summary>Risk & environment</summary>
-              <label className="field-label" htmlFor="flood-risk">
-                Flood risk
+              <label className="field-label" htmlFor="flood-hazard">
+                Mapped flood hazard
               </label>
               <select
-                id="flood-risk"
-                onChange={(event) =>
-                  setFilters((current) => ({
-                    ...current,
-                    floodRisks: event.target.value ? [event.target.value as FloodRisk] : undefined,
-                  }))
+                id="flood-hazard"
+                onChange={(event) => {
+                  const value = event.target.value;
+                  setFilters((current) => {
+                    const next = { ...current };
+                    delete next.floodHazardTypes;
+                    delete next.noMappedFloodHazard;
+                    if (value === "any_mapped") {
+                      next.floodHazardTypes = floodHazardOptions.map(({ type }) => type);
+                    } else if (value === "none") {
+                      next.noMappedFloodHazard = true;
+                    } else if (value) {
+                      next.floodHazardTypes = [value as FloodHazardType];
+                    }
+                    return next;
+                  });
+                }}
+                value={
+                  filters.noMappedFloodHazard
+                    ? "none"
+                    : filters.floodHazardTypes?.length === floodHazardOptions.length
+                      ? "any_mapped"
+                      : filters.floodHazardTypes?.[0] ?? ""
                 }
-                value={filters.floodRisks?.[0] ?? ""}
               >
-                <option value="">Any flood band</option>
-                {floodRisks.map((risk) => (
-                  <option key={risk} value={risk}>
-                    {risk}
+                <option value="">Any flood hazard</option>
+                <option value="any_mapped">Any mapped flood hazard</option>
+                <option value="none">No mapped flood hazard</option>
+                {floodHazardOptions.map(({ type, label }) => (
+                  <option key={type} value={type}>
+                    {label}
                   </option>
                 ))}
               </select>
@@ -2038,7 +2112,7 @@ export default function PropertyExplorer({
               <Icon name="map" size={18} />
               <p>
                 <strong>Live Auckland Property Catalogue</strong>
-                <span>40 verified live listings with multi-source valuations (OneRoof, LINZ, Homes). Enriched with architectural styles, LINZ flood risk ratings, solar orientation, and walkability scores.</span>
+                <span>40 live listing snapshots with source references. Auckland Council flood layers appear when property locations have been matched to imported data.</span>
               </p>
             </div>
           </aside>
@@ -2092,19 +2166,36 @@ export default function PropertyExplorer({
                         </button>
                       </span>
                     ))}
-                    {filters.floodRisks?.map((r) => (
-                      <span className="filter-chip" key={r}>
-                        {r} flood risk
+                    {filters.floodHazardTypes?.length ? (
+                      <span className="filter-chip">
+                        {filters.floodHazardTypes.length === floodHazardOptions.length
+                          ? "Any mapped flood hazard"
+                          : floodHazardOptions.find(({ type }) => type === filters.floodHazardTypes?.[0])?.label}
                         <button
-                          aria-label={`Remove flood risk ${r}`}
+                          aria-label={`Remove flood hazard ${filters.floodHazardTypes.length === floodHazardOptions.length
+                            ? "Any mapped flood hazard"
+                            : floodHazardOptions.find(({ type }) => type === filters.floodHazardTypes?.[0])?.label}`}
                           className="filter-chip-remove"
-                          onClick={() => setFilters((curr) => ({ ...curr, floodRisks: undefined }))}
+                          onClick={() => setFilters((curr) => ({ ...curr, floodHazardTypes: undefined }))}
                           type="button"
                         >
                           ×
                         </button>
                       </span>
-                    ))}
+                    ) : null}
+                    {filters.noMappedFloodHazard && (
+                      <span className="filter-chip">
+                        No mapped flood hazard
+                        <button
+                          aria-label="Remove no mapped flood hazard filter"
+                          className="filter-chip-remove"
+                          onClick={() => setFilters((curr) => ({ ...curr, noMappedFloodHazard: undefined }))}
+                          type="button"
+                        >
+                          ×
+                        </button>
+                      </span>
+                    )}
                     {filters.maxPrice !== undefined && (
                       <span className="filter-chip">
                         ≤ ${filters.maxPrice >= 1_000_000 ? (filters.maxPrice / 1_000_000).toFixed(1) + "M" : (filters.maxPrice / 1_000).toFixed(0) + "k"}
@@ -2209,7 +2300,7 @@ export default function PropertyExplorer({
               </div>
               <div className="view-note">
                 <span className="live-dot" />
-                Real-time sync active
+                Filters update instantly
               </div>
             </div>
             {filteredProperties.length ? (
