@@ -1,4 +1,4 @@
-import { getCurrentUser, loginAccount, logoutAccount, registerAccount, setSessionCookie } from "../../../lib/account/server";
+import { deleteAccount, getCurrentUser, loginAccount, logoutAccount, registerAccount, setSessionCookie } from "../../../lib/account/server";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -36,9 +36,22 @@ export async function POST(request: Request) {
 export async function DELETE(request: Request) {
   if (!trustedOrigin(request)) return Response.json({ error: "Request origin is not allowed." }, { status: 403 });
   try {
+    const url = new URL(request.url);
+    if (url.searchParams.get("action") === "delete_account") {
+      let user = null;
+      try {
+        user = await getCurrentUser();
+      } catch {
+        user = null;
+      }
+      if (!user) return Response.json({ error: "Unauthorized." }, { status: 401 });
+      await deleteAccount(user.userId);
+      return Response.json({ ok: true, deleted: true });
+    }
     await logoutAccount();
     return Response.json({ ok: true });
   } catch {
     return Response.json({ error: "Account service unavailable." }, { status: 503 });
   }
 }
+
