@@ -1,6 +1,8 @@
-import { render, screen, within } from "@testing-library/react";
+import { act, render, screen, waitFor, within } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { afterEach, expect, it, vi } from "vitest";
 import PropertyExplorer from "../app/components/property-explorer";
+import MortgageCalculatorSheet from "../app/components/mortgage-calculator-sheet";
 import { properties } from "../lib/property-data";
 
 const route = vi.hoisted(() => ({ pathname: null as string | null }));
@@ -26,107 +28,86 @@ it("marks Discover as current on the homepage before pathname hydration", () => 
   );
 });
 
-it.each(["/", "/properties/example-home"])(
-  "activates Calculator while its section is visible on %s, then restores Discover",
-  async (path) => {
-    const { act } = await import("@testing-library/react");
-    const { default: SiteHeader } =
-      await import("../app/components/site-header");
-    let notify: IntersectionObserverCallback | undefined;
-    vi.stubGlobal(
-      "IntersectionObserver",
-      class {
-        constructor(private callback: IntersectionObserverCallback) {}
-        observe(target: Element) {
-          if (target.id === "calculator") notify = this.callback;
-        }
-        unobserve() {}
-        disconnect() {}
-        takeRecords() {
-          return [];
-        }
-      },
-    );
-    route.pathname = path;
-    window.history.replaceState(null, "", path);
-    render(
-      <>
-        <SiteHeader currentPage={path === "/" ? "discover" : undefined} />
-        <section id="calculator">Calculator content</section>
-      </>,
-    );
-    const nav = screen.getByRole("navigation", { name: "Main navigation" });
-    act(() =>
-      notify?.(
-        [
-          {
-            isIntersecting: true,
-            target: document.getElementById("calculator")!,
-            boundingClientRect: document
-              .getElementById("calculator")!
-              .getBoundingClientRect(),
-            intersectionRect: document
-              .getElementById("calculator")!
-              .getBoundingClientRect(),
-            rootBounds: null,
-            intersectionRatio: 1,
-            time: 0,
-          } as IntersectionObserverEntry,
-        ],
-        {} as IntersectionObserver,
-      ),
-    );
-    expect(
-      within(nav).getByRole("link", { name: "Mortgage calculator" }),
-    ).toHaveAttribute("aria-current", "location");
-    expect(
-      within(nav).getByRole("link", { name: "Discover" }),
-    ).not.toHaveAttribute("aria-current");
-    act(() =>
-      notify?.(
-        [
-          {
-            isIntersecting: false,
-            target: document.getElementById("calculator")!,
-            boundingClientRect: document
-              .getElementById("calculator")!
-              .getBoundingClientRect(),
-            intersectionRect: document
-              .getElementById("calculator")!
-              .getBoundingClientRect(),
-            rootBounds: null,
-            intersectionRatio: 1,
-            time: 0,
-          } as IntersectionObserverEntry,
-        ],
-        {} as IntersectionObserver,
-      ),
-    );
-    expect(within(nav).getByRole("link", { name: "Discover" })).toHaveAttribute(
-      "aria-current",
-      "page",
-    );
-    vi.unstubAllGlobals();
-    window.history.replaceState(null, "", "/");
-  },
-);
+it("keeps only the logo and sign in in the top bar, with navigation in a bottom bar", () => {
+  render(
+    <PropertyExplorer
+      properties={properties.slice(0, 1)}
+      comparableSales={[]}
+    />,
+  );
+  const header = screen.getByRole("banner");
+  const nav = within(header).getByRole("navigation", {
+    name: "Main navigation",
+  });
 
-it("jumps directly to the local calculator on mobile", async () => {
-  const user = (await import("@testing-library/user-event")).default.setup();
-  const { default: SiteHeader } = await import("../app/components/site-header");
-  vi.stubGlobal("matchMedia", () => ({ matches: true }));
+  // Navigation links live in the bottom nav, not in a desktop top row.
+  expect(within(nav).getByRole("link", { name: "Discover" })).toHaveClass(
+    "nav-item-discover",
+  );
+  expect(
+    within(nav).getByRole("link", { name: "Mortgage calculator" }),
+  ).toHaveAttribute("href", "#calculator");
+  expect(header).toHaveClass("site-header");
+  expect(within(header).getByRole("button", { name: "Sign in" })).toBeVisible();
+  expect(within(header).getByRole("link", { name: "Haven home" })).toBeVisible();
+});
+
+it("opens the mortgage calculator in a bottom sheet instead of a page section", async () => {
+  const user = userEvent.setup();
   render(
     <>
-      <SiteHeader currentPage="discover" />
-      <section id="calculator">Calculator content</section>
+      <PropertyExplorer
+        properties={properties.slice(0, 1)}
+        comparableSales={[]}
+      />
+      <MortgageCalculatorSheet />
     </>,
   );
-  const scroll = vi.fn();
-  document.getElementById("calculator")!.scrollIntoView = scroll;
-  await user.click(screen.getByRole("link", { name: "Mortgage calculator" }));
-  expect(scroll).toHaveBeenCalledWith({ behavior: "instant", block: "start" });
-  expect(
+
+  // There is no inline calculator section any more.
+  expect(document.getElementById("calculator")).toBeNull();
+
+  await user.click(
     screen.getByRole("link", { name: "Mortgage calculator" }),
-  ).toHaveAttribute("aria-current", "location");
-  vi.unstubAllGlobals();
+  );
+  await waitFor(() => {
+    expect(document.querySelector(".mortgage-sheet")).not.toBeNull();
+  });
+  expect(document.querySelector(".mortgage-sheet")).not.toBeNull();
+  // Dispatching the close event dismisses the sheet.
+  act(() => {
+    window.dispatchEvent(new Event("haven:close-mortgage-calculator"));
+  });
+  await waitFor(() =>
+    expect(
+      Array.from(document.querySelectorAll(".mortgage-sheet-overlay")).every(
+        (node) => node.getAttribute("data-state") !== "open",
+      ),
+    ).toBe(true),
+  );
+});
+
+it("opens the calculator dialog explicitly", async () => {
+  const user = userEvent.setup();
+  render(
+    <>
+      <PropertyExplorer
+        properties={properties.slice(0, 1)}
+        comparableSales={[]}
+      />
+      <MortgageCalculatorSheet />
+    </>,
+  );
+  window.dispatchEvent(new Event("haven:open-mortgage-calculator"));
+  expect(await screen.findByText("Mortgage calculator")).toBeInTheDocument();
+  expect(document.querySelector(".mortgage-sheet-overlay")).not.toBeNull();
+  window.dispatchEvent(new Event("haven:close-mortgage-calculator"));
+  await waitFor(() =>
+    expect(
+      Array.from(document.querySelectorAll(".mortgage-sheet-overlay")).every(
+        (node) => node.getAttribute("data-state") !== "open",
+      ),
+    ).toBe(true),
+  );
+  await user.keyboard("{Escape}");
 });

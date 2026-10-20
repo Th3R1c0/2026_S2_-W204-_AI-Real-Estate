@@ -221,12 +221,13 @@ describe("Notes and Profile Components", () => {
   });
 
   describe("ProfilePage", () => {
-    it("offers account registration and sign in instead of a demo identity", async () => {
+    it("offers account sign up and sign in instead of a demo identity", async () => {
       const user = userEvent.setup();
       render(<ProfilePage />);
       await user.click(await screen.findByRole("tab", { name: /^Account$/i }));
+      await user.click(screen.getByRole("tab", { name: /Sign up/i }));
       expect(
-        screen.getByRole("button", { name: /Create account/i }),
+        screen.getByRole("button", { name: /^Sign up$/i }),
       ).toBeInTheDocument();
       expect(screen.getByRole("tab", { name: /Sign in/i })).toBeInTheDocument();
       expect(screen.queryByText("demo_buyer")).not.toBeInTheDocument();
@@ -243,13 +244,14 @@ describe("Notes and Profile Components", () => {
       const user = userEvent.setup();
       render(<ProfilePage />);
       await user.click(await screen.findByRole("tab", { name: /^Account$/i }));
+      await user.click(screen.getByRole("tab", { name: /Sign up/i }));
       await user.type(screen.getByLabelText("Username"), "morgan");
       await user.type(screen.getByLabelText("Email"), "morgan@example.nz");
       await user.type(
         screen.getByLabelText("Password"),
         "long-secret-password",
       );
-      await user.click(screen.getByRole("button", { name: "Create account" }));
+      await user.click(screen.getByRole("button", { name: "Sign up" }));
       expect(
         await screen.findByText(/Signed in as morgan/i),
       ).toBeInTheDocument();

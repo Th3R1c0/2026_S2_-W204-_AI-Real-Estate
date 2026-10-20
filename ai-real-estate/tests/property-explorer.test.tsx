@@ -397,7 +397,7 @@ describe("PropertyExplorer", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("shows flood assessment mode and mortgage tools on the property page", async () => {
+  it("shows flood assessment mode on the property page", async () => {
     const user = userEvent.setup();
     render(
       <PropertyDetailPage
@@ -427,16 +427,28 @@ describe("PropertyExplorer", () => {
       within(details).queryByText(/comparable sales/i),
     ).not.toBeInTheDocument();
     expect(within(details).queryByText(/sunlight/i)).not.toBeInTheDocument();
+  });
 
-    const initialPayment =
-      within(details).getByTestId("monthly-repayment").textContent;
-    fireEvent.change(within(details).getByLabelText(/deposit percentage/i), {
-      target: { value: "30" },
+  it("opens the mortgage calculator from the bottom nav instead of an inline section", async () => {
+    const user = userEvent.setup();
+    render(
+      <PropertyDetailPage
+        property={properties[0]}
+        comparableSales={comparableSales}
+      />,
+    );
+
+    // No inline calculator block is rendered in the page body.
+    expect(document.getElementById("calculator")).toBeNull();
+    const nav = screen.getByRole("navigation", { name: "Main navigation" });
+    await user.click(
+      within(nav).getByRole("link", { name: "Mortgage calculator" }),
+    );
+    await waitFor(() => {
+      expect(document.querySelector(".mortgage-sheet")).not.toBeNull();
     });
-
-    expect(
-      within(details).getByTestId("monthly-repayment").textContent,
-    ).not.toBe(initialPayment);
+    const sheet = document.querySelector<HTMLElement>(".mortgage-sheet")!;
+    expect(within(sheet).getByTestId("monthly-repayment")).toBeInTheDocument();
   });
 
   it("shows the listing agent and source enquiry link in property details", async () => {

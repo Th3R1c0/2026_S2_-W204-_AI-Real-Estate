@@ -131,7 +131,7 @@ export default function AccountPanel({
       >
         <TabsList>
           <TabsTrigger value="login">Sign in</TabsTrigger>
-          <TabsTrigger value="register">Register</TabsTrigger>
+          <TabsTrigger value="register">Sign up</TabsTrigger>
         </TabsList>
       </Tabs>
       <form onSubmit={submit}>
@@ -176,7 +176,7 @@ export default function AccountPanel({
           {busy
             ? "Please wait…"
             : mode === "register"
-              ? "Create account"
+              ? "Sign up"
               : "Sign in"}
         </Button>
       </form>

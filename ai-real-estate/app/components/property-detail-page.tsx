@@ -40,7 +40,7 @@ import {
   SourceDetailsDialog,
   type SourceSelection,
 } from "./property-sources";
-import MortgageCalculator from "./mortgage-calculator";
+import MortgageCalculatorSheet from "./mortgage-calculator-sheet";
 import PropertyNotes from "./property-notes";
 import PropertyLocationMap from "./property-location-map";
 import { useAccountWorkspace } from "./account-workspace-provider";
@@ -759,17 +759,6 @@ export default function PropertyDetailPage({
                 </div>
               </section>
 
-              {/* Non-Collapsible Mortgage Calculator at the Bottom */}
-              <section
-                aria-labelledby="mortgage-calculator-heading"
-                className="property-section-block"
-                id="calculator"
-              >
-                <div className="mortgage-panel">
-                  <MortgageCalculator defaultPrice={property.price} />
-                </div>
-              </section>
-
               <div className="notes-panel" id="property-notes">
                 <PropertyNotes
                   propertyId={property.id}
@@ -891,6 +880,7 @@ export default function PropertyDetailPage({
           </aside>
         </div>
       </main>
+      <MortgageCalculatorSheet defaultPrice={property.price} />
 
       {source && (
         <SourceDetailsDialog

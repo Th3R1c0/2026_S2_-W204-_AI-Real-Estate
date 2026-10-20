@@ -506,7 +506,7 @@ export default function PropertyLocationMap({
         <APIProvider apiKey={apiKey}>
           <GoogleMap
             defaultCenter={{ lat: latitude, lng: longitude }}
-            defaultZoom={15}
+            defaultZoom={13}
             gestureHandling="greedy"
             internalUsageAttributionIds={["gmp_git_agentskills_v1"]}
             mapId="DEMO_MAP_ID"

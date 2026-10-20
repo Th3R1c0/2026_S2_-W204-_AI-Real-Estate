@@ -68,8 +68,8 @@ import {
   useRef,
   useState,
 } from "react";
-import MortgageCalculator from "./mortgage-calculator";
 import ComparisonMatrix from "./comparison-matrix";
+import MortgageCalculatorSheet from "./mortgage-calculator-sheet";
 import { useAccountWorkspace } from "./account-workspace-provider";
 
 import { filterProperties } from "../../lib/property-engine";
@@ -571,6 +571,33 @@ export default function PropertyExplorer({
     } catch {}
   }, [savedProperties, selectedProperties, accountStatus]);
 
+  // Show a compact search field in the top nav once the hero search scrolls away.
+  const heroSearchSentinelRef = useRef<HTMLDivElement>(null);
+  const heroSearchRef = useRef<HTMLFormElement>(null);
+  const heroRef = useRef<HTMLElement>(null);
+  const [searchDocked, setSearchDocked] = useState(false);
+
+  useEffect(() => {
+    const sentinel = heroSearchSentinelRef.current;
+    if (!sentinel || typeof IntersectionObserver === "undefined") return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setSearchDocked(!entry.isIntersecting),
+      { rootMargin: "-72px 0px 0px 0px" },
+    );
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, []);
+
+  /** Bring the hero search back into view and focus it. */
+  function focusHeroSearch() {
+    heroRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    window.requestAnimationFrame(() => {
+      heroSearchRef.current
+        ?.querySelector<HTMLInputElement>("input")
+        ?.focus({ preventScroll: true });
+    });
+  }
+
   // Real-time search sequence and debounce management
   const searchSeqRef = useRef(0);
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -727,7 +754,17 @@ export default function PropertyExplorer({
 
   return (
     <div className="site-shell">
-      <SiteHeader currentPage="discover">
+      <SiteHeader
+        currentPage="discover"
+        compactSearch={searchDocked ? {
+          value: query,
+          isSearching,
+          onChange: handleQueryChange,
+          onSubmit: submitAiSearch,
+          onClear: () => handleQueryChange(""),
+          onFocus: focusHeroSearch,
+        } : undefined}
+      >
         <Button variant="ghost" className="saved-homes-nav" asChild>
           <Link
             href="/profile#saved-homes"
@@ -740,12 +777,16 @@ export default function PropertyExplorer({
         </Button>
       </SiteHeader>
       <main id="top">
-        <section className="hero-section">
+        <section className="hero-section" ref={heroRef}>
           <div className="hero-copy">
             <h1>
               Find your kind of <em>home.</em>
             </h1>
-            <form className="ai-search" onSubmit={submitAiSearch}>
+            <form
+              className="ai-search"
+              onSubmit={submitAiSearch}
+              ref={heroSearchRef}
+            >
               <Field>
                 <FieldLabel className="sr-only" htmlFor="ai-property-search">
                   Describe your ideal property
@@ -819,6 +860,8 @@ export default function PropertyExplorer({
             )}
           </div>
         </section>
+
+        <div className="hero-search-sentinel" ref={heroSearchSentinelRef} aria-hidden="true" />
 
         <section className="discover-section" id="discover">
           <div className="filter-focus-region">
@@ -2027,14 +2070,9 @@ export default function PropertyExplorer({
             )}
           </div>
         </section>
-
-        {/* Standalone Mortgage Calculator Section on Home Screen */}
-        <section className="calculator-section" id="calculator">
-          <div className="calculator-container">
-            <MortgageCalculator defaultPrice={1250000} />
-          </div>
-        </section>
       </main>
+
+      <MortgageCalculatorSheet defaultPrice={1250000} />
 
       {/* Comparison Modal */}
       {comparisonOpen && (

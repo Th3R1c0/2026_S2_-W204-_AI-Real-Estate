@@ -1,4 +1,4 @@
-import { act, render, screen, within } from "@testing-library/react";
+import { act, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { expect, it } from "vitest";
 import PropertyExplorer from "../app/components/property-explorer";
@@ -307,7 +307,7 @@ it("highlights the largest numeric values in the matrix and keeps comparison rem
   ).not.toBeInTheDocument();
 });
 
-it("renders collapsible property description, unified 3-mode map, non-collapsible market history, and mortgage calculator without comparable sales or fake sunlight", async () => {
+it("renders collapsible property description, unified 2-mode map, and market history without comparable sales or fake sunlight", async () => {
   const user = userEvent.setup();
   render(<PropertyDetailPage property={home} />);
 
@@ -332,13 +332,14 @@ it("renders collapsible property description, unified 3-mode map, non-collapsibl
   );
   expect(screen.getAllByText("Garden School").length).toBeGreaterThanOrEqual(1);
 
-  // Market history & valuations and Mortgage calculator are visible directly without accordion clicks
+  // Market history & valuations is visible directly without accordion clicks;
+  // the calculator now lives in the bottom sheet instead of the page body.
   expect(
     screen.getByRole("heading", { name: /Market history & valuations/i }),
   ).toBeInTheDocument();
   expect(screen.getAllByText("$2,480,000").length).toBeGreaterThanOrEqual(1);
   expect(screen.getAllByText("$2,120,000").length).toBeGreaterThanOrEqual(1);
-  expect(screen.getByLabelText("Property price ($)")).toHaveValue(home.price);
+  expect(screen.queryByLabelText("Property price ($)")).toBeNull();
 });
 
 it("renders immediate static headings on loading screens and uses skeletons only for loading content", () => {
@@ -398,7 +399,7 @@ it("keeps property selection usable while the chat panel is open", async () => {
   ).toBeInTheDocument();
 });
 
-it("renders main navigation with icons and shortened mobile labels, scrolls to centered calculator without 'Make the numbers work' text, and uses icons for property card stats", async () => {
+it("renders navigation in the bottom bar with icons, opens the calculator sheet, and uses icons for property card stats", async () => {
   const user = userEvent.setup();
   render(<PropertyExplorer properties={[home]} comparableSales={[]} />);
 
@@ -408,7 +409,7 @@ it("renders main navigation with icons and shortened mobile labels, scrolls to c
     "/",
   );
   const calcLink = within(nav).getByRole("link", { name: /Calculator/i });
-  expect(calcLink).toHaveAttribute("href", "/#calculator");
+  expect(calcLink).toHaveAttribute("href", "#calculator");
   expect(within(nav).getByRole("link", { name: /Workspace/i })).toHaveAttribute(
     "href",
     "/profile",
@@ -428,14 +429,8 @@ it("renders main navigation with icons and shortened mobile labels, scrolls to c
     ),
   ).not.toBeInTheDocument();
 
-  const calcSection = document.getElementById("calculator");
-  expect(calcSection).not.toBeNull();
-  let scrolled = false;
-  calcSection!.scrollIntoView = () => {
-    scrolled = true;
-  };
-  await user.click(calcLink);
-  expect(scrolled).toBe(true);
+  // The calculator lives in a bottom sheet, not an inline section.
+  expect(document.getElementById("calculator")).toBeNull();
 
   const card = screen.getByRole("article");
   const specs = card.querySelector(".property-specs");
@@ -445,6 +440,12 @@ it("renders main navigation with icons and shortened mobile labels, scrolls to c
     specs?.querySelectorAll(".property-spec-item").length,
   ).toBeGreaterThanOrEqual(3);
   expect(specs?.querySelectorAll("svg").length).toBeGreaterThanOrEqual(3);
+
+  // Clicking the nav item opens the calculator sheet.
+  await user.click(calcLink);
+  await waitFor(() => {
+    expect(document.querySelector(".mortgage-sheet")).not.toBeNull();
+  });
 });
 
 it("does not auto-focus the AI chatbot text input when opened on mobile", async () => {
