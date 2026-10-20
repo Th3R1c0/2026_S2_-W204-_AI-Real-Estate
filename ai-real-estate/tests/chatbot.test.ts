@@ -104,7 +104,6 @@ describe("Chatbot service (TDD)", () => {
           bathrooms: 2,
           propertyType: "Townhouse",
           floodHazards: ["flood_plains" as const],
-          sunlightHours: 7.8,
         },
         {
           id: "comp-2",
@@ -116,7 +115,6 @@ describe("Chatbot service (TDD)", () => {
           bathrooms: 1,
           propertyType: "Villa",
           floodHazards: ["coastal_inundation" as const],
-          sunlightHours: 5.4,
         },
       ],
       savedProperties: [
@@ -162,7 +160,6 @@ describe("Chatbot service (TDD)", () => {
           bathrooms: 2,
           propertyType: "Townhouse",
           floodHazards: ["flood_plains" as const],
-          sunlightHours: 7.8,
         },
         {
           id: "comp-2",
@@ -174,7 +171,6 @@ describe("Chatbot service (TDD)", () => {
           bathrooms: 1,
           propertyType: "Villa",
           floodHazards: ["coastal_inundation" as const],
-          sunlightHours: 5.4,
         },
       ],
     };

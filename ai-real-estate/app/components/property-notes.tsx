@@ -5,7 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { NativeSelect } from "@/components/ui/native-select";
 import { Empty, EmptyHeader, EmptyTitle } from "@/components/ui/empty";
 
 import React, { useState, useEffect } from "react";
@@ -25,12 +25,12 @@ interface PropertyNotesProps {
 }
 
 const NOTE_TAGS = [
+  "General",
   "Inspection",
   "Auction / Offer",
   "Renovation",
   "LIM & Title",
   "Neighbourhood",
-  "General",
 ];
 
 export default function PropertyNotes({
@@ -134,6 +134,7 @@ export default function PropertyNotes({
 
     saveToStorage([newNote, ...notes]);
     setContent("");
+    setCategory("General");
   };
 
   const handleDelete = (id: string) => {
@@ -189,21 +190,21 @@ export default function PropertyNotes({
       <form className="note-form" onSubmit={handleAddNote}>
         <FieldGroup>
           <Field>
-            <FieldLabel className="sr-only">Category</FieldLabel>
-            <ToggleGroup
-              type="single"
-              className="note-categories"
+            <FieldLabel htmlFor={`note-type-${propertyId}`}>
+              Note type
+            </FieldLabel>
+            <NativeSelect
+              id={`note-type-${propertyId}`}
+              className="note-type-select"
               value={category}
-              onValueChange={(value) => {
-                if (value) setCategory(value);
-              }}
+              onChange={(event) => setCategory(event.target.value)}
             >
               {NOTE_TAGS.map((tag) => (
-                <ToggleGroupItem value={tag} key={tag}>
+                <option value={tag} key={tag}>
                   {tag}
-                </ToggleGroupItem>
+                </option>
               ))}
-            </ToggleGroup>
+            </NativeSelect>
           </Field>
           <Field>
             <FieldLabel className="sr-only" htmlFor={`note-${propertyId}`}>
@@ -237,20 +238,18 @@ export default function PropertyNotes({
             <article key={note.id} className="note-row">
               {editingId === note.id ? (
                 <div className="notes-edit">
-                  <ToggleGroup
-                    type="single"
-                    className="note-categories"
+                  <NativeSelect
+                    aria-label="Edit note type"
+                    className="note-type-select"
                     value={editCategory}
-                    onValueChange={(value) => {
-                      if (value) setEditCategory(value);
-                    }}
+                    onChange={(event) => setEditCategory(event.target.value)}
                   >
                     {NOTE_TAGS.map((tag) => (
-                      <ToggleGroupItem value={tag} key={tag}>
+                      <option value={tag} key={tag}>
                         {tag}
-                      </ToggleGroupItem>
+                      </option>
                     ))}
-                  </ToggleGroup>
+                  </NativeSelect>
                   <Textarea
                     aria-label="Edit note content"
                     value={editContent}

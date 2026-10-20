@@ -151,10 +151,9 @@ describe("Notes and Profile Components", () => {
         />,
       );
 
-      const inspectionTag = await screen.findByRole("radio", {
-        name: "Inspection",
-      });
-      await user.click(inspectionTag);
+      const noteType = await screen.findByRole("combobox", { name: "Note type" });
+      expect(noteType).toHaveValue("General");
+      await user.selectOptions(noteType, "Inspection");
 
       const textarea = screen.getByLabelText("Add note content");
       const submitBtn = screen.getByRole("button", {
@@ -182,6 +181,7 @@ describe("Notes and Profile Components", () => {
       expect(stored).toHaveLength(1);
       expect(stored[0].category).toBe("Inspection");
       expect(stored[0].content).toContain("code compliance");
+      expect(noteType).toHaveValue("General");
     });
 
     it("deletes a property note", async () => {

@@ -547,6 +547,7 @@ export default function AIChatbot({
           : accountStatus === "guest" || !account
             ? savedProperties
             : [];
+      const propertyRoute = /^\/properties\/([^/]+)\/?$/.exec(window.location.pathname);
 
       const res = await fetch("/api/chatbot", {
         method: "POST",
@@ -554,6 +555,7 @@ export default function AIChatbot({
         body: JSON.stringify({
           message: text,
           history,
+          currentPropertyId: propertyRoute ? decodeURIComponent(propertyRoute[1]) : undefined,
           context: {
             savedProperties: effectiveSavedProperties,
             comparedProperties,

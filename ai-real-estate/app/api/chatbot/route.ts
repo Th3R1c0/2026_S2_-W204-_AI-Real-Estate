@@ -3,15 +3,17 @@ import {
   type ChatMessage,
 } from "../../../lib/chatbot-service";
 import type { PropertyChatContext } from "../../../lib/chatbot-knowledge";
+import { loadPropertyCatalog } from "../../../lib/property-catalog";
 
 export async function POST(request: Request) {
-  let body: { message?: unknown; history?: unknown; context?: unknown };
+  let body: { message?: unknown; history?: unknown; context?: unknown; currentPropertyId?: unknown };
 
   try {
     body = (await request.json()) as {
       message?: unknown;
       history?: unknown;
       context?: unknown;
+      currentPropertyId?: unknown;
     };
   } catch {
     return Response.json({ error: "Please provide a valid question." }, { status: 400 });
@@ -61,6 +63,20 @@ export async function POST(request: Request) {
             }
           : undefined,
     };
+  }
+
+  if (typeof body.currentPropertyId === "string" && body.currentPropertyId.length <= 300) {
+    const { properties } = await loadPropertyCatalog(false);
+    const property = properties.find(({ id }) => id === body.currentPropertyId);
+    if (property) {
+      context = {
+        ...context,
+        currentProperty: {
+          ...property,
+          floodHazards: property.floodHazards?.map(({ type }) => type),
+        },
+      };
+    }
   }
 
   const result = await generateChatbotResponse(message, history, {

@@ -269,8 +269,6 @@ export async function getPropertiesByStatus(status: PropertyStatus): Promise<Pro
       storedPropertyType: propertyDetails.propertyType,
       displayPropertyType: propertyDetails.displayPropertyType,
       architecturalStyle: propertyDetails.architecturalStyle,
-      orientation: propertyDetails.orientation,
-      sunlightHours: propertyDetails.sunlightHours,
       capitalValue: propertyDetails.capitalValue,
       estimatedWeeklyRent: propertyDetails.estimatedWeeklyRent,
       ownershipType: propertyDetails.ownershipType,
@@ -477,10 +475,6 @@ export async function getPropertiesByStatus(status: PropertyStatus): Promise<Pro
       yearBuilt: row.yearBuilt ?? 0,
       propertyType: asPropertyType(row.displayPropertyType, row.storedPropertyType),
       architecturalStyle: asArchitecturalStyle(row.architecturalStyle),
-      ...(row.orientation ? { orientation: row.orientation } : {}),
-      ...(row.sunlightHours !== null
-        ? { sunlightHours: decimalNumber(row.sunlightHours, "sunlight hours") }
-        : {}),
       ...(row.capitalValue !== null
         ? { capitalValue: decimalNumber(row.capitalValue, "capital value") }
         : {}),

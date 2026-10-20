@@ -53,7 +53,7 @@ it("loads saved homes and locations from the signed-in buyer's workspace", async
     await screen.findByRole("option", { name: "Sam's work" }),
   ).toBeInTheDocument();
   expect(
-    screen.getByRole("button", { name: /Saved Homes 1/i }),
+    screen.getByRole("link", { name: /Saved Homes 1/i }),
   ).toBeInTheDocument();
   expect(
     screen.queryByRole("option", { name: "Other person's work" }),

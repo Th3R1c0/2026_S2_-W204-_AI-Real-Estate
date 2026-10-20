@@ -1,17 +1,8 @@
 export type PropertyType =
-  | "Villa"
-  | "Townhouse"
-  | "Apartment"
-  | "House"
-  | "Lifestyle block"
-  | "Section";
+  "Villa" | "Townhouse" | "Apartment" | "House" | "Lifestyle block" | "Section";
 
 export type ArchitecturalStyle =
-  | "Character"
-  | "Modernist"
-  | "Contemporary"
-  | "Craftsman"
-  | "Mid-Century";
+  "Character" | "Modernist" | "Contemporary" | "Craftsman" | "Mid-Century";
 
 export type FloodRisk = "Low" | "Moderate" | "High";
 export type FloodHazardType =
@@ -27,11 +18,7 @@ export type PropertyFloodHazard = {
 };
 
 export type PropertySourceField =
-  | "address"
-  | "price"
-  | "bedrooms"
-  | "bathrooms"
-  | "landArea";
+  "address" | "price" | "bedrooms" | "bathrooms" | "landArea";
 
 export type PropertySource = {
   id: string;
@@ -57,7 +44,6 @@ export type OpenHome = {
   endTime: string;
   label: string;
 };
-
 
 export type SchoolZone = {
   schoolId?: number;
@@ -89,14 +75,6 @@ export type SchoolOption = {
   hasEnrolmentZone: boolean;
   hasZoneGeometry?: boolean;
   hasCoordinates?: boolean;
-};
-
-export type WalkabilityProfile = {
-  score?: number;
-  label?: string;
-  parksNearby?: number;
-  cafesNearby?: number;
-  supermarketsNearby?: number;
 };
 
 export type CommuteOption = {
@@ -170,8 +148,6 @@ export type Property = {
   floodRisk?: FloodRisk;
   floodHazards?: PropertyFloodHazard[];
   openHomes?: OpenHome[];
-  orientation?: "North" | "South" | "East" | "West";
-  sunlightHours?: number;
   latitude: number;
   longitude: number;
   image: string;
@@ -206,7 +182,6 @@ export type Property = {
   schoolZones?: SchoolZone[];
   nearbySchools?: NearbySchool[];
   schoolDataSynced?: boolean;
-  walkability?: WalkabilityProfile;
   commuteOptions?: CommuteOption[];
   pastSales?: PastSale[];
   valuationHistory?: ValuationRecord[];
@@ -234,12 +209,10 @@ export type PropertyFilters = {
   floodHazardTypes?: FloodHazardType[];
   noMappedFloodHazard?: boolean;
   hasOpenHome?: boolean;
-  northFacingOnly?: boolean;
   yearBuiltFrom?: number;
   yearBuiltTo?: number;
-  minWalkScore?: number;
-  maxWalkScore?: number;
   inZoneOnly?: boolean;
+  hasNearbySchool?: boolean;
   nearbySchoolType?: string;
   schoolId?: number;
   schoolSearchMode?: "zone" | "nearby";
@@ -250,7 +223,6 @@ export type PropertyFilters = {
   minPrice?: number;
   bedrooms?: number;
   numericCriteria?: Partial<Record<NumericSearchField, NumericCriterion>>;
-  orientations?: Array<NonNullable<Property["orientation"]>>;
   ownershipTypes?: string[];
   schoolZoneName?: string;
   commuteDestination?: string;
@@ -268,8 +240,12 @@ export type NumericSearchField =
   | "parkingSpaces"
   | "landArea"
   | "floorArea"
-  | "sunlightHours"
   | "estimatedWeeklyRent"
   | "capitalValue";
 
-export type NumericCriterion = { min?: number; max?: number };
+export type NumericCriterion = {
+  min?: number;
+  max?: number;
+  minExclusive?: boolean;
+  maxExclusive?: boolean;
+};

@@ -7,8 +7,19 @@ import type {
   PropertyType,
 } from "./property-types";
 import { parseNaturalLanguageSearch } from "./property-engine";
-import { matchCatalogDetails, parseExplicitPropertyFilters, parsePriceFilters } from "./property-query";
+import {
+  matchCatalogDetails,
+  parseExplicitPropertyFilters,
+  parsePriceFilters,
+} from "./property-query";
 import { interpretPropertyQuery as interpretWithGemini } from "./gemini-search";
+import {
+  applyFilterPlan,
+  buildFilterPlanQuestions,
+  describeFilters,
+  numericCandidates,
+  type JevAnswer,
+} from "./jev-filter-plan";
 
 export type InterpretedSearch = {
   status: "ready" | "needs-clarification";
@@ -35,8 +46,10 @@ export function parsePriceFromQuery(
   query: string,
 ): { amount: number; isMax: boolean; isMin: boolean } | null {
   const { minPrice, maxPrice } = parsePriceFilters(query);
-  if (maxPrice !== undefined) return { amount: maxPrice, isMax: true, isMin: false };
-  if (minPrice !== undefined) return { amount: minPrice, isMax: false, isMin: true };
+  if (maxPrice !== undefined)
+    return { amount: maxPrice, isMax: true, isMin: false };
+  if (minPrice !== undefined)
+    return { amount: minPrice, isMax: false, isMin: true };
   return null;
 }
 
@@ -71,25 +84,68 @@ export function buildCatalogState(properties: Property[]) {
         total_properties: properties.length,
         price_range: { min_price: minPrice, max_price: maxPrice },
         available_property_types: [
-          { type: "Villa", description: "Historic or character villa with high ceilings and heritage details" },
-          { type: "Townhouse", description: "Modern multi-level attached home" },
-          { type: "Apartment", description: "Single-level unit or apartment in a complex" },
+          {
+            type: "Villa",
+            description:
+              "Historic or character villa with high ceilings and heritage details",
+          },
+          {
+            type: "Townhouse",
+            description: "Modern multi-level attached home",
+          },
+          {
+            type: "Apartment",
+            description: "Single-level unit or apartment in a complex",
+          },
           { type: "House", description: "Standalone residential home" },
-          { type: "Lifestyle block", description: "Rural acreage or lifestyle property" },
-          { type: "Section", description: "Vacant land parcel or building site" },
+          {
+            type: "Lifestyle block",
+            description: "Rural acreage or lifestyle property",
+          },
+          {
+            type: "Section",
+            description: "Vacant land parcel or building site",
+          },
         ],
         available_architectural_styles: [
-          { style: "Character", description: "Colonial, period, or heritage character architecture" },
-          { style: "Modernist", description: "Mid-to-late 20th century modernist design" },
-          { style: "Contemporary", description: "Contemporary, brand-new, or modern build" },
-          { style: "Craftsman", description: "Craftsman, bungalow, or artisan carpentry" },
-          { style: "Mid-Century", description: "1940s to 1960s classic retro mid-century" },
+          {
+            style: "Character",
+            description: "Colonial, period, or heritage character architecture",
+          },
+          {
+            style: "Modernist",
+            description: "Mid-to-late 20th century modernist design",
+          },
+          {
+            style: "Contemporary",
+            description: "Contemporary, brand-new, or modern build",
+          },
+          {
+            style: "Craftsman",
+            description: "Craftsman, bungalow, or artisan carpentry",
+          },
+          {
+            style: "Mid-Century",
+            description: "1940s to 1960s classic retro mid-century",
+          },
         ],
         available_flood_hazards: [
-          { type: "flood_plains", description: "Auckland Council mapped flood plains" },
-          { type: "flood_prone_areas", description: "Auckland Council mapped flood-prone areas" },
-          { type: "overland_flow_paths", description: "Auckland Council mapped overland flow paths" },
-          { type: "coastal_inundation", description: "Auckland Council mapped coastal inundation" },
+          {
+            type: "flood_plains",
+            description: "Auckland Council mapped flood plains",
+          },
+          {
+            type: "flood_prone_areas",
+            description: "Auckland Council mapped flood-prone areas",
+          },
+          {
+            type: "overland_flow_paths",
+            description: "Auckland Council mapped overland flow paths",
+          },
+          {
+            type: "coastal_inundation",
+            description: "Auckland Council mapped coastal inundation",
+          },
         ],
         known_locations: locations,
         property_fields: {
@@ -104,20 +160,24 @@ export function buildCatalogState(properties: Property[]) {
           landArea: "Land size in square meters",
           floorArea: "Internal floor size in square meters",
           yearBuilt: "Year or decade of construction",
-          orientation: "Orientation (North for optimal all-day sun in NZ)",
-          sunlightHours: "Daily sunlight exposure",
-          walkability: "Walk score out of 100 with nearby cafes, parks, supermarkets",
           schoolZones: "School catchments with in-zone enrolment entitlements",
-          floodHazards: "Auckland Council mapped hazard intersections, if data has been synced",
+          floodHazards:
+            "Auckland Council mapped hazard intersections, if data has been synced",
         },
       },
     },
   };
 }
 
-export function buildJevQuestions(locations: string[]) {
+export function buildJevQuestions(
+  locations: string[],
+  query = "",
+  properties: Property[] = [],
+): ReturnType<typeof buildFilterPlanQuestions> {
   const locationCriteria: Record<string, string> = {
     none: "No specific location mentioned in query, or any location is acceptable",
+    unknown:
+      "The buyer requests a property location that is not in the available locations",
   };
   for (const loc of locations) {
     locationCriteria[loc] = `Property location in ${loc}, New Zealand`;
@@ -126,7 +186,8 @@ export function buildJevQuestions(locations: string[]) {
   return {
     property_type: {
       type: "choice" as const,
-      instructions: "What property type is the buyer requesting in `user_query`?",
+      instructions:
+        "What property type is the buyer requesting in `user_query`?",
       criteria: {
         Villa: "Villa or character villa",
         Townhouse: "Townhouse or terraced home",
@@ -151,35 +212,36 @@ export function buildJevQuestions(locations: string[]) {
     },
     flood_hazard: {
       type: "choice" as const,
-      instructions: "Which mapped Auckland Council flood hazard does `user_query` request? Do not infer a low, moderate or high risk rating from mapped layers.",
+      instructions:
+        "Which mapped Auckland Council flood hazard does `user_query` request? Do not infer a low, moderate or high risk rating from mapped layers.",
       criteria: {
         flood_plains: "Homes intersecting mapped flood plains",
         flood_prone_areas: "Homes intersecting mapped flood-prone areas",
         overland_flow_paths: "Homes intersecting mapped overland flow paths",
         coastal_inundation: "Homes intersecting mapped coastal inundation",
         any_mapped: "Homes with any mapped flood hazard intersection",
-        no_mapped: "Homes with no mapped flood hazard intersection; do not treat this as flood-free or safe",
+        no_mapped:
+          "Homes with no mapped flood hazard intersection; do not treat this as flood-free or safe",
         none: "No specific mapped hazard requirement, or only an unsupported risk rating",
       },
     },
     location: {
       type: "choice" as const,
-      instructions: "Which known location from `catalog.known_locations` is requested in `user_query`?",
+      instructions:
+        "Which known location from `catalog.known_locations` does `user_query` require the PROPERTY to be in? Select none if a place name appears only within a school name or commute destination; a commute TO Auckland CBD does not restrict the property's location to Auckland.",
       criteria: locationCriteria,
-    },
-    is_walkable_requested: {
-      type: "noul" as const,
-      instructions: "Does `user_query` request high walkability, walking to shops, cafes, or public transit?",
     },
     is_school_zone_requested: {
       type: "noul" as const,
-      instructions: "Does `user_query` request properties in a good school zone or grammar zone?",
+      instructions:
+        "Does `user_query` request properties in a good school zone or grammar zone?",
     },
     price_intent: {
       type: "choice" as const,
       instructions: "How is price or budget mentioned in `user_query`?",
       criteria: {
-        max_budget: "Upper limit, budget, under, below, max, up to, or cheaper than",
+        max_budget:
+          "Upper limit, budget, under, below, max, up to, or cheaper than",
         min_budget: "Lower limit, over, above, at least, minimum",
         exact: "Specific target price",
         none: "No price or budget mentioned",
@@ -187,9 +249,11 @@ export function buildJevQuestions(locations: string[]) {
     },
     era_intent: {
       type: "choice" as const,
-      instructions: "Does `user_query` specify a construction era or property age?",
+      instructions:
+        "Does `user_query` explicitly specify a construction era or property age? Select none for architectural style alone: a contemporary-style house does not specify its construction date. Explicit numeric construction years are handled separately.",
       criteria: {
-        character_heritage: "Pre-1940s, historic, character, colonial, or villa era",
+        character_heritage:
+          "Pre-1940s, historic, character, colonial, or villa era",
         mid_century: "1940s to 1960s mid-century era",
         modernist: "1960s to 1990s modernist era",
         contemporary: "2000s onwards new build or modern era",
@@ -198,30 +262,34 @@ export function buildJevQuestions(locations: string[]) {
     },
     needs_clarification: {
       type: "noul" as const,
-      instructions: "Is `user_query` completely vague, meaningless, or devoid of any property search intent?",
+      instructions:
+        "Is `user_query` completely vague, meaningless, or devoid of any property search intent?",
     },
+    ...buildFilterPlanQuestions(query, properties),
   };
 }
 
 export function cleanJevFilters(
   query: string,
-  answers: Record<string, { choice?: string; noul?: number; confidence?: number }>,
-): { filters: PropertyFilters; appliedDescriptions: string[] } {
+  answers: Record<string, JevAnswer>,
+  properties: Property[] = [],
+): {
+  filters: PropertyFilters;
+  appliedDescriptions: string[];
+  issues: string[];
+} {
   const filters: PropertyFilters = parseExplicitPropertyFilters(query);
-  const applied: string[] = [];
 
   // Property type
   const pType = answers.property_type?.choice;
   if (pType && pType !== "none") {
     filters.propertyTypes = [pType as PropertyType];
-    applied.push(pType.toLowerCase());
   }
 
   // Architectural style
   const style = answers.architectural_style?.choice;
   if (style && style !== "none") {
     filters.architecturalStyles = [style as ArchitecturalStyle];
-    applied.push(`${style.toLowerCase()} style`);
   }
 
   // Mapped flood hazards
@@ -234,13 +302,10 @@ export function cleanJevFilters(
   ];
   if (flood === "no_mapped") {
     filters.noMappedFloodHazard = true;
-    applied.push("no mapped flood hazard intersection");
   } else if (flood === "any_mapped") {
     filters.floodHazardTypes = hazardTypes;
-    applied.push("a mapped flood hazard intersection");
   } else if (hazardTypes.includes(flood as FloodHazardType)) {
     filters.floodHazardTypes = [flood as FloodHazardType];
-    applied.push(`mapped ${flood!.replaceAll("_", " ")}`);
   }
 
   // Location
@@ -250,92 +315,59 @@ export function cleanJevFilters(
     const locLower = loc.toLowerCase();
     if (
       qLower.includes(locLower) ||
-      locLower.split(/\s+/).some((part) => part.length >= 4 && qLower.includes(part))
+      locLower
+        .split(/\s+/)
+        .some((part) => part.length >= 4 && qLower.includes(part))
     ) {
       filters.location = loc;
-      applied.push(`in ${loc}`);
     }
-  }
-
-  // Walkability
-  const walkProb = answers.is_walkable_requested?.noul ?? 0;
-  const mentionsWalk = /\b(walkable|walkability|walk to|close to cafes|near shops)\b/i.test(query);
-  if ((walkProb >= 0.55 || mentionsWalk) && filters.maxWalkScore === undefined && filters.minWalkScore === undefined) {
-    filters.minWalkScore = 70;
-    applied.push("high walkability");
   }
 
   // School zone
   const schoolProb = answers.is_school_zone_requested?.noul ?? 0;
-  const mentionsSchool = /\b(school\s*zone|grammar\s*zone|in\s*zone|schools?)\b/i.test(query);
+  const mentionsSchool =
+    /\b(school\s*zone|grammar\s*zone|in\s*zone|schools?)\b/i.test(query);
   if (schoolProb >= 0.55 || mentionsSchool) {
     filters.inZoneOnly = true;
-    applied.push("in school zone");
   }
 
   // Commute
   const commuteMatch = query.match(
     /(?:within|under|less than|up to|max)?\s*(\d+)\s*(?:mins?|minutes?)\s*(?:to|from|commute)?/i,
   );
-  const mentionsCbd = /\b(cbd|city|britomart|downtown|centre|center|work)\b/i.test(query);
+  const mentionsCbd =
+    /\b(cbd|city|britomart|downtown|centre|center|work)\b/i.test(query);
   const mentionsCommute = /\b(commute|drive|transit|travel)\b/i.test(query);
   if (commuteMatch && (mentionsCbd || mentionsCommute)) {
     const mins = Number(commuteMatch[1]);
     filters.maxCommuteTimeMinutes = mins;
-    applied.push(`under ${mins} mins commute`);
   }
-
-  // Price
-  const parsedPrice = parsePriceFilters(query);
-  if (parsedPrice.minPrice !== undefined) applied.push(`over $${parsedPrice.minPrice.toLocaleString("en-NZ")}`);
-  if (parsedPrice.maxPrice !== undefined) applied.push(`under $${parsedPrice.maxPrice.toLocaleString("en-NZ")}`);
 
   // Bedrooms
   const beds = parseBedroomsFromQuery(query);
   if (beds !== null && !filters.numericCriteria?.bedrooms) {
     filters.bedrooms = beds;
-    applied.push(`${beds}-bedroom`);
   }
-
-  const numericLabels: Record<string, string> = {
-    bedrooms: "bedrooms", bathrooms: "bathroom", parkingSpaces: "parking spaces",
-    landArea: "m² land", floorArea: "m² floor area", sunlightHours: "hours sunlight",
-    estimatedWeeklyRent: "weekly rent", capitalValue: "capital value",
-  };
-  for (const [field, range] of Object.entries(filters.numericCriteria ?? {})) {
-    const label = numericLabels[field] ?? field;
-    if (range.min !== undefined && range.min === range.max) {
-      applied.push(`${range.min} ${label}`);
-    } else if (range.min !== undefined && range.max !== undefined) {
-      applied.push(`${range.min}–${range.max} ${label}`);
-    } else if (range.min !== undefined) {
-      applied.push(`${range.min}+ ${label}`);
-    } else if (range.max !== undefined) {
-      applied.push(`up to ${range.max} ${label}`);
-    }
-  }
-  if (filters.orientations?.length) applied.push(`${filters.orientations.join(" or ").toLowerCase()}-facing`);
-  if (filters.ownershipTypes?.length) applied.push(filters.ownershipTypes.join(" or ").toLowerCase());
 
   // Era / Year Built
-  const era = answers.era_intent?.choice;
+  const era =
+    filters.yearBuiltFrom === undefined && filters.yearBuiltTo === undefined
+      ? answers.era_intent?.choice
+      : undefined;
   if (era === "character_heritage") {
     filters.yearBuiltTo = 1940;
-    applied.push("built pre-1940");
   } else if (era === "mid_century") {
     filters.yearBuiltFrom = 1940;
     filters.yearBuiltTo = 1965;
-    applied.push("built 1940–1965");
   } else if (era === "modernist") {
     filters.yearBuiltFrom = 1965;
     filters.yearBuiltTo = 1999;
-    applied.push("built 1965–1999");
   } else if (era === "contemporary") {
     filters.yearBuiltFrom = 2000;
-    applied.push("built 2000+");
   }
 
-  return { filters, appliedDescriptions: applied };
+  const issues = applyFilterPlan(query, filters, answers, properties);
+  return { filters, appliedDescriptions: describeFilters(filters), issues };
 }
 
 function formatSearchMessage(applied: string[]): string {
@@ -360,22 +392,23 @@ export async function interpretPropertyQueryWithJev(
   } = {},
 ): Promise<InterpretedSearch> {
   const apiKey =
-    options.apiKey ||
-    process.env.JEV_API_KEY ||
-    process.env.TYPESAFE_API_KEY;
+    options.apiKey || process.env.JEV_API_KEY || process.env.TYPESAFE_API_KEY;
 
   if (!apiKey) {
-    console.log("[AI Search] No JEV_API_KEY provided; falling back to local interpreter.");
+    console.log(
+      "[AI Search] No JEV_API_KEY provided; falling back to local interpreter.",
+    );
     return localResult(query, properties);
   }
 
   const { locations, state: catalogState } = buildCatalogState(properties);
-  const questions = buildJevQuestions(locations);
+  const questions = buildJevQuestions(locations, query, properties);
 
   const requestPayload = {
     model: options.model || JEV_DEFAULT_MODEL,
     state: {
       user_query: query,
+      numeric_candidates: numericCandidates(query),
       ...catalogState,
     },
     questions,
@@ -385,7 +418,7 @@ export async function interpretPropertyQueryWithJev(
     console.log(`[AI Search] Calling TypeSafe Jev for query: "${query}"`);
 
     let responseData: {
-      answers: Record<string, { choice?: string; noul?: number; confidence?: number }>;
+      answers: Record<string, JevAnswer>;
     };
 
     if (options.fetchImpl) {
@@ -406,26 +439,26 @@ export async function interpretPropertyQueryWithJev(
     } else {
       // Use TypeSafeClient from @typesafe-ai/sdk
       const client = new TypeSafeClient({ apiKey });
-      const systemOneResult = await client.systemOne(
-        requestPayload as unknown as Parameters<TypeSafeClient["systemOne"]>[0],
-      );
-      responseData = systemOneResult as unknown as typeof responseData;
+      responseData = await client.systemOne(requestPayload);
     }
 
-    const { filters, appliedDescriptions } = cleanJevFilters(
+    const { filters, issues } = cleanJevFilters(
       query,
       responseData.answers,
+      properties,
     );
     Object.assign(filters, matchCatalogDetails(query, properties));
     const hasFilters = Object.keys(filters).length > 0;
     const isVague = !hasFilters;
 
     return {
-      status: isVague ? "needs-clarification" : "ready",
+      status: isVague || issues.length ? "needs-clarification" : "ready",
       filters,
-      message: isVague
-        ? "Try adding a location, property type, architectural style, bedroom count or budget."
-        : formatSearchMessage(appliedDescriptions),
+      message: issues.length
+        ? issues.join(" ")
+        : isVague
+          ? "Try adding a location, property type, architectural style, bedroom count or budget."
+          : formatSearchMessage(describeFilters(filters)),
       source: "jev",
     };
   } catch (error) {

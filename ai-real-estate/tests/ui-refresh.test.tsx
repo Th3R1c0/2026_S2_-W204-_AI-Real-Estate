@@ -1,4 +1,4 @@
-import { render, screen, within } from "@testing-library/react";
+import { act, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { expect, it } from "vitest";
 import PropertyExplorer from "../app/components/property-explorer";
@@ -100,6 +100,113 @@ const other: Property = {
   price: home.price + 100_000,
 };
 
+it("mounts the comparison overlay outside the transformed page wrapper", async () => {
+  const user = userEvent.setup();
+  render(
+    <div className="page-transition-wrapper">
+      <PropertyExplorer properties={[home]} comparableSales={[]} />
+    </div>,
+  );
+  await user.click(
+    screen.getByRole("checkbox", { name: "Compare 12 Garden Street" }),
+  );
+  expect(
+    screen.getByRole("region", { name: "Your comparison" }).parentElement,
+  ).toBe(document.body);
+});
+
+it("offers bathrooms in the basic filters and keeps architecture and schools expanded", async () => {
+  const user = userEvent.setup();
+  render(
+    <PropertyExplorer
+      properties={[
+        { ...home, bathrooms: 2 },
+        { ...other, bathrooms: 1 },
+      ]}
+      comparableSales={[]}
+    />,
+  );
+  await user.click(screen.getByRole("radio", { name: "2 baths" }));
+  expect(
+    screen.getByRole("link", { name: /12 Garden Street/ }),
+  ).toBeInTheDocument();
+  expect(
+    screen.queryByRole("link", { name: /14 Garden Street/ }),
+  ).not.toBeInTheDocument();
+  await user.click(screen.getByRole("button", { name: /more filters/i }));
+  expect(screen.getByRole("checkbox", { name: "Character" })).toBeVisible();
+  expect(
+    screen.getByRole("checkbox", { name: "Inside mapped school zone" }),
+  ).toBeVisible();
+  expect(
+    screen.queryByRole("button", {
+      name: /Architecture & Era|Schools & Catchments/,
+    }),
+  ).not.toBeInTheDocument();
+  await user.click(
+    within(screen.getByLabelText("Bathrooms")).getByRole("radio", {
+      name: "Any",
+    }),
+  );
+  expect(
+    screen.getByRole("link", { name: /14 Garden Street/ }),
+  ).toBeInTheDocument();
+});
+
+it("does not apply a partial interpretation when Jev asks for clarification", async () => {
+  const user = userEvent.setup();
+  render(
+    <PropertyExplorer
+      properties={[home, { ...other, propertyType: "Apartment" }]}
+      comparableSales={[]}
+      aiSearch={async () => ({
+        status: "needs-clarification",
+        source: "jev",
+        filters: { propertyTypes: ["Apartment"] },
+        message: "Please clarify the bathroom range.",
+      })}
+    />,
+  );
+  await user.type(
+    screen.getByRole("textbox", { name: "Describe your ideal property" }),
+    "a home with conflicting bathroom limits",
+  );
+  await user.click(screen.getByRole("button", { name: "Search" }));
+  await screen.findByText("Please clarify the bathroom range.");
+  expect(
+    screen.getByRole("link", { name: /12 Garden Street/ }),
+  ).toBeInTheDocument();
+});
+
+it("lets a manual bedroom selection replace an AI bedroom range", async () => {
+  const user = userEvent.setup();
+  render(
+    <PropertyExplorer
+      properties={[
+        { ...home, bedrooms: 4 },
+        { ...other, bedrooms: 2 },
+      ]}
+      comparableSales={[]}
+      aiSearch={async () => ({
+        status: "ready",
+        source: "jev",
+        filters: { numericCriteria: { bedrooms: { min: 3 } } },
+        message: "At least three bedrooms.",
+      })}
+    />,
+  );
+  await user.type(
+    screen.getByRole("textbox", { name: "Describe your ideal property" }),
+    "at least three bedrooms",
+  );
+  await user.click(screen.getByRole("button", { name: "Search" }));
+  await screen.findByText("At least three bedrooms.");
+  await user.click(screen.getByRole("radio", { name: "2 beds" }));
+  expect(
+    screen.getByRole("link", { name: /14 Garden Street/ }),
+  ).toBeInTheDocument();
+});
+
 it("uses one second-photo image and a full-card property link with independent save and compare", async () => {
   localStorage.clear();
   const user = userEvent.setup();
@@ -157,9 +264,17 @@ it("offers sign in from the navigation in a keyboard dismissible modal", async (
   expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
 });
 
-it("keeps comparison removable and shows differences in an accessible table", async () => {
+it("highlights the largest numeric values in the matrix and keeps comparison removable", async () => {
   const user = userEvent.setup();
-  render(<PropertyExplorer properties={[home, other]} comparableSales={[]} />);
+  render(
+    <PropertyExplorer
+      properties={[
+        { ...home, bedrooms: 2, floorArea: 90 },
+        { ...other, bedrooms: 4, floorArea: 180 },
+      ]}
+      comparableSales={[]}
+    />,
+  );
   await user.click(
     screen.getByRole("checkbox", { name: "Compare 12 Garden Street" }),
   );
@@ -171,10 +286,19 @@ it("keeps comparison removable and shows differences in an accessible table", as
   expect(within(dialog).getByRole("table")).toHaveTextContent(
     "12 Garden Street",
   );
-  await user.click(
-    within(dialog).getByRole("checkbox", { name: "Highlight differences" }),
-  );
-  expect(within(dialog).getByRole("table")).toHaveTextContent("Price");
+  expect(within(dialog).queryByText("Walkability")).not.toBeInTheDocument();
+  const table = within(dialog).getByRole("table");
+  for (const label of ["Price", "Bedrooms", "Floor area"]) {
+    const row = within(table)
+      .getAllByRole("row")
+      .find((row) => within(row).queryByRole("rowheader", { name: label }));
+    const cells = within(row!).getAllByRole("cell");
+    expect(cells[0]).not.toHaveAttribute("data-highlight");
+    expect(cells[1]).toHaveAttribute("data-highlight");
+  }
+  expect(
+    within(dialog).queryByRole("checkbox", { name: "Highlight differences" }),
+  ).not.toBeInTheDocument();
   await user.click(
     within(dialog).getByRole("button", { name: "Remove 14 Garden Street" }),
   );
@@ -219,7 +343,7 @@ it("renders collapsible property description, unified 3-mode map, non-collapsibl
 
 it("renders immediate static headings on loading screens and uses skeletons only for loading content", () => {
   const { unmount } = render(<HomeLoading />);
-  expect(screen.getByText("Auckland, New Zealand")).toBeInTheDocument();
+  expect(screen.queryByText("Auckland, New Zealand")).not.toBeInTheDocument();
   expect(
     screen.getByRole("heading", {
       name: /Find your kind of home\./i,
@@ -285,13 +409,15 @@ it("renders main navigation with icons and shortened mobile labels, scrolls to c
   );
   const calcLink = within(nav).getByRole("link", { name: /Calculator/i });
   expect(calcLink).toHaveAttribute("href", "/#calculator");
-  expect(
-    within(nav).getByRole("link", { name: /Workspace/i }),
-  ).toHaveAttribute("href", "/profile");
+  expect(within(nav).getByRole("link", { name: /Workspace/i })).toHaveAttribute(
+    "href",
+    "/profile",
+  );
   expect(nav.querySelectorAll("svg").length).toBe(3);
 
   // Saved homes button wraps text in .saved-homes-label so mobile CSS shows only the heart icon
-  const savedBtn = screen.getByRole("button", { name: /Saved Homes/i });
+  const savedBtn = screen.getByRole("link", { name: /Saved Homes/i });
+  expect(savedBtn).toHaveAttribute("href", "/profile#saved-homes");
   expect(savedBtn.querySelector(".saved-homes-label")).not.toBeNull();
 
   // "Make the numbers work" and its subtext are removed, and clicking Calculator scrolls #calculator into view
@@ -315,7 +441,9 @@ it("renders main navigation with icons and shortened mobile labels, scrolls to c
   const specs = card.querySelector(".property-specs");
   expect(specs).not.toBeNull();
   expect(specs?.textContent).not.toMatch(/beds|baths/i);
-  expect(specs?.querySelectorAll(".property-spec-item").length).toBeGreaterThanOrEqual(3);
+  expect(
+    specs?.querySelectorAll(".property-spec-item").length,
+  ).toBeGreaterThanOrEqual(3);
   expect(specs?.querySelectorAll("svg").length).toBeGreaterThanOrEqual(3);
 });
 
@@ -362,9 +490,7 @@ it("auto-searches destination addresses, allows selecting a suggestion to query 
     expect(
       screen.queryByText(/Saved privately to your account/i),
     ).not.toBeInTheDocument();
-    expect(
-      screen.queryByText(/Saved on this device/i),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByText(/Saved on this device/i)).not.toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: "Add destination" }));
     const addressInput = screen.getByRole("textbox", {
@@ -399,4 +525,105 @@ it("auto-searches destination addresses, allows selecting a suggestion to query 
   }
 });
 
+it("reflects combined AI filters in the editable controls without showing a range as an exact count", async () => {
+  const user = userEvent.setup();
+  render(
+    <PropertyExplorer
+      properties={[home, other]}
+      comparableSales={[]}
+      aiSearch={async () => ({
+        status: "ready",
+        source: "jev",
+        message: "Combined filters applied.",
+        filters: {
+          propertyTypes: ["House", "Townhouse"],
+          numericCriteria: {
+            bedrooms: { min: 3, max: 3 },
+            bathrooms: { min: 2 },
+            parkingSpaces: { min: 4 },
+            landArea: { min: 600 },
+          },
+          yearBuiltFrom: 2000,
+          maxPrice: 1_200_000,
+        },
+      })}
+    />,
+  );
+  await user.type(
+    screen.getByRole("textbox", { name: "Describe your ideal property" }),
+    "three bedrooms and parking for four",
+  );
+  await user.click(screen.getByRole("button", { name: "Search" }));
+  await screen.findByText("Combined filters applied.");
+  expect(screen.getByRole("button", { name: "House" })).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+  expect(screen.getByRole("button", { name: "Townhouse" })).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+  expect(screen.getByRole("radio", { name: "3 beds" })).toBeChecked();
+  expect(screen.getAllByText("Bathrooms ≥ 2").length).toBeGreaterThan(0);
+  expect(
+    within(screen.getByLabelText("Bathrooms")).getByRole("radio", {
+      name: "Any",
+    }),
+  ).not.toBeChecked();
+  await user.click(screen.getByRole("button", { name: "More filters" }));
+  expect(screen.getByLabelText("Minimum parking spaces")).toHaveValue(4);
+  expect(screen.getByLabelText("Minimum land area")).toHaveValue(600);
+  expect(screen.getByLabelText("Built from")).toHaveValue("2000");
+  await user.click(
+    screen.getByRole("button", { name: "Clear property search" }),
+  );
+  expect(
+    screen.getByRole("textbox", { name: "Describe your ideal property" }),
+  ).toHaveValue("");
+  expect(screen.getByLabelText("Minimum parking spaces")).toHaveValue(null);
+});
 
+it("switches the mobile search action from loading to clear and prevents a cleared search from restoring old filters", async () => {
+  const user = userEvent.setup();
+  let finish!: (value: {
+    status: "ready";
+    source: "jev";
+    message: string;
+    filters: { location: string };
+  }) => void;
+  render(
+    <PropertyExplorer
+      properties={[home]}
+      comparableSales={[]}
+      aiSearch={() =>
+        new Promise((resolve) => {
+          finish = resolve;
+        })
+      }
+    />,
+  );
+  const input = screen.getByRole("textbox", {
+    name: "Describe your ideal property",
+  });
+  expect(
+    screen.getByRole("button", { name: "Search properties" }),
+  ).toBeInTheDocument();
+  await user.type(input, "Ponsonby");
+  await user.click(screen.getByRole("button", { name: "Search" }));
+  expect(
+    screen.getByRole("button", { name: "Searching properties" }),
+  ).toBeDisabled();
+  await user.click(screen.getByRole("button", { name: "Clear search query" }));
+  await act(async () =>
+    finish({
+      status: "ready",
+      source: "jev",
+      message: "Old search applied",
+      filters: { location: "Ponsonby" },
+    }),
+  );
+  await screen.findByRole("button", { name: "Search properties" });
+  expect(input).toHaveValue("");
+  expect(screen.getByLabelText("Location / Suburb")).toHaveValue("");
+  expect(screen.queryByText("Old search applied")).not.toBeInTheDocument();
+});

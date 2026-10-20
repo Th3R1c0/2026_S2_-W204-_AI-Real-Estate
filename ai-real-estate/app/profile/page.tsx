@@ -167,7 +167,15 @@ export default function ProfilePage() {
   const [tab, setTab] = useState("notes");
   const [mounted, setMounted] = useState(false);
   useEffect(() => {
-    queueMicrotask(() => setMounted(true));
+    const syncTab = () => {
+      if (window.location.hash === "#saved-homes") setTab("saved");
+    };
+    queueMicrotask(() => {
+      syncTab();
+      setMounted(true);
+    });
+    window.addEventListener("hashchange", syncTab);
+    return () => window.removeEventListener("hashchange", syncTab);
   }, []);
   return (
     <div className="site-shell">
