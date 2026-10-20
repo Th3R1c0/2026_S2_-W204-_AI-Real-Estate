@@ -15,7 +15,7 @@ Haven AI Real Estate is an intelligent property discovery and buyer intelligence
 
 ## Table of Contents
 1. [Project Overview & Problem Statement](#1-project-overview--problem-statement)
-2. [Completed Sprint 2 Features](#2-completed-sprint-2-features-with-developer--tester-attributions)
+2. [Key Features](#2-key-features)
 3. [Architecture & UML Class Diagrams](#3-architecture--uml-class-diagrams)
 4. [Technology Stack & Dependencies](#4-technology-stack--dependencies)
 5. [How to Run Locally (Step-by-Step)](#5-how-to-run-locally-step-by-step)
@@ -49,34 +49,15 @@ Haven unifies property discovery, geospatial hazard mapping, financial feasibili
 
 ---
 
-## 2. Completed Sprint 2 Features (With Developer & Tester Attributions)
+## 2. Key Features
 
-In accordance with COMP602 Assessment 2 deliverables, all 22 features below are **Done**, verified via automated tests and peer code reviews:
-
-| # | Feature / User Story | Developer (DEV) | Tester (TESTER) | Status & Verification |
-|:---:|:---|:---|:---|:---|
-| 1 | **Relational Database & Fallback** | Yasser | Rico | Done & Verified (PostgreSQL + PostGIS schema, Drizzle ORM, local JSON fallback) |
-| 2 | **Account Sign-Up, Login & Logout** | Rico | Alister | Done & Verified (Session cookie auth, SHA-256 token hashing, password validation) |
-| 3 | **Save Listings Shortlist** | Praneel | Lucas | Done & Verified (Multi-item shortlist, guest localStorage and account database sync) |
-| 4 | **Property Inspection Notes** | Rico | Lucas | Done & Verified (Categorized notes: General, Offer, Inspection, Finance with full CRUD) |
-| 5 | **Search Campaign Notes** | Rico | Lucas | Done & Verified (Workspace-level buyer search briefs and requirement management) |
-| 6 | **Sales & Valuation History** | Praneel | Rico | Done & Verified (Capital value breakdowns, rating valuation splits, sales timeline) |
-| 7 | **Listing Agent & Source Enquiry** | Lucas | Rico | Done & Verified (Agent cards, direct phone/email links, external source verification) |
-| 8 | **Open Homes Schedules** | Rico | Alister | Done & Verified (Upcoming inspection calendar dates and filterable listing badges) |
-| 9 | **AI Chatbot & Helpdesk** | Rico | Alister | Done & Verified (Domain knowledge base covering NZ property terms and procedures) |
-| 10 | **Chatbot Context Awareness** | Rico | Yasser | Done & Verified (Injects active listing and compared properties into conversational prompt) |
-| 11 | **LIM Report PDF Summaries** | Rico | Alister | Done & Verified (Upload PDFs up to 15MB, automated text extraction and risk analysis) |
-| 12 | **Source Citations** | Alister | Rico | Done & Verified (Inline verifiable citation badges opening original source provenance modals) |
-| 13 | **Interactive Mortgage Calculator** | Praneel | Lucas | Done & Verified (Built via TDD: monthly repayments, loan terms, deposit ratios) |
-| 14 | **Natural-Language Search** | Rico | Alister | Done & Verified (TypeSafe Jev + Gemini dual NLP pipeline resolving criteria) |
-| 15 | **Filter by Architectural Style** | Rico | Alister | Done & Verified (Character, Modernist, Contemporary, Craftsman, Mid-Century) |
-| 16 | **Filter by Flood Hazard** | Yasser | Praneel | Done & Verified (Auckland Council Flood Plains, Flow Paths, Coastal Inundation) |
-| 17 | **Filter by Year Built** | Rico | Lucas | Done & Verified (Construction era sliders from pre-1920 heritage to 2026 builds) |
-| 18 | **Reset Filters** | Rico | Yasser | Done & Verified (One-click instant search and filter state reset to default) |
-| 19 | **Flood Risk Map Overlays** | Yasser | Alister | Done & Verified (Auckland Council ArcGIS REST bounding-box GeoJSON vector layers) |
-| 20 | **Custom Locations & Distance** | Alister | Rico | Done & Verified (Preserved buyer destinations, Haversine straight-line distance math) |
-| 21 | **School Zones & Nearby Schools** | Yasser | Alister | Done & Verified (Ministry of Education school catchments, 2.5 km radius, in-zone badges) |
-| 22 | **Mobile-Responsive Website** | Lucas | Rico | Done & Verified (Responsive CSS grid/flex breakpoints, mobile drawers, touch targets) |
+- **Natural-Language Conversational Search**: Search listings using natural everyday phrasing (e.g., *"3-bedroom townhouse near Grey Lynn under $1.2M"*). The query engine combines **TypeSafe AI (Jev System One)** with automated fallback to **Google Gemini 3.5 Flash-Lite** to extract typed search criteria.
+- **Geospatial Location Maps (Google Maps SDK)**: Integrated interactive maps featuring Ministry of Education school zones (2.5 km radius with in-zone catchment detection) and Auckland Council flood hazard overlays (Flood Plains, Overland Flow Paths, Coastal Inundation).
+- **Interactive Mortgage Repayment Calculator**: Developed using **Test-Driven Development (TDD)** with standard compound amortization formulas, real-time monthly repayment estimation, adjustable deposit ratios, and interest rate modeling.
+- **AI Helpdesk & LIM PDF Analysis**: Conversational assistant capable of ingesting Auckland Council Land Information Memorandum (LIM) PDFs (up to 15MB) via `pdf-parse` to extract and cite key property findings, drainage easements, and unconsented works.
+- **Side-by-Side Property Comparison Matrix**: Compare shortlisted properties simultaneously with sticky attribute labels, difference highlighting, and numeric maxima badges.
+- **Buyer Workspace & Private Notes**: Secure user authentication with SHA-256 session tokens, saved listings shortlist, and categorized inspection notes (General, Offer, Inspection, Finance).
+- **Sales & Valuation History**: Past sale records, valuation estimates, OneRoof estimate ranges, and Council capital value breakdowns.
 
 ---
 
