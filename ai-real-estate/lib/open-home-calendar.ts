@@ -93,7 +93,9 @@ export function buildOpenHomeCalendar({
   const summary = `Open home: ${property.address}`;
   const description = [
     `Open home viewing for ${location}.`,
-    property.listingAgent ? `Listing agent: ${property.listingAgent.name}.` : "",
+    property.listingAgent
+      ? `Listing agent: ${property.listingAgent.name}.`
+      : "",
     propertyUrl ? `Property page: ${propertyUrl}` : "",
   ]
     .filter(Boolean)
@@ -126,7 +128,9 @@ export function buildOpenHomeCalendar({
       foldLine("BEGIN:VALARM"),
       foldLine("TRIGGER:-PT1H"),
       foldLine("ACTION:DISPLAY"),
-      foldLine(`DESCRIPTION:${escapeText(`Open home starts soon: ${property.address}`)}`),
+      foldLine(
+        `DESCRIPTION:${escapeText(`Open home starts soon: ${property.address}`)}`,
+      ),
       foldLine("END:VALARM"),
       foldLine("END:VEVENT"),
     ];
