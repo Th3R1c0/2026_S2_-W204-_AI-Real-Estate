@@ -1,194 +1,148 @@
-# Haven — Real Estate Discovery & Buyer Intelligence Platform
+# Haven AI Real Estate — Release Version
 
+[![Release Branch](https://img.shields.io/badge/Branch-Release-success?logo=git)](https://github.com/Th3R1c0/2026_S2_-W204-_AI-Real-Estate/tree/Release)
 [![Next.js 16](https://img.shields.io/badge/Next.js-16.3.1-black?logo=next.js)](https://nextjs.org/)
 [![React 19](https://img.shields.io/badge/React-19-blue?logo=react)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?logo=typescript)](https://www.typescriptlang.org/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-PostGIS-336791?logo=postgresql)](https://www.postgresql.org/)
 [![Drizzle ORM](https://img.shields.io/badge/ORM-Drizzle-C5F74F)](https://orm.drizzle.team/)
 [![Vitest](https://img.shields.io/badge/Tests-231%20Passed-green?logo=vitest)](https://vitest.dev/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](../LICENSE)
 
-Haven is an intelligent, high-performance real estate discovery web application tailored for the Auckland, New Zealand property market. Built from the ground up for **COMP602 Software Development Practice (Team W204)**, Haven empowers prospective homebuyers with conversational natural-language property search, live Auckland Council flood hazard overlays, Ministry of Education school zones, side-by-side comparison matrices, automated comparable sales valuations, interactive mortgage repayment modelling, and Land Information Memorandum (LIM) PDF report analysis.
-
----
-
-## 📸 Application Screenshots
-
-### 1. Natural-Language Property Discovery & Specialist Filtering
-![Haven Property Discovery](../docs/assets/screenshot-home.png)
-*Real-time debounced conversational search, specialist architectural filters (Character, Modernist, Contemporary), building age sliders, and verified property cards.*
+Haven AI Real Estate is an intelligent property discovery and buyer intelligence platform engineered for the Auckland, New Zealand residential market. Developed for **COMP602 Software Development Practice (Team W204)**, this repository on the **`Release`** branch contains the complete, verified release version of our software, accompanied by full UML architectural artifacts, test-driven development (TDD) suites, and deployment guides.
 
 ---
 
-### 2. Detailed Property Inspection, Unified 3-Mode Location Map & Mortgage Calculator
-![Property Inspection & Location Map](../docs/assets/screenshot-property-details.png)
-*Detailed property overview featuring Auckland Council flood hazard assessment, Ministry of Education school enrolment zones (2.5 km radius), commute directions, comparable sales, and live mortgage calculations.*
+## 1. Project Overview & Problem Statement
+
+### The Problem
+First-home buyers and property investors in New Zealand face a fragmented, stressful discovery process. Critical decision-making data is scattered across incompatible silos:
+- Council GIS flood hazard layers and overland flow paths are isolated from listing websites.
+- Ministry of Education enrolment zone catchments require manual school-by-school cross-referencing.
+- Complex 50+ page Land Information Memorandum (LIM) PDFs hide critical drainage easements, unconsented building work, and site requisitions behind dense legal jargon.
+- Keyword-based search engines fail to understand conversational buyer intent (e.g., *"3-bedroom sunny villa in Ponsonby under $1.5M with double garage"*).
+- Financial feasibility tools on standard portals are disconnected from live listing prices and lack compound interest/deposit stress-testing.
+
+### The Haven Solution
+Haven unifies property discovery, geospatial hazard mapping, financial feasibility, and AI-assisted document intelligence into a single cohesive platform:
+- **Conversational Natural Language Search**: Primary intent parsing via **TypeSafe AI (Jev System One)** with fallback to **Google Gemini 3.5 Flash-Lite**.
+- **Interactive Geospatial Intelligence**: 3-mode Google Maps engine mapping Ministry of Education school zones, commute durations, and live Auckland Council flood overlays.
+- **AI Helpdesk & LIM PDF Analysis**: Conversational assistant extracting key insights, easements, and consents from uploaded LIM reports with page-level citations.
+- **TDD-Engineered Mortgage Calculator**: Real-time compound amortization calculator built with rigorous unit test coverage.
+- **Buyer Workspace**: Persistent session-authenticated shortlists, inspection notes, and campaign criteria.
 
 ---
 
-### 3. Side-by-Side Property Comparison Matrix
-![Property Comparison Matrix](../docs/assets/screenshot-comparison.png)
-*Side-by-side comparison of shortlisted properties with sticky attribute labels, difference highlighting, and tinted numeric maxima across pricing, floor area, land area, and build year.*
+## 2. Completed Sprint 2 Features (With Developer & Tester Attributions)
+
+In accordance with COMP602 Assessment 2 deliverables, all 22 features below are **Done**, verified via automated tests and peer code reviews:
+
+| # | Feature / User Story | Developer (DEV) | Tester (TESTER) | Status & Verification |
+|:---:|:---|:---|:---|:---|
+| 1 | **Relational Database & Fallback** | Yasser | Rico | Done & Verified (PostgreSQL + PostGIS schema, Drizzle ORM, local JSON fallback) |
+| 2 | **Account Sign-Up, Login & Logout** | Rico | Alister | Done & Verified (Session cookie auth, SHA-256 token hashing, password validation) |
+| 3 | **Save Listings Shortlist** | Praneel | Lucas | Done & Verified (Multi-item shortlist, guest localStorage and account database sync) |
+| 4 | **Property Inspection Notes** | Rico | Lucas | Done & Verified (Categorized notes: General, Offer, Inspection, Finance with full CRUD) |
+| 5 | **Search Campaign Notes** | Rico | Lucas | Done & Verified (Workspace-level buyer search briefs and requirement management) |
+| 6 | **Sales & Valuation History** | Praneel | Rico | Done & Verified (Capital value breakdowns, rating valuation splits, sales timeline) |
+| 7 | **Listing Agent & Source Enquiry** | Lucas | Rico | Done & Verified (Agent cards, direct phone/email links, external source verification) |
+| 8 | **Open Homes Schedules** | Rico | Alister | Done & Verified (Upcoming inspection calendar dates and filterable listing badges) |
+| 9 | **AI Chatbot & Helpdesk** | Rico | Alister | Done & Verified (Domain knowledge base covering NZ property terms and procedures) |
+| 10 | **Chatbot Context Awareness** | Rico | Yasser | Done & Verified (Injects active listing and compared properties into conversational prompt) |
+| 11 | **LIM Report PDF Summaries** | Rico | Alister | Done & Verified (Upload PDFs up to 15MB, automated text extraction and risk analysis) |
+| 12 | **Source Citations** | Alister | Rico | Done & Verified (Inline verifiable citation badges opening original source provenance modals) |
+| 13 | **Interactive Mortgage Calculator** | Praneel | Lucas | Done & Verified (Built via TDD: monthly repayments, loan terms, deposit ratios) |
+| 14 | **Natural-Language Search** | Rico | Alister | Done & Verified (TypeSafe Jev + Gemini dual NLP pipeline resolving criteria) |
+| 15 | **Filter by Architectural Style** | Rico | Alister | Done & Verified (Character, Modernist, Contemporary, Craftsman, Mid-Century) |
+| 16 | **Filter by Flood Hazard** | Yasser | Praneel | Done & Verified (Auckland Council Flood Plains, Flow Paths, Coastal Inundation) |
+| 17 | **Filter by Year Built** | Rico | Lucas | Done & Verified (Construction era sliders from pre-1920 heritage to 2026 builds) |
+| 18 | **Reset Filters** | Rico | Yasser | Done & Verified (One-click instant search and filter state reset to default) |
+| 19 | **Flood Risk Map Overlays** | Yasser | Alister | Done & Verified (Auckland Council ArcGIS REST bounding-box GeoJSON vector layers) |
+| 20 | **Custom Locations & Distance** | Alister | Rico | Done & Verified (Preserved buyer destinations, Haversine straight-line distance math) |
+| 21 | **School Zones & Nearby Schools** | Yasser | Alister | Done & Verified (Ministry of Education school catchments, 2.5 km radius, in-zone badges) |
+| 22 | **Mobile-Responsive Website** | Lucas | Rico | Done & Verified (Responsive CSS grid/flex breakpoints, mobile drawers, touch targets) |
 
 ---
 
-### 4. Buyer Workspace, Private Notes & Shortlist
-![Buyer Workspace](../docs/assets/screenshot-workspace.png)
-*Authenticated buyer dashboard featuring saved property shortlists, categorized private inspection notes (general, offer, inspection, finance), and commute destination presets.*
+## 3. Architecture & UML Class Diagrams
+
+The architectural design reflects a clean, modular multi-tier architecture adhering to separation of concerns:
+
+- **Presentation Tier**: Next.js 16 (App Router), React 19 Server & Client Components, Tailwind CSS, Radix UI.
+- **Application & Domain Tier**: Domain services (`jev-search.ts`, `gemini-search.ts`, `property-engine.ts`, `mortgage-calculation.ts`, `chatbot-service.ts`).
+- **Persistence Tier**: PostgreSQL with PostGIS extensions, Drizzle ORM schemas (`schema.ts`, `properties.ts`), and bundled offline JSON fixtures.
+- **External API Gateways**: Auckland Council ArcGIS REST Services, TypeSafe AI Jev System One, Google Gemini 3.5, Google Maps JS SDK.
+
+### Deliverables & Artifact Links:
+- **Interactive UML Dashboard (Web)**: Accessible at [`/uml-diagram.html`](ai-real-estate/public/uml-diagram.html) in the running application (pan, zoom, fullscreen, SVG/PDF export).
+- **Sprint 2 UML Class Diagram (PDF)**: Located at [`docs/Sprint 2 Class Diagram.pdf`](docs/Sprint%202%20Class%20Diagram.pdf) and [`ai-real-estate/public/Sprint 2 Class Diagram.pdf`](ai-real-estate/public/Sprint%202%20Class%20Diagram.pdf).
+- **PlantUML Architecture Source**: [`docs/architecture-uml.puml`](docs/architecture-uml.puml).
+- **Database Schema Class Diagram**: [`backend/schema-class-diagram.puml`](backend/schema-class-diagram.puml).
 
 ---
 
-### 5. Interactive UML Architecture & System Class Diagram Dashboard
-![UML Architecture Dashboard](../docs/assets/screenshot-uml.png)
-*Interactive UML dashboard featuring System Architecture, Database Class Schema, and Sequence Flows with pan-zoom controls, SVG export, and one-click PDF generation.*
+## 4. Technology Stack & Dependencies
+
+| Layer | Technologies & Libraries |
+|:---|:---|
+| **Frontend Framework** | Next.js 16.3.1 (Turbopack / Webpack), React 19.0.0 |
+| **Language & Tooling** | TypeScript 5.0+ (Strict Type Checking), ESLint |
+| **Styling & Components** | Tailwind CSS 4, Radix UI Primitives, Lucide React Icons |
+| **Database & ORM** | PostgreSQL 14+, PostGIS 3+, Drizzle ORM 0.40+ |
+| **AI & NLP Services** | TypeSafe AI (Jev System One), Google Gemini 3.5 Flash-Lite |
+| **Geospatial & Mapping** | `@vis.gl/react-google-maps`, Auckland Council ArcGIS REST APIs |
+| **Document Processing** | `pdf-parse` (LIM Report PDF text extraction) |
+| **Testing Framework** | Vitest 3.2.7, Testing Library React, `@testing-library/user-event`, jsdom |
 
 ---
 
-## 🗺️ UML Diagrams & Architecture Documentation
-
-All architectural designs, database schemas, and sequence flows are documented and available in multiple formats:
-
-- **Interactive UML Dashboard (HTML)**: [`../docs/uml-architecture.html`](../docs/uml-architecture.html) & [`public/uml-diagram.html`](public/uml-diagram.html)
-  - Accessible directly in the web app at `/uml-diagram.html`.
-  - Features interactive pan & zoom, theme toggling, fullscreen mode, SVG vector download, and one-click all-in-one PDF export.
-- **Sprint 2 Complete Class Diagram & Architecture (PDF)**:
-  - [`../docs/Sprint 2 Class Diagram.pdf`](../docs/Sprint%202%20Class%20Diagram.pdf)
-  - [`../docs/presentation/Sprint 2 Class Diagram.pdf`](../docs/presentation/Sprint%202%20Class%20Diagram.pdf)
-  - [`public/Sprint 2 Class Diagram.pdf`](public/Sprint%202%20Class%20Diagram.pdf)
-- **PlantUML Architecture Source**: [`../docs/architecture-uml.puml`](../docs/architecture-uml.puml)
-- **Database Schema Class Diagram**: [`../backend/schema-class-diagram.puml`](../backend/schema-class-diagram.puml)
-
----
-
-## 🌟 Key Features Overview
-
-### 1. Conversational Natural-Language Property Search
-- **Natural Phrasing Interpretation**: Search for homes using everyday language (e.g., *"Modern 3-bedroom townhouse in Ponsonby under $1.2M with garage"* or *"Character villas near Grey Lynn School"*).
-- **Dual Interpretation Pipeline**: Powered by **TypeSafe AI (Jev System One model)** as the primary intent classifier, resolving unstructured user queries into validated TypeScript filter criteria with automatic fallback to **Google Gemini 3.5 Flash-Lite**.
-- **Transparency & Diagnostics**: Explains active search filters directly to the user in the UI, provides fallback clarity for boundary queries, and displays match tags.
-
-### 2. Specialist Property & Environmental Filtering
-- Search parameters beyond standard real estate portals:
-  - **Architectural Style**: Character, Modernist, Contemporary, Craftsman, Mid-Century.
-  - **Property Type**: Villa, Townhouse, Apartment, House, Lifestyle Block, Section.
-  - **Building Era Slider**: Fine-grained construction age filtering (from pre-1920s heritage villas to 2020s contemporary developments).
-  - **Bathroom & Parking Filtering**: Strict numeric bounds for bathrooms, off-street parking, and land size.
-
-### 3. Unified 3-Mode Location Map (Google Maps SDK)
-- Embedded interactive Google Map with three purpose-built modes:
-  1. **Nearby Schools Mode**: Visualizes Auckland schools within a 2.5 km radius, displays school types (Primary, Intermediate, Secondary), and tests property location against Ministry of Education enrolment zone boundaries.
-  2. **Commute Directions Mode**: Calculates driving and public transit routes and durations between the property and custom buyer destinations (e.g., Auckland CBD, workplaces).
-  3. **Auckland Council Flood Hazard Mode**: Queries Auckland Council GIS REST endpoints (`/api/flood-zones`) for real-time bounding-box GeoJSON overlays representing Flood Plains, Flood Prone Areas, Overland Flow Paths, and 100-year Coastal Inundation.
-
-### 4. Automated Comparable Sales (Comps)
-- Located in the property details panel.
-- Evaluates recent neighborhood property transactions matching property type, bedroom count, and floor area.
-- Uses the **Haversine formula** to calculate physical distance.
-- **Adjustable Scope**: Dynamic radius slider (1–10 km) and timeframe filter (3–12 months) with real-time recalculation of local market price-per-square-meter averages.
-
-### 5. Side-by-Side Property Comparison Matrix
-- Compare up to 4 shortlisted properties simultaneously in a dedicated comparison matrix.
-- Evaluates pricing, bedrooms, bathrooms, land area, floor area, building age, architectural style, flood hazards, and sunlight exposure.
-- Interactive controls: **Highlight Differences** toggle, tinted numeric maxima for instant scanning, and sticky column/row labels.
-
-### 6. Haven Chatbot & LIM Report PDF Analysis
-- Conversational real estate helpdesk drawer available across all pages.
-- **Auckland Council LIM PDF Ingestion**: Upload Land Information Memorandum (LIM) reports (up to 15MB) via `/api/chatbot/upload-lim`.
-- Uses `pdf-parse` for automated text extraction, injecting document context into the conversational RAG model.
-- Answering buyer queries regarding drainage easements, unconsented works, resource consents, and rates with exact document page citations.
-
-### 7. Buyer Workspace & Private Notes
-- Secure user registration and session-based authentication with SHA-256 token hashing.
-- **Saved Listings Shortlist**: Bookmark favorite properties to review later or monitor status updates.
-- **Categorized Private Notes**: Save private notes for any property categorized into **General**, **Offer Strategy**, **Property Inspection**, or **Finance/Mortgage**.
-- **Commute Presets**: Save daily destinations to easily check travel times on any property.
-
-### 8. Interactive Mortgage Repayment Calculator
-- Developed using **Test-Driven Development (TDD)** with complete Vitest unit test coverage.
-- Real-time monthly repayment estimation using standard compound annuity amortization formulas.
-- Adjustable sliders and numeric inputs for property purchase price, deposit percentage ($ and %), annual interest rate, and loan term (5–30 years).
-- Built-in guard rails for zero-interest calculations, 100% deposit equity, and boundary validation.
-
-### 9. Real Estate Agent Contact & Open Homes
-- Direct agent contact cards with phone, email, and agency details.
-- Upcoming open home inspection schedules with date, time range, and calendar integration.
-
----
-
-## 🛠️ Technology Stack & Dependencies
-
-| Category | Technologies |
-| :--- | :--- |
-| **Frontend Framework** | [Next.js 16](https://nextjs.org/) (App Router), [React 19](https://react.dev/) |
-| **Language** | [TypeScript 5](https://www.typescriptlang.org/) (Strict Mode) |
-| **Styling & UI** | [Tailwind CSS](https://tailwindcss.com/), Radix UI Primitives, Lucide Icons |
-| **Database & ORM** | [PostgreSQL](https://www.postgresql.org/) with [PostGIS](https://postgis.net/) spatial extensions, [Drizzle ORM](https://orm.drizzle.team/) |
-| **AI & NLP Engines** | [TypeSafe AI](https://typesafe.ai/) (Jev System One), [Google Gemini 3.5 Flash-Lite](https://ai.google.dev/) |
-| **Maps & Spatial** | [Google Maps JavaScript SDK](https://developers.google.com/maps), Auckland Council ArcGIS REST APIs |
-| **Document Parsing** | [pdf-parse](https://www.npmjs.com/package/pdf-parse) for LIM PDF extraction |
-| **Diagramming & Docs** | [Mermaid.js](https://mermaid.js.org/), [PlantUML](https://plantuml.com/), [jsPDF](https://github.com/parallax/jsPDF) |
-| **Testing** | [Vitest 3](https://vitest.dev/), Testing Library React, jsdom |
-
----
-
-## 🚀 Setup, Build & Run Instructions
+## 5. Setup, Build & Run Instructions
 
 ### Prerequisites
-- **Node.js**: v18.18+ or v20+ installed
-- **npm**: v9+ (or `pnpm`)
-- **PostgreSQL**: v14+ with the **PostGIS** extension installed
+- **Node.js**: v18.18+ or v20+
+- **npm**: v9+ (or pnpm / yarn)
+- **PostgreSQL**: v14+ with PostGIS extension (optional for local demo; app includes bundled offline fallbacks)
 
-### 1. Install Dependencies
+### 1. Installation
 ```bash
+git checkout Release
+cd ai-real-estate
 npm install
 ```
 
-### 2. Configure Environment Variables
-Create a `.env.local` file in this directory (`ai-real-estate`):
-
+### 2. Environment Configuration
+Create a `.env.local` file inside the `ai-real-estate/` directory:
 ```env
-# PostgreSQL Database Connection String (with PostGIS enabled)
+# Database Connection (PostgreSQL + PostGIS)
 DATABASE_URL="postgres://postgres:postgres@localhost:5432/real_estate"
 
-# Google Gemini API Key (for conversational chatbot & search fallback)
+# AI Services
+TYPESAFE_API_KEY="your-typesafe-api-key"
 GEMINI_API_KEY="your-gemini-api-key"
 
-# TypeSafe AI API Key (for primary Jev System One search engine)
-TYPESAFE_API_KEY="your-typesafe-api-key"
-
-# Google Maps JavaScript API Key (for 3-mode map rendering)
+# Maps API Key
 NEXT_PUBLIC_GOOGLE_MAPS_API_KEY="your-google-maps-api-key"
 ```
+*(Note: If API keys are omitted, the application operates in resilient demo mode with deterministic local fallbacks.)*
 
-> **Note on Fallbacks**: The application is built with resilient offline and keyword fallbacks. If API keys are not supplied, the platform falls back gracefully to local deterministic search parsing and demo mock data.
-
-### 3. Database Setup & Seeding
-Push the Drizzle ORM schema to your PostgreSQL database and populate the property catalog:
-
+### 3. Database Migration & Seeding (Optional)
 ```bash
-# Push database schema tables
 npm run db:push
-
-# Seed property listings, address data, open homes, and pricing
 npm run db:seed
-
-# Optional: Synchronize Auckland Council flood hazard geometries into PostGIS
-npm run db:sync-flood-data
 ```
 
-### 4. Run Development Server
+### 4. Running the Development Server
 ```bash
 npm run dev
 ```
-Open [http://localhost:3000](http://localhost:3000) in your web browser.
+Navigate to [http://localhost:3000](http://localhost:3000) in your browser.
 
-### 5. Run the Test Suite
+### 5. Running the Automated Test Suite (TDD)
 ```bash
 npm test
 ```
-All **231 tests** run via Vitest.
+Executes all **231 Vitest unit and integration tests** across **36 test suites**.
 
-### 6. Production Build
+### 6. Production Build & Start
 ```bash
 npm run build
 npm run start
@@ -196,18 +150,29 @@ npm run start
 
 ---
 
-## 👥 Authors & Team Members
+## 6. Testing & Quality Assurance (TDD Evidence)
 
-This project was engineered and delivered for **COMP602 Software Development Practice** by **Team W204**:
-
-- **Rico Saunders** — Full-Stack Development, System Architecture, Natural Language Search Pipeline & Database Engineering
-- **Lucas McKinney** — Frontend UI Engineering, Scraper Ingestion, Map Mode Enhancements & Testing
-- **Praneel Kumar** — Domain Logic, Mortgage Calculation Engine (TDD), Code Quality & API Implementation
-- **Yasser Saeed** — Backend API Routes, Database Schema Migrations, Session Auth & Integration Testing
-- **Alister Martin Repasa** — UI Components, Comparison Matrix, Mobile Responsiveness & Quality Assurance
+Quality was enforced throughout Sprint 2 using **Test-Driven Development (TDD)** and continuous regression testing:
+- **Mortgage Calculator (`tests/mortgage-calculator.test.tsx`)**: Developed using strict Red-Green-Refactor cycles covering compound amortization, zero-interest bounds, 100% deposits, and boundary validation.
+- **Natural Language Query Pipeline (`tests/jev-search.test.ts`, `tests/gemini-search.test.ts`)**: Evaluated against boundary queries, multi-criteria filtering, and fallback mechanisms.
+- **Geospatial & Map Integration (`tests/property-location-map.test.tsx`)**: Verifies council flood hazard category rendering, school zone match evaluations, and distance calculations.
+- **Auth & Session Security (`tests/account-auth.test.ts`)**: Validates SHA-256 session tokens, user registrations, and secure account deletion.
+- **Suite Result**: **36 test suites passed, 231 tests passed, 0 failures**.
 
 ---
 
-## 📄 License
+## 7. Authors & Team Members
 
-This project is licensed under the MIT License — see the [LICENSE](../LICENSE) file for details.
+Engineered and delivered for **COMP602 Software Development Practice** by **Team W204**:
+
+- **Rico Saunders (Team Lead)** — Full-Stack Development, System Architecture, Natural-Language Search (Jev/Gemini), AI Chatbot & LIM PDF Extraction, Auth Engine, QA Testing.
+- **Lucas McKinney** — Frontend UI Engineering, Listing Agent Enquiries, Mobile-Responsive Layouts, Map Scraper Integration, Scrum Master & Burn-Down Tracking.
+- **Praneel Kumar** — Domain Services, Mortgage Calculator (TDD), Sales & Valuation History, Saved Listings Sync, API Engineering.
+- **Yasser Saeed** — Database Architecture, PostgreSQL & PostGIS Integration, Auckland Council Flood Hazard Overlays, School Zones, Schema Migrations.
+- **Alister Martin Repasa** — UI Components, Side-by-Side Comparison Matrix, Source Citations, Commute Pins, Quality Assurance & Test Verification.
+
+---
+
+## 8. License
+
+This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
