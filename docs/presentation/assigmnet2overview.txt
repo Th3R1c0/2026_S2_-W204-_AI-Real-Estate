@@ -1,0 +1,129 @@
+
+Skip to content
+Dashboard
+Rico Saunders
+Account
+Dashboard
+Courses
+Groups
+Calendar
+Inbox
+History
+Studio
+10
+Help
+
+SCA
+COMP602_2026_S2
+Assignments
+Assignment 2 Overview (PDF Here) : Final Deliverables
+
+2026 Semester 2
+Home
+Announcements
+People
+Modules
+Assignments
+Discussions
+Grades1
+Get study help now (Studiosity)
+Course Resources
+Course Evaluation
+Notebook
+Academic Integrity Declaration
+In submitting this work, I agree that:
+
+The assessment has been produced by me and is solely my work, UNLESS the work is for a designated collaborative (group) task.
+I have not sought or received unpermitted assistance from any other person, or other source (e.g. a website, tutorial or answer service).
+I have properly acknowledged all sources used in my work.
+This work has not previously been submitted by me for any assessment task, OR I have received approval to resubmit this work.
+I did not use any other unfair means to complete this work.
+I am aware that AUT may use text-matching software to check for plagiarism in assessments.
+For guidance on academic integrity please visit the referencing page of Your library on Canvas.
+
+Assignment 2 Overview (PDF Here) : Final Deliverables
+Due: Tue, 20 Oct 2026 23:59
+
+Task Overview
+In sprint 2, you will need to perform and create the artefacts of Sprint 0, Sprint 1, and provide evidence of code review. At the start of each sprint, you are expected to perform sprint planning like that of Sprint 0 (i.e., planning poker, new burndown chart, sprint goals, etc.). Refer to Assessment 1, if you are unsure what you need to do. Once you have completed the sprint planning, you will carry out the work required in the sprint and create the sprint artefacts (I.e., daily stand-up meeting minutes, unit testing, test-driven development, coding, etc. - refer back to Assessment 1 and 2, if you are unsure). In addition, the final deliverable will require evidence of code review.
+
+Purpose
+This submission relates to the following course outcome(s):
+• Understand the role of software engineering processes and practices in managing the complexity, quality and timeliness of software development projects.
+• Collaborate within a team to scope, plan, and manage a software development project.
+• Control the quality, production, and appropriateness of project deliverables
+• Display an increase in the range of development tools and technologies at their disposal.
+
+Part 1a - Team Deliverables (28%)
+Submit by Tuesday Week 13 by 11:59pm
+Documents (PDF) on your team's Trello Board and code on Github
+Part 1b – Lab Tasks: TDD and Code Review (2%) 
+Submit during labs and marked off by TA during Week 12 lab
+Part 2 - Team Final Presentation (10%)
+Submit presentation in person on Week 13 (details to be announced)
+Part 3 - Individual Reflection and Peer Review (10%)
+Submit by Tuesday Week 13 by 11:59pm
+Please use the link under Assignment 2 in Canvas to submit using Turnitin: Individual Reflection
+Peer review - please use the link on Canvas (deadline same as Part 3)
+Online form on Canvas - Sprint 2 Peer Review
+
+Assessment documents
+Detailed Assignment Brief: Assessment 2 - Final Deliverables.pdfDownload Assessment 2 - Final Deliverables.pdf
+Reflective Report - Template.docxDownload Reflective Report - Template.docx
+Code Review - Template.docxDownload Code Review - Template.docx
+Suggested Procedures  
+Week 9 to Week 12 - Complete Sprint 2 to create refined features along with documentation that makes the product shine
+Marking and Feedback 
+Individual component marking and feedback will be provided on Canvas and Team marking and feedback will be provided using Trello.
+COMP602 Assignment 2 rubric
+Criteria	Ratings
+Scoring Level
+view longer description
+
+(A- to A+)
+
+Standard
+In addition to meeting requirements for the “Good” level, the submission is an exemplary
+piece of work, completely error-free, is of “best-practice” quality, and demonstrates a
+deep understanding of the subject area by the author(s).
+• The product shows outstanding progress in features implemented since Sprint 1.
+• Overall, the first release of the product at the end of sprint 2 shows outstanding
+progress by the team.
+• Comprehensive scrum artefacts have been produced to document all aspects of
+the project from planning to sprinting and reflection on progress.
+• Scrum artefacts produced are of best-practice quality and have been produced in a
+timely, well-organized manner.
+Scoring Level
+view longer description
+
+(B- to B+)
+
+Standard
+In addition to meeting requirements for the “Satisfactory” level, the submission represents
+a good understanding of the subject area by the author(s), is written in a structured and
+understandable manner, and meets most assessment criteria.
+• The product shows considerable progress in features implemented since sprint 1.
+• Overall, the first release of the product at the end of sprint 2 shows sustained
+progress by the team.
+• Scrum artefacts have been produced to document most aspects of the software
+development process.
+• Most scrum artefacts produced are of good quality and have been produced in a
+timely manner
+Scoring Level
+view longer description
+
+(c to C+)
+
+Standard
+The submission shows some understanding of the subject area by the author(s), meets a few assessment criteria, and/or the write-up lacks structure or is not easy to comprehend.
+• The product shows satisfactory progress in features implemented since sprint 1.
+• Overall, the first release of the product at the end of sprint 2 shows satisfactory progress by the team.
+• Scrum artefacts have been produced to document some aspects of the software development process.
+• Scrum artefacts produced are of reasonable or satisfactory quality or have been produced at the last minute.
+Scoring Level
+view longer description
+
+(C- or below)
+
+Standard
+The submission fails to meet most assessment and quality criteria

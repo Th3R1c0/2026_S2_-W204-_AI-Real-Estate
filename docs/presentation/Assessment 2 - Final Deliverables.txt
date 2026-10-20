@@ -1,0 +1,193 @@
+
+Page
+1
+of 6
+1
+Software Development Practice COMP602
+Final Deliverables
+Weighting 30% Team Deliverables, 10% Final Presentation and Demonstration,
+and 10% Individual reflective report
+Due Tuesday 20 October (week 13) by 11:59pm and Labs
+In sprint 2, you will need to perform and create the artefacts of Sprint 0, Sprint 1, and provide evidence of code
+review. At the start of each sprint, you are expected to perform sprint planning like that of Sprint 0 (i.e., planning
+poker, new burndown chart, sprint goals, etc.). Refer to Assessment 1, if you are unsure what you need to do. Once
+you have completed the sprint planning, you will carry out the work required in the sprint and create the sprint
+artefacts (I.e., daily stand-up meeting minutes, unit testing, test-driven development, coding, etc. - refer back to
+Assessment 1 and 2, if you are unsure). In addition, the final deliverable will require evidence of code review.
+Purpose
+This submission relates to the following course outcome(s):
+• Understand the role of software engineering processes and practices in managing the complexity, quality
+and timeliness of software development projects.
+• Collaborate within a team to scope, plan, and manage a software development project.
+• Control the quality, production, and appropriateness of project deliverables
+• Display an increase in the range of development tools and technologies at their disposal.
+Setup Phase – Team to show TA in Lab in week 10
+New required Trello columns:
+• Sprint 2 Backlog [SHRUR]
+• Sprint 2 Development [G9W2G]
+• Sprint 2 Testing [6THIH]
+• Sprint 2 Done [YL6PX]
+• Sprint 2 Documentation [X6UWF]
+Create the following:
+• Sprint 2 Sprint Goal
+• Sprint 2 Defintion of Done
+• Sprint 2 Initial Burndown Chart
+• Sprint 2 Planning Poker Evidence or Statement (see below)
+• Userstories moved to Sprint 2 Backlog
+Part 1a - Team Deliverables (28%) – Due Week 13 Tuesday
+Please note that PDF documents are more stable on Trello than Word documents are. Please convert all the Word
+documents that are to be attached to Trello to PDFs before uploading them for marking.
+Each team is required to deliver the following:
+Product 15% of 28%
+Sprint 2 Increment – functionality added in
+Sprint 2
+7.5% of 28%
+Overall – features implemented 7.5% of 28%
+Process 13% of 28%
+2
+Overall Scrum Artefacts 13% of 28%
+Scrum artefacts on your Trello board of each Sprint:
+Artefacts Associated Documentation/Ceremonies to ensure quality
+Refined Product Backlog Applied DEEP Analysis, Prioritisation (MoSCOW order)
+Sprint Planning Sprint 2 planning poker evidence (see below)
+Sprinting Daily Stand-up, Burndown Chart
+Code TDD (see below), use of version control (Github)
+Documentation UML Diagrams and Updated UML Class Diagram (see below),
+ReadMe File (see below)
+End of Sprint Sprint 2 Retrospective.
+Source code
+The complete, final source code for your project should be available in a new branch of your team GitHub (or other
+approved version control system) called Release. Note that the markers will not look at code that remains in other
+branches.
+In the Sprint 2 Documentation column add a list of your COMPLETED features.
+• Make sure to include the developers involved are named beside each feature
+• i.e.,
+• If you are unsure if the features are large enough, please check with the course leader / teaching assistants.
+Updated UML Class Diagram
+In this sprint you are expected to update your UML class diagram based on your implementation. Make sure you use
+all the correct symbols and syntax. Please make sure to to place them in the Sprint 2 documentation and clearly
+lablel them as with the prefix of “Sprint 2” in the file name i.e., “Sprint 2 Class Diagram”.
+Sprint 2 Planning Poker Evidence
+You will need to have atleast 5 new planning poker evidence for sprint 2 (screenshot/photos). If you do not need to
+update your estimate then you will need to write a 250 word paragraph to detail why it is not needed by linking to
+your sprint 1 experience.
+Readme
+A readme (readme.md) is a document that describes the project, how to build the project, and any additional
+information like authors, dependencies, example usages etc. If you are unsure see https://www.makeareadme.com/
+3
+Part 1b – Lab Tasks (2%) – Team to show TA in Lab in week 12
+Code Review Document:
+Select approximately 50 to 75 lines of code (not counting comments) from your project and paste it in the code
+review template. Try to preserve all syntax highlighting and code alignment. This should be interesting, work-in-
+progress code (NOT Android automatically-generated UI code). Review your code by filling in the review code review
+template. Upload both the code and the review in a card called “Code Review” in the “Marking” column. You will
+need to complete at least one code review for the whole team. Note: In the code review, you will be assessed based
+on your review comments and not the quality of the code you have provided in the review template.
+You will want to fix your code according to your comments in your final code submission as the code quality will be
+assessed for the final submitted code (Release branch).
+Test-Driven Development (TDD) – Team to show TA in Lab in week 12
+Create a single PDF document showing evidence of performing Test-Driven Development (TDD):
+• For each User Story developed using Test-Driven Development, list the User Story and then provide the Unit Tests
+(or UI Test Automation) and acceptance tests you created.
+o Demonsteate evidence of TDD for at least one user story for the whole team.
+• Tests should be written and named following a logical sequence of development.
+o i.e.,
+1. Title: the userstory
+2. Screenshot of unit test (or UI test automation) code
+3. Screenshot of test fail in the testing framework
+4. Screenshot of the code to pass the test
+5. Screenshot of test passing in the testing framework
+• Upload the PDF under the Documentation column of your Trello board on a card names
+Test-Driven Development.
+4
+Part 2 - Team Final Presentation (10%)
+Presentation times
+The room booking information will be announced on Canvas and your team will need to book for a presentation slot.
+Format of your presentation
+A total of ten minutes is allocated to your team with five minutes for setup time if needed. You may divide up the
+proportions of the two parts of the presentation detailed below in any way you feel is appropriate to best present
+your product.
+Make sure to upload a copy of your presentation to your Trello board under Sprint 2 Documentation before your
+presentation.
+1. Your project and your Scrum management processes:
+• Team details and role
+• Description and features of your application.
+• The Scrum development process experienced by your group
+a. VERY briefly describe the Sprint 0 and Sprint 1 experiences of the team
+b. Place more emphasis on Sprint 2
+c. Like the Sprint 1 review, you should describe things, such as the Sprint goal, the Definition of Done,
+the Burndown chart, etc (If Unsure See Sprint 1 Assessment Document).
+• Testing and quality assurance techniques used
+• Pending issues and features to be developed
+• Issues faced, and lessons learnt
+You should use PowerPoint slides to illustrate any of the above features.
+2. The live demonstration of your product:
+a. Show the User Stories that you forecasted and committed to for Sprint 2.
+b. Demonstrate completed work and completed features of your product, including the new features finished
+in Sprint 2.
+c. You can include demos into your powerpoint slides as screenshots but you will need your producted loaded
+and ready to run on your device so that the teaching team can try it out during question time.
+• Note - if your product is complex or has features that you wish to demonstrate in more detail, you
+can arrange a time for your tutors to see a final version during the final laboratory session. Please
+email us to let us know in-advance. You may then deliver a shorter demonstration of the product if
+necessary in the final presentation. Features that are more complex can be presented using video
+snipplets in the presentation and/or sensor spoofing (i.e., simulating the GPS coordinates) in
+development mode.
+Marking criteria
+This presentation is worth 5% for the team will be assessed on clarity, quality, and comprehensiveness.
+The demonstration of your product is worth 5% for the team and will be assessed on clarity, usability and application
+quality.
+5
+Part 3 - Individual Reflection and Peer Review (10%)
+Write an individual, personal, reflection about your experience of being a team member during Sprints 0, 1 and 2.
+Use the Word document template available in the Final Deliverables folder on AUT Canvas. Submit the document in
+PDF via Turnitin.
+What did you learn personally during these Sprints? Have your ideas about planning and running a development
+project changed? What do you do differently now that you did not do before participating in this project? Are there
+things you would do differently next time? Explain your ideas with examples from your team’s activities.
+Consider using a reflective framework such as the Gibbs Reflective Framework to make your ideas flow more clearly
+and your evaluation more rigorous.
+The essay should be a minimum of 250 words long and may include pictures, diagrams, and/or references to help
+explain your arguments more clearly. Your essay could be longer.
+Peer Review
+Please use the online form on Canvas to leave your peer reviews.
+The peer review, Trello, and GitHub will be used to assess individual contribution to the project.
+If you wish to leave particularly sensitive comments, please email matthew.kuo@aut.ac.nz and all your assessments
+and comments will be treated in the strictest confidence and will not be disclosed to any other person on this course.
+Submission
+All deliverables must be uploaded to Trello by Tuesday 20 October (week 13) by 11:59pm and Labs.
+6
+Marking Rubric:
+Scoring Level Standard
+Excellent (A- to A+) In addition to meeting requirements for the “Good” level, the submission is an exemplary
+piece of work, completely error-free, is of “best-practice” quality, and demonstrates a
+deep understanding of the subject area by the author(s).
+• The product shows outstanding progress in features implemented since Sprint 1.
+• Overall, the first release of the product at the end of sprint 2 shows outstanding
+progress by the team.
+• Comprehensive scrum artefacts have been produced to document all aspects of
+the project from planning to sprinting and reflection on progress.
+• Scrum artefacts produced are of best-practice quality and have been produced in a
+timely, well-organized manner.
+Good (B- to B+) In addition to meeting requirements for the “Satisfactory” level, the submission represents
+a good understanding of the subject area by the author(s), is written in a structured and
+understandable manner, and meets most assessment criteria.
+• The product shows considerable progress in features implemented since sprint 1.
+• Overall, the first release of the product at the end of sprint 2 shows sustained
+progress by the team.
+• Scrum artefacts have been produced to document most aspects of the software
+development process.
+• Most scrum artefacts produced are of good quality and have been produced in a
+timely manner.
+Satisfactory (C to C+) The submission shows some understanding of the subject area by the author(s), meets a
+few assessment criteria, and/or the write-up lacks structure or is not easy to comprehend.
+• The product shows satisfactory progress in features implemented since sprint 1.
+• Overall, the first release of the product at the end of sprint 2 shows satisfactory
+progress by the team.
+• Scrum artefacts have been produced to document some aspects of the software
+development process.
+• Scrum artefacts produced are of reasonable or satisfactory quality or have been
+produced at the last minute.
+Unsatisfactory (C- or
+below)
+The submission fails to meet most assessment and quality criteria.

@@ -6,6 +6,8 @@
   <title>Haven Real Estate — UML Diagrams</title>
   <!-- Mermaid.js for UML Rendering -->
   <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
+  <!-- jsPDF for All-in-One Diagram Export -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
     * {
       box-sizing: border-box;
@@ -280,6 +282,91 @@
     .mermaid svg {
       font-family: inherit !important;
     }
+
+    .print-header {
+      display: none;
+    }
+
+    @media print {
+      @page {
+        size: landscape;
+        margin: 10mm 12mm;
+      }
+
+      body {
+        height: auto !important;
+        overflow: visible !important;
+        background: #ffffff !important;
+        color: #0f172a !important;
+      }
+
+      header, .controls, .hint {
+        display: none !important;
+      }
+
+      main.workspace {
+        height: auto !important;
+        overflow: visible !important;
+        display: block !important;
+        position: static !important;
+      }
+
+      .diagram-pane {
+        display: block !important;
+        position: static !important;
+        width: 100% !important;
+        height: auto !important;
+        page-break-after: always !important;
+        break-after: page !important;
+        padding: 10px 0 24px 0 !important;
+        overflow: visible !important;
+      }
+
+      .diagram-pane:last-child {
+        page-break-after: auto !important;
+        break-after: auto !important;
+      }
+
+      .print-header {
+        display: block !important;
+        margin-bottom: 12px;
+        padding-bottom: 6px;
+        border-bottom: 2px solid #0f766e;
+      }
+
+      .print-title {
+        font-size: 16px;
+        font-weight: 700;
+        color: #0f172a;
+      }
+
+      .print-meta {
+        font-size: 10.5px;
+        color: #64748b;
+        margin-top: 2px;
+        display: block;
+      }
+
+      .panzoom-layer {
+        transform: none !important;
+        width: 100% !important;
+        height: auto !important;
+        position: static !important;
+      }
+
+      .mermaid {
+        width: 100% !important;
+        height: auto !important;
+        display: flex !important;
+        justify-content: center !important;
+      }
+
+      .mermaid svg {
+        max-width: 100% !important;
+        max-height: 175mm !important;
+        height: auto !important;
+      }
+    }
   </style>
 </head>
 <body class="light">
@@ -301,7 +388,8 @@
     <div class="actions">
       <button class="btn" id="themeToggleBtn" title="Toggle Theme">🌓 Mode</button>
       <button class="btn btn-dark" id="fullscreenToggleBtn" title="Toggle Fullscreen (or press F)">⛶ Fullscreen</button>
-      <button class="btn" id="exportSvgBtn" title="Download SVG">⬇ Export SVG</button>
+      <button class="btn" id="exportSvgBtn" title="Download Active Diagram SVG">⬇ Export SVG</button>
+      <button class="btn btn-dark" id="exportPdfBtn" title="Download All Diagrams as Sprint 2 Class Diagram.pdf">📄 Export All (Sprint 2 Class Diagram.pdf)</button>
     </div>
   </header>
 
@@ -310,6 +398,10 @@
 
     <!-- 1. System Architecture -->
     <div class="diagram-pane active" id="pane-arch">
+      <div class="print-header">
+        <div class="print-title">Sprint 2 — 1. System Architecture Tiered Diagram</div>
+        <span class="print-meta">Haven Real Estate • COMP602 Software Development Practice (Team W204)</span>
+      </div>
       <div class="panzoom-layer">
         <div class="mermaid">
 flowchart TB
@@ -391,6 +483,10 @@ flowchart TB
 
     <!-- 2. Database Schema -->
     <div class="diagram-pane" id="pane-db">
+      <div class="print-header">
+        <div class="print-title">Sprint 2 — 2. Relational Database Schema & PostGIS Tables</div>
+        <span class="print-meta">Haven Real Estate • COMP602 Software Development Practice (Team W204)</span>
+      </div>
       <div class="panzoom-layer">
         <div class="mermaid">
 classDiagram
@@ -530,6 +626,10 @@ classDiagram
 
     <!-- 3. AI Search Sequence Flow (Jev as Main, Gemini as Alt/Backup) -->
     <div class="diagram-pane" id="pane-seq1">
+      <div class="print-header">
+        <div class="print-title">Sprint 2 — 3. AI Search Execution Flow (TypeSafe Jev System One & Fallback)</div>
+        <span class="print-meta">Haven Real Estate • COMP602 Software Development Practice (Team W204)</span>
+      </div>
       <div class="panzoom-layer">
         <div class="mermaid">
 sequenceDiagram
@@ -567,6 +667,10 @@ sequenceDiagram
 
     <!-- 4. 3-Mode Google Map Flow -->
     <div class="diagram-pane" id="pane-seq2">
+      <div class="print-header">
+        <div class="print-title">Sprint 2 — 4. Unified 3-Mode Location Map (Schools, Commute, Flood Hazards)</div>
+        <span class="print-meta">Haven Real Estate • COMP602 Software Development Practice (Team W204)</span>
+      </div>
       <div class="panzoom-layer">
         <div class="mermaid">
 sequenceDiagram
@@ -600,6 +704,10 @@ sequenceDiagram
 
     <!-- 5. Chatbot & LIM Flow -->
     <div class="diagram-pane" id="pane-seq3">
+      <div class="print-header">
+        <div class="print-title">Sprint 2 — 5. Conversational Assistant & LIM Report Analysis Flow</div>
+        <span class="print-meta">Haven Real Estate • COMP602 Software Development Practice (Team W204)</span>
+      </div>
       <div class="panzoom-layer">
         <div class="mermaid">
 sequenceDiagram
@@ -627,6 +735,10 @@ sequenceDiagram
 
     <!-- 6. Domain Models -->
     <div class="diagram-pane" id="pane-domain">
+      <div class="print-header">
+        <div class="print-title">Sprint 2 — 6. Object-Oriented Domain Class Diagram & Core Types</div>
+        <span class="print-meta">Haven Real Estate • COMP602 Software Development Practice (Team W204)</span>
+      </div>
       <div class="panzoom-layer">
         <div class="mermaid">
 classDiagram
@@ -864,6 +976,122 @@ classDiagram
       a.download = `${pane.id}.svg`;
       a.click();
       URL.revokeObjectURL(url);
+    });
+
+    document.getElementById('exportPdfBtn').addEventListener('click', async () => {
+      const btn = document.getElementById('exportPdfBtn');
+      const originalText = btn.innerHTML;
+      btn.innerHTML = '⏳ Compiling PDF...';
+      btn.disabled = true;
+
+      try {
+        const panesList = [
+          { id: 'pane-arch', title: 'Sprint 2 — 1. System Architecture Tiered Diagram' },
+          { id: 'pane-db', title: 'Sprint 2 — 2. Relational Database Schema & PostGIS Tables' },
+          { id: 'pane-seq1', title: 'Sprint 2 — 3. AI Search Execution Flow (TypeSafe Jev System One & Fallback)' },
+          { id: 'pane-seq2', title: 'Sprint 2 — 4. Unified 3-Mode Location Map (Schools, Commute, Flood Hazards)' },
+          { id: 'pane-seq3', title: 'Sprint 2 — 5. Conversational Assistant & LIM Report Analysis Flow' },
+          { id: 'pane-domain', title: 'Sprint 2 — 6. Object-Oriented Domain Class Diagram & Core Types' }
+        ];
+
+        if (window.jspdf && window.jspdf.jsPDF) {
+          const { jsPDF } = window.jspdf;
+          const doc = new jsPDF({
+            orientation: 'landscape',
+            unit: 'mm',
+            format: 'a4'
+          });
+
+          for (let i = 0; i < panesList.length; i++) {
+            const item = panesList[i];
+            const paneEl = document.getElementById(item.id);
+            const svg = paneEl ? paneEl.querySelector('svg') : null;
+            if (!svg) continue;
+
+            if (i > 0) doc.addPage('a4', 'landscape');
+
+            // Header Banner
+            doc.setFillColor(24, 51, 43);
+            doc.rect(0, 0, 297, 13, 'F');
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(10.5);
+            doc.setTextColor(255, 255, 255);
+            doc.text(`Haven Real Estate — ${item.title}`, 10, 8.5);
+
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(8);
+            doc.setTextColor(204, 222, 214);
+            doc.text('COMP602 Software Development Practice — Team W204', 287, 8.5, { align: 'right' });
+
+            // Rasterize SVG via Canvas
+            const serializer = new XMLSerializer();
+            let source = serializer.serializeToString(svg);
+            if (!source.match(/^<svg[^>]+xmlns="http\:\/\/www\.w3\.org\/2000\/svg"/)) {
+              source = source.replace(/^<svg/, '<svg xmlns="http://www.w3.org/2000/svg"');
+            }
+
+            const img = new Image();
+            const svgBlob = new Blob([source], { type: 'image/svg+xml;charset=utf-8' });
+            const url = URL.createObjectURL(svgBlob);
+
+            await new Promise((resolve) => {
+              img.onload = () => {
+                const canvas = document.createElement('canvas');
+                const scale = 2;
+                canvas.width = (img.naturalWidth || 1200) * scale;
+                canvas.height = (img.naturalHeight || 800) * scale;
+                const ctx = canvas.getContext('2d');
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+                const imgData = canvas.toDataURL('image/png');
+                const availW = 277;
+                const availH = 175;
+                const aspect = canvas.width / canvas.height;
+                let w = availW;
+                let h = w / aspect;
+                if (h > availH) {
+                  h = availH;
+                  w = h * aspect;
+                }
+                const x = 10 + (availW - w) / 2;
+                const y = 17 + (availH - h) / 2;
+
+                doc.addImage(imgData, 'PNG', x, y, w, h);
+                URL.revokeObjectURL(url);
+                resolve();
+              };
+              img.onerror = () => {
+                URL.revokeObjectURL(url);
+                resolve();
+              };
+              img.src = url;
+            });
+
+            // Footer
+            doc.setDrawColor(223, 228, 220);
+            doc.setLineWidth(0.3);
+            doc.line(10, 201, 287, 201);
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(8);
+            doc.setTextColor(111, 125, 118);
+            doc.text('Sprint 2 Final Deliverables — UML Architecture & Class Diagrams', 10, 205);
+            doc.text(`Page ${i + 1} of ${panesList.length}`, 287, 205, { align: 'right' });
+          }
+
+          doc.save('Sprint 2 Class Diagram.pdf');
+        } else {
+          // Fallback to Native Print Dialog
+          window.print();
+        }
+      } catch (err) {
+        console.error('Error generating PDF:', err);
+        window.print();
+      } finally {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+      }
     });
   </script>
 </body>
