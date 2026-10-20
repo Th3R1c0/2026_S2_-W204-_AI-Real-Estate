@@ -46,7 +46,8 @@ function withSourceEnrichment(property: Property): Property {
     (!property.titleNumber && Boolean(bundled.titleNumber)) ||
     (!property.unitaryPlanZone && Boolean(bundled.unitaryPlanZone)) ||
     (property.landValue === undefined && bundled.landValue !== undefined) ||
-    (property.estimateMedian === undefined && bundled.estimateMedian !== undefined);
+    (property.estimateMedian === undefined && bundled.estimateMedian !== undefined) ||
+    (property.rates === undefined && bundled.rates !== undefined);
 
   if (
     !needsAgent &&
@@ -101,6 +102,9 @@ function withSourceEnrichment(property: Property): Property {
       : {}),
     ...(!property.estimateConfidence && bundled.estimateConfidence
       ? { estimateConfidence: bundled.estimateConfidence }
+      : {}),
+    ...(property.rates === undefined && bundled.rates
+      ? { rates: bundled.rates }
       : {}),
     ...(!property.titleNumber && bundled.titleNumber ? { titleNumber: bundled.titleNumber } : {}),
     ...(!property.legalDescription && bundled.legalDescription

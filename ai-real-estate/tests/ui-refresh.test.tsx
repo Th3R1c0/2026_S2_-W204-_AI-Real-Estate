@@ -341,6 +341,59 @@ it("renders collapsible property description, unified 3-mode map, non-collapsibl
   expect(screen.getByLabelText("Property price ($)")).toHaveValue(home.price);
 });
 
+it("compares low/mid/high estimates across sources, shows the Council CV split with rates, and merges history into one list", () => {
+  const property: Property = {
+    ...home,
+    valuationEstimates: [
+      { source: "Homes.co.nz", low: 2_300_000, medium: 2_450_000, high: 2_600_000 },
+      { source: "Trade Me", low: 2_400_000, medium: 2_500_000, high: 2_650_000 },
+      { source: "OneRoof", low: 2_250_000, medium: 2_480_000, high: 2_720_000 },
+      { source: "RealEstate.co.nz", low: 2_350_000, medium: 2_470_000, high: 2_620_000 },
+    ],
+    rates: { amount: 3_950, period: "year" },
+  };
+  render(<PropertyDetailPage property={property} />);
+
+  const table = document.querySelector(".valuation-table");
+  expect(table).not.toBeNull();
+  const tableText = table?.textContent ?? "";
+  for (const source of ["Homes.co.nz", "Trade Me", "OneRoof", "RealEstate.co.nz"]) {
+    expect(tableText).toContain(source);
+  }
+  // Each source keeps its own low / mid / high rather than being averaged.
+  expect(tableText).toContain("$2,300,000");
+  expect(tableText).toContain("$2,450,000");
+  expect(tableText).toContain("$2,650,000");
+
+  // Council CV is attributed to Auckland Council with a land/improvement split.
+  expect(screen.getAllByText(/Auckland Council capital value/i).length).toBeGreaterThanOrEqual(1);
+  expect(screen.getAllByText("$1,550,000").length).toBeGreaterThanOrEqual(1);
+  expect(screen.getAllByText("$800,000").length).toBeGreaterThanOrEqual(1);
+
+  // Rates and the Council lookup are on the page.
+  expect(screen.getByText(/Auckland Council rates/i)).toBeInTheDocument();
+  expect(screen.getAllByText("$3,950 / year").length).toBe(1);
+  expect(
+    screen.getByRole("link", { name: /Check this address on Auckland Council/i }),
+  ).toHaveAttribute(
+    "href",
+    "https://www.aucklandcouncil.govt.nz/en/property-rates-valuations/find-property-rates-valuation.html",
+  );
+
+  // The trajectory graph is gone and there is a single merged timeline.
+  expect(screen.queryByText(/Estimated value trajectory/i)).not.toBeInTheDocument();
+  expect(screen.queryByText(/Valuations & Past Sales/i)).not.toBeInTheDocument();
+  expect(screen.queryByText(/Property history timeline/i)).not.toBeInTheDocument();
+  const timeline = document.querySelectorAll(".property-timeline-item");
+  expect(timeline.length).toBeGreaterThanOrEqual(4);
+  // Estimates are lower-weight: rendered in italics.
+  const estimates = document.querySelectorAll(".property-timeline-item.is-estimate");
+  expect(estimates.length).toBeGreaterThanOrEqual(1);
+  expect(estimates[0].querySelector("strong")?.textContent).toBe(
+    "Estimated value",
+  );
+});
+
 it("renders immediate static headings on loading screens and uses skeletons only for loading content", () => {
   const { unmount } = render(<HomeLoading />);
   expect(screen.queryByText("Auckland, New Zealand")).not.toBeInTheDocument();

@@ -116,6 +116,21 @@ export type ValuationRecord = {
   changePercent?: number;
 };
 
+export type ValuationEstimate = {
+  source: string;
+  url?: string;
+  low?: number;
+  medium: number;
+  high?: number;
+};
+
+export type CouncilRates = {
+  amount: number;
+  period: "year" | "quarter";
+  periodLabel?: string;
+  url?: string;
+};
+
 export type AvmHistoryPoint = {
   date: string;
   value: number;
@@ -165,6 +180,8 @@ export type Property = {
   estimateMedian?: number;
   estimateHigh?: number;
   estimateConfidence?: string;
+  valuationEstimates?: ValuationEstimate[];
+  rates?: CouncilRates;
   estimatedWeeklyRent?: number;
   ownershipType?: string;
   titleNumber?: string;

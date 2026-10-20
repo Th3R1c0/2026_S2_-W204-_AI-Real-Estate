@@ -10,11 +10,12 @@ import {
   ChevronDown,
   ChevronUp,
   FileText,
+  Hammer,
   Heart,
   History,
   LandPlot,
   Maximize2,
-  TrendingUp,
+  Receipt,
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Badge } from "@/components/ui/badge";
@@ -45,12 +46,25 @@ import PropertyNotes from "./property-notes";
 import PropertyLocationMap from "./property-location-map";
 import { useAccountWorkspace } from "./account-workspace-provider";
 import { generateValuationHistory } from "../../lib/property-engine";
-import type { Property } from "../../lib/property-types";
+import type {
+  Property,
+  PropertyHistoryEvent,
+} from "../../lib/property-types";
 import {
   commuteStorageKey,
   readSavedLocations,
   type SavedLocation,
 } from "../../lib/saved-locations";
+
+const VALUATION_PUBLISHERS = [
+  "Homes.co.nz",
+  "Trade Me",
+  "OneRoof",
+  "RealEstate.co.nz",
+] as const;
+
+const AUCKLAND_RATES_LOOKUP_URL =
+  "https://www.aucklandcouncil.govt.nz/en/property-rates-valuations/find-property-rates-valuation.html";
 
 const numberFormatter = new Intl.NumberFormat("en-NZ");
 const moneyFormatter = new Intl.NumberFormat("en-NZ", {
@@ -73,6 +87,50 @@ function formatDateLabel(dateStr: string): string {
     year: "numeric",
   });
 }
+
+function dateKey(dateStr: string | undefined): number {
+  if (!dateStr) return Number.NEGATIVE_INFINITY;
+  const parsed = new Date(dateStr);
+  return Number.isNaN(parsed.getTime())
+    ? Number.NEGATIVE_INFINITY
+    : parsed.getTime();
+}
+
+function isCouncilSource(source: string | undefined): boolean {
+  if (!source) return false;
+  return /council|rating valuation|\bq?rv\b/i.test(source);
+}
+
+type EstimateRow = { source: string; url?: string; low?: number; medium: number; high?: number };
+
+function toEventKey(ev: { date: string; value?: string | number }): string {
+  const numeric = typeof ev.value === "number" ? ev.value : null;
+  return `${ev.date ?? ""}|${numeric ?? ev.value ?? ""}`;
+}
+
+function isDuplicateCouncilEvent(
+  ev: PropertyHistoryEvent,
+  councilRecords: { date: string; capitalValue?: number }[],
+): boolean {
+  const looksCouncil =
+    ev.type === "cv" || /\brev\b|rating valuation|capital value/i.test(ev.label ?? "");
+  if (!looksCouncil) return false;
+  return councilRecords.some(
+    (rec) => rec.date === ev.date && rec.capitalValue === ev.value,
+  );
+}
+
+type UnifiedEvent = {
+  key: string;
+  date: string;
+  /** Estimated values are lower-weight information and are rendered in italics. */
+  estimate: boolean;
+  label: string;
+  value?: string;
+  detail?: string;
+  source?: string;
+  url?: string;
+};
 
 export default function PropertyDetailPage({
   property,
@@ -195,11 +253,215 @@ export default function PropertyDetailPage({
     );
   }, [property.landValue, property.capitalValue]);
 
-  const avmChartPoints = useMemo(() => {
-    const pts = property.avmHistory ?? [];
-    if (pts.length === 0) return [];
-    return pts.slice(-12);
-  }, [property.avmHistory]);
+  /**
+   * One row per publisher, using the most recent automated valuation each
+   * source has published. Sources that disagree are kept side by side rather
+   * than averaged into a single number.
+   */
+  const estimateRows = useMemo<EstimateRow[]>(() => {
+    const candidates: EstimateRow[] = (
+      property.valuationEstimates ??
+      (property.estimateMedian || (property.estimateLow && property.estimateHigh)
+        ? [
+            {
+              source: "OneRoof",
+              low: property.estimateLow,
+              medium: property.estimateMedian ?? property.estimateLow!,
+              high: property.estimateHigh,
+            },
+          ]
+        : [])
+    )
+      .filter((row) => row.medium || row.low || row.high)
+      .map((row) => ({
+        ...row,
+        medium: row.medium || row.low || row.high || 0,
+      }));
+
+    const sourceUrls = new Map<string, string>();
+    for (const src of property.sources ?? []) {
+      for (const publisher of VALUATION_PUBLISHERS) {
+        if (src.publisher?.includes(publisher)) sourceUrls.set(publisher, src.url);
+      }
+    }
+
+    return VALUATION_PUBLISHERS.map((publisher) =>
+      candidates.find((row) => (row.source ?? "").includes(publisher)),
+    )
+      .filter((row): row is EstimateRow => Boolean(row))
+      .map((row) => ({ ...row, url: row.url ?? sourceUrls.get(row.source) }));
+  }, [property.valuationEstimates, property.estimateLow, property.estimateMedian, property.estimateHigh, property.sources]);
+
+  const estimateRange = useMemo(() => {
+    const explicitLows = estimateRows.map((r) => r.low).filter((v): v is number => Boolean(v));
+    const explicitHighs = estimateRows.map((r) => r.high).filter((v): v is number => Boolean(v));
+    const lows = explicitLows.length
+      ? explicitLows
+      : estimateRows.map((r) => Math.round(r.medium * 0.92));
+    const highs = explicitHighs.length
+      ? explicitHighs
+      : estimateRows.map((r) => Math.round(r.medium * 1.08));
+    if (!lows.length || !highs.length) return null;
+    const low = Math.min(...lows);
+    const high = Math.max(...highs);
+    const medium = Math.round(
+      estimateRows.reduce((sum, r) => sum + r.medium, 0) / estimateRows.length,
+    );
+    return { low, medium, high };
+  }, [estimateRows]);
+
+  const capitalValueRecords = useMemo(() => {
+    const fromHistory = (property.valuationHistory ?? []).filter(
+      (rec) =>
+        rec.capitalValue !== undefined ||
+        rec.landValue !== undefined ||
+        rec.improvementValue !== undefined,
+    );
+    const records = fromHistory.slice().sort((a, b) => dateKey(b.date) - dateKey(a.date));
+    if (
+      !!property.capitalValue &&
+      !records.some((rec) => rec.capitalValue === property.capitalValue)
+    ) {
+      records.unshift({
+        date: property.valuationDate ?? "",
+        value: property.capitalValue,
+        capitalValue: property.capitalValue,
+        source: "Auckland Council rating valuation",
+        kind: "rv",
+        landValue: property.landValue,
+        improvementValue: property.improvementValue,
+      });
+    }
+    return records;
+  }, [property.valuationHistory, property.capitalValue, property.landValue, property.improvementValue, property.valuationDate]);
+
+  const latestCv = capitalValueRecords[0];
+  const latestCapitalValue = latestCv?.capitalValue ?? property.capitalValue;
+  const latestLandValue = latestCv?.landValue ?? property.landValue;
+  const latestImprovementValue =
+    latestCv?.improvementValue ?? property.improvementValue;
+
+  /** One chronological list of sales, council valuations and (italic) estimates. */
+  const unifiedEvents = useMemo<UnifiedEvent[]>(() => {
+    const events: UnifiedEvent[] = [];
+    // The same sale / reassessment / estimate is often recorded in more than
+    // one source array; keep only the richest version of each.
+    const seen = new Set<string>();
+    const push = (ev: UnifiedEvent, key: string) => {
+      if (seen.has(key)) return;
+      seen.add(key);
+      events.push(ev);
+    };
+    const dateAndValue = (date: string, value?: number) =>
+      `${date.slice(0, 10)}|${value ?? ""}`;
+
+    for (const sale of pastSalesList) {
+      push(
+        {
+          key: `sale-${sale.date}-${sale.price}`,
+          date: sale.date,
+          estimate: false,
+          label: "Sold",
+          value: formatMoney(sale.price),
+          detail: sale.saleType,
+          source: sale.source,
+        },
+        dateAndValue(sale.date, sale.price),
+      );
+    }
+
+    for (const rec of property.valuationHistory ?? []) {
+      if (isCouncilSource(rec.source)) continue;
+      const value = rec.medianEstimate ?? rec.value;
+      if (!value) continue;
+      const range =
+        rec.lowEstimate && rec.highEstimate
+          ? `Range ${formatMoney(rec.lowEstimate)} – ${formatMoney(rec.highEstimate)}`
+          : undefined;
+      push(
+        {
+          key: `avm-${rec.date}-${rec.source}`,
+          date: rec.date,
+          estimate: true,
+          label: "Estimated value",
+          value: formatMoney(value),
+          detail: range,
+          source: rec.source,
+        },
+        `${dateAndValue(rec.date)}|${rec.source.replace(/\s*Estimate$/i, "")}`,
+      );
+    }
+
+    // propertyHistory often repeats the council reassessments found in
+    // valuationHistory, so skip any event whose date and value already match.
+    const duplicateEvents = new Set(
+      (property.propertyHistory ?? [])
+        .filter((ev) => !isDuplicateCouncilEvent(ev, []))
+        .map(toEventKey),
+    );
+
+    for (const rec of capitalValueRecords) {
+      const cv = rec.capitalValue;
+      if (!cv) continue;
+      if (duplicateEvents.has(toEventKey({ date: rec.date, value: cv }))) continue;
+      const split = [
+        rec.landValue !== undefined ? `Land ${formatMoney(rec.landValue)}` : null,
+        rec.improvementValue !== undefined
+          ? `Improvements ${formatMoney(rec.improvementValue)}`
+          : null,
+        rec.changePercent !== undefined
+          ? `${rec.changePercent > 0 ? "+" : ""}${rec.changePercent}% vs previous CV`
+          : null,
+      ].filter(Boolean);
+      push(
+        {
+          key: `cv-${rec.date}-${cv}`,
+          date: rec.date,
+          estimate: false,
+          label: "Auckland Council capital value (RV)",
+          value: formatMoney(cv),
+          detail: split.length ? split.join(" · ") : undefined,
+          source: isCouncilSource(rec.source) ? "Auckland Council" : rec.source,
+        },
+        dateAndValue(rec.date, cv),
+      );
+    }
+
+    for (const ev of property.propertyHistory ?? []) {
+      // These are already rendered above with their source and CV split.
+      if (isDuplicateCouncilEvent(ev, capitalValueRecords)) continue;
+      if (ev.type === "sale") continue;
+      push(
+        {
+          key: `event-${ev.date}-${ev.label}`,
+          date: ev.date,
+          estimate: false,
+          // The value is shown on its own, so drop it from the label suffix.
+          label: ev.label.split(":")[0],
+          value:
+            typeof ev.value === "number" ? formatMoney(ev.value) : ev.value,
+          detail: ev.detail,
+        },
+        dateAndValue(ev.date, typeof ev.value === "number" ? ev.value : undefined),
+      );
+    }
+
+    return events
+      .filter((ev) => ev.date)
+      .filter((ev) => ev.date.length > 4)
+      .sort((a, b) => dateKey(b.date) - dateKey(a.date));
+  }, [pastSalesList, property.valuationHistory, property.propertyHistory, capitalValueRecords, property.valuationDate]);
+
+  const rates = property.rates;
+  const ratesDetail = (
+    <a
+      href={rates?.url ?? AUCKLAND_RATES_LOOKUP_URL}
+      rel="noreferrer"
+      target="_blank"
+    >
+      Check this address on Auckland Council ↗
+    </a>
+  );
 
   return (
     <div className="site-shell property-page-shell">
@@ -491,7 +753,8 @@ export default function PropertyDetailPage({
                       Market history & valuations
                     </h2>
                     <p className="property-section-subtitle">
-                      Automated valuation estimates, Council rating split, and verified property timeline.
+                      Estimates from multiple sources, Auckland Council capital
+                      value and rates, and a single chronological history.
                     </p>
                   </div>
                 </div>
@@ -501,7 +764,12 @@ export default function PropertyDetailPage({
                   <Card className="valuation-summary-card">
                     <CardHeader className="pb-2">
                       <div className="flex items-center justify-between gap-2">
-                        <CardDescription>OneRoof Estimate (AVM)</CardDescription>
+                        <CardDescription>
+                          Valuation estimate range
+                          {estimateRows.length > 1
+                            ? ` (${estimateRows.length} sources)`
+                            : ""}
+                        </CardDescription>
                         {property.estimateConfidence && (
                           <Badge variant="secondary">
                             {property.estimateConfidence} confidence
@@ -509,24 +777,31 @@ export default function PropertyDetailPage({
                         )}
                       </div>
                       <CardTitle className="text-2xl">
-                        {formatMoney(property.estimateMedian ?? property.price)}
+                        {estimateRange
+                          ? formatMoney(estimateRange.medium)
+                          : "Not published"}
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
-                      {property.estimateLow && property.estimateHigh ? (
+                      {estimateRange ? (
                         <div className="valuation-range-box">
                           <div className="valuation-range-labels">
-                            <span>Low: {formatMoney(property.estimateLow)}</span>
-                            <span>High: {formatMoney(property.estimateHigh)}</span>
+                            <span>Low: {formatMoney(estimateRange.low)}</span>
+                            <span>Mid: {formatMoney(estimateRange.medium)}</span>
+                            <span>High: {formatMoney(estimateRange.high)}</span>
                           </div>
                           <div className="valuation-range-track">
                             <div className="valuation-range-fill" />
-                            <div className="valuation-range-Dot" />
                           </div>
+                          <p className="text-xs text-muted-foreground">
+                            Low, mid and high estimates by source are compared in
+                            the table below.
+                          </p>
                         </div>
                       ) : (
                         <p className="text-xs text-muted-foreground">
-                          Current market indication based on listing & public records.
+                          No automated valuation estimate has been published for
+                          this property.
                         </p>
                       )}
                     </CardContent>
@@ -536,7 +811,7 @@ export default function PropertyDetailPage({
                     <CardHeader className="pb-2">
                       <div className="flex items-center justify-between gap-2">
                         <CardDescription>
-                          Council Capital Value (RV)
+                          Auckland Council capital value (CV)
                         </CardDescription>
                         {property.rateableValueChange && (
                           <Badge variant="outline">
@@ -545,23 +820,22 @@ export default function PropertyDetailPage({
                         )}
                       </div>
                       <CardTitle className="text-2xl">
-                        {property.capitalValue
-                          ? formatMoney(property.capitalValue)
+                        {latestCapitalValue
+                          ? formatMoney(latestCapitalValue)
                           : "Not published"}
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
-                      {property.landValue && property.improvementValue ? (
+                      {latestLandValue && latestImprovementValue ? (
                         <div className="rv-split-box">
                           <div className="rv-split-labels">
                             <span>
-                              Land: <strong>{formatMoney(property.landValue)}</strong>
+                              Land value:{" "}
+                              <strong>{formatMoney(latestLandValue)}</strong>
                             </span>
                             <span>
-                              Improvements:{" "}
-                              <strong>
-                                {formatMoney(property.improvementValue)}
-                              </strong>
+                              Improvement value:{" "}
+                              <strong>{formatMoney(latestImprovementValue)}</strong>
                             </span>
                           </div>
                           {landSharePct !== null && (
@@ -587,178 +861,304 @@ export default function PropertyDetailPage({
                   </Card>
                 </div>
 
-                {/* AVM Trend Bars if scraped */}
-                {avmChartPoints.length > 1 && (
-                  <Card className="mt-4">
+                {/* Multi-source valuation estimate comparison */}
+                <Card className="mt-4">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-sm font-medium flex items-center gap-2">
+                      <Building2 className="size-4 text-primary" />
+                      Valuation estimates by source
+                    </CardTitle>
+                    <CardDescription className="text-xs">
+                      Low, mid and high automated estimates published by each
+                      website for this address. Sources can disagree, so they are
+                      shown side by side rather than combined into one figure.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    {estimateRows.length > 0 || pastSalesList.length > 0 || capitalValueRecords.length > 0 || unifiedEvents.length > 0 ? (
+                      <div className="valuation-table-wrap">
+                        <table className="valuation-table">
+                          <thead>
+                            <tr>
+                              <th scope="col">Source</th>
+                              <th scope="col">Low</th>
+                              <th scope="col">Mid</th>
+                              <th scope="col">High</th>
+                              <th scope="col">As at</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {estimateRows.length > 0 ? (
+                              estimateRows.map((row) => (
+                                <tr key={`estimate-${row.source}`}>
+                                  <th scope="row">
+                                    {row.url ? (
+                                      <a
+                                        href={row.url}
+                                        rel="noreferrer"
+                                        target="_blank"
+                                      >
+                                        {row.source} ↗
+                                      </a>
+                                    ) : (
+                                      row.source
+                                    )}
+                                  </th>
+                                  <td>
+                                    {row.low !== undefined
+                                      ? formatMoney(row.low)
+                                      : row.medium
+                                        ? formatMoney(Math.round(row.medium * 0.92))
+                                        : "—"}
+                                  </td>
+                                  <td>
+                                    <strong>{formatMoney(row.medium)}</strong>
+                                  </td>
+                                  <td>
+                                    {row.high !== undefined
+                                      ? formatMoney(row.high)
+                                      : row.medium
+                                        ? formatMoney(Math.round(row.medium * 1.08))
+                                        : "—"}
+                                  </td>
+                                  <td>
+                                    {formatDateLabel(
+                                      property.valuationHistory?.find((rec) =>
+                                        rec.source.includes(row.source),
+                                      )?.date ??
+                                        property.valuationHistory?.find(
+                                          (rec) => !isCouncilSource(rec.source),
+                                        )?.date ??
+                                        "",
+                                    ) || "—"}
+                                  </td>
+                                </tr>
+                              ))
+                            ) : (
+                              <tr>
+                                <td colSpan={5}>
+                                  No published automated valuation estimates for
+                                  this property.
+                                </td>
+                              </tr>
+                            )}
+                            {pastSalesList.length > 0 ? (
+                              <tr>
+                                <th scope="row">Last sale (recorded)</th>
+                                <td colSpan={2}>
+                                  <strong>
+                                    {formatMoney(pastSalesList[0].price)}
+                                  </strong>
+                                </td>
+                                <td colSpan={2}>
+                                  {formatDateLabel(pastSalesList[0].date)}
+                                </td>
+                              </tr>
+                            ) : null}
+                            {capitalValueRecords.length > 0 &&
+                            latestCapitalValue ? (
+                              <tr>
+                                <th scope="row">
+                                  <a
+                                    href={
+                                      AUCKLAND_RATES_LOOKUP_URL
+                                    }
+                                    rel="noreferrer"
+                                    target="_blank"
+                                  >
+                                    Auckland Council capital value ↗
+                                  </a>
+                                </th>
+                                <td colSpan={2}>
+                                  <strong>
+                                    {formatMoney(latestCapitalValue)}
+                                  </strong>
+                                  <span className="valuation-table-note">
+                                    Land {latestLandValue ? formatMoney(latestLandValue) : "—"} ·
+                                    Improvements{" "}
+                                    {latestImprovementValue
+                                      ? formatMoney(latestImprovementValue)
+                                      : "—"}
+                                  </span>
+                                </td>
+                                <td colSpan={2}>
+                                  {formatDateLabel(latestCv?.date ?? "") || "—"}
+                                </td>
+                              </tr>
+                            ) : null}
+                          </tbody>
+                        </table>
+                      </div>
+                    ) : (
+                      <p className="text-xs text-muted-foreground">
+                        No valuations or sales recorded for this property.
+                      </p>
+                    )}
+                    <p className="valuation-table-footnote">
+                      Estimates are website automated valuations, not asking
+                      prices or confirmed sale prices. Capital value is set by
+                      Auckland Council for rating purposes only.
+                    </p>
+                  </CardContent>
+                </Card>
+
+                <div className="valuation-cards-grid mt-4">
+                  <Card>
                     <CardHeader className="pb-2">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <CardTitle className="text-sm font-medium flex items-center gap-2">
-                            <TrendingUp className="size-4 text-primary" />
-                            Estimated value trajectory
-                          </CardTitle>
-                          <CardDescription className="text-xs">
-                            Recent OneRoof automated valuation movement
-                          </CardDescription>
-                        </div>
-                      </div>
+                      <CardDescription>
+                        Auckland Council rates
+                        {rates?.periodLabel ? ` · ${rates.periodLabel}` : ""}
+                      </CardDescription>
+                      <CardTitle className="text-2xl">
+                        {rates
+                          ? `${formatMoney(rates.amount)}${rates.period === "quarter" ? " / quarter" : " / year"}`
+                          : "Not published"}
+                      </CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <div className="avm-spark-bars">
-                        {(() => {
-                          const values = avmChartPoints.map((p) => p.value);
-                          const minVal = Math.min(...values) * 0.92;
-                          const maxVal = Math.max(...values) * 1.02;
-                          const span = Math.max(1, maxVal - minVal);
-                          return avmChartPoints.map((pt) => {
-                            const heightPct = Math.round(
-                              ((pt.value - minVal) / span) * 100,
-                            );
-                            return (
-                              <div
-                                className="avm-spark-col"
-                                key={pt.date}
-                                title={`${formatDateLabel(pt.date)}: ${formatMoney(pt.value)}`}
-                              >
-                                <div className="avm-spark-bar-wrap">
-                                  <div
-                                    className="avm-spark-bar"
-                                    style={{
-                                      height: `${Math.max(18, heightPct)}%`,
-                                    }}
-                                  />
-                                </div>
-                                <span className="avm-spark-date">
-                                  {pt.date.slice(0, 7)}
-                                </span>
-                              </div>
-                            );
-                          });
-                        })()}
-                      </div>
-                    </CardContent>
-                  </Card>
-                )}
-
-                {/* Two-column or stacked History Cards: Past Sales & Valuation Records + Timeline */}
-                <div className="market-history-columns mt-4">
-                  <Card>
-                    <CardHeader className="pb-3">
-                      <CardTitle className="text-sm font-medium flex items-center gap-2">
-                        <Building2 className="size-4 text-primary" />
-                        Valuations & Past Sales
-                      </CardTitle>
-                      <CardDescription className="text-xs">
-                        Verified sales and official valuation assessments
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-3">
-                      {pastSalesList.map((sale, i) => (
-                        <div
-                          className="history-record-row"
-                          key={`sale-${sale.date}-${i}`}
-                        >
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <strong>{formatMoney(sale.price)}</strong>
-                              <Badge variant="default">Sold</Badge>
-                            </div>
-                            <span className="history-record-meta">
-                              {formatDateLabel(sale.date)}
-                              {sale.saleType ? ` · ${sale.saleType}` : ""}
-                            </span>
-                          </div>
-                        </div>
-                      ))}
-
-                      {valuationRecords.map((rec, i) => {
-                        const val = rec.value || rec.capitalValue || rec.medianEstimate;
-                        if (!val) return null;
-                        return (
-                          <div
-                            className="history-record-row"
-                            key={`val-${rec.date}-${i}`}
-                          >
-                            <div>
-                              <div className="flex items-center gap-2">
-                                <strong>{formatMoney(val)}</strong>
-                                <Badge variant="secondary">{rec.source}</Badge>
-                              </div>
-                              <span className="history-record-meta">
-                                {formatDateLabel(rec.date)}
-                                {rec.landValue
-                                  ? ` · Land ${formatMoney(rec.landValue)}`
-                                  : ""}
-                              </span>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </CardContent>
-                  </Card>
-
-                  <Card>
-                    <CardHeader className="pb-3">
-                      <CardTitle className="text-sm font-medium flex items-center gap-2">
-                        <History className="size-4 text-primary" />
-                        Property history timeline
-                      </CardTitle>
-                      <CardDescription className="text-xs">
-                        Chronological events recorded for this property
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      {property.propertyHistory &&
-                      property.propertyHistory.length > 0 ? (
-                        <ol className="property-timeline-list">
-                          {property.propertyHistory.map((ev, idx) => (
-                            <li
-                              className="property-timeline-item"
-                              key={`${ev.date}-${ev.label}-${idx}`}
-                            >
-                              <div className="property-timeline-dot" />
-                              <div className="property-timeline-content">
-                                <div className="property-timeline-head">
-                                  <strong>{ev.label}</strong>
-                                  {ev.value && (
-                                    <Badge variant="outline">
-                                      {typeof ev.value === "number"
-                                        ? formatMoney(ev.value)
-                                        : ev.value}
-                                    </Badge>
-                                  )}
-                                </div>
-                                <span className="property-timeline-meta">
-                                  {[formatDateLabel(ev.date), ev.detail]
-                                    .filter(Boolean)
-                                    .join(" · ")}
-                                </span>
-                              </div>
-                            </li>
-                          ))}
-                        </ol>
-                      ) : (
-                        <div className="space-y-2 text-xs text-muted-foreground">
-                          <div className="flex items-center gap-2">
-                            <FileText className="size-3.5" />
-                            <span>
-                              {property.yearBuilt
-                                ? `Built in ${property.yearBuilt}`
-                                : "Public title & rating history synced"}
-                            </span>
-                          </div>
-                          {property.legalDescription && (
+                      {rates ? (
+                        <div className="text-xs text-muted-foreground">
+                          {rates.period === "quarter" ? (
                             <p className="m-0">
-                              Legal description: {property.legalDescription}
+                              Approximately{" "}
+                              <strong>
+                                {formatMoney(Math.round(rates.amount * 4))}
+                              </strong>{" "}
+                              per year including GST.
+                            </p>
+                          ) : (
+                            <p className="m-0">
+                              Approximately{" "}
+                              <strong>
+                                {formatMoney(Math.round(rates.amount / 4))}
+                              </strong>{" "}
+                              per quarter including GST.
                             </p>
                           )}
+                          <p className="m-0 mt-2">{ratesDetail}</p>
+                        </div>
+                      ) : (
+                        <div className="text-xs text-muted-foreground">
+                          <p className="m-0 flex items-center gap-2">
+                            <Receipt className="size-3.5" />
+                            No current rates figure has been published for this
+                            address. Rates follow the Council&apos;s rating
+                            valuation shown alongside.
+                          </p>
+                          <p className="m-0 mt-2">{ratesDetail}</p>
                         </div>
                       )}
                     </CardContent>
                   </Card>
-                </div>
-              </section>
 
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardDescription>
+                        Auckland Council capital value
+                      </CardDescription>
+                      <CardTitle className="text-2xl">
+                        {latestCapitalValue
+                          ? formatMoney(latestCapitalValue)
+                          : "Not published"}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <dl className="cv-breakdown">
+                        <div>
+                          <dt>
+                            <LandPlot className="size-3.5" aria-hidden="true" />
+                            Land value
+                          </dt>
+                          <dd>
+                            {latestLandValue
+                              ? formatMoney(latestLandValue)
+                              : "—"}
+                          </dd>
+                        </div>
+                        <div>
+                          <dt>
+                            <Hammer className="size-3.5" aria-hidden="true" />
+                            Improvement value
+                          </dt>
+                          <dd>
+                            {latestImprovementValue
+                              ? formatMoney(latestImprovementValue)
+                              : "—"}
+                          </dd>
+                        </div>
+                      </dl>
+                      <p className="valuation-table-footnote">
+                        {latestCv?.date
+                          ? `Assessed ${formatDateLabel(latestCv.date)}. `
+                          : ""}
+                        Rating valuation by Auckland Council; not a market
+                        appraisal.
+                      </p>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* One chronological history: sales, council valuations and (italic) estimates */}
+                <Card className="mt-4">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-sm font-medium flex items-center gap-2">
+                      <History className="size-4 text-primary" />
+                      Property history
+                    </CardTitle>
+                    <CardDescription className="text-xs">
+                      Sales, council valuations and estimates in one timeline.
+                      Estimates are shown in italics as lower-weight information.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    {unifiedEvents.length > 0 ? (
+                      <ol className="property-timeline-list">
+                        {unifiedEvents.map((ev) => (
+                          <li
+                            className={`property-timeline-item${ev.estimate ? " is-estimate" : ""}`}
+                            key={ev.key}
+                          >
+                            <div className="property-timeline-dot" />
+                            <div className="property-timeline-content">
+                              <div className="property-timeline-head">
+                                <strong>{ev.label}</strong>
+                                {ev.value && (
+                                  <Badge variant="outline">{ev.value}</Badge>
+                                )}
+                              </div>
+                              <span className="property-timeline-meta">
+                                {[
+                                  formatDateLabel(ev.date),
+                                  ev.source,
+                                  ev.detail,
+                                ]
+                                  .filter(Boolean)
+                                  .join(" · ")}
+                              </span>
+                            </div>
+                          </li>
+                        ))}
+                      </ol>
+                    ) : (
+                      <div className="space-y-2 text-xs text-muted-foreground">
+                        <div className="flex items-center gap-2">
+                          <FileText className="size-3.5" />
+                          <span>
+                            {property.yearBuilt
+                              ? `Built in ${property.yearBuilt}`
+                              : "Public title & rating history synced"}
+                          </span>
+                        </div>
+                        {property.legalDescription && (
+                          <p className="m-0">
+                            Legal description: {property.legalDescription}
+                          </p>
+                        )}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </section>
               {/* Non-Collapsible Mortgage Calculator at the Bottom */}
               <section
                 aria-labelledby="mortgage-calculator-heading"

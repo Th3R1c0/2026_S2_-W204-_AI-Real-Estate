@@ -2658,62 +2658,80 @@ body:has(.compare-tray) .site-shell > footer {
   background: var(--primary);
   border-radius: 999px;
 }
-.avm-spark-bars {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(36px, 1fr));
-  gap: 8px;
-  align-items: end;
-  height: 110px;
-  padding-top: 10px;
+.valuation-table-wrap {
+  overflow-x: auto;
 }
-.avm-spark-col {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 5px;
-  height: 100%;
-}
-.avm-spark-bar-wrap {
-  flex: 1;
+.valuation-table {
   width: 100%;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
+  border-collapse: collapse;
+  font-size: 12.5px;
 }
-.avm-spark-bar {
-  width: 100%;
-  max-width: 28px;
-  border-radius: 6px 6px 2px 2px;
-  background: var(--primary);
-  opacity: 0.85;
-  transition: opacity 150ms ease;
+.valuation-table th,
+.valuation-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  vertical-align: top;
 }
-.avm-spark-col:hover .avm-spark-bar {
-  opacity: 1;
-}
-.avm-spark-date {
-  font-size: 10px;
+.valuation-table thead th {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
   color: var(--muted-foreground);
 }
-.market-history-columns {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px;
+.valuation-table tbody th {
+  font-weight: 600;
 }
-.history-record-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 12px;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  background: var(--secondary);
+.valuation-table tbody tr:last-child th,
+.valuation-table tbody tr:last-child td {
+  border-bottom: 0;
 }
-.history-record-meta {
+.valuation-table-note {
   display: block;
   margin-top: 3px;
   font-size: 11.5px;
   color: var(--muted-foreground);
+}
+.valuation-table-footnote {
+  margin: 10px 0 0;
+  font-size: 11.5px;
+  color: var(--muted-foreground);
+}
+.valuation-table-footnote a,
+.valuation-table a {
+  text-decoration: underline;
+}
+.cv-breakdown {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+}
+.cv-breakdown div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.cv-breakdown dt {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--muted-foreground);
+}
+.cv-breakdown dd {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+}
+.property-timeline-item.is-estimate strong,
+.property-timeline-item.is-estimate .property-timeline-meta {
+  font-style: italic;
+  font-weight: 500;
+}
+.property-timeline-item.is-estimate .property-timeline-dot {
+  background: var(--border);
 }
 .property-timeline-list {
   list-style: none;
@@ -2759,8 +2777,7 @@ body:has(.compare-tray) .site-shell > footer {
 
 @media (max-width: 760px) {
   .map-schools-list,
-  .valuation-cards-grid,
-  .market-history-columns {
+  .valuation-cards-grid {
     grid-template-columns: 1fr;
   }
   .map-schools-header {

@@ -1,6 +1,14 @@
 import addressSnapshot from "../reports/auckland-property-snapshot.json";
 import directSnapshot from "../reports/auckland-direct-sources.json";
-import type { Property, PropertySource, PropertySourceField } from "./property-types";
+import type {
+  CouncilRates,
+  Property,
+  PropertySource,
+  PropertySourceField,
+} from "./property-types";
+
+const AUCKLAND_COUNCIL_RATES_URL =
+  "https://www.aucklandcouncil.govt.nz/en/property-rates-valuations/find-property-rates-valuation.html";
 
 type DirectSource = {
   status: string;
@@ -9,6 +17,23 @@ type DirectSource = {
   facts?: Record<string, string | number | boolean | null>;
   images?: string[];
 };
+
+/**
+ * Annual Auckland Council rates, taken only when a scraped source publishes an
+ * explicit figure. No estimate is derived from capital value.
+ */
+function ratesFor(sources: PropertySource[]): CouncilRates | undefined {
+  for (const source of sources) {
+    const match = /rates?[^$]{0,40}\$([\d,]+(?:\.\d+)?)\s*(?:p\.?a\.?|per annum|\/\s*year|a year|yearly)/i.exec(
+      source.material,
+    );
+    if (!match) continue;
+    const amount = Number(match[1].replace(/,/g, ""));
+    if (!Number.isFinite(amount) || amount <= 0) continue;
+    return { amount, period: "year", periodLabel: source.publisher };
+  }
+  return undefined;
+}
 
 const directById = new Map(directSnapshot.houses.map(house => [house.addressId, house]));
 const sourceOrder = ["RealEstate", "Homes", "PropertyValue", "OneRoof", "QV"];
@@ -72,13 +97,37 @@ function toProperty(house: (typeof addressSnapshot.houses)[number]): Property {
     parkingSpaces:numericFact("parkingSpaces"),capitalValue:numericFact("capitalValue"),
     estimatedWeeklyRent:numericFact("estimatedWeeklyRent"),ownershipType:typeof fact("ownershipType") === "string" ? fact("ownershipType") as string : undefined,
     pastSales:saleSource && saleDate ? [{date:saleDate,price:saleSource[1].facts?.lastSalePrice as number,source:saleSource[0]}] : [],
+    rates: ratesFor(sources),
     sources,
   };
 }
 
 import forSaleListings from "../reports/forsale-properties.json";
 
+const directEstimatesById = new Map(
+  directSnapshot.houses.map(house => [house.addressId, house.sources as Record<string, DirectSource>]),
+);
+
+/**
+ * Every publisher's own low/medium/high estimate, kept separate so the property
+ * page can compare sources rather than blend them into one number.
+ */
+function withValuationEstimates(property: Property): Property {
+  const directSources = directEstimatesById.get(Number(property.id.replace(/^linz-/, "")));
+  if (!directSources) return property;
+  const valuationEstimates = Object.entries(directSources)
+    .filter(([,source]) => source.status === "matched" && source.estimate?.medium)
+    .map(([name,source]) => ({
+      source: name === "PropertyValue" ? "Homes.co.nz" : name,
+      url: source.url,
+      low: source.estimate?.low ?? undefined,
+      medium: source.estimate?.medium as number,
+      high: source.estimate?.high ?? undefined,
+    }));
+  return valuationEstimates.length ? { ...property, valuationEstimates } : property;
+}
+
 export const aucklandProperties: Property[] = addressSnapshot.houses.map(toProperty);
-export const forSaleProperties: Property[] = forSaleListings as Property[];
+export const forSaleProperties: Property[] = (forSaleListings as Property[]).map(withValuationEstimates);
 export const properties: Property[] = forSaleProperties;
 export const comparableSales: Property[] = [];
