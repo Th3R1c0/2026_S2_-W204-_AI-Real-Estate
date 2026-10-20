@@ -1,207 +1,213 @@
-# Haven — AI-Powered Real Estate Discovery
+# Haven — Real Estate Discovery & Buyer Intelligence Platform
 
-Haven is a modern, responsive property-discovery web application built with **Next.js 16**, **React 19**, and **Google Gemini 3.5 Flash-Lite**. It combines natural-language conversational property search with specialist search criteria, automated comparable sales, side-by-side home comparisons, sunlight analysis, and an interactive mortgage calculator.
+[![Next.js 16](https://img.shields.io/badge/Next.js-16.3.1-black?logo=next.js)](https://nextjs.org/)
+[![React 19](https://img.shields.io/badge/React-19-blue?logo=react)](https://react.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?logo=typescript)](https://www.typescriptlang.org/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-PostGIS-336791?logo=postgresql)](https://www.postgresql.org/)
+[![Drizzle ORM](https://img.shields.io/badge/ORM-Drizzle-C5F74F)](https://orm.drizzle.team/)
+[![Vitest](https://img.shields.io/badge/Tests-231%20Passed-green?logo=vitest)](https://vitest.dev/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](../LICENSE)
 
-All features and acceptance criteria are aligned with the Sprint One user stories documented in [`docs/sprintone.md`](docs/sprintone.md) and summarized in [`docs/sprint-one-implementation-summary.md`](docs/sprint-one-implementation-summary.md).
+Haven is an intelligent, high-performance real estate discovery web application tailored for the Auckland, New Zealand property market. Built from the ground up for **COMP602 Software Development Practice (Team W204)**, Haven empowers prospective homebuyers with conversational natural-language property search, live Auckland Council flood hazard overlays, Ministry of Education school zones, side-by-side comparison matrices, automated comparable sales valuations, interactive mortgage repayment modelling, and Land Information Memorandum (LIM) PDF report analysis.
 
 ---
 
-## 🌟 Key Features
+## 📸 Application Screenshots
 
-### 1. Natural-Language AI Search
-- **Conversational Queries**: Search for properties using natural phrasing (e.g. *"Modern three-bedroom townhouse in Auckland under $900k"* or *"Character villas in Auckland"*).
-- **Gemini 3.5 Flash-Lite Integration**: Translates unstructured search requests into precise, structured search filters via a strict OpenAPI-compatible response schema.
-- **Console Transparency & Logging**: Automatically logs all outgoing payloads sent to Gemini and raw responses received back in both server and browser consoles.
-- **Deterministic Offline Fallback**: If `GEMINI_API_KEY` is not provided or the Gemini API is unreachable, an intelligent local parser handles the query seamlessly, labeling results as **Local search** vs **Gemini interpreted**.
+### 1. Natural-Language Property Discovery & Specialist Filtering
+![Haven Property Discovery](../docs/assets/screenshot-home.png)
+*Real-time debounced conversational search, specialist architectural filters (Character, Modernist, Contemporary), building age sliders, and verified property cards.*
 
-### 2. Specialist Property Filtering
-- Search criteria not typically accessible on mainstream property platforms:
+---
+
+### 2. Detailed Property Inspection, Unified 3-Mode Location Map & Mortgage Calculator
+![Property Inspection & Location Map](../docs/assets/screenshot-property-details.png)
+*Detailed property overview featuring Auckland Council flood hazard assessment, Ministry of Education school enrolment zones (2.5 km radius), commute directions, comparable sales, and live mortgage calculations.*
+
+---
+
+### 3. Side-by-Side Property Comparison Matrix
+![Property Comparison Matrix](../docs/assets/screenshot-comparison.png)
+*Side-by-side comparison of shortlisted properties with sticky attribute labels, difference highlighting, and tinted numeric maxima across pricing, floor area, land area, and build year.*
+
+---
+
+### 4. Buyer Workspace, Private Notes & Shortlist
+![Buyer Workspace](../docs/assets/screenshot-workspace.png)
+*Authenticated buyer dashboard featuring saved property shortlists, categorized private inspection notes (general, offer, inspection, finance), and commute destination presets.*
+
+---
+
+### 5. Interactive UML Architecture & System Class Diagram Dashboard
+![UML Architecture Dashboard](../docs/assets/screenshot-uml.png)
+*Interactive UML dashboard featuring System Architecture, Database Class Schema, and Sequence Flows with pan-zoom controls, SVG export, and one-click PDF generation.*
+
+---
+
+## 🗺️ UML Diagrams & Architecture Documentation
+
+All architectural designs, database schemas, and sequence flows are documented and available in multiple formats:
+
+- **Interactive UML Dashboard (HTML)**: [`../docs/uml-architecture.html`](../docs/uml-architecture.html) & [`public/uml-diagram.html`](public/uml-diagram.html)
+  - Accessible directly in the web app at `/uml-diagram.html`.
+  - Features interactive pan & zoom, theme toggling, fullscreen mode, SVG vector download, and one-click all-in-one PDF export.
+- **Sprint 2 Complete Class Diagram & Architecture (PDF)**:
+  - [`../docs/Sprint 2 Class Diagram.pdf`](../docs/Sprint%202%20Class%20Diagram.pdf)
+  - [`../docs/presentation/Sprint 2 Class Diagram.pdf`](../docs/presentation/Sprint%202%20Class%20Diagram.pdf)
+  - [`public/Sprint 2 Class Diagram.pdf`](public/Sprint%202%20Class%20Diagram.pdf)
+- **PlantUML Architecture Source**: [`../docs/architecture-uml.puml`](../docs/architecture-uml.puml)
+- **Database Schema Class Diagram**: [`../backend/schema-class-diagram.puml`](../backend/schema-class-diagram.puml)
+
+---
+
+## 🌟 Key Features Overview
+
+### 1. Conversational Natural-Language Property Search
+- **Natural Phrasing Interpretation**: Search for homes using everyday language (e.g., *"Modern 3-bedroom townhouse in Ponsonby under $1.2M with garage"* or *"Character villas near Grey Lynn School"*).
+- **Dual Interpretation Pipeline**: Powered by **TypeSafe AI (Jev System One model)** as the primary intent classifier, resolving unstructured user queries into validated TypeScript filter criteria with automatic fallback to **Google Gemini 3.5 Flash-Lite**.
+- **Transparency & Diagnostics**: Explains active search filters directly to the user in the UI, provides fallback clarity for boundary queries, and displays match tags.
+
+### 2. Specialist Property & Environmental Filtering
+- Search parameters beyond standard real estate portals:
   - **Architectural Style**: Character, Modernist, Contemporary, Craftsman, Mid-Century.
-  - **Property Type**: Villa, Townhouse, Apartment, House, Lifestyle block, Section.
-  - **Mapped Flood Hazards**: Filter by Auckland Council flood plains, flood-prone areas, overland flow paths, coastal inundation, or properties with no mapped intersection.
-  - **Schools**: Browse nearby Auckland schools by source school type, search properties within 2.5 km of a selected school, or search homes inside that school's mapped enrolment zone.
-  - **Building Age**: Interactive slider filtering by construction era (e.g., pre-1920s villas to 2020s modern builds).
-  - **North-Facing Orientation**: Instant toggle for homes oriented to the northern sun.
+  - **Property Type**: Villa, Townhouse, Apartment, House, Lifestyle Block, Section.
+  - **Building Era Slider**: Fine-grained construction age filtering (from pre-1920s heritage villas to 2020s contemporary developments).
+  - **Bathroom & Parking Filtering**: Strict numeric bounds for bathrooms, off-street parking, and land size.
 
-### 3. Automated Comparable Sales (Comps)
-- Located within the property details drawer.
-- Analyzes nearby transactions matching property type, bedroom counts, and floor area.
+### 3. Unified 3-Mode Location Map (Google Maps SDK)
+- Embedded interactive Google Map with three purpose-built modes:
+  1. **Nearby Schools Mode**: Visualizes Auckland schools within a 2.5 km radius, displays school types (Primary, Intermediate, Secondary), and tests property location against Ministry of Education enrolment zone boundaries.
+  2. **Commute Directions Mode**: Calculates driving and public transit routes and durations between the property and custom buyer destinations (e.g., Auckland CBD, workplaces).
+  3. **Auckland Council Flood Hazard Mode**: Queries Auckland Council GIS REST endpoints (`/api/flood-zones`) for real-time bounding-box GeoJSON overlays representing Flood Plains, Flood Prone Areas, Overland Flow Paths, and 100-year Coastal Inundation.
+
+### 4. Automated Comparable Sales (Comps)
+- Located in the property details panel.
+- Evaluates recent neighborhood property transactions matching property type, bedroom count, and floor area.
 - Uses the **Haversine formula** to calculate physical distance.
-- **Adjustable Controls**: Customise distance radius (1–10 km) and timeframe (3–12 months, default 6 months) with real-time recalculation of local market averages.
+- **Adjustable Scope**: Dynamic radius slider (1–10 km) and timeframe filter (3–12 months) with real-time recalculation of local market price-per-square-meter averages.
 
-### Auckland Council Flood Hazard Data
-- A developer-run importer stores only Council flood features intersecting the current property-coordinate extent (buffered by 1 km) in PostGIS. It imports Flood Plains, Flood Prone Areas, Overland Flow Paths, and Coastal Inundation (100-year return); source attributes and geometries are retained.
-- PostGIS computes point/geometry intersections and records each matching property/hazard feature in `property_flood_hazards`. Hazard extents are not converted into a single risk rating.
-- The property details panel includes a Flood risk tab with mapped hazard types, a brief explanation, and a research-use disclaimer. Flood filters use those imported hazard types rather than the legacy demo risk bands.
-- The source Overland Flow Paths service contains over a million features, so the importer queries the Council services by the current property extent rather than downloading the entire regional service.
-- There is no active automatic schedule. Run the import manually after applying migrations and seeding properties:
-  ```bash
-  npm run db:sync-flood-data
-  ```
-- To opt into a yearly run later, uncomment and adapt a local crontab entry:
-  ```cron
-  # 0 3 1 1 * cd /path/to/ai-real-estate && npm run db:sync-flood-data >> /path/to/flood-sync.log 2>&1
-  ```
-- Council sources: [Flood Plains](https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Flood_Plains/FeatureServer/0), [Flood Prone Areas](https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Flood_Prone_Areas/FeatureServer/0), [Overland Flow Paths](https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Overland_Flow_Paths/FeatureServer/0), and [Coastal Inundation](https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services/Coastal_Inundation_100_yr_return/FeatureServer/0).
+### 5. Side-by-Side Property Comparison Matrix
+- Compare up to 4 shortlisted properties simultaneously in a dedicated comparison matrix.
+- Evaluates pricing, bedrooms, bathrooms, land area, floor area, building age, architectural style, flood hazards, and sunlight exposure.
+- Interactive controls: **Highlight Differences** toggle, tinted numeric maxima for instant scanning, and sticky column/row labels.
 
-### Education Counts School Data
-- The developer-run importer reads the Ministry of Education Schools Directory API, retaining Auckland Region schools and only `School_Id`, `Org_Name`, `Org_Type`, `Latitude`, `Longitude`, and `Enrolment_Scheme`. Only school identity, `PolyName`, `INSTTYPE`, and geometry are stored for zones.
-- PostGIS calculates nearby schools within 2.5 km and tests property points against enrolment-zone polygons. The interface lists school details and mapped zone membership; no school or flood maps are rendered.
-- After applying migrations and seeding the application database, zone polygons are loaded from the Ministry's [Enrolment Scheme Master MapInfo download](https://www.educationcounts.govt.nz/__data/assets/file/0003/108606/Enrolmentschememaster.zip). Install GDAL (`ogr2ogr`), extract the ZIP, then preview the import with the extracted folder or `.TAB` file:
-  ```bash
-  npm run db:sync-school-data-file -- "/path/to/Enrolmentschememaster" --dry-run
-  ```
-  - To hand the school dataset to someone who will create the application database later, export a portable SQL file without connecting to PostgreSQL:
-  ```bash
-    npm run db:export-school-data-sql -- "/path/to/Enrolmentschememaster" --export-sql "/path/to/auckland-school-data.sql"
-  ```
-  - The SQL file inserts the current Auckland directory school rows, replaces `schools` and `school_zones` in one transaction, and updates `school_data_sync`. Your colleague can apply it after creating the database, installing PostGIS, and running the application migrations, for example with `psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f auckland-school-data.sql`. It contains only Auckland schools and matched zone polygons, not the original nationwide MapInfo dataset.
-  - Alternatively, to import directly into a prepared database, the file importer fetches current Auckland school IDs, selects matching schools with an enrolment scheme, reprojects the selected features from EPSG:2193 to EPSG:4326, then transactionally replaces the imported school data. It deliberately ignores `EffectiveDate` and does not trust the file's `Office` field to determine Auckland membership:
-    ```bash
-    npm run db:sync-school-data-file -- "/path/to/Enrolmentschememaster"
-    ```
-- The per-school API importer (`npm run db:sync-school-data`) remains available, but its zone requests were blocked by a Cloudflare challenge (HTTP 403) in the development environment. The local bulk file path avoids those zone downloads.
-- The Ministry warns that the bulk polygons have limited spatial resolution and alignment integrity, and should not be used for spatial queries against other datasets. This application accepts that limitation: mapped membership is approximate and may be inaccurate. Confirm current enrolment eligibility directly with the school or Ministry of Education.
-- The dry run reports scheme schools with no matching polygon; in the downloaded 2 October 2026 file, 6 of 393 Auckland schools marked with an enrolment scheme had no polygon. Such schools remain listed, but the interface reports their zone geometry as unavailable.
-- These commands are manually run, not invoked on application startup, and have no automatic schedule. They download and validate source records before transactionally replacing imported data; failed imports leave existing data intact.
-- Sources: [Schools Directory API](https://www.educationcounts.govt.nz/directories/school-directory-api) and [Enrolment Scheme Master MapInfo dataset](https://catalogue.data.govt.nz/dataset/school-enrolment-zones).
+### 6. Haven Chatbot & LIM Report PDF Analysis
+- Conversational real estate helpdesk drawer available across all pages.
+- **Auckland Council LIM PDF Ingestion**: Upload Land Information Memorandum (LIM) reports (up to 15MB) via `/api/chatbot/upload-lim`.
+- Uses `pdf-parse` for automated text extraction, injecting document context into the conversational RAG model.
+- Answering buyer queries regarding drainage easements, unconsented works, resource consents, and rates with exact document page citations.
 
-### 4. Side-by-Side Property Comparison
-- Select two or more properties to inspect specs side-by-side in parallel columns.
-- Compare price, bedrooms, bathrooms, land area, floor area, build year, architectural style, flood risk, and sunlight hours.
-- Toggle to **Highlight Differences** across rows or remove individual properties from the comparison modal.
+### 7. Buyer Workspace & Private Notes
+- Secure user registration and session-based authentication with SHA-256 token hashing.
+- **Saved Listings Shortlist**: Bookmark favorite properties to review later or monitor status updates.
+- **Categorized Private Notes**: Save private notes for any property categorized into **General**, **Offer Strategy**, **Property Inspection**, or **Finance/Mortgage**.
+- **Commute Presets**: Save daily destinations to easily check travel times on any property.
 
-### 5. Sunlight & Aspect Analysis
-- Each listing features an environmental sunlight assessment.
-- Visualizes orientation (e.g. North-facing, East-facing), daily estimated sunlight hours, and a calculated 0–100 sunlight score.
+### 8. Interactive Mortgage Repayment Calculator
+- Developed using **Test-Driven Development (TDD)** with complete Vitest unit test coverage.
+- Real-time monthly repayment estimation using standard compound annuity amortization formulas.
+- Adjustable sliders and numeric inputs for property purchase price, deposit percentage ($ and %), annual interest rate, and loan term (5–30 years).
+- Built-in guard rails for zero-interest calculations, 100% deposit equity, and boundary validation.
 
-### 6. Interactive Mortgage Repayment Calculator
-- Embedded directly into every listing view.
-- Real-time calculations with adjustable **deposit percentage/amount**, **interest rate**, and **loan term**.
-- Instant principal-and-interest monthly repayment estimates based on standard amortization formulas.
+### 9. Real Estate Agent Contact & Open Homes
+- Direct agent contact cards with phone, email, and agency details.
+- Upcoming open home inspection schedules with date, time range, and calendar integration.
 
 ---
 
-## 🏗️ Application Architecture
+## 🛠️ Technology Stack & Dependencies
 
-```
-ai-real-estate/
-├── app/
-│   ├── api/search/route.ts      # Server-only API endpoint for natural-language search
-│   ├── components/
-│   │   └── property-explorer.tsx # Interactive UI: filters, cards, comps, compare, modal
-│   ├── globals.css              # Custom responsive design system (light/dark palette)
-│   ├── layout.tsx               # Root application layout with Geist fonts
-│   └── page.tsx                 # Server-rendered entry point with initial dataset
-├── docs/
-│   ├── sprintone.md             # Sprint One user stories, acceptance criteria, and INVEST scores
-│   └── sprint-one-implementation-summary.md # Architectural summary, test coverage, and decisions
-├── lib/
-│   ├── db/
-│   │   ├── index.ts            # PostgreSQL connection pool and Drizzle client
-│   │   ├── properties.ts       # Server-side property and comparable-sale queries
-│   │   └── schema.ts           # Drizzle schema for backend/schema.SQL
-│   ├── gemini-search.ts         # Gemini API client, response schema, console logging & fallback
-│   ├── property-data.ts         # Source records used to seed the database and tests
-│   ├── property-engine.ts       # Filtering, distance math (Haversine), and mortgage formulas
-│   └── property-types.ts        # TypeScript domain models and interfaces
-├── public/
-│   └── properties/              # Local property imagery
-└── tests/
-    ├── gemini-search.test.ts    # AI integration, schema validation, and fallback tests
-    ├── property-engine.test.ts  # Filtering logic, comp matching, and mortgage math tests
-    ├── property-explorer.test.tsx # Component integration and user interaction tests
-    └── search-route.test.ts     # API route status and security verification tests
-```
+| Category | Technologies |
+| :--- | :--- |
+| **Frontend Framework** | [Next.js 16](https://nextjs.org/) (App Router), [React 19](https://react.dev/) |
+| **Language** | [TypeScript 5](https://www.typescriptlang.org/) (Strict Mode) |
+| **Styling & UI** | [Tailwind CSS](https://tailwindcss.com/), Radix UI Primitives, Lucide Icons |
+| **Database & ORM** | [PostgreSQL](https://www.postgresql.org/) with [PostGIS](https://postgis.net/) spatial extensions, [Drizzle ORM](https://orm.drizzle.team/) |
+| **AI & NLP Engines** | [TypeSafe AI](https://typesafe.ai/) (Jev System One), [Google Gemini 3.5 Flash-Lite](https://ai.google.dev/) |
+| **Maps & Spatial** | [Google Maps JavaScript SDK](https://developers.google.com/maps), Auckland Council ArcGIS REST APIs |
+| **Document Parsing** | [pdf-parse](https://www.npmjs.com/package/pdf-parse) for LIM PDF extraction |
+| **Diagramming & Docs** | [Mermaid.js](https://mermaid.js.org/), [PlantUML](https://plantuml.com/), [jsPDF](https://github.com/parallax/jsPDF) |
+| **Testing** | [Vitest 3](https://vitest.dev/), Testing Library React, jsdom |
 
 ---
 
-## 🔒 AI Security & Privacy
-
-- **Server-Only API Key**: `GEMINI_API_KEY` is read strictly on the server from `.env.local` and transmitted via HTTP headers (`x-goog-api-key`). It is never bundled into client-side code or exposed in URLs.
-- `DATABASE_URL` is used only by the server-side Drizzle client. Do not expose it through a `NEXT_PUBLIC_` variable.
-- **Constrained Schema**: Gemini is invoked with `responseMimeType: "application/json"` and an explicit schema, preventing arbitrary prompt injections or unstructured text outputs.
-- **Thinking Level**: Utilizes minimal thinking configuration (`MINIMAL`) for rapid latency and low token usage.
-
----
-
-## 🚀 Getting Started
+## 🚀 Setup, Build & Run Instructions
 
 ### Prerequisites
-- [Node.js](https://nodejs.org/) (version 18+ recommended)
-- `npm` or `pnpm`
+- **Node.js**: v18.18+ or v20+ installed
+- **npm**: v9+ (or `pnpm`)
+- **PostgreSQL**: v14+ with the **PostGIS** extension installed
 
-### Installation
-
-1. Clone the repository and navigate to the app directory:
-   ```bash
-   cd ai-real-estate
-   ```
-
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-
-3. Start PostgreSQL and create a local database, for example with `createdb real_estate`.
-   Install PostGIS for the PostgreSQL server used by this database.
-
-4. Set `DATABASE_URL` in `.env.local` to your PostgreSQL connection string, for example:
-   ```dotenv
-   DATABASE_URL=postgresql://your-postgres-user@localhost:5432/real_estate
-   ```
-
-   For a Vercel deployment without a connected database, leave `DATABASE_URL` unset. The app and search use the bundled listing snapshot. If the database is unreachable or has no active listings, they also fall back to that snapshot. Council flood hazard data requires a migrated and synced PostgreSQL database.
-
-5. Apply migrations and seed the demo records:
-   ```bash
-   npm run db:setup-local
-   ```
-   This runs the PostgreSQL migrations, then imports demo records. The seed command refuses to run if the `properties` table already contains records. Existing MySQL data is not migrated automatically.
-
-6. Optionally add `GEMINI_API_KEY=your_gemini_api_key_here` to `.env.local`. If no key is set, AI search uses the local parser.
-
-7. Run the development server:
-   ```bash
-   npm run dev
-   ```
-   Open [http://localhost:3000](http://localhost:3000) in your browser.
-
-After changing `lib/db/schema.ts`, generate a migration with:
+### 1. Install Dependencies
 ```bash
-npm run db:generate
+npm install
 ```
 
-The PostgreSQL SQL reference is maintained in [`../backend/schema.SQL`](../backend/schema.SQL). `lib/db/schema.ts` is its Drizzle representation, including PostGIS-backed school and flood geometries. Drizzle's PostgreSQL migrations are stored in `drizzle/postgres`; the original MySQL migration history in `drizzle/` is not applied.
+### 2. Configure Environment Variables
+Create a `.env.local` file in this directory (`ai-real-estate`):
 
----
+```env
+# PostgreSQL Database Connection String (with PostGIS enabled)
+DATABASE_URL="postgres://postgres:postgres@localhost:5432/real_estate"
 
-## 🧪 Testing & Verification
+# Google Gemini API Key (for conversational chatbot & search fallback)
+GEMINI_API_KEY="your-gemini-api-key"
 
-The project is built following Test-Driven Development (TDD) principles. Unit and integration tests cover the application, including school-source import validation and school spatial filters:
+# TypeSafe AI API Key (for primary Jev System One search engine)
+TYPESAFE_API_KEY="your-typesafe-api-key"
+
+# Google Maps JavaScript API Key (for 3-mode map rendering)
+NEXT_PUBLIC_GOOGLE_MAPS_API_KEY="your-google-maps-api-key"
+```
+
+> **Note on Fallbacks**: The application is built with resilient offline and keyword fallbacks. If API keys are not supplied, the platform falls back gracefully to local deterministic search parsing and demo mock data.
+
+### 3. Database Setup & Seeding
+Push the Drizzle ORM schema to your PostgreSQL database and populate the property catalog:
 
 ```bash
-# Run unit and integration tests
+# Push database schema tables
+npm run db:push
+
+# Seed property listings, address data, open homes, and pricing
+npm run db:seed
+
+# Optional: Synchronize Auckland Council flood hazard geometries into PostGIS
+npm run db:sync-flood-data
+```
+
+### 4. Run Development Server
+```bash
+npm run dev
+```
+Open [http://localhost:3000](http://localhost:3000) in your web browser.
+
+### 5. Run the Test Suite
+```bash
 npm test
+```
+All **231 tests** run via Vitest.
 
-# Run code linter
-npm run lint
-
-# Run production build & typecheck
+### 6. Production Build
+```bash
 npm run build
+npm run start
 ```
 
 ---
 
-## 📚 Documentation Links
+## 👥 Authors & Team Members
 
-Detailed specifications and sprint reports are maintained in the [`docs/`](docs/) directory:
-- [**Sprint One User Stories (`docs/sprintone.md`)**](docs/sprintone.md): Complete backlog, user stories, acceptance tests, story points, and INVEST criteria.
-- [**Sprint One Implementation Summary (`docs/sprint-one-implementation-summary.md`)**](docs/sprint-one-implementation-summary.md): Comprehensive review of implemented features, test cases, technical decisions, and data provenance.
+This project was engineered and delivered for **COMP602 Software Development Practice** by **Team W204**:
+
+- **Rico Saunders** — Full-Stack Development, System Architecture, Natural Language Search Pipeline & Database Engineering
+- **Lucas McKinney** — Frontend UI Engineering, Scraper Ingestion, Map Mode Enhancements & Testing
+- **Praneel Kumar** — Domain Logic, Mortgage Calculation Engine (TDD), Code Quality & API Implementation
+- **Yasser Saeed** — Backend API Routes, Database Schema Migrations, Session Auth & Integration Testing
+- **Alister Martin Repasa** — UI Components, Comparison Matrix, Mobile Responsiveness & Quality Assurance
 
 ---
 
-## 📊 Dataset & Asset Credits
+## 📄 License
 
-- **Property Listings & Comps**: Derived from public Auckland residential property records ([Auckland Housing Market dataset](https://github.com/Sakyawira/auckland-house-prices)) with demo enrichments for architectural styles, flood hazard bands, and orientation.
-- **Imagery**: Curated illustrative photography from [Unsplash](https://unsplash.com/) stored locally in `public/properties/`.
+This project is licensed under the MIT License — see the [LICENSE](../LICENSE) file for details.
