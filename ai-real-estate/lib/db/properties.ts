@@ -19,7 +19,6 @@ import {
 } from "./schema";
 import { findComparableSales } from "../property-engine";
 import type {
-  ArchitecturalStyle,
   ComparableSalesResult,
   NearbySchool,
   OpenHome,
@@ -43,13 +42,6 @@ const propertyTypeValues: PropertyType[] = [
   "Villa",
 ];
 
-const styleValues: ArchitecturalStyle[] = [
-  "Character",
-  "Contemporary",
-  "Craftsman",
-  "Mid-Century",
-  "Modernist",
-];
 
 const sourceFieldValues: PropertySourceField[] = [
   "address",
@@ -83,13 +75,6 @@ function asPropertyType(value: string | null | undefined, fallback: string): Pro
   return value as PropertyType;
 }
 
-function asArchitecturalStyle(value: string | null | undefined): ArchitecturalStyle | undefined {
-  if (!value) return undefined;
-  if (!styleValues.includes(value as ArchitecturalStyle)) {
-    return undefined;
-  }
-  return value as ArchitecturalStyle;
-}
 
 function decimalNumber(value: string | number | null | undefined, field: string): number {
   if (value === null || value === undefined) throw new Error(`Missing required ${field} in database.`);
@@ -268,7 +253,6 @@ export async function getPropertiesByStatus(status: PropertyStatus): Promise<Pro
       yearBuilt: propertyDetails.yearBuilt,
       storedPropertyType: propertyDetails.propertyType,
       displayPropertyType: propertyDetails.displayPropertyType,
-      architecturalStyle: propertyDetails.architecturalStyle,
       capitalValue: propertyDetails.capitalValue,
       estimatedWeeklyRent: propertyDetails.estimatedWeeklyRent,
       ownershipType: propertyDetails.ownershipType,
@@ -474,7 +458,6 @@ export async function getPropertiesByStatus(status: PropertyStatus): Promise<Pro
       floorArea: decimalNumber(row.floorArea, "floor area"),
       yearBuilt: row.yearBuilt ?? 0,
       propertyType: asPropertyType(row.displayPropertyType, row.storedPropertyType),
-      architecturalStyle: asArchitecturalStyle(row.architecturalStyle),
       ...(row.capitalValue !== null
         ? { capitalValue: decimalNumber(row.capitalValue, "capital value") }
         : {}),

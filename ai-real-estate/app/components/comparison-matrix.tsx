@@ -57,7 +57,6 @@ const rows: Row[] = [
     number: (p) => positive(p.estimatedWeeklyRent),
     format: money,
   },
-  { label: "Style", text: (p) => p.architecturalStyle ?? "Not provided" },
   { label: "Ownership", text: (p) => p.ownershipType ?? "Not provided" },
   {
     label: "Flood mapping",

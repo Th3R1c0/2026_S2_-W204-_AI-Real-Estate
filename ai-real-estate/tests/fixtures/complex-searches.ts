@@ -14,7 +14,6 @@ export const evaluationHome: Property = {
   floorArea: 220,
   yearBuilt: 2010,
   propertyType: "House",
-  architecturalStyle: "Contemporary",
   ownershipType: "Freehold",
   capitalValue: 1_200_000,
   estimatedWeeklyRent: 900,
@@ -30,13 +29,6 @@ export const evaluationHome: Property = {
       distanceKm: 1,
       hasEnrolmentZone: true,
       hasZoneGeometry: true,
-    },
-  ],
-  commuteOptions: [
-    {
-      destinationName: "Auckland CBD",
-      mode: "driving",
-      travelTimes: { transit: 25, driving: 15, walking: 50 },
     },
   ],
   openHomes: [
@@ -91,7 +83,6 @@ export const complexSearches: Array<{
       "A contemporary house built between 2005 and 2020, at least 600 m² of land and 180 m² of floor area.",
     expected: {
       propertyTypes: ["House"],
-      architecturalStyles: ["Contemporary"],
       yearBuiltFrom: 2005,
       yearBuiltTo: 2020,
       numericCriteria: { landArea: { min: 600 }, floorArea: { min: 180 } },
@@ -103,15 +94,14 @@ export const complexSearches: Array<{
       "A character villa built before 1940, exactly 4 bedrooms, at least 2 bathrooms and no mapped flood hazards.",
     expected: {
       propertyTypes: ["Villa"],
-      architecturalStyles: ["Character"],
       yearBuiltTo: 1939,
       bedrooms: 4,
       noMappedFloodHazard: true,
+      floodRisk: "exclude_low",
       numericCriteria: { bathrooms: { min: 2 } },
     },
     home: {
       propertyType: "Villa",
-      architecturalStyle: "Character",
       yearBuilt: 1920,
     },
   },
@@ -158,19 +148,6 @@ export const complexSearches: Array<{
       numericCriteria: { bedrooms: { min: 4 }, bathrooms: { min: 2 } },
     },
     home: {},
-  },
-  {
-    query:
-      "A townhouse with a commute to Auckland CBD within 30 minutes by public transport, at least 2 bathrooms and under $1.2m.",
-    expected: {
-      propertyTypes: ["Townhouse"],
-      commuteDestination: "Auckland CBD",
-      maxCommuteTimeMinutes: 30,
-      commuteMode: "transit",
-      numericCriteria: { bathrooms: { min: 2 } },
-      maxPrice: 1_199_999.99,
-    },
-    home: { propertyType: "Townhouse" },
   },
   {
     query:

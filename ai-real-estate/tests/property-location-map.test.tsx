@@ -64,14 +64,13 @@ const sampleSchools: NearbySchool[] = [
   },
 ];
 
-describe("PropertyLocationMap unified 3-mode Google Map", () => {
-  it("renders Google Map with attribution ID, DEMO_MAP_ID, and 3 mode tabs (Schools, Commute, Flood assessment)", () => {
+describe("PropertyLocationMap unified 2-mode Google Map", () => {
+  it("renders Google Map with attribution ID, DEMO_MAP_ID, and only Schools and Flood assessment tabs", () => {
     render(
       <PropertyLocationMap
         address="42 Herne Bay Road"
         latitude={-36.8485}
         longitude={174.7633}
-        locations={[]}
         schools={sampleSchools}
         schoolDataSynced={true}
         schoolZones={[
@@ -91,7 +90,7 @@ describe("PropertyLocationMap unified 3-mode Google Map", () => {
     expect(mapEl.getAttribute("data-map-id")).toBe("DEMO_MAP_ID");
 
     expect(screen.getByRole("tab", { name: /Schools/i })).toBeTruthy();
-    expect(screen.getByRole("tab", { name: /Commute/i })).toBeTruthy();
+    expect(screen.queryByRole("tab", { name: /Commute/i })).toBeNull();
     expect(screen.getByRole("tab", { name: /Flood assessment/i })).toBeTruthy();
 
     // Default mode is Schools: shows school markers with name labels and selectable school list
@@ -103,24 +102,17 @@ describe("PropertyLocationMap unified 3-mode Google Map", () => {
     expect(schoolOption.getAttribute("aria-pressed")).toBe("true");
   });
 
-  it("switches between Commute and Flood assessment modes inside the map card", () => {
-    const setLocations = vi.fn();
+  it("switches to Flood assessment mode inside the map card", () => {
     render(
       <PropertyLocationMap
         address="42 Herne Bay Road"
         latitude={-36.8485}
         longitude={174.7633}
-        locations={[{ id: "loc-1", name: "Office", address: "188 Quay Street, Auckland" }]}
-        setLocations={setLocations}
         schools={sampleSchools}
         schoolDataSynced={true}
         floodHazards={[{ type: "flood_plains", sourceFeatureId: "101", sourceUrl: "https://example.com/flood" }]}
       />,
     );
-
-    fireEvent.click(screen.getByRole("tab", { name: /Commute/i }));
-    expect(screen.getByRole("group", { name: /Travel mode/i })).toBeTruthy();
-    expect(screen.getByDisplayValue("Office")).toBeTruthy();
 
     fireEvent.click(screen.getByRole("tab", { name: /Flood assessment/i }));
     expect(screen.getByText(/Flood plain \(100-yr\)/i)).toBeTruthy();

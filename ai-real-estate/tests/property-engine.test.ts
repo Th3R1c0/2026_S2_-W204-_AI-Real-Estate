@@ -24,7 +24,6 @@ const listings: Property[] = [
     floorArea: 132,
     yearBuilt: 2021,
     propertyType: "Townhouse",
-    architecturalStyle: "Modernist",
     floodRisk: "Low",
     floodHazards: [
       {
@@ -71,7 +70,6 @@ const listings: Property[] = [
     floorArea: 148,
     yearBuilt: 1912,
     propertyType: "Villa",
-    architecturalStyle: "Character",
     floodRisk: "Moderate",
     floodHazards: [
       {
@@ -110,7 +108,6 @@ const listings: Property[] = [
     floorArea: 98,
     yearBuilt: 2018,
     propertyType: "Townhouse",
-    architecturalStyle: "Contemporary",
     floodRisk: "Low",
     floodHazards: [],
     latitude: -41.296,
@@ -252,7 +249,7 @@ describe("natural-language property search", () => {
     );
   });
 
-  it("matches a named address and a named in-zone school from listing data", () => {
+  it("applies a named address alone when one is stated", () => {
     const homes: Property[] = [
       {
         ...listings[0],
@@ -286,51 +283,8 @@ describe("natural-language property search", () => {
       homes,
     );
 
-    expect(parsed.filters).toMatchObject({
-      location: "54 Kelmarna Avenue",
-      schoolZoneName: "Auckland Grammar School",
-    });
-    expect(filterProperties(homes, parsed.filters).map(({ id }) => id)).toEqual(
-      ["match"],
-    );
-  });
-
-  it("matches a stated commute destination and mode only when travel data exists", () => {
-    const homes: Property[] = [
-      {
-        ...listings[0],
-        id: "match",
-        commuteOptions: [
-          {
-            destinationName: "Auckland CBD",
-            mode: "transit",
-            travelTimes: { transit: 25 },
-          },
-        ],
-      },
-      {
-        ...listings[0],
-        id: "too-slow",
-        commuteOptions: [
-          {
-            destinationName: "Auckland CBD",
-            mode: "transit",
-            travelTimes: { transit: 40 },
-          },
-        ],
-      },
-      { ...listings[0], id: "unknown", commuteOptions: undefined },
-    ];
-    const parsed = parseNaturalLanguageSearch(
-      "within 30 minutes to Auckland CBD by transit",
-      homes,
-    );
-
-    expect(parsed.filters).toMatchObject({
-      maxCommuteTimeMinutes: 30,
-      commuteMode: "transit",
-      commuteDestination: "Auckland CBD",
-    });
+    // An exact address is the most precise filter, so it is applied alone.
+    expect(parsed.filters).toEqual({ location: "54 Kelmarna Avenue" });
     expect(filterProperties(homes, parsed.filters).map(({ id }) => id)).toEqual(
       ["match"],
     );
@@ -373,33 +327,6 @@ describe("natural-language property search", () => {
     );
   });
 
-  it("does not treat a driving time as a transit time", () => {
-    const homes: Property[] = [
-      {
-        ...listings[0],
-        id: "transit",
-        commuteOptions: [
-          { destinationName: "Auckland CBD", mode: "transit", timeMinutes: 25 },
-        ],
-      },
-      {
-        ...listings[0],
-        id: "driving",
-        commuteOptions: [
-          { destinationName: "Auckland CBD", mode: "driving", timeMinutes: 20 },
-        ],
-      },
-    ];
-    const result = parseNaturalLanguageSearch(
-      "within 30 minutes to Auckland CBD by transit",
-      homes,
-    );
-
-    expect(filterProperties(homes, result.filters).map(({ id }) => id)).toEqual(
-      ["transit"],
-    );
-  });
-
   it("extracts property type, location, price and bedroom requirements", () => {
     const result = parseNaturalLanguageSearch(
       "A modern three-bedroom townhouse in Auckland under $900,000",
@@ -408,17 +335,16 @@ describe("natural-language property search", () => {
 
     expect(result.status).toBe("ready");
     expect(result.filters).toEqual({
-      architecturalStyles: ["Modernist"],
       propertyTypes: ["Townhouse"],
-      location: "Auckland",
+      locations: ["Auckland"],
       maxPrice: 900_000,
       bedrooms: 3,
     });
   });
 
-  it("combines character style, villa type and Auckland location", () => {
+  it("combines villa type with an Auckland location", () => {
     const parsed = parseNaturalLanguageSearch(
-      "Find character villas in Auckland",
+      "Find villas in Auckland",
       listings,
     );
 
@@ -476,16 +402,61 @@ describe("natural-language property search", () => {
 });
 
 describe("specialist filters", () => {
-  it("filters by type, style, mapped flood hazard, age", () => {
+  it("filters by type, mapped flood hazard and age", () => {
     const result = filterProperties(listings, {
       propertyTypes: ["Townhouse"],
-      architecturalStyles: ["Modernist"],
       floodHazardTypes: ["flood_plains"],
       yearBuiltFrom: 2010,
       yearBuiltTo: 2025,
     });
 
     expect(result.map(({ id }) => id)).toEqual(["modern-townhouse"]);
+  });
+
+  it("excludes flood candidates by risk level", () => {
+    const homes: Property[] = [
+      { ...listings[0], id: "clear", floodHazards: [] },
+      {
+        ...listings[0],
+        id: "coastal",
+        floodHazards: [{ type: "coastal_inundation", sourceFeatureId: "1", sourceUrl: "" }],
+      },
+      {
+        ...listings[0],
+        id: "high-only",
+        floodHazards: [{ type: "overland_flow_paths", sourceFeatureId: "2", sourceUrl: "" }],
+      },
+    ];
+
+    // Low risk: no mapped hazard at all.
+    expect(
+      filterProperties(homes, { floodRisk: "exclude_low" }).map(({ id }) => id),
+    ).toEqual(["clear"]);
+    // High risk: flood plains and coastal inundation are still acceptable.
+    expect(
+      filterProperties(homes, { floodRisk: "exclude_high" }).map(({ id }) => id),
+    ).toEqual(["clear", "coastal"]);
+    // No filter keeps everything.
+    expect(filterProperties(homes, { floodRisk: "none" })).toHaveLength(3);
+  });
+
+  it("matches any of several suburbs or school names", () => {
+    // Multiple free-text suburbs are OR-ed together.
+    expect(
+      filterProperties(listings, { locations: ["Ponsonby", "Onehunga"] }).map(
+        ({ id }) => id,
+      ),
+    ).toEqual(["modern-townhouse", "character-villa"]);
+    expect(
+      filterProperties(listings, { locations: ["Parnell", "Mount Victoria"] }).map(
+        ({ id }) => id,
+      ),
+    ).toEqual(["wellington-townhouse"]);
+    expect(
+      filterProperties(listings, {
+        schoolNames: ["Auckland Grammar", "Ponsonby Secondary"],
+      }).map(({ id }) => id),
+    ).toEqual(["character-villa"]);
   });
 
   it("restores every listing when filters are empty", () => {
@@ -495,14 +466,12 @@ describe("specialist filters", () => {
   it("does not match listings with unknown optional demo metadata", () => {
     const listingWithUnknownMetadata: Property = {
       ...listings[0],
-      architecturalStyle: undefined,
       floodRisk: undefined,
       floodHazards: undefined,
     };
 
     expect(
       filterProperties([listingWithUnknownMetadata], {
-        architecturalStyles: ["Modernist"],
         floodHazardTypes: ["flood_plains"],
       }),
     ).toEqual([]);

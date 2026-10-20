@@ -115,39 +115,66 @@ it("mounts the comparison overlay outside the transformed page wrapper", async (
   ).toBe(document.body);
 });
 
-it("offers bathrooms in the basic filters and keeps architecture and schools expanded", async () => {
+it("groups bedrooms, bathrooms and areas as double-ended sliders and drops architecture, school and commute controls", async () => {
   const user = userEvent.setup();
   render(
     <PropertyExplorer
       properties={[
-        { ...home, bathrooms: 2 },
-        { ...other, bathrooms: 1 },
+        { ...home, bathrooms: 2, bedrooms: 4 },
+        { ...other, bathrooms: 1, bedrooms: 2 },
       ]}
       comparableSales={[]}
     />,
   );
-  await user.click(screen.getByRole("radio", { name: "2 baths" }));
+
+  // Free-text location, no dropdown and no "Max price" field.
+  await user.click(screen.getByRole("button", { name: /more filters/i }));
+  expect(screen.getByLabelText("Suburb or location filter")).toBeInTheDocument();
+  expect(screen.queryByRole("combobox", { name: /Location/ })).toBeNull();
+  expect(screen.queryByLabelText("Max price")).toBeNull();
+
+  // Price range and rent range sit together in the Price group.
+  expect(screen.getByRole("slider", { name: "Minimum Price range" })).toBeVisible();
+  expect(screen.getByRole("slider", { name: "Minimum Rent range" })).toBeVisible();
+
+  // Counts and areas are grouped as double-ended sliders.
+  for (const label of [
+    "Bedrooms",
+    "Bathrooms",
+    "Parking spaces",
+    "Land area",
+    "Floor area",
+  ]) {
+    expect(screen.getByRole("slider", { name: `Minimum ${label}` })).toBeVisible();
+    expect(screen.getByRole("slider", { name: `Maximum ${label}` })).toBeVisible();
+  }
+  expect(screen.getByRole("slider", { name: "Minimum Year built" })).toBeVisible();
+
+  // Removed entirely: architecture styles, capital value, school dropdown and
+  // commute controls.
+  expect(screen.queryByRole("checkbox", { name: "Character" })).toBeNull();
+  expect(screen.queryByText(/Capital value/i)).toBeNull();
+  expect(screen.queryByLabelText("Search by school")).toBeNull();
+  expect(screen.queryByRole("checkbox", { name: /Near a school/ })).toBeNull();
+  expect(screen.queryByRole("checkbox", { name: /Inside mapped school zone/ })).toBeNull();
+  expect(screen.queryByLabelText(/Max commute time/)).toBeNull();
+  expect(screen.queryByLabelText(/Transport Mode/i)).toBeNull();
+  expect(screen.getByText("Title")).toBeVisible();
+  expect(screen.getByRole("combobox", { name: "Flood risk" })).toBeVisible();
+
+  // The bedrooms slider is the only bedroom control and filters the grid.
+  const minBeds = screen.getByRole("slider", { name: "Minimum Bedrooms" });
+  minBeds.focus();
+  await user.keyboard("{Home}");
+  for (let i = 0; i < 3; i += 1) await user.keyboard("{ArrowRight}");
+  expect(minBeds).toHaveAttribute("aria-valuenow", "3");
   expect(
     screen.getByRole("link", { name: /12 Garden Street/ }),
   ).toBeInTheDocument();
   expect(
     screen.queryByRole("link", { name: /14 Garden Street/ }),
   ).not.toBeInTheDocument();
-  await user.click(screen.getByRole("button", { name: /more filters/i }));
-  expect(screen.getByRole("checkbox", { name: "Character" })).toBeVisible();
-  expect(
-    screen.getByRole("checkbox", { name: "Inside mapped school zone" }),
-  ).toBeVisible();
-  expect(
-    screen.queryByRole("button", {
-      name: /Architecture & Era|Schools & Catchments/,
-    }),
-  ).not.toBeInTheDocument();
-  await user.click(
-    within(screen.getByLabelText("Bathrooms")).getByRole("radio", {
-      name: "Any",
-    }),
-  );
+  await user.click(screen.getByRole("button", { name: "Remove bedrooms filter" }));
   expect(
     screen.getByRole("link", { name: /14 Garden Street/ }),
   ).toBeInTheDocument();
@@ -178,7 +205,7 @@ it("does not apply a partial interpretation when Jev asks for clarification", as
   ).toBeInTheDocument();
 });
 
-it("lets a manual bedroom selection replace an AI bedroom range", async () => {
+it("lets a manual bedroom slider replace an AI bedroom range", async () => {
   const user = userEvent.setup();
   render(
     <PropertyExplorer
@@ -201,7 +228,17 @@ it("lets a manual bedroom selection replace an AI bedroom range", async () => {
   );
   await user.click(screen.getByRole("button", { name: "Search" }));
   await screen.findByText("At least three bedrooms.");
-  await user.click(screen.getByRole("radio", { name: "2 beds" }));
+  expect(
+    screen.queryByRole("link", { name: /14 Garden Street/ }),
+  ).not.toBeInTheDocument();
+
+  await user.click(screen.getByRole("button", { name: /more filters/i }));
+  const minBeds = screen.getByRole("slider", { name: "Minimum Bedrooms" });
+  expect(minBeds).toHaveAttribute("aria-valuenow", "3");
+  minBeds.focus();
+  await user.keyboard("{Home}");
+  for (let i = 0; i < 2; i += 1) await user.keyboard("{ArrowRight}");
+  expect(minBeds).toHaveAttribute("aria-valuenow", "2");
   expect(
     screen.getByRole("link", { name: /14 Garden Street/ }),
   ).toBeInTheDocument();
@@ -240,8 +277,8 @@ it("expands extra filters above results and preserves them when collapsed", asyn
   expect(more).toHaveAttribute("aria-expanded", "false");
   await user.click(more);
   await user.selectOptions(
-    screen.getByLabelText("Mapped flood hazard"),
-    "none",
+    screen.getByLabelText("Flood risk"),
+    "exclude_low",
   );
   await user.click(more);
   expect(
@@ -249,7 +286,7 @@ it("expands extra filters above results and preserves them when collapsed", asyn
   ).toBeInTheDocument();
   expect(
     screen.getByRole("button", {
-      name: "Remove no mapped flood hazard filter",
+      name: "Remove flood risk filter",
     }),
   ).toBeInTheDocument();
 });
@@ -455,74 +492,19 @@ it("does not auto-focus the AI chatbot text input when opened on mobile", async 
   expect(input).not.toHaveFocus();
 });
 
-it("auto-searches destination addresses, allows selecting a suggestion to query route and open in Google Maps, and omits unnecessary disclaimer and straight-line text", async () => {
-  localStorage.clear();
-  const originalFetch = global.fetch;
-  global.fetch = (async (input: RequestInfo | URL) => {
-    const url = String(input);
-    if (url.includes("nominatim.openstreetmap.org")) {
-      return new Response(
-        JSON.stringify([
-          {
-            lat: "-36.8442",
-            lon: "174.7678",
-            display_name: "Britomart Station, Queen Street, Auckland CBD",
-          },
-          {
-            lat: "-36.8485",
-            lon: "174.7633",
-            display_name: "Sky Tower, Victoria Street West, Auckland CBD",
-          },
-        ]),
-        { status: 200 },
-      );
-    }
-    return new Response(JSON.stringify({}), { status: 200 });
-  }) as typeof fetch;
-
-  try {
-    const user = userEvent.setup();
-    render(<PropertyDetailPage property={home} />);
-
-    await user.click(screen.getByRole("tab", { name: /Commute/i }));
-
-    // Unnecessary disclaimer text should be gone
-    expect(
-      screen.queryByText(/Saved privately to your account/i),
-    ).not.toBeInTheDocument();
-    expect(screen.queryByText(/Saved on this device/i)).not.toBeInTheDocument();
-
-    await user.click(screen.getByRole("button", { name: "Add destination" }));
-    const addressInput = screen.getByRole("textbox", {
-      name: "Address for destination 1",
-    });
-    await user.type(addressInput, "Britomart");
-
-    // Wait for auto-search suggestion option and select it
-    const suggestion = await screen.findByRole(
-      "option",
-      { name: /Britomart Station/i },
-      { timeout: 2500 },
-    );
-    await user.click(suggestion);
-
-    // Address input updates to the selected suggestion
-    expect(addressInput).toHaveValue(
-      "Britomart Station, Queen Street, Auckland CBD",
-    );
-
-    // Distance badge is simplified without "straight-line"
-    expect(screen.queryByText(/straight-line/i)).not.toBeInTheDocument();
-
-    // Link to open in Google Maps in a new tab is displayed
-    const mapsLink = screen.getByRole("link", {
-      name: /Open in Google Maps/i,
-    });
-    expect(mapsLink).toHaveAttribute("target", "_blank");
-    expect(mapsLink.getAttribute("href")).toContain("google.com/maps/dir/");
-  } finally {
-    global.fetch = originalFetch;
-  }
+it("no longer offers a commute mode or destination planner on the property map", () => {
+  render(<PropertyDetailPage property={home} />);
+  expect(screen.getByRole("tab", { name: /Schools/i })).toBeInTheDocument();
+  expect(
+    screen.getByRole("tab", { name: /Flood assessment/i }),
+  ).toBeInTheDocument();
+  expect(
+    screen.queryByRole("tab", { name: /Commute/i }),
+  ).not.toBeInTheDocument();
+  expect(screen.queryByText(/live commute routes/i)).not.toBeInTheDocument();
+  expect(
+    screen.queryByRole("button", { name: "Add destination" }),
+  ).not.toBeInTheDocument();
 });
 
 it("reflects combined AI filters in the editable controls without showing a range as an exact count", async () => {
@@ -563,24 +545,35 @@ it("reflects combined AI filters in the editable controls without showing a rang
     "aria-pressed",
     "true",
   );
-  expect(screen.getByRole("radio", { name: "3 beds" })).toBeChecked();
-  expect(screen.getAllByText("Bathrooms ≥ 2").length).toBeGreaterThan(0);
-  expect(
-    within(screen.getByLabelText("Bathrooms")).getByRole("radio", {
-      name: "Any",
-    }),
-  ).not.toBeChecked();
+  // The editable controls mirror the AI filters.
   await user.click(screen.getByRole("button", { name: "More filters" }));
-  expect(screen.getByLabelText("Minimum parking spaces")).toHaveValue(4);
-  expect(screen.getByLabelText("Minimum land area")).toHaveValue(600);
-  expect(screen.getByLabelText("Built from")).toHaveValue("2000");
+  expect(
+    screen.getByRole("slider", { name: "Minimum Bedrooms" }),
+  ).toHaveAttribute("aria-valuenow", "3");
+  expect(
+    screen.getByRole("slider", { name: "Maximum Bedrooms" }),
+  ).toHaveAttribute("aria-valuenow", "3");
+  expect(
+    screen.getByRole("slider", { name: "Minimum Bathrooms" }),
+  ).toHaveAttribute("aria-valuenow", "2");
+  expect(
+    screen.getByRole("slider", { name: "Minimum Parking spaces" }),
+  ).toHaveAttribute("aria-valuenow", "4");
+  expect(
+    screen.getByRole("slider", { name: "Minimum Land area" }),
+  ).toHaveAttribute("aria-valuenow", "600");
+  expect(
+    screen.getByRole("slider", { name: "Minimum Year built" }),
+  ).toHaveAttribute("aria-valuenow", "2000");
   await user.click(
     screen.getByRole("button", { name: "Clear property search" }),
   );
   expect(
     screen.getByRole("textbox", { name: "Describe your ideal property" }),
   ).toHaveValue("");
-  expect(screen.getByLabelText("Minimum parking spaces")).toHaveValue(null);
+  expect(
+    screen.getByRole("slider", { name: "Minimum Parking spaces" }),
+  ).toHaveAttribute("aria-valuenow", "0");
 });
 
 it("switches the mobile search action from loading to clear and prevents a cleared search from restoring old filters", async () => {
@@ -624,6 +617,8 @@ it("switches the mobile search action from loading to clear and prevents a clear
   );
   await screen.findByRole("button", { name: "Search properties" });
   expect(input).toHaveValue("");
-  expect(screen.getByLabelText("Location / Suburb")).toHaveValue("");
+  expect(
+    screen.queryByRole("button", { name: "Remove Ponsonby" }),
+  ).not.toBeInTheDocument();
   expect(screen.queryByText("Old search applied")).not.toBeInTheDocument();
 });

@@ -1,9 +1,6 @@
 export type PropertyType =
   "Villa" | "Townhouse" | "Apartment" | "House" | "Lifestyle block" | "Section";
 
-export type ArchitecturalStyle =
-  "Character" | "Modernist" | "Contemporary" | "Craftsman" | "Mid-Century";
-
 export type FloodRisk = "Low" | "Moderate" | "High";
 export type FloodHazardType =
   | "flood_plains"
@@ -77,13 +74,6 @@ export type SchoolOption = {
   hasCoordinates?: boolean;
 };
 
-export type CommuteOption = {
-  destinationName?: string;
-  mode: "driving" | "transit" | "walking";
-  timeMinutes?: number;
-  travelTimes?: Record<string, number>;
-};
-
 export type PropertyNotification = {
   id: string;
   propertyId: string;
@@ -144,7 +134,6 @@ export type Property = {
   floorArea: number;
   yearBuilt: number;
   propertyType: PropertyType;
-  architecturalStyle?: ArchitecturalStyle;
   floodRisk?: FloodRisk;
   floodHazards?: PropertyFloodHazard[];
   openHomes?: OpenHome[];
@@ -182,7 +171,6 @@ export type Property = {
   schoolZones?: SchoolZone[];
   nearbySchools?: NearbySchool[];
   schoolDataSynced?: boolean;
-  commuteOptions?: CommuteOption[];
   pastSales?: PastSale[];
   valuationHistory?: ValuationRecord[];
   avmHistory?: AvmHistoryPoint[];
@@ -203,11 +191,15 @@ export type ComparableSalesResult = {
   averagePrice: number;
 };
 
+/** Flood risk filter levels offered in the UI. */
+export type FloodRiskLevel = "none" | "exclude_low" | "exclude_high";
+
 export type PropertyFilters = {
   propertyTypes?: PropertyType[];
-  architecturalStyles?: ArchitecturalStyle[];
   floodHazardTypes?: FloodHazardType[];
   noMappedFloodHazard?: boolean;
+  /** "exclude_low" drops every hazard layer; "exclude_high" drops the severe layers only. */
+  floodRisk?: FloodRiskLevel;
   hasOpenHome?: boolean;
   yearBuiltFrom?: number;
   yearBuiltTo?: number;
@@ -216,22 +208,18 @@ export type PropertyFilters = {
   nearbySchoolType?: string;
   schoolId?: number;
   schoolSearchMode?: "zone" | "nearby";
-  maxCommuteTimeMinutes?: number;
-  commuteMode?: "driving" | "transit" | "walking";
+  /** Free-text locations; a property matches when it matches ANY of them. */
+  locations?: string[];
+  /** Single free-text location, kept for saved/legacy filters. */
   location?: string;
+  /** Free-text school names; a property matches when it matches ANY of them. */
+  schoolNames?: string[];
   maxPrice?: number;
   minPrice?: number;
   bedrooms?: number;
   numericCriteria?: Partial<Record<NumericSearchField, NumericCriterion>>;
   ownershipTypes?: string[];
   schoolZoneName?: string;
-  commuteDestination?: string;
-  commuteFilter?: {
-    destinationName: string;
-    maxTimeMinutes?: number;
-    maxTime: number;
-    mode: "driving" | "transit" | "walking";
-  };
 };
 
 export type NumericSearchField =

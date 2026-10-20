@@ -1,6 +1,5 @@
 import { TypeSafeClient } from "@typesafe-ai/sdk";
 import type {
-  ArchitecturalStyle,
   FloodHazardType,
   Property,
   PropertyFilters,
@@ -107,28 +106,6 @@ export function buildCatalogState(properties: Property[]) {
             description: "Vacant land parcel or building site",
           },
         ],
-        available_architectural_styles: [
-          {
-            style: "Character",
-            description: "Colonial, period, or heritage character architecture",
-          },
-          {
-            style: "Modernist",
-            description: "Mid-to-late 20th century modernist design",
-          },
-          {
-            style: "Contemporary",
-            description: "Contemporary, brand-new, or modern build",
-          },
-          {
-            style: "Craftsman",
-            description: "Craftsman, bungalow, or artisan carpentry",
-          },
-          {
-            style: "Mid-Century",
-            description: "1940s to 1960s classic retro mid-century",
-          },
-        ],
         available_flood_hazards: [
           {
             type: "flood_plains",
@@ -198,18 +175,6 @@ export function buildJevQuestions(
         none: "No specific property type requested; any type is fine",
       },
     },
-    architectural_style: {
-      type: "choice" as const,
-      instructions: "What architectural style is requested in `user_query`?",
-      criteria: {
-        Character: "Character, heritage, colonial, period, or vintage style",
-        Modernist: "Modernist style",
-        Contemporary: "Contemporary, modern, or new build",
-        Craftsman: "Craftsman or bungalow style",
-        "Mid-Century": "Mid-century style (1940s-1960s)",
-        none: "No specific architectural style requested",
-      },
-    },
     flood_hazard: {
       type: "choice" as const,
       instructions:
@@ -228,7 +193,7 @@ export function buildJevQuestions(
     location: {
       type: "choice" as const,
       instructions:
-        "Which known location from `catalog.known_locations` does `user_query` require the PROPERTY to be in? Select none if a place name appears only within a school name or commute destination; a commute TO Auckland CBD does not restrict the property's location to Auckland.",
+        "Which known location from `catalog.known_locations` does `user_query` require the PROPERTY to be in? Select none if a place name appears only within a school name.",
       criteria: locationCriteria,
     },
     is_school_zone_requested: {
@@ -250,7 +215,7 @@ export function buildJevQuestions(
     era_intent: {
       type: "choice" as const,
       instructions:
-        "Does `user_query` explicitly specify a construction era or property age? Select none for architectural style alone: a contemporary-style house does not specify its construction date. Explicit numeric construction years are handled separately.",
+        "Does `user_query` explicitly specify a construction era or property age? Explicit numeric construction years are handled separately.",
       criteria: {
         character_heritage:
           "Pre-1940s, historic, character, colonial, or villa era",
@@ -284,12 +249,6 @@ export function cleanJevFilters(
   const pType = answers.property_type?.choice;
   if (pType && pType !== "none") {
     filters.propertyTypes = [pType as PropertyType];
-  }
-
-  // Architectural style
-  const style = answers.architectural_style?.choice;
-  if (style && style !== "none") {
-    filters.architecturalStyles = [style as ArchitecturalStyle];
   }
 
   // Mapped flood hazards
@@ -329,18 +288,6 @@ export function cleanJevFilters(
     /\b(school\s*zone|grammar\s*zone|in\s*zone|schools?)\b/i.test(query);
   if (schoolProb >= 0.55 || mentionsSchool) {
     filters.inZoneOnly = true;
-  }
-
-  // Commute
-  const commuteMatch = query.match(
-    /(?:within|under|less than|up to|max)?\s*(\d+)\s*(?:mins?|minutes?)\s*(?:to|from|commute)?/i,
-  );
-  const mentionsCbd =
-    /\b(cbd|city|britomart|downtown|centre|center|work)\b/i.test(query);
-  const mentionsCommute = /\b(commute|drive|transit|travel)\b/i.test(query);
-  if (commuteMatch && (mentionsCbd || mentionsCommute)) {
-    const mins = Number(commuteMatch[1]);
-    filters.maxCommuteTimeMinutes = mins;
   }
 
   // Bedrooms
@@ -457,7 +404,7 @@ export async function interpretPropertyQueryWithJev(
       message: issues.length
         ? issues.join(" ")
         : isVague
-          ? "Try adding a location, property type, architectural style, bedroom count or budget."
+          ? "Try adding a location, property type, flood risk, bedroom count or budget."
           : formatSearchMessage(describeFilters(filters)),
       source: "jev",
     };

@@ -1,5 +1,4 @@
 import type {
-  ArchitecturalStyle,
   FloodHazardType,
   PastSale,
   Property,
@@ -13,11 +12,55 @@ import {
   parseExplicitPropertyFilters,
 } from "./property-query";
 
+/** Hazard layers that are excluded by each flood risk level. */
+export const FLOOD_RISK_EXCLUDED_HAZARDS: Record<
+  "exclude_low" | "exclude_high",
+  FloodHazardType[]
+> = {
+  exclude_low: [
+    "flood_plains",
+    "coastal_inundation",
+    "flood_prone_areas",
+    "overland_flow_paths",
+  ],
+  exclude_high: ["flood_prone_areas", "overland_flow_paths"],
+};
+
+function matchesFloodFilter(property: Property, filters: PropertyFilters) {
+  const hazards = property.floodHazards;
+  const intersects = (types: FloodHazardType[]) =>
+    hazards?.some((hazard) => types.includes(hazard.type)) === true;
+
+  // The risk-level select takes precedence over the legacy hazard checkboxes.
+  if (filters.floodRisk === "exclude_low") {
+    return hazards !== undefined && !intersects(FLOOD_RISK_EXCLUDED_HAZARDS.exclude_low);
+  }
+  if (filters.floodRisk === "exclude_high") {
+    return hazards !== undefined && !intersects(FLOOD_RISK_EXCLUDED_HAZARDS.exclude_high);
+  }
+
+  return (
+    (!filters.floodHazardTypes?.length ||
+      hazards?.some((hazard) =>
+        filters.floodHazardTypes?.includes(hazard.type),
+      ) === true) &&
+    (!filters.noMappedFloodHazard ||
+      (hazards !== undefined && hazards.length === 0))
+  );
+}
+
 export function filterProperties(
   properties: Property[],
   filters: PropertyFilters,
 ): Property[] {
-  const location = filters.location?.toLocaleLowerCase();
+  const locations = [...(filters.locations ?? []), filters.location ?? ""]
+    .map((location) => location.trim().toLocaleLowerCase())
+    .filter(Boolean);
+  // Compare against the full names only: "Auckland Grammar school zone"
+  // should not match "Auckland Grammar School" plus "Auckland Grammar Zone".
+  const schoolNames = [...(filters.schoolNames ?? [])]
+    .map((name) => name.trim().toLocaleLowerCase())
+    .filter(Boolean);
 
   return properties.filter((property) => {
     const propertyLocation = [
@@ -28,6 +71,24 @@ export function filterProperties(
     ]
       .join(" ")
       .toLocaleLowerCase();
+    // In-zone schools and schools that are merely nearby both count as "near".
+    const propertySchoolNames = [
+      ...(property.schoolZones ?? []).map((zone) => zone.name ?? zone.schoolName),
+      ...(property.nearbySchools ?? []).map((school) => school.name),
+    ]
+      .filter((name): name is string => Boolean(name))
+      .map((name) => name.toLocaleLowerCase());
+    const inZoneSchoolNames = (property.schoolZones ?? [])
+      .filter((zone) => zone.isInZone ?? true)
+      .map((zone) => (zone.name ?? zone.schoolName ?? "").toLocaleLowerCase())
+      .filter(Boolean);
+    const matchesSchoolName = (name: string) => {
+      const lowered = name.trim().toLocaleLowerCase();
+      if (!lowered) return false;
+      return filters.inZoneOnly
+        ? inZoneSchoolNames.some((propertyName) => propertyName.includes(lowered))
+        : propertySchoolNames.some((propertyName) => propertyName.includes(lowered));
+    };
 
     const numericCriteriaMatch = Object.entries(
       filters.numericCriteria ?? {},
@@ -48,19 +109,12 @@ export function filterProperties(
     return (
       (!filters.propertyTypes?.length ||
         filters.propertyTypes.includes(property.propertyType)) &&
-      (!filters.architecturalStyles?.length ||
-        (property.architecturalStyle !== undefined &&
-          filters.architecturalStyles.includes(property.architecturalStyle))) &&
-      (!filters.floodHazardTypes?.length ||
-        property.floodHazards?.some((hazard) =>
-          filters.floodHazardTypes?.includes(hazard.type),
-        ) === true) &&
-      (!filters.noMappedFloodHazard ||
-        (property.floodHazards !== undefined &&
-          property.floodHazards.length === 0)) &&
+      matchesFloodFilter(property, filters) &&
       (!filters.hasOpenHome ||
         Boolean(property.openHomes && property.openHomes.length > 0)) &&
-      (!location || propertyLocation.includes(location)) &&
+      (!locations.length ||
+        locations.some((location) => propertyLocation.includes(location))) &&
+      (!schoolNames.length || schoolNames.some(matchesSchoolName)) &&
       (filters.maxPrice === undefined || property.price <= filters.maxPrice) &&
       (filters.minPrice === undefined || property.price >= filters.minPrice) &&
       (filters.bedrooms === undefined ||
@@ -77,17 +131,7 @@ export function filterProperties(
       (filters.yearBuiltTo === undefined ||
         property.yearBuilt <= filters.yearBuiltTo) &&
       // In-zone school catchment filter
-      (!filters.inZoneOnly ||
-        (property.schoolZones?.some((zone) => zone.isInZone ?? true) ??
-          false)) &&
-      (!filters.schoolZoneName ||
-        (property.schoolZones?.some(
-          (zone) =>
-            (zone.isInZone ?? true) &&
-            (zone.name ?? zone.schoolName)?.toLowerCase() ===
-              filters.schoolZoneName?.toLowerCase(),
-        ) ??
-          false)) &&
+      (!filters.inZoneOnly || inZoneSchoolNames.length > 0) &&
       (!filters.hasNearbySchool || (property.nearbySchools?.length ?? 0) > 0) &&
       (!filters.nearbySchoolType ||
         property.nearbySchools?.some(
@@ -101,50 +145,7 @@ export function filterProperties(
           : property.nearbySchools?.some(
               (school) => school.schoolId === filters.schoolId,
             ) === true)) &&
-      // Commute filter logic
-      (!filters.commuteFilter ||
-        !filters.commuteFilter.destinationName ||
-        (() => {
-          const { destinationName, maxTime, mode } = filters.commuteFilter!;
-          if (!property.commuteOptions) return false;
-
-          const matchingCommute = property.commuteOptions.find(
-            (opt) =>
-              opt?.destinationName?.toLowerCase() ===
-              destinationName.toLowerCase(),
-          );
-
-          if (!matchingCommute) return false;
-
-          const travelTime = matchingCommute.travelTimes?.[mode];
-          return travelTime !== undefined && travelTime <= maxTime;
-        })()) &&
-      (filters.maxCommuteTimeMinutes === undefined ||
-        (() => {
-          if (!property.commuteOptions || property.commuteOptions.length === 0)
-            return false;
-          const mode = filters.commuteMode ?? "driving";
-          return property.commuteOptions.some((opt) => {
-            if (
-              filters.commuteDestination &&
-              opt.destinationName?.toLowerCase() !==
-                filters.commuteDestination.toLowerCase()
-            )
-              return false;
-            const time =
-              opt.travelTimes?.[mode] ??
-              (opt.mode === mode ? opt.timeMinutes : undefined);
-            return time !== undefined && time <= filters.maxCommuteTimeMinutes!;
-          });
-        })()) &&
-      (!filters.commuteDestination ||
-        filters.maxCommuteTimeMinutes !== undefined ||
-        (property.commuteOptions?.some(
-          (option) =>
-            option.destinationName?.toLowerCase() ===
-            filters.commuteDestination?.toLowerCase(),
-        ) ??
-          false))
+      true
     );
   });
 }
@@ -158,13 +159,6 @@ const typeMatchers: Array<[RegExp, PropertyType]> = [
   [/\bhouses?|homes?\b/i, "House"],
 ];
 
-const styleMatchers: Array<[RegExp, ArchitecturalStyle]> = [
-  [/\bmid[-_\s]?century\b/i, "Mid-Century"],
-  [/\bmodern(?:ist)?\b/i, "Modernist"],
-  [/\bcontemporary\b/i, "Contemporary"],
-  [/\bcraftsman\b/i, "Craftsman"],
-  [/\bcharacter\b/i, "Character"],
-];
 
 const floodHazardMatchers: Array<[RegExp, FloodHazardType]> = [
   [/\bflood\s+plains?\b/i, "flood_plains"],
@@ -194,7 +188,6 @@ export function parseNaturalLanguageSearch(
   const propertyType = typeMatchers.find(([matcher]) =>
     matcher.test(query),
   )?.[1];
-  const style = styleMatchers.find(([matcher]) => matcher.test(query))?.[1];
   const floodHazards = floodHazardMatchers
     .filter(([matcher]) => matcher.test(query))
     .map(([, hazard]) => hazard);
@@ -204,7 +197,6 @@ export function parseNaturalLanguageSearch(
     /\b(?:low|moderate|high)\s+flood\s+risk\b/i.test(query);
 
   if (propertyType) filters.propertyTypes = [propertyType];
-  if (style) filters.architecturalStyles = [style];
   if (floodHazards.length) filters.floodHazardTypes = floodHazards;
   else if (
     /\bflood\s+(?:risk|hazards?)\b/i.test(query) &&
@@ -229,12 +221,31 @@ export function parseNaturalLanguageSearch(
     new Set(
       properties.flatMap(({ city, region, suburb }) => [city, region, suburb]),
     ),
-  ).sort((a, b) => b.length - a.length);
-  const location = places.find((place) =>
-    query.toLocaleLowerCase().includes(place.toLocaleLowerCase()),
+  )
+    .filter(Boolean)
+    .sort((a, b) => b.length - a.length);
+  const lowerQuery = query.toLocaleLowerCase();
+  const matchedPlaces = places.filter((place) =>
+    lowerQuery.includes(place.toLocaleLowerCase()),
   );
-  if (location) filters.location = location;
-  Object.assign(filters, matchCatalogDetails(query, properties));
+  // Drop places already contained in a longer matched place name.
+  const locations = matchedPlaces.filter(
+    (place) =>
+      !matchedPlaces.some(
+        (other) =>
+          other !== place &&
+          other.toLocaleLowerCase().includes(place.toLocaleLowerCase()),
+      ),
+  );
+  if (locations.length) {
+    filters.locations = locations;
+    delete filters.location;
+  }
+  const catalogMatches = matchCatalogDetails(query, properties);
+  Object.assign(filters, catalogMatches);
+  if (catalogMatches.locations?.length || catalogMatches.location)
+    delete filters.locations;
+  if (filters.locations?.length) delete filters.location;
 
   const bedroomsMatch =
     filters.bedrooms === undefined &&
@@ -254,7 +265,7 @@ export function parseNaturalLanguageSearch(
       filters,
       message: unsupportedFloodRating
         ? "Council mapping does not provide a low, moderate or high risk rating. Try a mapped flood hazard instead."
-        : "Try adding a location, property type, mapped flood hazard, architectural style, bedroom count or budget.",
+        : "Try adding a location, property type, flood risk, bedroom count or budget.",
     };
   }
 

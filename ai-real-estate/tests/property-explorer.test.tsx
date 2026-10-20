@@ -28,7 +28,6 @@ const properties: Property[] = [
     floorArea: 132,
     yearBuilt: 2021,
     propertyType: "Townhouse",
-    architecturalStyle: "Modernist",
     floodRisk: "Low",
     floodHazards: [
       {
@@ -88,7 +87,6 @@ const properties: Property[] = [
     floorArea: 148,
     yearBuilt: 1912,
     propertyType: "Villa",
-    architecturalStyle: "Character",
     floodRisk: "Moderate",
     floodHazards: [],
     latitude: -36.849,
@@ -148,7 +146,7 @@ describe("PropertyExplorer", () => {
     expect(screen.getByText("2/30 Hardington Street")).toBeInTheDocument();
   });
 
-  it("filters listings by imported Council flood hazard categories", async () => {
+  it("filters listings by flood risk level", async () => {
     const user = userEvent.setup();
     render(
       <PropertyExplorer
@@ -158,32 +156,31 @@ describe("PropertyExplorer", () => {
     );
 
     await user.click(screen.getByRole("button", { name: "More filters" }));
-    const floodFilter = screen.getByRole("combobox", {
-      name: "Mapped flood hazard",
-    });
-    await user.selectOptions(floodFilter, "flood_plains");
+    const floodFilter = screen.getByRole("combobox", { name: "Flood risk" });
+    expect(floodFilter).toHaveValue("none");
 
-    expect(screen.getByText("2/30 Hardington Street")).toBeInTheDocument();
-    expect(screen.queryByText("54 Kelmarna Avenue")).not.toBeInTheDocument();
+    // Low risk: any mapped overland flow path is excluded with the others.
+    await user.selectOptions(floodFilter, "exclude_low");
+    expect(screen.queryByText("2/30 Hardington Street")).not.toBeInTheDocument();
+    expect(screen.getByText("54 Kelmarna Avenue")).toBeInTheDocument();
     await user.click(
-      screen.getByRole("button", { name: "Remove flood hazard Flood plains" }),
+      screen.getByRole("button", { name: "Remove flood risk filter" }),
     );
+    expect(screen.getByText("2/30 Hardington Street")).toBeInTheDocument();
+
+    // High risk: flood-prone / overland flow path listings are excluded, but
+    // flood plains and coastal inundation are still allowed.
+    await user.selectOptions(floodFilter, "exclude_high");
+    expect(screen.getByText("2/30 Hardington Street")).toBeInTheDocument();
     expect(screen.getByText("54 Kelmarna Avenue")).toBeInTheDocument();
 
     await user.selectOptions(floodFilter, "none");
-    expect(
-      screen.queryByText("2/30 Hardington Street"),
-    ).not.toBeInTheDocument();
-    expect(screen.getByText("54 Kelmarna Avenue")).toBeInTheDocument();
-    await user.click(
-      screen.getByRole("button", {
-        name: "Remove no mapped flood hazard filter",
-      }),
+    expect(screen.getByRole("combobox", { name: "Flood risk" })).toHaveValue(
+      "none",
     );
-    expect(screen.getByText("2/30 Hardington Street")).toBeInTheDocument();
   });
 
-  it("filters properties by nearby school type and the selected school's zone or radius", async () => {
+  it("matches free-text schools, several at once, and no longer offers a school dropdown", async () => {
     const user = userEvent.setup();
     render(
       <PropertyExplorer
@@ -212,24 +209,30 @@ describe("PropertyExplorer", () => {
     );
 
     await user.click(screen.getByRole("button", { name: "More filters" }));
-    await user.selectOptions(
-      screen.getByLabelText("Nearby school type (within 2.5 km)"),
-      "Secondary",
-    );
-    expect(screen.getByText("2/30 Hardington Street")).toBeInTheDocument();
-    expect(screen.getByText("54 Kelmarna Avenue")).toBeInTheDocument();
+    expect(screen.queryByLabelText("Search by school")).not.toBeInTheDocument();
+    expect(
+      screen.queryByLabelText(/Nearby school type/),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("checkbox", { name: /Near a school/ }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("checkbox", { name: /Inside mapped school zone/ }),
+    ).not.toBeInTheDocument();
 
-    await user.selectOptions(screen.getByLabelText("Search by school"), "zone");
-    await user.selectOptions(screen.getByLabelText("School"), "1327");
+    const schoolInput = screen.getByRole("textbox", { name: "School" });
+    await user.type(schoolInput, "Kauri Park School{Enter}");
+    expect(
+      screen.getByRole("button", { name: "Remove school Kauri Park School" }),
+    ).toBeInTheDocument();
     expect(screen.getByText("2/30 Hardington Street")).toBeInTheDocument();
     expect(screen.queryByText("54 Kelmarna Avenue")).not.toBeInTheDocument();
 
-    await user.selectOptions(
-      screen.getByLabelText("Search by school"),
-      "nearby",
-    );
-    await user.selectOptions(screen.getByLabelText("School"), "1500");
-    expect(screen.getByText("2/30 Hardington Street")).toBeInTheDocument();
+    // Adding a second school ORs the names together.
+    await user.type(schoolInput, "Example Secondary{Enter}");
+    expect(
+      screen.getByRole("button", { name: "Remove school Example Secondary" }),
+    ).toBeInTheDocument();
     expect(screen.getByText("54 Kelmarna Avenue")).toBeInTheDocument();
   });
 
@@ -321,7 +324,7 @@ describe("PropertyExplorer", () => {
     expect(screen.getByText("2/30 Hardington Street")).toBeInTheDocument();
   });
 
-  it("shows named school, commute destination and building year conditions", async () => {
+  it("shows named school and building age conditions as chips", async () => {
     const user = userEvent.setup();
     render(
       <PropertyExplorer
@@ -332,9 +335,7 @@ describe("PropertyExplorer", () => {
           source: "jev",
           message: "Search applied.",
           filters: {
-            schoolZoneName: "Auckland Grammar School",
-            commuteDestination: "Auckland CBD",
-            maxCommuteTimeMinutes: 30,
+            schoolNames: ["Auckland Grammar School"],
             yearBuiltFrom: 2000,
           },
         })}
@@ -343,20 +344,17 @@ describe("PropertyExplorer", () => {
 
     await user.type(
       screen.getByRole("textbox", { name: /describe your ideal property/i }),
-      "school and commute",
+      "near Auckland Grammar",
     );
     await user.click(screen.getByRole("button", { name: /^search$/i }));
 
     expect(
       await screen.findByRole("button", {
-        name: "Remove school zone name filter",
+        name: "Remove school Auckland Grammar School",
       }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: "Remove commute destination filter" }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("button", { name: "Remove built from filter" }),
+      screen.getByRole("button", { name: "Remove age filter" }),
     ).toBeInTheDocument();
   });
 
@@ -488,215 +486,6 @@ describe("PropertyExplorer", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("saves up to three commute destinations and updates the directions mode", async () => {
-    window.localStorage.clear();
-    const user = userEvent.setup();
-    render(
-      <PropertyDetailPage
-        property={properties[0]}
-        comparableSales={comparableSales}
-      />,
-    );
-
-    const details = screen.getByRole("main", { name: /property details/i });
-    await user.click(within(details).getByRole("tab", { name: /Commute/i }));
-    await user.click(
-      within(details).getByRole("button", { name: "Add destination" }),
-    );
-
-    await user.type(
-      within(details).getByRole("textbox", { name: "Name for destination 1" }),
-      "Work",
-    );
-    await user.type(
-      within(details).getByRole("textbox", {
-        name: "Address for destination 1",
-      }),
-      "1 Queen Street, Auckland",
-    );
-    await user.click(
-      within(details).getByRole("button", { name: "Add destination" }),
-    );
-    await user.click(
-      within(details).getByRole("button", { name: "Add destination" }),
-    );
-    expect(
-      within(details).getByRole("button", { name: "Add destination" }),
-    ).toBeDisabled();
-
-    await user.click(
-      within(details).getByRole("button", { name: "Public transport" }),
-    );
-    const directions = new URL(
-      within(details)
-        .getByRole("link", { name: /Open in Google Maps/i })
-        .getAttribute("href")!,
-    );
-    expect(directions.searchParams.get("travelmode")).toBe("transit");
-    expect(directions.searchParams.get("origin")).toBe("-36.913,174.787");
-    expect(directions.searchParams.get("destination")).toBe(
-      "1 Queen Street, Auckland",
-    );
-    expect(
-      window.localStorage.getItem("ai-real-estate-commute-destinations"),
-    ).toContain("Work");
-
-    await user.click(within(details).getByRole("tab", { name: /Schools/i }));
-    await user.click(within(details).getByRole("tab", { name: /Commute/i }));
-    expect(
-      within(details).getByRole("textbox", {
-        name: "Address for destination 1",
-      }),
-    ).toHaveValue("1 Queen Street, Auckland");
-  });
-
-  it("shows a saved named location and its distance in the property map Commute mode", async () => {
-    window.localStorage.clear();
-    const geocode = vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(
-      new Response(
-        JSON.stringify([
-          {
-            lat: "-36.904",
-            lon: "174.787",
-            display_name: "1 Queen Street, Auckland",
-          },
-        ]),
-        { status: 200 },
-      ),
-    );
-    const user = userEvent.setup();
-    render(
-      <PropertyDetailPage
-        property={properties[0]}
-        comparableSales={comparableSales}
-      />,
-    );
-
-    const details = screen.getByRole("main", { name: /property details/i });
-    await user.click(within(details).getByRole("tab", { name: /Commute/i }));
-    await user.click(
-      within(details).getByRole("button", { name: "Add destination" }),
-    );
-    await user.type(
-      within(details).getByRole("textbox", { name: "Name for destination 1" }),
-      "Work",
-    );
-    await user.type(
-      within(details).getByRole("textbox", {
-        name: "Address for destination 1",
-      }),
-      "1 Queen Street, Auckland",
-    );
-    await user.click(
-      within(details).getByRole("button", { name: "Find on map" }),
-    );
-
-    await waitFor(() =>
-      expect(
-        window.localStorage.getItem("ai-real-estate-commute-destinations"),
-      ).toContain('"latitude":-36.904'),
-    );
-    expect(within(details).getByText(/1\.0 km/i)).toBeInTheDocument();
-    expect(geocode).toHaveBeenCalledTimes(1);
-    geocode.mockRestore();
-  });
-
-  it("filters properties by straight-line distance from a saved location", async () => {
-    window.localStorage.setItem(
-      "ai-real-estate-commute-destinations",
-      JSON.stringify([
-        {
-          id: "work",
-          name: "Work",
-          address: "1 Queen Street, Auckland",
-          latitude: -36.904,
-          longitude: 174.787,
-        },
-      ]),
-    );
-    const user = userEvent.setup();
-    render(
-      <PropertyExplorer
-        properties={properties}
-        comparableSales={comparableSales}
-      />,
-    );
-
-    await user.click(screen.getByRole("button", { name: "More filters" }));
-    await screen.findByRole("option", { name: "Work" });
-    await user.selectOptions(
-      screen.getByRole("combobox", { name: "Search near saved location" }),
-      "work",
-    );
-    await user.selectOptions(
-      screen.getByRole("combobox", { name: "Maximum distance" }),
-      "2",
-    );
-
-    expect(
-      screen.getByRole("heading", { name: "1 property found" }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("link", {
-        name: /view details for 2\/30 hardington street/i,
-      }),
-    ).toBeInTheDocument();
-    expect(
-      screen.queryByRole("button", {
-        name: /view details for 54 kelmarna avenue/i,
-      }),
-    ).not.toBeInTheDocument();
-  });
-
-  it("does not pin old coordinates after a saved address is edited during lookup", async () => {
-    window.localStorage.clear();
-    let finishLookup!: (response: Response) => void;
-    const geocode = vi.spyOn(globalThis, "fetch").mockImplementation(
-      () =>
-        new Promise((resolve) => {
-          finishLookup = resolve;
-        }),
-    );
-    const user = userEvent.setup();
-    render(
-      <PropertyDetailPage
-        property={properties[0]}
-        comparableSales={comparableSales}
-      />,
-    );
-    const details = screen.getByRole("main", { name: /property details/i });
-    await user.click(within(details).getByRole("tab", { name: /Commute/i }));
-    await user.click(
-      within(details).getByRole("button", { name: "Add destination" }),
-    );
-    await user.type(
-      within(details).getByRole("textbox", { name: "Name for destination 1" }),
-      "Work",
-    );
-    const address = within(details).getByRole("textbox", {
-      name: "Address for destination 1",
-    });
-    await user.type(address, "1 Queen Street, Auckland");
-    await user.click(
-      within(details).getByRole("button", { name: "Find on map" }),
-    );
-    await user.clear(address);
-    await user.type(address, "100 Queen Street, Auckland");
-    await waitFor(() => expect(geocode).toHaveBeenCalled(), { timeout: 2500 });
-    finishLookup(
-      new Response(JSON.stringify([{ lat: "-36.904", lon: "174.787" }]), {
-        status: 200,
-      }),
-    );
-    await waitFor(() =>
-      expect(
-        within(details).getByRole("button", { name: "Find on map" }),
-      ).toBeEnabled(),
-    );
-    expect(within(details).queryByText(/1\.0 km/i)).not.toBeInTheDocument();
-    geocode.mockRestore();
-  });
-
   it("opens source details from an inline property citation", async () => {
     const user = userEvent.setup();
     render(
@@ -752,11 +541,8 @@ describe("PropertyExplorer", () => {
     ).toHaveAttribute("href", seededProperties[0].imageSourceUrl);
   });
 
-  it("does not render 'Verified address' badge when property has no architectural style", () => {
-    const propertyWithoutStyle: Property = {
-      ...properties[0],
-      architecturalStyle: undefined,
-    };
+  it("no longer renders an architectural style badge on cards", () => {
+    const propertyWithoutStyle: Property = { ...properties[0] };
     const { container } = render(
       <PropertyExplorer
         properties={[propertyWithoutStyle]}
@@ -816,7 +602,7 @@ describe("PropertyExplorer", () => {
     expect(screen.getByText("2/30 Hardington Street")).toBeInTheDocument();
   });
 
-  it("updates listings in real-time when horizontal location and bedroom controls change", async () => {
+  it("updates listings in real-time when location and bedroom controls change", async () => {
     const user = userEvent.setup();
     render(
       <PropertyExplorer
@@ -825,18 +611,24 @@ describe("PropertyExplorer", () => {
       />,
     );
 
-    // Select Location filter
-    const locationSelect = screen.getByLabelText("Location / Suburb");
-    await user.selectOptions(locationSelect, "Onehunga");
+    // Free-text location filter.
+    await user.click(screen.getByRole("button", { name: /more filters/i }));
+    const locationInput = screen.getByLabelText("Suburb or location filter");
+    await user.type(locationInput, "Onehunga{Enter}");
     expect(screen.getByText("2/30 Hardington Street")).toBeInTheDocument();
     expect(screen.queryByText("54 Kelmarna Avenue")).not.toBeInTheDocument();
-
-    // Reset location
-    await user.selectOptions(locationSelect, "");
+    await user.click(screen.getByRole("button", { name: "Remove Onehunga" }));
     expect(screen.getByText("54 Kelmarna Avenue")).toBeInTheDocument();
 
-    // Select 1 bed filter (neither sample home in test fixture has 1 bed)
-    await user.click(screen.getByRole("radio", { name: "1 bed" }));
+    // Bedroom slider: 1 bedroom matches neither fixture home.
+    const minBeds = screen.getByRole("slider", { name: "Minimum Bedrooms" });
+    const maxBeds = screen.getByRole("slider", { name: "Maximum Bedrooms" });
+    minBeds.focus();
+    await user.keyboard("{Home}");
+    await user.keyboard("{ArrowRight}");
+    maxBeds.focus();
+    await user.keyboard("{Home}");
+    await user.keyboard("{ArrowRight}");
     expect(
       screen.queryByText("2/30 Hardington Street"),
     ).not.toBeInTheDocument();

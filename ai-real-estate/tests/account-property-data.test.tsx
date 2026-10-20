@@ -10,14 +10,8 @@ afterEach(() => {
   localStorage.clear();
 });
 
-it("loads saved homes and locations from the signed-in buyer's workspace", async () => {
+it("loads saved homes from the signed-in buyer's workspace", async () => {
   const property = aucklandProperties[0];
-  localStorage.setItem(
-    "ai-real-estate-commute-destinations",
-    JSON.stringify([
-      { id: "other", name: "Other person's work", address: "Elsewhere" },
-    ]),
-  );
   vi.stubGlobal(
     "fetch",
     vi.fn().mockResolvedValue({
@@ -28,15 +22,7 @@ it("loads saved homes and locations from the signed-in buyer's workspace", async
           savedPropertyIds: [property.id],
           generalNotes: [],
           propertyNotes: {},
-          destinations: [
-            {
-              id: "work",
-              name: "Sam's work",
-              address: "1 Queen St",
-              latitude: -36.84,
-              longitude: 174.77,
-            },
-          ],
+          destinations: [],
         },
       }),
     }),
@@ -50,12 +36,8 @@ it("loads saved homes and locations from the signed-in buyer's workspace", async
     await screen.findByRole("button", { name: "More filters" }),
   );
   expect(
-    await screen.findByRole("option", { name: "Sam's work" }),
+    await screen.findByRole("link", { name: /Saved Homes 1/i }),
   ).toBeInTheDocument();
-  expect(
-    screen.getByRole("link", { name: /Saved Homes 1/i }),
-  ).toBeInTheDocument();
-  expect(
-    screen.queryByRole("option", { name: "Other person's work" }),
-  ).not.toBeInTheDocument();
+  // Saved commute destinations no longer exist, so no destination control renders.
+  expect(screen.queryByLabelText(/Search near saved location/)).toBeNull();
 });

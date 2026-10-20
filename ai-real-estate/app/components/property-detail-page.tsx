@@ -46,11 +46,6 @@ import PropertyLocationMap from "./property-location-map";
 import { useAccountWorkspace } from "./account-workspace-provider";
 import { generateValuationHistory } from "../../lib/property-engine";
 import type { Property } from "../../lib/property-types";
-import {
-  commuteStorageKey,
-  readSavedLocations,
-  type SavedLocation,
-} from "../../lib/saved-locations";
 
 const numberFormatter = new Intl.NumberFormat("en-NZ");
 const moneyFormatter = new Intl.NumberFormat("en-NZ", {
@@ -83,20 +78,16 @@ export default function PropertyDetailPage({
   const account = useAccountWorkspace();
   const [source, setSource] = useState<SourceSelection | null>(null);
   const [savedIds, setSavedIds] = useState<string[]>([]);
-  const [destinations, setDestinations] = useState<SavedLocation[]>([]);
   const [descriptionExpanded, setDescriptionExpanded] = useState(false);
 
   const savedIdsRef = useRef<string[]>([]);
-  const destinationsRef = useRef<SavedLocation[]>([]);
 
   useEffect(() => {
     if (account && account.status !== "signedIn" && account.status !== "guest")
       return;
     if (account?.status === "signedIn") {
       savedIdsRef.current = account.workspace.savedPropertyIds;
-      destinationsRef.current = account.workspace.destinations;
     } else {
-      destinationsRef.current = readSavedLocations();
       try {
         const parsed: unknown = JSON.parse(
           localStorage.getItem("haven_saved_property_ids") ?? "[]",
@@ -109,23 +100,9 @@ export default function PropertyDetailPage({
       }
     }
     setSavedIds(savedIdsRef.current);
-    setDestinations(destinationsRef.current);
     // Identity changes hydrate once; workspace writes must not reset current edits.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [account?.status, account?.user?.userId]);
-
-  function persistDestinations(update: React.SetStateAction<SavedLocation[]>) {
-    const next =
-      typeof update === "function" ? update(destinationsRef.current) : update;
-    destinationsRef.current = next;
-    setDestinations(next);
-    if (account?.status === "signedIn") void account.save("destinations", next);
-    else if (!account || account.status === "guest") {
-      try {
-        localStorage.setItem(commuteStorageKey, JSON.stringify(next));
-      } catch {}
-    }
-  }
 
   const isSaved = savedIds.includes(property.id);
 
@@ -453,7 +430,7 @@ export default function PropertyDetailPage({
                   )}
                 </div>
 
-                {/* Unified 3-Mode Google Map Section (Schools, Commute, Flood assessment) */}
+                {/* Unified 2-Mode Google Map Section (Schools, Flood assessment) */}
                 <section
                   aria-labelledby="neighbourhood-heading"
                   className="property-map-block"
@@ -462,7 +439,7 @@ export default function PropertyDetailPage({
                     <div>
                       <h2 id="neighbourhood-heading">The neighbourhood</h2>
                       <p className="property-section-subtitle">
-                        Explore school catchments, live commute routes, and Council flood overlays in one interactive map.
+                        Explore school catchments and Council flood overlays in one interactive map.
                       </p>
                     </div>
                   </div>
@@ -470,12 +447,10 @@ export default function PropertyDetailPage({
                     address={property.address}
                     floodHazards={property.floodHazards}
                     latitude={property.latitude}
-                    locations={destinations}
                     longitude={property.longitude}
                     schoolDataSynced={property.schoolDataSynced}
                     schoolZones={property.schoolZones ?? []}
                     schools={property.nearbySchools ?? []}
-                    setLocations={persistDestinations}
                   />
                 </section>
               </div>

@@ -19,9 +19,10 @@ export type InterpretedSearch = {
 
 type GeminiFilters = {
   propertyTypes?: string[];
-  architecturalStyles?: string[];
   floodHazardTypes?: FloodHazardType[];
   noMappedFloodHazard?: boolean;
+  floodRisk?: "none" | "exclude_low" | "exclude_high";
+  locations?: string[];
   location?: string | null;
   maxPrice?: number | null;
   minPrice?: number | null;
@@ -52,19 +53,6 @@ const responseSchema = {
         ],
       },
     },
-    architecturalStyles: {
-      type: "array",
-      items: {
-        type: "string",
-        enum: [
-          "Character",
-          "Contemporary",
-          "Craftsman",
-          "Mid-Century",
-          "Modernist",
-        ],
-      },
-    },
     floodHazardTypes: {
       type: "array",
       items: {
@@ -73,6 +61,11 @@ const responseSchema = {
       },
     },
     noMappedFloodHazard: { type: "boolean" },
+    floodRisk: {
+      type: "string",
+      enum: ["none", "exclude_low", "exclude_high"],
+    },
+    locations: { type: "array", items: { type: "string" } },
     location: { type: "string", nullable: true },
     maxPrice: { type: "number", nullable: true },
     minPrice: { type: "number", nullable: true },
@@ -84,9 +77,10 @@ const responseSchema = {
   },
   required: [
     "propertyTypes",
-    "architecturalStyles",
     "floodHazardTypes",
     "noMappedFloodHazard",
+    "floodRisk",
+    "locations",
     "location",
     "maxPrice",
     "minPrice",
@@ -110,15 +104,15 @@ function cleanGeminiFilters(result: GeminiFilters): PropertyFilters {
     filters.propertyTypes =
       result.propertyTypes as PropertyFilters["propertyTypes"];
   }
-  if (result.architecturalStyles?.length) {
-    filters.architecturalStyles =
-      result.architecturalStyles as PropertyFilters["architecturalStyles"];
-  }
   if (result.floodHazardTypes?.length) {
     filters.floodHazardTypes = result.floodHazardTypes;
   }
   if (result.noMappedFloodHazard) filters.noMappedFloodHazard = true;
-  if (result.location) filters.location = result.location;
+  if (result.floodRisk === "exclude_low" || result.floodRisk === "exclude_high")
+    filters.floodRisk = result.floodRisk;
+  const locations = result.locations?.map((value) => value.trim()).filter(Boolean);
+  if (locations?.length) filters.locations = locations;
+  else if (result.location) filters.location = result.location;
   if (result.maxPrice !== null && result.maxPrice !== undefined) {
     filters.maxPrice = result.maxPrice;
   }
@@ -166,7 +160,7 @@ export async function interpretPropertyQuery(
               text: [
                 "Interpret this New Zealand property search into filters.",
                 "Only include requirements the buyer explicitly stated or clearly implied.",
-                "Treat villa as a property type; character villa means Character style plus Villa type.",
+                "Treat villa as a property type. Collect every suburb or school the buyer names in locations, and report the requested flood risk level: none (no filter), exclude_low (avoid any mapped flood hazard) or exclude_high (avoid flood-prone areas and overland flow paths).",
                 "Flood filters must refer only to mapped Council hazard layers: flood_plains, flood_prone_areas, overland_flow_paths, coastal_inundation. Interpret a generic flood-risk request as any mapped flood hazard; interpret a request for no flood hazard as no mapped intersection.",
                 `Known listing locations: ${locations.join(", ")}.`,
                 `Buyer request: ${query}`,
@@ -234,7 +228,7 @@ export async function interpretPropertyQuery(
           ? "I applied the property details I could identify."
           : result.message) ||
         (needsClarification
-          ? "Try adding a location, property type, style or budget."
+          ? "Try adding a location, property type, flood risk or budget."
           : "I applied the details from your search."),
       source: "gemini",
     };

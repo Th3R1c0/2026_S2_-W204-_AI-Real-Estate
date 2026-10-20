@@ -37,9 +37,8 @@ describe("POST /api/search", () => {
 
       expect(response.status).toBe(200);
       expect(body.filters).toEqual({
-        architecturalStyles: ["Character"],
         propertyTypes: ["Villa"],
-        location: "Auckland",
+        locations: ["Auckland"],
       });
       expect(body).not.toHaveProperty("apiKey");
     } finally {

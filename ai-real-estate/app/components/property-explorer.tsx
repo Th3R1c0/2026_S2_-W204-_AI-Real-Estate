@@ -1,7 +1,6 @@
 "use client";
 import { createPortal } from "react-dom";
-import { Slider } from "@/components/ui/slider";
-import { Input } from "@/components/ui/input";
+import RangeSlider from "./range-slider";
 
 import Image from "next/image";
 import {
@@ -72,11 +71,10 @@ import MortgageCalculator from "./mortgage-calculator";
 import ComparisonMatrix from "./comparison-matrix";
 import { useAccountWorkspace } from "./account-workspace-provider";
 
-import { filterProperties } from "../../lib/property-engine";
 import { floodHazardOptions } from "../../lib/flood-hazards";
+import { filterProperties } from "../../lib/property-engine";
 import type {
-  ArchitecturalStyle,
-  FloodHazardType,
+  FloodRiskLevel,
   NumericCriterion,
   NumericSearchField,
   Property,
@@ -84,13 +82,6 @@ import type {
   PropertyType,
   SchoolOption,
 } from "../../lib/property-types";
-import { SCHOOL_NEARBY_RADIUS_METRES } from "../../lib/school-data";
-import {
-  readSavedLocations,
-  straightLineDistanceKm,
-  type SavedLocation,
-} from "../../lib/saved-locations";
-
 type AiSearchResult = {
   status: "ready" | "needs-clarification";
   filters: PropertyFilters;
@@ -124,14 +115,6 @@ const propertyTypes: PropertyType[] = [
   "Section",
 ];
 
-const architecturalStyles: ArchitecturalStyle[] = [
-  "Character",
-  "Modernist",
-  "Contemporary",
-  "Craftsman",
-  "Mid-Century",
-];
-
 const numberFormatter = new Intl.NumberFormat("en-NZ");
 const moneyFormatter = new Intl.NumberFormat("en-NZ", {
   style: "currency",
@@ -147,6 +130,51 @@ const numericFilterLabels: Record<NumericSearchField, string> = {
   estimatedWeeklyRent: "Weekly rent",
   capitalValue: "Capital value",
 };
+
+type RangeConfig = { min: number; max: number; step: number; format: (value: number) => string };
+
+/** Counts and areas are grouped together as double-ended ranges. */
+const RANGE_FIELDS: NumericSearchField[] = [
+  "bedrooms",
+  "bathrooms",
+  "parkingSpaces",
+  "landArea",
+  "floorArea",
+];
+
+const rangeConfig: Record<NumericSearchField, RangeConfig> = {
+  bedrooms: { min: 0, max: 10, step: 1, format: (v) => String(v) },
+  bathrooms: { min: 0, max: 10, step: 1, format: (v) => String(v) },
+  parkingSpaces: { min: 0, max: 10, step: 1, format: (v) => String(v) },
+  landArea: {
+    min: 0,
+    max: 4000,
+    step: 50,
+    format: (v) => `${numberFormatter.format(v)} m²`,
+  },
+  floorArea: {
+    min: 0,
+    max: 600,
+    step: 5,
+    format: (v) => `${numberFormatter.format(v)} m²`,
+  },
+  estimatedWeeklyRent: {
+    min: 0,
+    max: 2000,
+    step: 25,
+    format: (v) => `${formatMoney(v)}/wk`,
+  },
+  capitalValue: {
+    min: 0,
+    max: 5000000,
+    step: 50000,
+    format: (v) => formatMoney(v),
+  },
+};
+
+const PRICE_RANGE = { min: 0, max: 5_000_000, step: 50_000 };
+const RENT_RANGE = rangeConfig.estimatedWeeklyRent;
+const YEAR_RANGE = { min: 1900, max: 2026, step: 1 };
 
 function formatNumericFilter(
   field: NumericSearchField,
@@ -186,6 +214,123 @@ function countSelection(range: NumericCriterion | undefined, exact?: number) {
 
 function formatMoney(value: number) {
   return moneyFormatter.format(value).replace("NZ", "");
+}
+
+/**
+ * Free-text multi-value field. Entries are committed with Enter or a comma and
+ * rendered as removable chips; matching suggestions are offered inline.
+ */
+function TokenField({
+  id,
+  label,
+  placeholder,
+  values,
+  suggestions,
+  onChange,
+}: {
+  id: string;
+  label: string;
+  placeholder: string;
+  values: string[];
+  suggestions: string[];
+  onChange: (values: string[]) => void;
+}) {
+  const [draft, setDraft] = useState("");
+  // Ignore the blur that follows a suggestion click; the click commits for us.
+  const skipBlur = useRef(false);
+
+  function commit(raw: string) {
+    const entries = raw
+      .split(",")
+      .map((value) => value.trim())
+      .filter(Boolean);
+    if (!entries.length) return;
+    const next = [...values];
+    for (const entry of entries) {
+      if (!next.some((value) => value.toLowerCase() === entry.toLowerCase()))
+        next.push(entry);
+    }
+    onChange(next);
+    setDraft("");
+  }
+
+  const matches = draft.trim()
+    ? suggestions
+        .filter(
+          (suggestion) =>
+            suggestion.toLowerCase().includes(draft.trim().toLowerCase()) &&
+            !values.some(
+              (value) => value.toLowerCase() === suggestion.toLowerCase(),
+            ),
+        )
+        .slice(0, 8)
+    : [];
+
+  return (
+    <div className="token-field">
+      {values.length > 0 && (
+        <div className="token-list">
+          {values.map((value) => (
+            <span className="token-chip" key={value}>
+              {value}
+              <Button
+                variant="ghost"
+                className="token-chip-remove"
+                aria-label={`Remove ${value}`}
+                onClick={() => onChange(values.filter((item) => item !== value))}
+                type="button"
+              >
+                ×
+              </Button>
+            </span>
+          ))}
+        </div>
+      )}
+      <div className="token-input-wrap">
+        <input
+          id={id}
+          className="token-input"
+          aria-label={label}
+          placeholder={placeholder}
+          value={draft}
+          onChange={(event) => setDraft(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key === "Enter" || event.key === ",") {
+              event.preventDefault();
+              commit(draft);
+            } else if (event.key === "Backspace" && !draft && values.length) {
+              onChange(values.slice(0, -1));
+            }
+          }}
+          onBlur={() => {
+            if (skipBlur.current) {
+              skipBlur.current = false;
+              return;
+            }
+            commit(draft);
+          }}
+        />
+        {matches.length > 0 && (
+          <ul className="token-suggestions" aria-label={`${label} suggestions`}>
+            {matches.map((match) => (
+              <li key={match}>
+                <button
+                  className="token-suggestion"
+                  onMouseDown={() => {
+                    skipBlur.current = true;
+                  }}
+                  onClick={() => commit(match)}
+                  type="button"
+                >
+                  {match}
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </div>
+  );
 }
 
 async function searchWithApi(query: string): Promise<AiSearchResult> {
@@ -376,10 +521,6 @@ export default function PropertyExplorer({
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [savedIds, setSavedIds] = useState<string[]>([]);
   const savedIdsRef = useRef<string[]>([]);
-  const [destinations, setDestinations] = useState<SavedLocation[]>([]);
-  const destinationsRef = useRef<SavedLocation[]>([]);
-  const [selectedDestinationId, setSelectedDestinationId] = useState("");
-  const [maxSavedLocationDistance, setMaxSavedLocationDistance] = useState(5);
   const [comparisonOpen, setComparisonOpen] = useState(false);
   const [moreFiltersOpen, setMoreFiltersOpen] = useState(false);
   const account = useAccountWorkspace();
@@ -392,24 +533,10 @@ export default function PropertyExplorer({
     queueMicrotask(() => {
       if (!active) return;
       if (account?.status === "signedIn") {
-        destinationsRef.current = account.workspace.destinations;
         savedIdsRef.current = account.workspace.savedPropertyIds;
-        setDestinations(account.workspace.destinations);
         setSavedIds(account.workspace.savedPropertyIds);
 
         // Auto-migrate local guest data into account if account is newly initialized
-        try {
-          const localDestinations = readSavedLocations();
-          if (
-            account.workspace.destinations.length === 0 &&
-            localDestinations.length > 0
-          ) {
-            destinationsRef.current = localDestinations;
-            setDestinations(localDestinations);
-            void account.save("destinations", localDestinations);
-          }
-        } catch {}
-
         try {
           const raw = localStorage.getItem("haven_saved_property_ids");
           if (raw) {
@@ -428,9 +555,6 @@ export default function PropertyExplorer({
           }
         } catch {}
       } else {
-        const localDestinations = readSavedLocations();
-        destinationsRef.current = localDestinations;
-        setDestinations(localDestinations);
         try {
           const saved = JSON.parse(
             localStorage.getItem("haven_saved_property_ids") ?? "[]",
@@ -471,25 +595,10 @@ export default function PropertyExplorer({
     [account],
   );
 
-  const selectedDestination = destinations.find(
-    (destination) =>
-      destination.id === selectedDestinationId &&
-      destination.latitude !== undefined &&
-      destination.longitude !== undefined,
+  const filteredProperties = useMemo(
+    () => filterProperties(properties, filters),
+    [properties, filters],
   );
-  const filteredProperties = useMemo(() => {
-    const matches = filterProperties(properties, filters);
-    if (!selectedDestination) return matches;
-    return matches.filter(
-      (property) =>
-        straightLineDistanceKm(
-          property.latitude,
-          property.longitude,
-          selectedDestination.latitude!,
-          selectedDestination.longitude!,
-        ) <= maxSavedLocationDistance,
-    );
-  }, [properties, filters, selectedDestination, maxSavedLocationDistance]);
   const selectedProperties = useMemo(
     () => properties.filter(({ id }) => selectedIds.includes(id)),
     [properties, selectedIds],
@@ -504,15 +613,74 @@ export default function PropertyExplorer({
       if (Array.isArray(value)) return value.length > 0;
       if (typeof value === "object") return Object.values(value).some(Boolean);
       return true;
-    }) || !!selectedDestination;
-  const schoolTypes = Array.from(
-    new Set(schoolOptions.map(({ orgType }) => orgType)),
-  ).sort((a, b) => a.localeCompare(b));
-  const selectableSchools = schoolOptions.filter((school) =>
-    filters.schoolSearchMode === "zone"
-      ? school.hasZoneGeometry === true
-      : school.hasCoordinates !== false,
+    });
+
+  const locationSuggestions = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          properties.flatMap(({ suburb, city }) =>
+            [suburb, city].filter(Boolean),
+          ),
+        ),
+      ).sort((a, b) => a.localeCompare(b)),
+    [properties],
   );
+  const schoolSuggestions = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          [
+            ...schoolOptions.map(({ name }) => name),
+            ...properties.flatMap(({ schoolZones }) =>
+              (schoolZones ?? []).map(
+                (zone) => zone.name ?? zone.schoolName ?? "",
+              ),
+            ),
+          ].filter(Boolean),
+        ),
+      ).sort((a, b) => a.localeCompare(b)),
+    [schoolOptions, properties],
+  );
+  const ownershipOptions = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          properties
+            .map((p) => p.ownershipType)
+            .filter((value): value is string => Boolean(value)),
+        ),
+      ).sort(),
+    [properties],
+  );
+
+  function updateListFilter(key: "locations" | "schoolNames") {
+    return (next: string[]) => {
+      setFilters((current) => ({ ...current, [key]: next.length ? next : undefined }));
+      setAiMessage("");
+    };
+  }
+
+  /** Store a double-ended range, treating full-width thumbs as "no filter". */
+  function setNumericRange(field: NumericSearchField, min: number, max: number) {
+    const config = rangeConfig[field];
+    setFilters((current) => {
+      const numericCriteria = { ...current.numericCriteria };
+      const atMin = min <= config.min;
+      const atMax = max >= config.max;
+      if (atMin && atMax) delete numericCriteria[field];
+      else numericCriteria[field] = { min, max };
+      return {
+        ...current,
+        bedrooms:
+          field === "bedrooms" ? undefined : current.bedrooms,
+        numericCriteria: Object.keys(numericCriteria).length
+          ? numericCriteria
+          : undefined,
+      };
+    });
+    setAiMessage("");
+  }
 
   useEffect(() => {
     try {
@@ -528,7 +696,6 @@ export default function PropertyExplorer({
         floorArea: p.floorArea,
         yearBuilt: p.yearBuilt,
         propertyType: p.propertyType,
-        architecturalStyle: p.architecturalStyle,
         floodHazards: p.floodHazards?.map(({ type }) => type),
       }));
 
@@ -544,7 +711,6 @@ export default function PropertyExplorer({
         floorArea: p.floorArea,
         yearBuilt: p.yearBuilt,
         propertyType: p.propertyType,
-        architecturalStyle: p.architecturalStyle,
         floodHazards: p.floodHazards?.map(({ type }) => type),
       }));
 
@@ -656,23 +822,9 @@ export default function PropertyExplorer({
     setAiMessage("");
   }
 
-  function toggleStyle(style: ArchitecturalStyle) {
-    setFilters((current) => {
-      const styles = current.architecturalStyles ?? [];
-      const nextStyles = styles.includes(style)
-        ? styles.filter((item) => item !== style)
-        : [...styles, style];
-      return {
-        ...current,
-        architecturalStyles: nextStyles.length ? nextStyles : undefined,
-      };
-    });
-  }
-
   function clearFilters() {
     ++searchSeqRef.current;
     setFilters({});
-    setSelectedDestinationId("");
     setQuery("");
     setAiMessage("");
 
@@ -907,658 +1059,187 @@ export default function PropertyExplorer({
                   )}
                 </div>
 
-                <FieldGroup className="basic-filters">
-                  <Field>
-                    <FieldLabel htmlFor="location-select">
-                      Location / Suburb
-                    </FieldLabel>
-                    <NativeSelect
-                      id="location-select"
-                      value={filters.location ?? ""}
-                      onChange={(event) =>
-                        setFilters((current) => ({
-                          ...current,
-                          location: event.target.value || undefined,
-                        }))
-                      }
-                    >
-                      <option value="">Anywhere in Auckland</option>
-                      {availableLocations.map((location) => (
-                        <option key={location} value={location}>
-                          {location}
-                        </option>
-                      ))}
-                    </NativeSelect>
-                  </Field>
-                  <Field>
-                    <FieldLabel htmlFor="quick-budget">Max price</FieldLabel>
-                    <NativeSelect
-                      id="quick-budget"
-                      value={filters.maxPrice ?? ""}
-                      onChange={(event) =>
-                        setFilters((current) => ({
-                          ...current,
-                          maxPrice: Number(event.target.value) || undefined,
-                        }))
-                      }
-                    >
-                      <option value="">Any price</option>
-                      {[
-                        750000, 1000000, 1500000, 2000000, 2500000, 3000000,
-                        5000000,
-                      ].map((price) => (
-                        <option key={price} value={price}>
-                          {formatMoney(price)}
-                        </option>
-                      ))}
-                      {filters.maxPrice &&
-                        ![
-                          750000, 1000000, 1500000, 2000000, 2500000, 3000000,
-                          5000000,
-                        ].includes(filters.maxPrice) && (
-                          <option value={filters.maxPrice}>
-                            {formatMoney(filters.maxPrice)}
-                          </option>
-                        )}
-                    </NativeSelect>
-                  </Field>
-                  <Field>
-                    <div className="count-filter-heading">
-                      <FieldLabel>Bedrooms</FieldLabel>
-                      {filters.numericCriteria?.bedrooms && (
-                        <span className="count-filter-summary">
-                          {formatNumericFilter(
-                            "bedrooms",
-                            filters.numericCriteria.bedrooms,
-                          )}
-                        </span>
-                      )}
-                    </div>
-                    <ToggleGroup
-                      aria-label="Bedrooms"
-                      type="single"
-                      spacing={0}
-                      value={countSelection(
-                        filters.numericCriteria?.bedrooms,
-                        filters.bedrooms,
-                      )}
-                      onValueChange={(value) =>
-                        setFilters((current) => {
-                          const numericCriteria = {
-                            ...current.numericCriteria,
-                          };
-                          delete numericCriteria.bedrooms;
-                          return {
-                            ...current,
-                            bedrooms: Number(value) || undefined,
-                            numericCriteria: Object.keys(numericCriteria).length
-                              ? numericCriteria
-                              : undefined,
-                          };
-                        })
-                      }
-                    >
-                      <ToggleGroupItem value="any">Any</ToggleGroupItem>
-                      {[1, 2, 3, 4, 5].map((count) => (
-                        <ToggleGroupItem
-                          key={count}
-                          value={String(count)}
-                          aria-label={`${count} bed${count > 1 ? "s" : ""}`}
-                        >
-                          {count}
-                        </ToggleGroupItem>
-                      ))}
-                    </ToggleGroup>
-                  </Field>
-                  <Field>
-                    <div className="count-filter-heading">
-                      <FieldLabel>Bathrooms</FieldLabel>
-                      {filters.numericCriteria?.bathrooms && (
-                        <span className="count-filter-summary">
-                          {formatNumericFilter(
-                            "bathrooms",
-                            filters.numericCriteria.bathrooms,
-                          )}
-                        </span>
-                      )}
-                    </div>
-                    <ToggleGroup
-                      aria-label="Bathrooms"
-                      type="single"
-                      spacing={0}
-                      value={countSelection(filters.numericCriteria?.bathrooms)}
-                      onValueChange={(value) => {
-                        if (!value || value === "any") {
-                          removeNumericFilter("bathrooms");
-                          return;
-                        }
-                        setFilters((current) => ({
-                          ...current,
-                          numericCriteria: {
-                            ...current.numericCriteria,
-                            bathrooms: {
-                              min: Number(value),
-                              max: Number(value),
-                            },
-                          },
-                        }));
-                      }}
-                    >
-                      <ToggleGroupItem value="any">Any</ToggleGroupItem>
-                      {[1, 2, 3, 4].map((count) => (
-                        <ToggleGroupItem
-                          key={count}
-                          value={String(count)}
-                          aria-label={`${count} bath${count > 1 ? "s" : ""}`}
-                        >
-                          {count}
-                        </ToggleGroupItem>
-                      ))}
-                    </ToggleGroup>
-                  </Field>
-                </FieldGroup>
                 <CollapsibleContent>
                   <FieldGroup className="advanced-filters">
-                    <Field>
-                      <FieldLabel>Price range</FieldLabel>{" "}
-                      <div
-                        className="year-fields"
-                        style={{ paddingBottom: 0, marginTop: 8 }}
-                      >
-                        <label>
-                          Min price ($)
-                          <Input
-                            inputMode="numeric"
-                            onChange={(e) => {
-                              const val =
-                                Number(e.target.value.replace(/[^0-9]/g, "")) ||
-                                undefined;
-                              setFilters((curr) => ({
-                                ...curr,
-                                minPrice: val,
-                              }));
-                            }}
-                            placeholder="e.g. 750,000"
-                            value={
-                              filters.minPrice
-                                ? filters.minPrice.toLocaleString("en-NZ")
-                                : ""
-                            }
-                          />
-                        </label>
-                        <label>
-                          Max price ($)
-                          <Input
-                            inputMode="numeric"
-                            onChange={(e) => {
-                              const val =
-                                Number(e.target.value.replace(/[^0-9]/g, "")) ||
-                                undefined;
-                              setFilters((curr) => ({
-                                ...curr,
-                                maxPrice: val,
-                              }));
-                            }}
-                            placeholder="e.g. 1,500,000"
-                            value={
-                              filters.maxPrice
-                                ? filters.maxPrice.toLocaleString("en-NZ")
-                                : ""
-                            }
-                          />
-                        </label>
-                      </div>
-                    </Field>
-                    {(
-                      [
-                        "parkingSpaces",
-                        "landArea",
-                        "floorArea",
-                        "estimatedWeeklyRent",
-                        "capitalValue",
-                      ] as const
-                    ).map((field) => (
-                      <FieldSet className="filter-card-box" key={field}>
-                        <FieldLegend>
-                          {numericFilterLabels[field]}
-                          {field === "landArea" || field === "floorArea"
-                            ? " (m²)"
-                            : field === "capitalValue" ||
-                                field === "estimatedWeeklyRent"
-                              ? " ($)"
-                              : ""}
-                        </FieldLegend>
-                        <FieldGroup className="numeric-range-fields">
-                          {(["min", "max"] as const).map((bound) => (
-                            <Field key={bound}>
-                              <FieldLabel htmlFor={`filter-${field}-${bound}`}>
-                                {bound === "min" ? "Minimum" : "Maximum"}
-                              </FieldLabel>
-                              <Input
-                                id={`filter-${field}-${bound}`}
-                                aria-label={`${bound === "min" ? "Minimum" : "Maximum"} ${numericFilterLabels[field].toLowerCase()}`}
-                                type="number"
-                                min="0"
-                                inputMode="decimal"
-                                placeholder="Any"
-                                value={
-                                  filters.numericCriteria?.[field]?.[bound] ??
-                                  ""
-                                }
-                                onChange={(event) =>
-                                  setFilters((current) => {
-                                    const range = {
-                                      ...current.numericCriteria?.[field],
-                                    };
-                                    delete range[
-                                      bound === "min"
-                                        ? "minExclusive"
-                                        : "maxExclusive"
-                                    ];
-                                    if (event.target.value === "")
-                                      delete range[bound];
-                                    else
-                                      range[bound] = Number(event.target.value);
-                                    const numericCriteria = {
-                                      ...current.numericCriteria,
-                                    };
-                                    if (
-                                      range.min === undefined &&
-                                      range.max === undefined
-                                    )
-                                      delete numericCriteria[field];
-                                    else numericCriteria[field] = range;
-                                    return {
-                                      ...current,
-                                      numericCriteria: Object.keys(
-                                        numericCriteria,
-                                      ).length
-                                        ? numericCriteria
-                                        : undefined,
-                                    };
-                                  })
-                                }
-                              />
-                            </Field>
-                          ))}
-                        </FieldGroup>
-                      </FieldSet>
-                    ))}
-                    <FieldSet className="filter-card-box">
-                      <FieldLegend>Ownership</FieldLegend>
-                      <div className="check-list">
-                        {[
-                          ...new Set(
-                            properties
-                              .map((p) => p.ownershipType)
-                              .filter((v): v is string => !!v),
-                          ),
-                        ]
-                          .sort()
-                          .map((ownership) => (
-                            <label key={ownership}>
-                              <Checkbox
-                                checked={
-                                  filters.ownershipTypes?.includes(ownership) ??
-                                  false
-                                }
-                                onCheckedChange={(checked) =>
-                                  setFilters((current) => {
-                                    const next = checked
-                                      ? [
-                                          ...(current.ownershipTypes ?? []),
-                                          ownership,
-                                        ]
-                                      : current.ownershipTypes?.filter(
-                                          (value) => value !== ownership,
-                                        );
-                                    return {
-                                      ...current,
-                                      ownershipTypes: next?.length
-                                        ? next
-                                        : undefined,
-                                    };
-                                  })
-                                }
-                              />
-                              <span>{ownership}</span>
-                            </label>
-                          ))}
-                      </div>
-                    </FieldSet>
-                    {/* Mapped Flood Hazard */}
-                    <div className="filter-card-box">
-                      <label className="field-label" htmlFor="flood-hazard">
-                        Mapped flood hazard
-                      </label>
-                      <NativeSelect
-                        id="flood-hazard"
-                        onChange={(event) => {
-                          const value = event.target.value;
-                          setFilters((current) => {
-                            const next = { ...current };
-                            delete next.floodHazardTypes;
-                            delete next.noMappedFloodHazard;
-                            if (value === "any_mapped") {
-                              next.floodHazardTypes = floodHazardOptions.map(
-                                ({ type }) => type,
-                              );
-                            } else if (value === "none") {
-                              next.noMappedFloodHazard = true;
-                            } else if (value) {
-                              next.floodHazardTypes = [
-                                value as FloodHazardType,
-                              ];
-                            }
-                            return next;
-                          });
-                        }}
-                        value={
-                          filters.noMappedFloodHazard
-                            ? "none"
-                            : filters.floodHazardTypes?.length ===
-                                floodHazardOptions.length
-                              ? "any_mapped"
-                              : (filters.floodHazardTypes?.[0] ?? "")
-                        }
-                      >
-                        <option value="">Any flood hazard</option>
-                        <option value="any_mapped">
-                          Any mapped flood hazard
-                        </option>
-                        <option value="none">No mapped flood hazard</option>
-                        {floodHazardOptions.map(({ type, label }) => (
-                          <option key={type} value={type}>
-                            {label}
-                          </option>
-                        ))}
-                      </NativeSelect>
-                    </div>
-
-                    {/* Architecture & Building Age */}
-                    <FieldSet className="filter-card-box">
-                      <FieldLegend>Architecture & Era</FieldLegend>
-                      <div className="check-list">
-                        {architecturalStyles.map((style) => (
-                          <label key={style}>
-                            <Checkbox
-                              checked={
-                                filters.architecturalStyles?.includes(style) ??
-                                false
-                              }
-                              onCheckedChange={() => toggleStyle(style)}
-                            />
-                            <span>{style}</span>
-                          </label>
-                        ))}
-                      </div>
-                      <div
-                        className="year-fields"
-                        style={{ paddingBottom: 12 }}
-                      >
-                        <label>
-                          Built from
-                          <Input
-                            inputMode="numeric"
-                            onChange={(event) =>
-                              setFilters((current) => ({
-                                ...current,
-                                yearBuiltFrom:
-                                  Number(event.target.value) || undefined,
-                              }))
-                            }
-                            placeholder="1900"
-                            value={filters.yearBuiltFrom ?? ""}
-                          />
-                        </label>
-                        <label>
-                          Built to
-                          <Input
-                            inputMode="numeric"
-                            onChange={(event) =>
-                              setFilters((current) => ({
-                                ...current,
-                                yearBuiltTo:
-                                  Number(event.target.value) || undefined,
-                              }))
-                            }
-                            placeholder="2026"
-                            value={filters.yearBuiltTo ?? ""}
-                          />
-                        </label>
-                      </div>
-                    </FieldSet>
-
-                    {/* Schools & Enrolment Zones */}
-                    <FieldSet className="filter-card-box">
-                      <FieldLegend>Schools & Catchments</FieldLegend>
-                      <label className="north-check">
-                        <Checkbox
-                          checked={filters.hasNearbySchool ?? false}
-                          onCheckedChange={(checked) =>
+                    <FieldSet className="filter-card-box range-group">
+                      <FieldLegend>Price</FieldLegend>
+                      <div className="range-pair">
+                        <RangeSlider
+                          label="Price range"
+                          min={PRICE_RANGE.min}
+                          max={PRICE_RANGE.max}
+                          step={PRICE_RANGE.step}
+                          value={[
+                            filters.minPrice ?? PRICE_RANGE.min,
+                            filters.maxPrice ?? PRICE_RANGE.max,
+                          ]}
+                          formatValue={formatMoney}
+                          onChange={([minPrice, maxPrice]) =>
                             setFilters((current) => ({
                               ...current,
-                              hasNearbySchool: checked === true || undefined,
+                              minPrice:
+                                minPrice <= PRICE_RANGE.min ? undefined : minPrice,
+                              maxPrice:
+                                maxPrice >= PRICE_RANGE.max ? undefined : maxPrice,
                             }))
                           }
                         />
-                        <span>Near a school (within 2.5 km)</span>
-                      </label>
-                      <label
-                        className="north-check"
-                        style={{ margin: "4px 0 10px" }}
-                      >
-                        <Checkbox
-                          checked={filters.inZoneOnly ?? false}
-                          onCheckedChange={(checked) =>
-                            setFilters((curr) => ({
-                              ...curr,
-                              inZoneOnly: checked === true || undefined,
-                            }))
-                          }
+                        <RangeSlider
+                          label="Rent range"
+                          min={RENT_RANGE.min}
+                          max={RENT_RANGE.max}
+                          step={RENT_RANGE.step}
+                          value={[
+                            filters.numericCriteria?.estimatedWeeklyRent?.min ??
+                              RENT_RANGE.min,
+                            filters.numericCriteria?.estimatedWeeklyRent?.max ??
+                              RENT_RANGE.max,
+                          ]}
+                          formatValue={(value) => `${formatMoney(value)}/wk`}
+                          onChange={([min, max]) => setNumericRange("estimatedWeeklyRent", min, max)}
                         />
-                        <span>
-                          <strong>Inside mapped school zone</strong>
-                        </span>
-                      </label>
-                      {schoolDataSynced ? (
-                        <div
-                          className="compact-select-stack"
-                          style={{ paddingBottom: 12 }}
-                        >
-                          <label
-                            className="field-label"
-                            htmlFor="nearby-school-type-filter"
-                          >
-                            Nearby school type (within{" "}
-                            {SCHOOL_NEARBY_RADIUS_METRES / 1000} km)
-                            <NativeSelect
-                              id="nearby-school-type-filter"
-                              value={filters.nearbySchoolType ?? ""}
-                              onChange={(event) =>
-                                setFilters((current) => ({
-                                  ...current,
-                                  nearbySchoolType:
-                                    event.target.value || undefined,
-                                }))
-                              }
-                            >
-                              <option value="">Any type</option>
-                              {schoolTypes.map((type) => (
-                                <option key={type} value={type}>
-                                  {type}
-                                </option>
-                              ))}
-                            </NativeSelect>
-                          </label>
-                          <label
-                            className="field-label"
-                            htmlFor="school-search-mode"
-                          >
-                            Search by school
-                            <NativeSelect
-                              id="school-search-mode"
-                              value={filters.schoolSearchMode ?? "nearby"}
-                              onChange={(event) =>
-                                setFilters((current) => ({
-                                  ...current,
-                                  schoolId: undefined,
-                                  schoolSearchMode: event.target.value as
-                                    "zone" | "nearby",
-                                }))
-                              }
-                            >
-                              <option value="nearby">
-                                Within {SCHOOL_NEARBY_RADIUS_METRES / 1000} km
-                                of the school
-                              </option>
-                              <option value="zone">
-                                Inside the school&apos;s enrolment zone
-                              </option>
-                            </NativeSelect>
-                          </label>
-                          <label
-                            className="field-label"
-                            htmlFor="school-search-id"
-                          >
-                            School
-                            <NativeSelect
-                              id="school-search-id"
-                              value={filters.schoolId ?? ""}
-                              onChange={(event) =>
-                                setFilters((current) => ({
-                                  ...current,
-                                  schoolId: event.target.value
-                                    ? Number(event.target.value)
-                                    : undefined,
-                                }))
-                              }
-                            >
-                              <option value="">Choose a school</option>
-                              {selectableSchools.map((school) => (
-                                <option
-                                  key={school.schoolId}
-                                  value={school.schoolId}
-                                >
-                                  {school.name} — {school.orgType}
-                                </option>
-                              ))}
-                            </NativeSelect>
-                          </label>
-                        </div>
-                      ) : (
-                        <p
-                          style={{
-                            opacity: 0.7,
-                            fontSize: "0.8rem",
-                            margin: "0 0 12px",
-                          }}
-                        >
-                          School zone filters active on pre-mapped catchments.
-                        </p>
-                      )}
+                      </div>
                     </FieldSet>
 
-                    {/* Saved Location Proximity */}
-                    <div className="filter-card-box">
-                      <label
-                        className="field-label"
-                        htmlFor="saved-location-select"
-                      >
-                        Search near saved location
-                      </label>
-                      <NativeSelect
-                        id="saved-location-select"
-                        onChange={(event) =>
-                          setSelectedDestinationId(event.target.value)
-                        }
-                        value={selectedDestination?.id ?? ""}
-                      >
-                        <option value="">Any location</option>
-                        {destinations
-                          .filter(
-                            (destination) =>
-                              destination.latitude !== undefined &&
-                              destination.longitude !== undefined,
-                          )
-                          .map((destination) => (
-                            <option key={destination.id} value={destination.id}>
-                              {destination.name || destination.address}
-                            </option>
-                          ))}
-                      </NativeSelect>
-                      <label
-                        className="field-label"
-                        htmlFor="saved-location-distance"
-                        style={{ marginTop: 8 }}
-                      >
-                        Maximum distance
-                      </label>
-                      <NativeSelect
-                        id="saved-location-distance"
-                        onChange={(event) =>
-                          setMaxSavedLocationDistance(
-                            Number(event.target.value),
-                          )
-                        }
-                        value={maxSavedLocationDistance}
-                      >
-                        {[2, 5, 10, 20].map((distance) => (
-                          <option key={distance} value={distance}>
-                            {distance} km
-                          </option>
-                        ))}
-                      </NativeSelect>
-                    </div>
+                    <FieldSet className="filter-card-box">
+                      <FieldLegend>Property size &amp; capacity</FieldLegend>
+                      <div className="range-stack">
+                        {RANGE_FIELDS.map((field) => {
+                          const config = rangeConfig[field];
+                          const range = filters.numericCriteria?.[field];
+                          return (
+                            <RangeSlider
+                              key={field}
+                              label={numericFilterLabels[field]}
+                              min={config.min}
+                              max={config.max}
+                              step={config.step}
+                              value={[range?.min ?? config.min, range?.max ?? config.max]}
+                              formatValue={config.format}
+                              onChange={([min, max]) => setNumericRange(field, min, max)}
+                            />
+                          );
+                        })}
+                      </div>
+                    </FieldSet>
 
-                    {/* Commute & Transport */}
-                    <div className="filter-card-box">
-                      <label className="field-label" htmlFor="max-commute">
-                        Max commute time:{" "}
-                        <strong>
-                          {filters.maxCommuteTimeMinutes ?? 45} mins
-                        </strong>
-                      </label>
-                      <Slider
-                        id="max-commute"
-                        aria-label="Maximum commute time"
-                        min={10}
-                        max={60}
-                        step={5}
-                        value={[filters.maxCommuteTimeMinutes ?? 45]}
-                        onValueChange={([value]) =>
+                    <FieldSet className="filter-card-box">
+                      <FieldLegend>Age</FieldLegend>
+                      <RangeSlider
+                        label="Year built"
+                        min={YEAR_RANGE.min}
+                        max={YEAR_RANGE.max}
+                        step={YEAR_RANGE.step}
+                        value={[
+                          filters.yearBuiltFrom ?? YEAR_RANGE.min,
+                          filters.yearBuiltTo ?? YEAR_RANGE.max,
+                        ]}
+                        formatValue={(value) => String(value)}
+                        onChange={([from, to]) =>
                           setFilters((current) => ({
                             ...current,
-                            maxCommuteTimeMinutes: value,
+                            yearBuiltFrom:
+                              from <= YEAR_RANGE.min ? undefined : from,
+                            yearBuiltTo: to >= YEAR_RANGE.max ? undefined : to,
                           }))
                         }
                       />
-                      <label
-                        className="field-label"
-                        htmlFor="commute-mode"
-                        style={{ marginTop: 8 }}
-                      >
-                        Transport Mode
-                      </label>
+                    </FieldSet>
+
+                    <FieldSet className="filter-card-box">
+                      <FieldLegend>Title</FieldLegend>
+                      <div className="check-list">
+                        {ownershipOptions.map((ownership) => (
+                          <label key={ownership}>
+                            <Checkbox
+                              checked={
+                                filters.ownershipTypes?.includes(ownership) ??
+                                false
+                              }
+                              onCheckedChange={(checked) =>
+                                setFilters((current) => {
+                                  const next = checked
+                                    ? [...(current.ownershipTypes ?? []), ownership]
+                                    : current.ownershipTypes?.filter(
+                                        (value) => value !== ownership,
+                                      );
+                                  return {
+                                    ...current,
+                                    ownershipTypes: next?.length
+                                      ? next
+                                      : undefined,
+                                  };
+                                })
+                              }
+                            />
+                            <span>{ownership}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </FieldSet>
+
+                    <Field className="filter-card-box">
+                      <FieldLabel htmlFor="flood-risk-filter">Flood risk</FieldLabel>
                       <NativeSelect
-                        id="commute-mode"
-                        value={filters.commuteMode ?? "driving"}
-                        onChange={(e) =>
-                          setFilters((curr) => ({
-                            ...curr,
-                            commuteMode: e.target.value
-                              ? (e.target.value as
-                                  "driving" | "transit" | "walking")
-                              : undefined,
+                        id="flood-risk-filter"
+                        value={filters.floodRisk ?? "none"}
+                        onChange={(event) =>
+                          setFilters((current) => ({
+                            ...current,
+                            floodRisk:
+                              event.target.value === "none"
+                                ? undefined
+                                : (event.target.value as FloodRiskLevel),
+                            floodHazardTypes: undefined,
+                            noMappedFloodHazard: undefined,
                           }))
                         }
                       >
-                        <option value="driving">Driving</option>
-                        <option value="transit">Public Transit</option>
-                        <option value="walking">Walking</option>
+                        <option value="none">No flood filter</option>
+                        <option value="exclude_low">
+                          Exclude areas with low flood risk
+                        </option>
+                        <option value="exclude_high">
+                          Exclude areas with high flood risk
+                        </option>
                       </NativeSelect>
-                    </div>
+                    </Field>
+
+                    <Field className="full-width-field">
+                      <FieldLabel htmlFor="location-input">
+                        Location / Suburb
+                      </FieldLabel>
+                      <TokenField
+                        id="location-input"
+                        label="Suburb or location filter"
+                        placeholder="e.g. Ponsonby, Grey Lynn"
+                        values={filters.locations ?? []}
+                        suggestions={locationSuggestions}
+                        onChange={updateListFilter("locations")}
+                      />
+                      <p className="filter-help">
+                        Type a suburb or city and press Enter. Add several to
+                        search them together.
+                      </p>
+                    </Field>
+
+                    <Field className="filter-card-box full-width-field">
+                      <FieldLabel htmlFor="school-input">School</FieldLabel>
+                      <TokenField
+                        id="school-input"
+                        label="School"
+                        placeholder="e.g. Auckland Grammar, Epsom Girls"
+                        values={filters.schoolNames ?? []}
+                        suggestions={schoolSuggestions}
+                        onChange={updateListFilter("schoolNames")}
+                      />
+                      <p className="filter-help">
+                        Match a nearby school or enrolment zone. Add several to
+                        search them together.
+                      </p>
+                    </Field>
                   </FieldGroup>
+
                 </CollapsibleContent>
               </Collapsible>
             </div>
@@ -1574,40 +1255,35 @@ export default function PropertyExplorer({
                 </h2>
                 {hasFilters && (
                   <div className="active-filter-chips">
-                    {selectedDestination && (
-                      <span className="filter-chip">
-                        Within {maxSavedLocationDistance} km of{" "}
-                        {selectedDestination.name ||
-                          selectedDestination.address}
-                        <Button
-                          variant="ghost"
-                          aria-label="Remove saved location filter"
-                          className="filter-chip-remove"
-                          onClick={() => setSelectedDestinationId("")}
-                          type="button"
-                        >
-                          ×
-                        </Button>
-                      </span>
-                    )}
-                    {filters.location && (
-                      <span className="filter-chip">
-                        📍 {filters.location}
-                        <Button
-                          variant="ghost"
-                          aria-label={`Remove location ${filters.location}`}
-                          className="filter-chip-remove"
-                          onClick={() =>
-                            setFilters((curr) => ({
-                              ...curr,
-                              location: undefined,
-                            }))
-                          }
-                          type="button"
-                        >
-                          ×
-                        </Button>
-                      </span>
+                    {(filters.locations ?? (filters.location ? [filters.location] : [])).map(
+                      (location) => (
+                        <span className="filter-chip" key={`location-${location}`}>
+                          📍 {location}
+                          <Button
+                            variant="ghost"
+                            aria-label={`Remove location ${location}`}
+                            className="filter-chip-remove"
+                            onClick={() =>
+                              setFilters((curr) => {
+                                const next = (curr.locations ?? []).filter(
+                                  (value) => value !== location,
+                                );
+                                return {
+                                  ...curr,
+                                  locations: next.length ? next : undefined,
+                                  location:
+                                    curr.location === location
+                                      ? undefined
+                                      : curr.location,
+                                };
+                              })
+                            }
+                            type="button"
+                          >
+                            ×
+                          </Button>
+                        </span>
+                      ),
                     )}
                     {filters.propertyTypes?.map((t) => (
                       <span className="filter-chip" key={t}>
@@ -1623,64 +1299,43 @@ export default function PropertyExplorer({
                         </Button>
                       </span>
                     ))}
-                    {filters.architecturalStyles?.map((s) => (
-                      <span className="filter-chip" key={s}>
-                        {s}
+                    {filters.schoolNames?.map((name) => (
+                      <span className="filter-chip" key={`school-${name}`}>
+                        🎓 {name}
                         <Button
                           variant="ghost"
-                          aria-label={`Remove style ${s}`}
-                          className="filter-chip-remove"
-                          onClick={() => toggleStyle(s)}
-                          type="button"
-                        >
-                          ×
-                        </Button>
-                      </span>
-                    ))}
-                    {filters.floodHazardTypes?.length ? (
-                      <span className="filter-chip">
-                        {filters.floodHazardTypes.length ===
-                        floodHazardOptions.length
-                          ? "Any mapped flood hazard"
-                          : floodHazardOptions.find(
-                              ({ type }) =>
-                                type === filters.floodHazardTypes?.[0],
-                            )?.label}
-                        <Button
-                          variant="ghost"
-                          aria-label={`Remove flood hazard ${
-                            filters.floodHazardTypes.length ===
-                            floodHazardOptions.length
-                              ? "Any mapped flood hazard"
-                              : floodHazardOptions.find(
-                                  ({ type }) =>
-                                    type === filters.floodHazardTypes?.[0],
-                                )?.label
-                          }`}
+                          aria-label={`Remove school ${name}`}
                           className="filter-chip-remove"
                           onClick={() =>
-                            setFilters((curr) => ({
-                              ...curr,
-                              floodHazardTypes: undefined,
-                            }))
+                            setFilters((current) => {
+                              const next = (current.schoolNames ?? []).filter(
+                                (value) => value !== name,
+                              );
+                              return {
+                                ...current,
+                                schoolNames: next.length ? next : undefined,
+                              };
+                            })
                           }
                           type="button"
                         >
                           ×
                         </Button>
                       </span>
-                    ) : null}
-                    {filters.noMappedFloodHazard && (
+                    ))}
+                    {filters.floodRisk && (
                       <span className="filter-chip">
-                        No mapped flood hazard
+                        {filters.floodRisk === "exclude_low"
+                          ? "Exclude low flood risk"
+                          : "Exclude high flood risk"}
                         <Button
                           variant="ghost"
-                          aria-label="Remove no mapped flood hazard filter"
+                          aria-label="Remove flood risk filter"
                           className="filter-chip-remove"
                           onClick={() =>
                             setFilters((curr) => ({
                               ...curr,
-                              noMappedFloodHazard: undefined,
+                              floodRisk: undefined,
                             }))
                           }
                           type="button"
@@ -1708,31 +1363,9 @@ export default function PropertyExplorer({
                         </Button>
                       </span>
                     )}
-                    {filters.maxPrice !== undefined && (
-                      <span className="filter-chip">
-                        ≤ $
-                        {filters.maxPrice >= 1_000_000
-                          ? (filters.maxPrice / 1_000_000).toFixed(1) + "M"
-                          : (filters.maxPrice / 1_000).toFixed(0) + "k"}
-                        <Button
-                          variant="ghost"
-                          aria-label="Remove max price filter"
-                          className="filter-chip-remove"
-                          onClick={() =>
-                            setFilters((curr) => ({
-                              ...curr,
-                              maxPrice: undefined,
-                            }))
-                          }
-                          type="button"
-                        >
-                          ×
-                        </Button>
-                      </span>
-                    )}
                     {filters.minPrice !== undefined && (
                       <span className="filter-chip">
-                        ≥ $
+                        Price ≥ $
                         {filters.minPrice >= 1_000_000
                           ? (filters.minPrice / 1_000_000).toFixed(1) + "M"
                           : (filters.minPrice / 1_000).toFixed(0) + "k"}
@@ -1752,17 +1385,20 @@ export default function PropertyExplorer({
                         </Button>
                       </span>
                     )}
-                    {filters.bedrooms !== undefined && (
+                    {filters.maxPrice !== undefined && (
                       <span className="filter-chip">
-                        {filters.bedrooms} bed{filters.bedrooms > 1 ? "s" : ""}
+                        Price ≤ $
+                        {filters.maxPrice >= 1_000_000
+                          ? (filters.maxPrice / 1_000_000).toFixed(1) + "M"
+                          : (filters.maxPrice / 1_000).toFixed(0) + "k"}
                         <Button
                           variant="ghost"
-                          aria-label="Remove bedroom filter"
+                          aria-label="Remove max price filter"
                           className="filter-chip-remove"
                           onClick={() =>
                             setFilters((curr) => ({
                               ...curr,
-                              bedrooms: undefined,
+                              maxPrice: undefined,
                             }))
                           }
                           type="button"
@@ -1797,7 +1433,7 @@ export default function PropertyExplorer({
                         {ownership}
                         <Button
                           variant="ghost"
-                          aria-label={`Remove ${ownership.toLowerCase()} ownership filter`}
+                          aria-label={`Remove ${ownership.toLowerCase()} title filter`}
                           className="filter-chip-remove"
                           onClick={() =>
                             setFilters((current) => ({
@@ -1811,150 +1447,20 @@ export default function PropertyExplorer({
                         </Button>
                       </span>
                     ))}
-                    {filters.hasNearbySchool && (
+                    {(filters.yearBuiltFrom !== undefined ||
+                      filters.yearBuiltTo !== undefined) && (
                       <span className="filter-chip">
-                        Near a school
+                        Built {filters.yearBuiltFrom ?? YEAR_RANGE.min}–
+                        {filters.yearBuiltTo ?? YEAR_RANGE.max}
                         <Button
                           variant="ghost"
-                          aria-label="Remove nearby school filter"
-                          className="filter-chip-remove"
-                          onClick={() =>
-                            setFilters((current) => ({
-                              ...current,
-                              hasNearbySchool: undefined,
-                            }))
-                          }
-                          type="button"
-                        >
-                          ×
-                        </Button>
-                      </span>
-                    )}
-                    {filters.inZoneOnly && (
-                      <span className="filter-chip">
-                        🎓 School zone
-                        <Button
-                          variant="ghost"
-                          aria-label="Remove school zone filter"
-                          className="filter-chip-remove"
-                          onClick={() =>
-                            setFilters((curr) => ({
-                              ...curr,
-                              inZoneOnly: undefined,
-                            }))
-                          }
-                          type="button"
-                        >
-                          ×
-                        </Button>
-                      </span>
-                    )}
-                    {filters.schoolZoneName && (
-                      <span className="filter-chip">
-                        🎓 {filters.schoolZoneName} zone
-                        <Button
-                          variant="ghost"
-                          aria-label="Remove school zone name filter"
-                          className="filter-chip-remove"
-                          onClick={() =>
-                            setFilters((current) => ({
-                              ...current,
-                              schoolZoneName: undefined,
-                            }))
-                          }
-                          type="button"
-                        >
-                          ×
-                        </Button>
-                      </span>
-                    )}
-                    {filters.yearBuiltFrom !== undefined && (
-                      <span className="filter-chip">
-                        Built from {filters.yearBuiltFrom}
-                        <Button
-                          variant="ghost"
-                          aria-label="Remove built from filter"
+                          aria-label="Remove age filter"
                           className="filter-chip-remove"
                           onClick={() =>
                             setFilters((current) => ({
                               ...current,
                               yearBuiltFrom: undefined,
-                            }))
-                          }
-                          type="button"
-                        >
-                          ×
-                        </Button>
-                      </span>
-                    )}
-                    {filters.yearBuiltTo !== undefined && (
-                      <span className="filter-chip">
-                        Built to {filters.yearBuiltTo}
-                        <Button
-                          variant="ghost"
-                          aria-label="Remove built to filter"
-                          className="filter-chip-remove"
-                          onClick={() =>
-                            setFilters((current) => ({
-                              ...current,
                               yearBuiltTo: undefined,
-                            }))
-                          }
-                          type="button"
-                        >
-                          ×
-                        </Button>
-                      </span>
-                    )}
-                    {filters.maxCommuteTimeMinutes !== undefined && (
-                      <span className="filter-chip">
-                        ⏱️ Commute ≤ {filters.maxCommuteTimeMinutes}m
-                        <Button
-                          variant="ghost"
-                          aria-label="Remove commute filter"
-                          className="filter-chip-remove"
-                          onClick={() =>
-                            setFilters((curr) => ({
-                              ...curr,
-                              maxCommuteTimeMinutes: undefined,
-                            }))
-                          }
-                          type="button"
-                        >
-                          ×
-                        </Button>
-                      </span>
-                    )}
-                    {filters.commuteDestination && (
-                      <span className="filter-chip">
-                        To {filters.commuteDestination}
-                        <Button
-                          variant="ghost"
-                          aria-label="Remove commute destination filter"
-                          className="filter-chip-remove"
-                          onClick={() =>
-                            setFilters((current) => ({
-                              ...current,
-                              commuteDestination: undefined,
-                            }))
-                          }
-                          type="button"
-                        >
-                          ×
-                        </Button>
-                      </span>
-                    )}
-                    {filters.commuteMode && (
-                      <span className="filter-chip">
-                        By {filters.commuteMode}
-                        <Button
-                          variant="ghost"
-                          aria-label="Remove commute mode filter"
-                          className="filter-chip-remove"
-                          onClick={() =>
-                            setFilters((current) => ({
-                              ...current,
-                              commuteMode: undefined,
                             }))
                           }
                           type="button"

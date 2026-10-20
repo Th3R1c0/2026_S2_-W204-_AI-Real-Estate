@@ -43,7 +43,6 @@ const numericFields = {
     "estimated weekly rental income in NZD (NOT purchase price)",
   capitalValue:
     "capital value / CV / council valuation in NZD (NOT purchase price)",
-  commuteTime: "maximum commute time in minutes",
 };
 
 // Over-find source values, then let Jev assign each to its role. Values never come from model text.
@@ -71,13 +70,6 @@ const propertyTypes = [
   "House",
   "Lifestyle block",
   "Section",
-] as const;
-const styles = [
-  "Character",
-  "Modernist",
-  "Contemporary",
-  "Craftsman",
-  "Mid-Century",
 ] as const;
 const hazardTypes = [
   "flood_plains",
@@ -110,7 +102,7 @@ export function buildFilterPlanQuestions(
             `In \`user_query\`, select the ${bound === "min" ? "lower" : "upper"} bound for ${meaning}, using ONLY a source value that refers to this field. Select none when this boundary is absent. ` +
             "Interpret each requirement separately: 'at least 3 bedrooms and 2 bathrooms' means minimum 3 bedrooms and exactly 2 bathrooms. An exact or unqualified bedroom/bathroom count sets BOTH inclusive bounds. Capacity for N cars is a minimum only. " +
             "Unqualified land/floor area is a minimum. 'At least', 'or more', '+' set only a lower bound; 'up to', 'no more than' set only an upper bound. " +
-            "'Between A and B', 'A to B' set inclusive lower A and upper B. 'Under', 'over', 'before', 'after' exclude the boundary. Do not infer numeric years from architectural style.",
+            "'Between A and B', 'A to B' set inclusive lower A and upper B. 'Under', 'over', 'before', 'after' exclude the boundary.",
           criteria,
         };
       }
@@ -118,7 +110,6 @@ export function buildFilterPlanQuestions(
   }
   for (const [prefix, values, meaning] of [
     ["type", propertyTypes, "property type"],
-    ["style", styles, "architectural style"],
     [
       "ownership",
       ["Freehold", "Cross Lease", "Unit Title"],
@@ -132,7 +123,7 @@ export function buildFilterPlanQuestions(
         instructions:
           `Does user_query explicitly request or accept ${value.replaceAll("_", " ")} as a ${meaning}? ` +
           "Alternatives joined by OR can each be accepted. Answer no for excluded values or an unspecified field. " +
-          "Generic 'home/property' does not specify a type. Contemporary architecture does not imply a new construction year. " +
+          "Generic 'home/property' does not specify a type. " +
           "A request for no hazards does not request any hazard intersection.",
       };
     }
@@ -150,17 +141,6 @@ export function buildFilterPlanQuestions(
       requested:
         "The buyer explicitly asks to exclude mapped flood hazards / avoid flood areas",
       none: "The query never mentions excluding flood hazards, or asks for properties intersecting a hazard",
-    },
-  };
-  questions.commute_mode = {
-    type: "choice",
-    instructions:
-      "Which commute mode does user_query request? Select none if absent.",
-    criteria: {
-      none: "Unspecified",
-      driving: "Car / driving",
-      transit: "Public transport, bus or train",
-      walking: "Walking / on foot",
     },
   };
   questions.school_mode = {
@@ -188,30 +168,10 @@ export function buildFilterPlanQuestions(
         ...Object.fromEntries(schoolTypes.map((t) => [t, t])),
       },
     };
-  const destinations = [
-    ...new Set(
-      properties.flatMap(
-        (p) =>
-          p.commuteOptions?.flatMap((c) =>
-            c.destinationName ? [c.destinationName] : [],
-          ) ?? [],
-      ),
-    ),
-  ];
-  if (destinations.length)
-    questions.commute_destination = {
-      type: "choice",
-      instructions:
-        "Which commute destination does user_query name? CBD can mean Auckland CBD. Select none if absent or unavailable.",
-      criteria: {
-        none: "No known destination",
-        ...Object.fromEntries(destinations.map((d) => [d, d])),
-      },
-    };
   questions.unsupported_requirement = {
     type: "noul",
     instructions:
-      "Does user_query include a concrete requirement that cannot be represented by these filters: property type, architecture, location, purchase price, bedrooms, bathrooms, parking capacity, land/floor area, construction year, ownership, weekly rent, capital value, nearby school/type or a general enrolment-zone match, mapped flood hazards, open home, commute time/mode/destination? " +
+      "Does user_query include a concrete requirement that cannot be represented by these filters: property type, location, purchase price, bedrooms, bathrooms, parking capacity, land/floor area, construction year, ownership, weekly rent, capital value, nearby school/type or a general enrolment-zone match, flood risk, open home? " +
       "Also answer yes for OR between different groups of constraints (e.g. either a cheap apartment or a large expensive house), excluded categories ('not an apartment'), or unsupported numeric disjunctions. Ordinary AND across fields and OR within a category are supported. 'Enough room for 4 cars' is supported parking capacity. Do not treat an empty result set as unsupported.",
   };
   return questions;
@@ -269,15 +229,6 @@ export function applyFilterPlan(
         };
       continue;
     }
-    if (
-      field === "commuteTime" &&
-      explicit.maxCommuteTimeMinutes !== undefined
-    ) {
-      filters.maxCommuteTimeMinutes = explicit.maxCommuteTimeMinutes;
-      if (/\b(?:under|less than)\s+\d+\s*(?:minutes?|mins?)\b/i.test(query))
-        filters.maxCommuteTimeMinutes -= 1;
-      continue;
-    }
     const range: NumericCriterion = {};
     for (const bound of ["min", "max"] as const) {
       const choice = chosen(`number_${field}_${bound}`);
@@ -312,7 +263,6 @@ export function applyFilterPlan(
       "bedrooms",
       "bathrooms",
       "parkingSpaces",
-      "commuteTime",
     ].includes(field);
     if (discrete) {
       if (range.minExclusive) {
@@ -336,12 +286,6 @@ export function applyFilterPlan(
     } else if (field === "yearBuilt") {
       filters.yearBuiltFrom = range.min;
       filters.yearBuiltTo = range.max;
-    } else if (field === "commuteTime") {
-      if (range.min !== undefined)
-        issues.push(
-          "Please clarify the commute: only a maximum travel time is supported.",
-        );
-      filters.maxCommuteTimeMinutes = range.max;
     } else {
       const numericField = field as NumericSearchField;
       if (field === "bedrooms") delete filters.bedrooms;
@@ -360,7 +304,6 @@ export function applyFilterPlan(
   }
   for (const [prefix, values, key] of [
     ["type", propertyTypes, "propertyTypes"],
-    ["style", styles, "architecturalStyles"],
     ["ownership", ["Freehold", "Cross Lease", "Unit Title"], "ownershipTypes"],
     ["hazard", hazardTypes, "floodHazardTypes"],
   ] as const) {
@@ -388,17 +331,10 @@ export function applyFilterPlan(
     issues.push(
       "Please clarify whether mapped flood hazards should be included or excluded.",
     );
-  const mode = chosen("commute_mode");
-  if (mode && ["driving", "transit", "walking"].includes(mode))
-    filters.commuteMode = mode as PropertyFilters["commuteMode"];
-  const destination = chosen("commute_destination");
-  if (
-    destination &&
-    properties.some((p) =>
-      p.commuteOptions?.some((c) => c.destinationName === destination),
-    )
-  )
-    filters.commuteDestination = destination;
+  if (filters.noMappedFloodHazard) {
+    delete filters.floodHazardTypes;
+    filters.floodRisk = "exclude_low";
+  }
   const schoolMode = chosen("school_mode");
   if (schoolMode === "zone") {
     filters.inZoneOnly = true;
@@ -431,11 +367,8 @@ export function describeFilters(filters: PropertyFilters): string[] {
   const parts: string[] = [];
   if (filters.propertyTypes?.length)
     parts.push(filters.propertyTypes.join(" or ").toLowerCase());
-  if (filters.architecturalStyles?.length)
-    parts.push(
-      `${filters.architecturalStyles.join(" or ").toLowerCase()} style`,
-    );
-  if (filters.location) parts.push(`in ${filters.location}`);
+  if (filters.locations?.length) parts.push(`in ${filters.locations.join(" or ")}`);
+  else if (filters.location) parts.push(`in ${filters.location}`);
   if (filters.minPrice !== undefined)
     parts.push(`from $${filters.minPrice.toLocaleString("en-NZ")}`);
   if (filters.maxPrice !== undefined)
@@ -479,6 +412,8 @@ export function describeFilters(filters: PropertyFilters): string[] {
       `mapped ${filters.floodHazardTypes.join(" or ").replaceAll("_", " ")}`,
     );
   if (filters.hasNearbySchool) parts.push("near a school (within 2.5 km)");
+  if (filters.schoolNames?.length)
+    parts.push(`near ${filters.schoolNames.join(" or ")}`);
   if (filters.schoolZoneName) parts.push(`in ${filters.schoolZoneName} zone`);
   else if (filters.schoolId !== undefined)
     parts.push(
@@ -487,9 +422,9 @@ export function describeFilters(filters: PropertyFilters): string[] {
   else if (filters.inZoneOnly) parts.push("in school zone");
   if (filters.nearbySchoolType)
     parts.push(`near ${filters.nearbySchoolType} schools`);
-  if (filters.maxCommuteTimeMinutes !== undefined)
-    parts.push(
-      `up to ${filters.maxCommuteTimeMinutes} mins ${filters.commuteMode ?? "driving"} commute${filters.commuteDestination ? " to " + filters.commuteDestination : ""}`,
-    );
+  if (filters.floodRisk === "exclude_low")
+    parts.push("excluding low flood risk areas");
+  else if (filters.floodRisk === "exclude_high")
+    parts.push("excluding high flood risk areas");
   return parts;
 }

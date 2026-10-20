@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Heart, MapPin } from "lucide-react";
+import { Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
@@ -18,11 +18,6 @@ import PropertyNotes from "../components/property-notes";
 import SiteHeader from "../components/site-header";
 import { useAccountWorkspace } from "../components/account-workspace-provider";
 import { properties } from "../../lib/property-data";
-import {
-  commuteStorageKey,
-  readSavedLocations,
-  type SavedLocation,
-} from "../../lib/saved-locations";
 
 function SavedHomesTab() {
   const account = useAccountWorkspace();
@@ -102,66 +97,6 @@ function SavedHomesTab() {
   );
 }
 
-function SavedLocationsTab() {
-  const account = useAccountWorkspace();
-  const [, refresh] = useState(0);
-  const destinations =
-    account?.status === "signedIn"
-      ? account.workspace.destinations
-      : typeof window !== "undefined"
-        ? readSavedLocations()
-        : [];
-  function remove(id: string) {
-    const next = destinations.filter(
-      (location: SavedLocation) => location.id !== id,
-    );
-    if (account?.status === "signedIn") void account.save("destinations", next);
-    else {
-      try {
-        localStorage.setItem(commuteStorageKey, JSON.stringify(next));
-        window.dispatchEvent(new Event("haven_account_changed"));
-        refresh((value) => value + 1);
-      } catch {}
-    }
-  }
-  if (!destinations.length)
-    return (
-      <Empty>
-        <EmptyHeader>
-          <MapPin />
-          <EmptyTitle>No saved locations yet</EmptyTitle>
-          <EmptyDescription>
-            Add a place in a property&apos;s commute section.
-          </EmptyDescription>
-        </EmptyHeader>
-        <Button variant="outline" asChild>
-          <Link href="/">Explore homes</Link>
-        </Button>
-      </Empty>
-    );
-  return (
-    <div className="saved-place-list">
-      {destinations.map((location) => (
-        <article className="saved-place-row" key={location.id}>
-          <MapPin aria-hidden="true" />
-          <div>
-            <h3>{location.name || location.address || "Untitled location"}</h3>
-            {location.name && <p>{location.address}</p>}
-          </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => remove(location.id)}
-            type="button"
-          >
-            Remove
-          </Button>
-        </article>
-      ))}
-    </div>
-  );
-}
-
 export default function ProfilePage() {
   const account = useAccountWorkspace();
   const [tab, setTab] = useState("notes");
@@ -199,7 +134,6 @@ export default function ProfilePage() {
             <TabsList>
               <TabsTrigger value="notes">Notes</TabsTrigger>
               <TabsTrigger value="saved">Saved homes</TabsTrigger>
-              <TabsTrigger value="locations">Saved locations</TabsTrigger>
               <TabsTrigger value="account">Account</TabsTrigger>
             </TabsList>
             <TabsContent value="notes">
@@ -207,9 +141,6 @@ export default function ProfilePage() {
             </TabsContent>
             <TabsContent value="saved">
               <SavedHomesTab />
-            </TabsContent>
-            <TabsContent value="locations">
-              <SavedLocationsTab />
             </TabsContent>
             <TabsContent value="account">
               <AccountPanel />

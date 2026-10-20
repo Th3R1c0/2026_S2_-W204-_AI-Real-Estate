@@ -104,19 +104,11 @@ describe("ProfilePage Saved Homes & Notes", () => {
     );
   });
 
-  it("renders Saved Locations tab with account destinations and allows removing", async () => {
-    const patchCalls: Array<{ field: string; value: unknown }> = [];
+  it("no longer offers a Saved locations tab now that commute planning is removed", async () => {
     vi.stubGlobal(
       "fetch",
-      vi.fn().mockImplementation((url: string, init?: RequestInit) => {
+      vi.fn().mockImplementation((url: string) => {
         if (typeof url === "string" && url.includes("/api/account/workspace")) {
-          if (init?.method === "PATCH") {
-            patchCalls.push(JSON.parse(init.body as string));
-            return Promise.resolve({
-              ok: true,
-              json: async () => ({ ok: true }),
-            });
-          }
           return Promise.resolve({
             ok: true,
             json: async () => ({
@@ -125,15 +117,7 @@ describe("ProfilePage Saved Homes & Notes", () => {
                 savedPropertyIds: [],
                 generalNotes: [],
                 propertyNotes: {},
-                destinations: [
-                  {
-                    id: "loc-work",
-                    name: "HQ Office",
-                    address: "100 Queen St, Auckland",
-                    latitude: -36.848,
-                    longitude: 174.763,
-                  },
-                ],
+                destinations: [],
                 chatHistory: [],
               },
             }),
@@ -143,31 +127,15 @@ describe("ProfilePage Saved Homes & Notes", () => {
       }),
     );
 
-    const user = userEvent.setup();
     render(
       <AccountWorkspaceProvider>
         <ProfilePage />
       </AccountWorkspaceProvider>,
     );
 
-    const locationsTab = await screen.findByRole("tab", {
-      name: /Saved locations/i,
-    });
-    await user.click(locationsTab);
-
-    expect(await screen.findByText("HQ Office")).toBeInTheDocument();
-    expect(screen.getByText("100 Queen St, Auckland")).toBeInTheDocument();
-
-    const removeBtn = screen.getByRole("button", { name: /Remove/i });
-    await user.click(removeBtn);
-
+    await screen.findByRole("tab", { name: /Saved homes/i });
     expect(
-      patchCalls.some(
-        (call) =>
-          call.field === "destinations" &&
-          Array.isArray(call.value) &&
-          call.value.length === 0,
-      ),
-    ).toBe(true);
+      screen.queryByRole("tab", { name: /Saved locations/i }),
+    ).not.toBeInTheDocument();
   });
 });

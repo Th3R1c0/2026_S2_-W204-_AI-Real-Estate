@@ -266,24 +266,12 @@ export function parseExplicitPropertyFilters(query: string): PropertyFilters {
     filters.yearBuiltTo = Number(exactYear[1]);
   }
 
-  const commute =
-    /\b(?:within|under|less than|up to|max(?:imum)?)\s*(\d+)\s*(?:minutes?|mins?)\s*(?:to|from|of)?\b/i.exec(
-      query,
-    );
-  if (
-    commute &&
-    /\b(commute|travel|drive|transit|public transport|to\s+\w+\s*(?:cbd|city)|cbd)\b/i.test(
-      query,
-    )
-  ) {
-    filters.maxCommuteTimeMinutes = Number(commute[1]);
-  }
-  if (/\b(?:by|via)\s+(?:public\s+transport|transit|bus|train)\b/i.test(query))
-    filters.commuteMode = "transit";
-  else if (/\b(?:by|via)\s+(?:car|driving|drive)\b/i.test(query))
-    filters.commuteMode = "driving";
-  else if (/\b(?:by|via|on)\s+(?:walking|foot)\b/i.test(query))
-    filters.commuteMode = "walking";
+  // Flood risk levels map onto the hazard-layer exclusions used by the engine.
+  if (/\b(?:no|zero|without)\s+flood\s+risk\b/i.test(query))
+    filters.floodRisk = "exclude_low";
+  else if (/\b(?:exclude|avoid|no)\s+(?:high|high[-\s]risk)\s+flood/i.test(query))
+    filters.floodRisk = "exclude_high";
+
   return filters;
 }
 
@@ -308,30 +296,20 @@ export function matchCatalogDetails(
       ),
     ),
   ).sort((a, b) => b.length - a.length);
-  const schoolZoneName = /\b(?:zone|catchment|in-zone)\b/i.test(query)
+  const wantsZone = /\b(?:zone|catchment|in-zone)\b/i.test(query);
+  const schoolZoneName = wantsZone
     ? schoolNames.find((name) => lower.includes(name.toLowerCase()))
     : undefined;
-  const destinations = Array.from(
-    new Set(
-      properties.flatMap(
-        ({ commuteOptions }) =>
-          commuteOptions
-            ?.map(({ destinationName }) => destinationName)
-            .filter((name): name is string => Boolean(name)) ?? [],
-      ),
-    ),
-  ).sort((a, b) => b.length - a.length);
-  const commuteDestination =
-    /\b(?:commute|travel|transit|drive|minutes?|mins?)\b/i.test(query)
-      ? destinations.find(
-          (name) =>
-            lower.includes(name.toLowerCase()) ||
-            (name.toLowerCase().endsWith(" cbd") && /\bcbd\b/i.test(query)),
-        )
-      : undefined;
+  const mentionedSchool = schoolNames.find((name) =>
+    lower.includes(name.toLowerCase()),
+  );
+  // A named school narrows results to that school, whether in zone or nearby.
+  // An explicit address is the more precise filter, so it wins on its own.
+  if (address) return { location: address };
+  if (!mentionedSchool) return {};
   return {
-    ...(address ? { location: address } : {}),
+    ...(wantsZone ? { inZoneOnly: true } : {}),
     ...(schoolZoneName ? { schoolZoneName } : {}),
-    ...(commuteDestination ? { commuteDestination } : {}),
+    schoolNames: [mentionedSchool],
   };
 }

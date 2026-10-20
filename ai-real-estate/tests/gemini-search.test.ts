@@ -17,7 +17,6 @@ const properties: Property[] = [
     floorArea: 148,
     yearBuilt: 1912,
     propertyType: "Villa",
-    architecturalStyle: "Character",
     floodRisk: "Moderate",
     latitude: -36.849,
     longitude: 174.734,
@@ -36,9 +35,8 @@ describe("Gemini search interpretation", () => {
 
     expect(result.source).toBe("local");
     expect(result.filters).toEqual({
-      architecturalStyles: ["Character"],
       propertyTypes: ["Villa"],
-      location: "Auckland",
+      locations: ["Auckland"],
     });
   });
 
@@ -83,8 +81,9 @@ describe("Gemini search interpretation", () => {
                 {
                   text: JSON.stringify({
                     propertyTypes: ["Townhouse"],
-                    architecturalStyles: ["Modernist"],
                     floodHazardTypes: [],
+                    floodRisk: "none",
+                    locations: ["Auckland"],
                     noMappedFloodHazard: false,
                     location: "Auckland",
                     maxPrice: 900000,
@@ -113,8 +112,7 @@ describe("Gemini search interpretation", () => {
       status: "ready",
       filters: {
         propertyTypes: ["Townhouse"],
-        architecturalStyles: ["Modernist"],
-        location: "Auckland",
+        locations: ["Auckland"],
         maxPrice: 900000,
         bedrooms: 3,
       },
@@ -131,7 +129,6 @@ describe("Gemini search interpretation", () => {
 
     expect(result.source).toBe("local");
     expect(result.filters).toEqual({
-      architecturalStyles: ["Character"],
       propertyTypes: ["Villa"],
     });
   });
@@ -144,7 +141,7 @@ describe("Gemini search interpretation", () => {
         apiKey: "test-secret",
         fetchImpl: async () => Response.json({
           candidates: [{ content: { parts: [{ text: JSON.stringify({
-            propertyTypes: ["Villa"], architecturalStyles: [], floodHazardTypes: [],
+            propertyTypes: ["Villa"], floodHazardTypes: [], floodRisk: "none", locations: [],
             noMappedFloodHazard: false, location: null, maxPrice: null, minPrice: null,
             bedrooms: null, yearBuiltFrom: null, yearBuiltTo: null, northFacingOnly: false,
             needsClarification: false, message: "Showing villas",
@@ -165,7 +162,7 @@ describe("Gemini search interpretation", () => {
       apiKey: "test-secret",
       fetchImpl: async () => Response.json({
         candidates: [{ content: { parts: [{ text: JSON.stringify({
-          propertyTypes: [], architecturalStyles: [], floodHazardTypes: [],
+          propertyTypes: [], floodHazardTypes: [], floodRisk: "none", locations: [],
           noMappedFloodHazard: false, location: null, maxPrice: null, minPrice: null,
           bedrooms: null, yearBuiltFrom: null, yearBuiltTo: null, northFacingOnly: false,
           needsClarification: true, message: "Add more details.",

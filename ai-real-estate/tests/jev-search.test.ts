@@ -24,7 +24,6 @@ const sampleProperties: Property[] = [
     floorArea: 180,
     yearBuilt: 1912,
     propertyType: "Villa",
-    architecturalStyle: "Character",
     floodRisk: "Low",
     latitude: -36.849,
     longitude: 174.734,
@@ -44,7 +43,6 @@ const sampleProperties: Property[] = [
     floorArea: 125,
     yearBuilt: 2022,
     propertyType: "Townhouse",
-    architecturalStyle: "Contemporary",
     floodRisk: "Low",
     latitude: -36.905,
     longitude: 174.901,
@@ -75,18 +73,33 @@ describe("TypeSafe Jev search interpreter", () => {
       numericCandidates("1 bathroom and 1 parking space").map((c) => c.value),
     ).toEqual([1]);
   });
-  it("keeps exact counts and inclusive commute limits when semantics bleed across clauses", () => {
+  it("keeps exact counts from explicit syntax when semantics bleed across clauses", () => {
     const result = cleanJevFilters(
-      "capital value at least $1m, 3 bedrooms and within 30 minutes commute",
+      "capital value at least $1m, 3 bedrooms",
       {
         number_bedrooms_min: { choice: "inclusive_1", confidence: 0.99 },
         number_bedrooms_max: { choice: "none", confidence: 0.99 },
-        number_commuteTime_max: { choice: "inclusive_2", confidence: 0.54 },
       },
     );
     expect(result.filters.bedrooms).toBe(3);
-    expect(result.filters.maxCommuteTimeMinutes).toBe(30);
     expect(result.issues).toEqual([]);
+  });
+
+  it("no longer asks about commute time or transport mode", () => {
+    const questions = buildJevQuestions(
+      ["Auckland"],
+      "within 30 minutes commute to the CBD",
+      sampleProperties,
+    );
+    expect(questions).not.toHaveProperty("number_commuteTime_min");
+    expect(questions).not.toHaveProperty("commute_mode");
+    expect(questions).not.toHaveProperty("commute_destination");
+    const filters = cleanJevFilters(
+      "within 30 minutes commute to the CBD by transit",
+      {},
+    ).filters;
+    expect(filters).not.toHaveProperty("maxCommuteTimeMinutes");
+    expect(filters).not.toHaveProperty("commuteMode");
   });
 
   it("asks for clarification instead of ignoring an unavailable requested location", () => {
@@ -232,9 +245,8 @@ describe("TypeSafe Jev search interpreter", () => {
 
       expect(result.source).toBe("local");
       expect(result.filters).toEqual({
-        architecturalStyles: ["Character"],
         propertyTypes: ["Villa"],
-        location: "Auckland",
+        locations: ["Auckland"],
       });
     } finally {
       if (previousJevKey) process.env.JEV_API_KEY = previousJevKey;
@@ -259,7 +271,6 @@ describe("TypeSafe Jev search interpreter", () => {
           user_query: string;
           catalog: {
             available_property_types: Array<{ type: string }>;
-            available_architectural_styles: Array<{ style: string }>;
             available_flood_hazards: Array<{ type: string }>;
             known_locations: string[];
             property_fields: Record<string, string>;
@@ -285,7 +296,7 @@ describe("TypeSafe Jev search interpreter", () => {
       );
 
       expect(body.questions).toHaveProperty("property_type");
-      expect(body.questions).toHaveProperty("architectural_style");
+      expect(body.questions).not.toHaveProperty("architectural_style");
       expect(body.questions).toHaveProperty("location");
       expect(body.questions).not.toHaveProperty("is_sunny_requested");
       expect(body.questions).not.toHaveProperty("is_north_facing_requested");
@@ -300,12 +311,6 @@ describe("TypeSafe Jev search interpreter", () => {
             choice: "Villa",
             confidence: 0.99,
             probabilities: { Villa: 0.99, House: 0.01 },
-          },
-          architectural_style: {
-            type: "choice",
-            choice: "Character",
-            confidence: 0.98,
-            probabilities: { Character: 0.98, Modernist: 0.02 },
           },
           flood_risk: {
             type: "choice",
@@ -357,7 +362,6 @@ describe("TypeSafe Jev search interpreter", () => {
     expect(result.status).toBe("ready");
     expect(result.filters).toMatchObject({
       propertyTypes: ["Villa"],
-      architecturalStyles: ["Character"],
       location: "Ponsonby",
       bedrooms: 3,
       maxPrice: 2600000,
@@ -376,7 +380,7 @@ describe("TypeSafe Jev search interpreter", () => {
       cleanJevFilters("homes with no mapped flood hazard", {
         flood_hazard: { choice: "no_mapped" },
       }).filters,
-    ).toEqual({ noMappedFloodHazard: true });
+    ).toEqual({ noMappedFloodHazard: true, floodRisk: "exclude_low" });
   });
 
   it("preserves explicit property details alongside Jev judgments", () => {

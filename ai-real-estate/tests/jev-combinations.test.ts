@@ -64,9 +64,5 @@ it.each(
       expect(
         filterProperties([{ ...home, openHomes: [] }], result.filters),
       ).toEqual([]);
-    if (expected.maxCommuteTimeMinutes)
-      expect(
-        filterProperties([{ ...home, commuteOptions: [] }], result.filters),
-      ).toEqual([]);
   },
 );
