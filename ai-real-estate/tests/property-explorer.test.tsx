@@ -37,8 +37,6 @@ const properties: Property[] = [
         sourceUrl: "https://council.example/flood-plains",
       },
     ],
-    orientation: "North",
-    sunlightHours: 7.8,
     latitude: -36.913,
     longitude: 174.787,
     schoolDataSynced: true,
@@ -93,8 +91,6 @@ const properties: Property[] = [
     architecturalStyle: "Character",
     floodRisk: "Moderate",
     floodHazards: [],
-    orientation: "East",
-    sunlightHours: 5.4,
     latitude: -36.849,
     longitude: 174.734,
     schoolDataSynced: true,
@@ -139,7 +135,7 @@ describe("PropertyExplorer", () => {
     expect(screen.getByText("2/30 Hardington Street")).toBeInTheDocument();
     expect(screen.getByText("54 Kelmarna Avenue")).toBeInTheDocument();
 
-    await user.click(screen.getByRole("radio", { name: "Villa" }));
+    await user.click(screen.getByRole("button", { name: "Villa" }));
 
     expect(
       screen.queryByText("2/30 Hardington Street"),
@@ -216,9 +212,6 @@ describe("PropertyExplorer", () => {
     );
 
     await user.click(screen.getByRole("button", { name: "More filters" }));
-    await user.click(
-      screen.getByRole("button", { name: "Schools & Catchments" }),
-    );
     await user.selectOptions(
       screen.getByLabelText("Nearby school type (within 2.5 km)"),
       "Secondary",
@@ -433,9 +426,7 @@ describe("PropertyExplorer", () => {
     expect(
       within(details).queryByText(/comparable sales/i),
     ).not.toBeInTheDocument();
-    expect(
-      within(details).queryByText(/sunlight/i),
-    ).not.toBeInTheDocument();
+    expect(within(details).queryByText(/sunlight/i)).not.toBeInTheDocument();
 
     const initialPayment =
       within(details).getByTestId("monthly-repayment").textContent;
@@ -476,13 +467,13 @@ describe("PropertyExplorer", () => {
     );
     const details = screen.getByRole("main", { name: /property details/i });
 
-    expect(within(details).getAllByText("Kauri Park School").length).toBeGreaterThanOrEqual(1);
+    expect(
+      within(details).getAllByText("Kauri Park School").length,
+    ).toBeGreaterThanOrEqual(1);
     expect(
       within(details).getByText("Contributing · 1.24 km away"),
     ).toBeInTheDocument();
-    expect(
-      within(details).getByText("In Zone"),
-    ).toBeInTheDocument();
+    expect(within(details).getByText("In Zone")).toBeInTheDocument();
     expect(
       within(details).getByText(/School-zone matches are approximate/i),
     ).toBeInTheDocument();
@@ -492,7 +483,9 @@ describe("PropertyExplorer", () => {
       "Secondary",
     );
     expect(within(details).getByText("Example Secondary")).toBeInTheDocument();
-    expect(within(details).queryByText("Kauri Park School")).not.toBeInTheDocument();
+    expect(
+      within(details).queryByText("Kauri Park School"),
+    ).not.toBeInTheDocument();
   });
 
   it("saves up to three commute destinations and updates the directions mode", async () => {
@@ -559,20 +552,18 @@ describe("PropertyExplorer", () => {
 
   it("shows a saved named location and its distance in the property map Commute mode", async () => {
     window.localStorage.clear();
-    const geocode = vi
-      .spyOn(globalThis, "fetch")
-      .mockResolvedValueOnce(
-        new Response(
-          JSON.stringify([
-            {
-              lat: "-36.904",
-              lon: "174.787",
-              display_name: "1 Queen Street, Auckland",
-            },
-          ]),
-          { status: 200 },
-        ),
-      );
+    const geocode = vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(
+      new Response(
+        JSON.stringify([
+          {
+            lat: "-36.904",
+            lon: "174.787",
+            display_name: "1 Queen Street, Auckland",
+          },
+        ]),
+        { status: 200 },
+      ),
+    );
     const user = userEvent.setup();
     render(
       <PropertyDetailPage
@@ -605,9 +596,7 @@ describe("PropertyExplorer", () => {
         window.localStorage.getItem("ai-real-estate-commute-destinations"),
       ).toContain('"latitude":-36.904'),
     );
-    expect(
-      within(details).getByText(/1\.0 km/i),
-    ).toBeInTheDocument();
+    expect(within(details).getByText(/1\.0 km/i)).toBeInTheDocument();
     expect(geocode).toHaveBeenCalledTimes(1);
     geocode.mockRestore();
   });
@@ -704,9 +693,7 @@ describe("PropertyExplorer", () => {
         within(details).getByRole("button", { name: "Find on map" }),
       ).toBeEnabled(),
     );
-    expect(
-      within(details).queryByText(/1\.0 km/i),
-    ).not.toBeInTheDocument();
+    expect(within(details).queryByText(/1\.0 km/i)).not.toBeInTheDocument();
     geocode.mockRestore();
   });
 
@@ -894,28 +881,19 @@ describe("PropertyExplorer", () => {
     ).toBeInTheDocument();
   });
 
-  it("shows Saved Homes header button without alerts/notifications and opens shortlist modal", async () => {
-    const user = userEvent.setup();
+  it("links Saved Homes to the workspace shortlist", () => {
     render(
       <PropertyExplorer
         properties={properties}
         comparableSales={comparableSales}
       />,
     );
-
-    // Header has "Saved Homes (0)" - no alerts or notifications
-    const savedHomesBtn = screen.getByRole("button", { name: /Saved Homes/i });
-    expect(savedHomesBtn).toBeInTheDocument();
-    expect(screen.queryByText(/Alerts & Saved/i)).not.toBeInTheDocument();
-    expect(screen.queryByText(/unread/i)).not.toBeInTheDocument();
-
-    // Clicking it opens the modal
-    await user.click(savedHomesBtn);
+    expect(screen.getByRole("link", { name: /Saved Homes/i })).toHaveAttribute(
+      "href",
+      "/profile#saved-homes",
+    );
     expect(
-      screen.getByRole("dialog", { name: /saved listings/i }),
-    ).toBeInTheDocument();
-    expect(
-      screen.queryByRole("button", { name: /notifications/i }),
+      screen.queryByRole("dialog", { name: /saved listings/i }),
     ).not.toBeInTheDocument();
   });
 

@@ -1,12 +1,14 @@
 import { describe, expect, it } from "vitest";
 import {
   cleanJevFilters,
+  buildJevQuestions,
   interpretPropertyQuery,
   interpretPropertyQueryWithJev,
   parseBedroomsFromQuery,
   parsePriceFromQuery,
 } from "../lib/jev-search";
 import type { Property } from "../lib/property-types";
+import { numericCandidates } from "../lib/jev-filter-plan";
 
 const sampleProperties: Property[] = [
   {
@@ -24,8 +26,6 @@ const sampleProperties: Property[] = [
     propertyType: "Villa",
     architecturalStyle: "Character",
     floodRisk: "Low",
-    orientation: "North",
-    sunlightHours: 7.5,
     latitude: -36.849,
     longitude: 174.734,
     image: "/properties/test.jpg",
@@ -46,8 +46,6 @@ const sampleProperties: Property[] = [
     propertyType: "Townhouse",
     architecturalStyle: "Contemporary",
     floodRisk: "Low",
-    orientation: "North",
-    sunlightHours: 7.2,
     latitude: -36.905,
     longitude: 174.901,
     image: "/properties/test2.jpg",
@@ -56,11 +54,156 @@ const sampleProperties: Property[] = [
 ];
 
 describe("TypeSafe Jev search interpreter", () => {
+  it("offers complete compact money values and does not treat square metres as millions", () => {
+    expect(
+      numericCandidates("under $1.5m or $850k with 200 m² land").map(
+        (c) => c.value,
+      ),
+    ).toEqual([1_500_000, 850_000, 200]);
+    expect(numericCandidates("under $1.2m.").map((c) => c.value)).toEqual([
+      1_200_000,
+    ]);
+  });
+  it("requires an explicit flood exclusion and consolidates repeated numeric values", () => {
+    expect(
+      cleanJevFilters("house", {
+        flood_hazard: { choice: "no_mapped" },
+        no_mapped_hazard: { choice: "none" },
+      }).filters.noMappedFloodHazard,
+    ).toBeUndefined();
+    expect(
+      numericCandidates("1 bathroom and 1 parking space").map((c) => c.value),
+    ).toEqual([1]);
+  });
+  it("keeps exact counts and inclusive commute limits when semantics bleed across clauses", () => {
+    const result = cleanJevFilters(
+      "capital value at least $1m, 3 bedrooms and within 30 minutes commute",
+      {
+        number_bedrooms_min: { choice: "inclusive_1", confidence: 0.99 },
+        number_bedrooms_max: { choice: "none", confidence: 0.99 },
+        number_commuteTime_max: { choice: "inclusive_2", confidence: 0.54 },
+      },
+    );
+    expect(result.filters.bedrooms).toBe(3);
+    expect(result.filters.maxCommuteTimeMinutes).toBe(30);
+    expect(result.issues).toEqual([]);
+  });
+
+  it("asks for clarification instead of ignoring an unavailable requested location", () => {
+    const result = cleanJevFilters("house in an unavailable location", {
+      property_type: { choice: "House" },
+      location: { choice: "unknown" },
+    });
+    expect(result.issues.join(" ")).toMatch(/location/i);
+  });
+
+  it("asks Jev to select numeric source values and compose independent categories", () => {
+    const questions = buildJevQuestions(
+      ["Auckland"],
+      "enough room for 4 cars and built after 1990",
+      sampleProperties,
+    );
+    expect(questions).toHaveProperty("number_parkingSpaces_min");
+    expect(questions).toHaveProperty("number_yearBuilt_min");
+    expect(questions).toHaveProperty("type_House");
+    expect(questions).toHaveProperty("type_Townhouse");
+  });
+
+  it("applies semantic numeric bounds without inventing values or overwriting explicit years with an era", async () => {
+    const result = await interpretPropertyQueryWithJev(
+      "a contemporary house with enough room for four cars, built after 1990",
+      sampleProperties,
+      {
+        apiKey: "test-key",
+        fetchImpl: async () =>
+          Response.json({
+            answers: {
+              property_type: { choice: "House" },
+              era_intent: { choice: "contemporary" },
+              number_parkingSpaces_min: {
+                choice: "inclusive_0",
+                confidence: 0.99,
+              },
+              number_yearBuilt_min: { choice: "exclusive_1", confidence: 0.99 },
+            },
+          }),
+      },
+    );
+    expect(result.filters.numericCriteria?.parkingSpaces).toEqual({ min: 4 });
+    expect(result.filters.yearBuiltFrom).toBe(1991);
+    expect(result.message).toContain("4+ parking spaces");
+    expect(result.message).toContain("1991");
+  });
+
+  it("retains alternatives within property types and applies all other constraints", async () => {
+    const result = await interpretPropertyQueryWithJev(
+      "house or townhouse with 2 bathrooms",
+      sampleProperties,
+      {
+        apiKey: "test-key",
+        fetchImpl: async () =>
+          Response.json({
+            answers: {
+              type_House: { noul: 0.99 },
+              type_Townhouse: { noul: 0.99 },
+            },
+          }),
+      },
+    );
+    expect(result.filters.propertyTypes).toEqual(["Townhouse", "House"]);
+    expect(result.filters.numericCriteria?.bathrooms).toEqual({
+      min: 2,
+      max: 2,
+    });
+  });
+
+  it("asks for clarification on contradictory numeric bounds", async () => {
+    const result = await interpretPropertyQueryWithJev(
+      "house with at least 4 bathrooms and no more than 2 bathrooms",
+      sampleProperties,
+      {
+        apiKey: "test-key",
+        fetchImpl: async () =>
+          Response.json({
+            answers: {
+              property_type: { choice: "House" },
+              number_bathrooms_min: { choice: "inclusive_0", confidence: 0.99 },
+              number_bathrooms_max: { choice: "inclusive_1", confidence: 0.99 },
+            },
+          }),
+      },
+    );
+    expect(result.status).toBe("needs-clarification");
+    expect(result.message).toMatch(/bathroom.*minimum.*maximum/i);
+  });
+  it("keeps the buyer's capacity requirement for four cars", () => {
+    const result = cleanJevFilters("a house with enough room for 4 cars", {
+      property_type: { choice: "House" },
+    });
+    expect(result.filters.numericCriteria?.parkingSpaces).toEqual({ min: 4 });
+    expect(result.appliedDescriptions).toContain("4+ parking spaces");
+  });
   it("extracts price numbers with various units accurately", () => {
-    expect(parsePriceFromQuery("under 1.5M")).toEqual({ amount: 1500000, isMax: true, isMin: false });
-    expect(parsePriceFromQuery("budget $900k")).toEqual({ amount: 900000, isMax: true, isMin: false });
-    expect(parsePriceFromQuery("up to $750,000")).toEqual({ amount: 750000, isMax: true, isMin: false });
-    expect(parsePriceFromQuery("over 1.2 million")).toEqual({ amount: 1200000, isMax: false, isMin: true });
+    expect(parsePriceFromQuery("under 1.5M")).toEqual({
+      amount: 1500000,
+      isMax: true,
+      isMin: false,
+    });
+    expect(parsePriceFromQuery("budget $900k")).toEqual({
+      amount: 900000,
+      isMax: true,
+      isMin: false,
+    });
+    expect(parsePriceFromQuery("up to $750,000")).toEqual({
+      amount: 750000,
+      isMax: true,
+      isMin: false,
+    });
+    expect(parsePriceFromQuery("over 1.2 million")).toEqual({
+      amount: 1200000,
+      isMax: false,
+      isMin: true,
+    });
     expect(parsePriceFromQuery("no price mentioned")).toBeNull();
     expect(parsePriceFromQuery("floor area under 150 m²")).toBeNull();
   });
@@ -95,15 +238,20 @@ describe("TypeSafe Jev search interpreter", () => {
       });
     } finally {
       if (previousJevKey) process.env.JEV_API_KEY = previousJevKey;
-      if (previousTypesafeKey) process.env.TYPESAFE_API_KEY = previousTypesafeKey;
+      if (previousTypesafeKey)
+        process.env.TYPESAFE_API_KEY = previousTypesafeKey;
     }
   });
 
   it("evaluates query against full property schema using TypeSafe Jev System One questions", async () => {
     const fakeFetch: typeof fetch = async (input, init) => {
       expect(String(input)).toBe("https://api.typesafe.ai/v1/systemone");
-      expect(new Headers(init?.headers).get("Authorization")).toBe("Bearer test-jev-secret");
-      expect(new Headers(init?.headers).get("Content-Type")).toBe("application/json");
+      expect(new Headers(init?.headers).get("Authorization")).toBe(
+        "Bearer test-jev-secret",
+      );
+      expect(new Headers(init?.headers).get("Content-Type")).toBe(
+        "application/json",
+      );
 
       const body = JSON.parse(String(init?.body)) as {
         model: string;
@@ -122,12 +270,16 @@ describe("TypeSafe Jev search interpreter", () => {
 
       // Verify request structure sent to Jev
       expect(body.model).toBe("jev-latest");
-      expect(body.state.user_query).toBe("sunny 3-bedroom character villa in Ponsonby under 2.6M");
+      expect(body.state.user_query).toBe(
+        "3-bedroom character villa in Ponsonby under 2.6M",
+      );
       expect(body.state.catalog.known_locations).toContain("Ponsonby");
       expect(body.state.catalog.known_locations).toContain("Auckland");
       expect(body.state.catalog.property_fields).toHaveProperty("price");
       expect(body.state.catalog.property_fields).toHaveProperty("bedrooms");
-      expect(body.state.catalog.property_fields).toHaveProperty("orientation");
+      expect(body.state.catalog.property_fields).toHaveProperty(
+        "parkingSpaces",
+      );
       expect(body.state.catalog.available_flood_hazards).toContainEqual(
         expect.objectContaining({ type: "flood_plains" }),
       );
@@ -196,7 +348,7 @@ describe("TypeSafe Jev search interpreter", () => {
     };
 
     const result = await interpretPropertyQueryWithJev(
-      "sunny 3-bedroom character villa in Ponsonby under 2.6M",
+      "3-bedroom character villa in Ponsonby under 2.6M",
       sampleProperties,
       { apiKey: "test-jev-secret", fetchImpl: fakeFetch },
     );
@@ -209,7 +361,6 @@ describe("TypeSafe Jev search interpreter", () => {
       location: "Ponsonby",
       bedrooms: 3,
       maxPrice: 2600000,
-      numericCriteria: { sunlightHours: { min: 6 } },
       yearBuiltTo: 1940,
     });
     expect(result.message).toContain("villa");
@@ -231,7 +382,10 @@ describe("TypeSafe Jev search interpreter", () => {
   it("preserves explicit property details alongside Jev judgments", () => {
     const result = cleanJevFilters(
       "houses over $500k with one bathroom and at least 2 parking spaces",
-      { property_type: { choice: "House" }, price_intent: { choice: "min_budget" } },
+      {
+        property_type: { choice: "House" },
+        price_intent: { choice: "min_budget" },
+      },
     );
 
     expect(result.filters).toMatchObject({
@@ -246,42 +400,17 @@ describe("TypeSafe Jev search interpreter", () => {
     expect(result.appliedDescriptions).toContain("2+ parking spaces");
   });
 
-  it("does not force a sunny east-facing request to face north", () => {
-    const result = cleanJevFilters("sunny east-facing house", {
-      property_type: { choice: "House" },
-    });
-
-    expect(result.filters.orientations).toEqual(["East"]);
-    expect(result.filters.numericCriteria?.sunlightHours).toEqual({ min: 6 });
-    expect(result.filters.northFacingOnly).toBeUndefined();
-  });
-
-  it("keeps north-facing distinct from a request for sunshine", () => {
-    const result = cleanJevFilters("north-facing house", {
-      property_type: { choice: "House" },
-    });
-
-    expect(result.filters.orientations).toEqual(["North"]);
-    expect(result.filters.numericCriteria?.sunlightHours).toBeUndefined();
-    expect(result.filters.northFacingOnly).toBeUndefined();
-  });
-
-  it("does not replace an upper walk-score bound with a high-walkability minimum", () => {
-    const result = cleanJevFilters("walk score under 70", {
-      is_walkable_requested: { noul: 0.9 },
-    });
-
-    expect(result.filters.maxWalkScore).toBe(70);
-    expect(result.filters.minWalkScore).toBeUndefined();
-  });
-
   it("handles queries needing clarification", async () => {
     const fakeFetch: typeof fetch = async () => {
       return Response.json({
         model: "jev-1.13.0",
         answers: {
           property_type: { type: "choice", choice: "none", confidence: 1 },
-          architectural_style: { type: "choice", choice: "none", confidence: 1 },
+          architectural_style: {
+            type: "choice",
+            choice: "none",
+            confidence: 1,
+          },
           flood_risk: { type: "choice", choice: "none", confidence: 1 },
           location: { type: "choice", choice: "none", confidence: 1 },
           is_sunny_or_north_facing: { type: "noul", noul: 0.01 },
@@ -310,12 +439,18 @@ describe("TypeSafe Jev search interpreter", () => {
       sampleProperties,
       {
         apiKey: "test-jev-secret",
-        fetchImpl: async () => Response.json({ answers: {
-          property_type: { choice: "none" }, architectural_style: { choice: "none" },
-          flood_hazard: { choice: "none" }, location: { choice: "none" },
-          price_intent: { choice: "none" }, era_intent: { choice: "none" },
-          needs_clarification: { noul: 0.01 },
-        } }),
+        fetchImpl: async () =>
+          Response.json({
+            answers: {
+              property_type: { choice: "none" },
+              architectural_style: { choice: "none" },
+              flood_hazard: { choice: "none" },
+              location: { choice: "none" },
+              price_intent: { choice: "none" },
+              era_intent: { choice: "none" },
+              needs_clarification: { noul: 0.01 },
+            },
+          }),
       },
     );
 
@@ -343,8 +478,16 @@ describe("TypeSafe Jev search interpreter", () => {
       return Response.json({
         model: "jev-1.13.0",
         answers: {
-          property_type: { type: "choice", choice: "Townhouse", confidence: 0.95 },
-          architectural_style: { type: "choice", choice: "none", confidence: 1 },
+          property_type: {
+            type: "choice",
+            choice: "Townhouse",
+            confidence: 0.95,
+          },
+          architectural_style: {
+            type: "choice",
+            choice: "none",
+            confidence: 1,
+          },
           flood_risk: { type: "choice", choice: "none", confidence: 1 },
           location: { type: "choice", choice: "none", confidence: 1 },
           is_sunny_or_north_facing: { type: "noul", noul: 0.02 },

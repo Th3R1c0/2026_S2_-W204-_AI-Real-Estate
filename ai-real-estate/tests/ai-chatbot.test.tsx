@@ -13,7 +13,7 @@ describe("AIChatbot component (TDD)", () => {
           ok: true,
           json: async () => ({
             reply:
-              "Haven helps you discover homes by architectural style, flood risk, and sunlight.",
+              "Haven helps you discover homes by architectural style, mapped flood hazards.",
             source: "gemini",
           }),
         };
@@ -24,6 +24,26 @@ describe("AIChatbot component (TDD)", () => {
 
   afterEach(() => {
     global.fetch = originalFetch;
+    window.history.replaceState({}, "", "/");
+  });
+
+  it("reads the current property for each message and drops it after navigation", async () => {
+    const sent: Array<{ currentPropertyId?: string }> = [];
+    global.fetch = vi.fn(async (_url, init) => {
+      sent.push(JSON.parse(String(init?.body)));
+      return Response.json({ reply: "Details received", source: "local" });
+    });
+    const user = userEvent.setup();
+    window.history.replaceState({}, "", "/properties/house%20one");
+    render(<AIChatbot />);
+    await user.click(screen.getByRole("button", { name: "Open AI chat" }));
+    await user.type(screen.getByRole("textbox", { name: /ask a question/i }), "Tell me about this house{Enter}");
+    await screen.findByText("Details received");
+    expect(sent[0].currentPropertyId).toBe("house one");
+    window.history.replaceState({}, "", "/");
+    await user.type(screen.getByRole("textbox", { name: /ask a question/i }), "What is Haven?{Enter}");
+    await waitFor(() => expect(sent).toHaveLength(2));
+    expect(sent[1].currentPropertyId).toBeUndefined();
   });
 
   it("renders the floating trigger button in closed state", () => {
@@ -132,7 +152,7 @@ describe("AIChatbot component (TDD)", () => {
           ok: true,
           json: async () => ({
             reply:
-              "Both homes look great. Hardington Street has better sunlight.",
+              "Both homes look great. Hardington Street has more parking.",
             source: "gemini",
           }),
         };

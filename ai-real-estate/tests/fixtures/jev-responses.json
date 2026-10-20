@@ -1,0 +1,5282 @@
+[
+  {
+    "model": "jev-1.13.0",
+    "answers": {
+      "property_type": {
+        "type": "choice",
+        "choice": "House",
+        "confidence": 1,
+        "probabilities": {
+          "Villa": 0,
+          "Townhouse": 0,
+          "Apartment": 0,
+          "House": 1,
+          "Lifestyle block": 0,
+          "Section": 0,
+          "none": 0
+        }
+      },
+      "architectural_style": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "Character": 0,
+          "Modernist": 0,
+          "Contemporary": 0,
+          "Craftsman": 0,
+          "Mid-Century": 0,
+          "none": 1
+        }
+      },
+      "flood_hazard": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 0.99,
+        "probabilities": {
+          "flood_plains": 0,
+          "flood_prone_areas": 0,
+          "overland_flow_paths": 0,
+          "coastal_inundation": 0,
+          "any_mapped": 0,
+          "no_mapped": 0.01,
+          "none": 0.99
+        }
+      },
+      "location": {
+        "type": "choice",
+        "choice": "Auckland",
+        "confidence": 1,
+        "probabilities": {
+          "none": 0,
+          "unknown": 0,
+          "Auckland": 1,
+          "Ponsonby": 0
+        }
+      },
+      "is_school_zone_requested": {
+        "type": "noul",
+        "noul": 0.03
+      },
+      "price_intent": {
+        "type": "choice",
+        "choice": "max_budget",
+        "confidence": 1,
+        "probabilities": {
+          "max_budget": 1,
+          "min_budget": 0,
+          "exact": 0,
+          "none": 0
+        }
+      },
+      "era_intent": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "character_heritage": 0,
+          "mid_century": 0,
+          "modernist": 0,
+          "contemporary": 0,
+          "none": 1
+        }
+      },
+      "needs_clarification": {
+        "type": "noul",
+        "noul": 0.01
+      },
+      "number_price_min": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0,
+          "inclusive_3": 0,
+          "exclusive_3": 0
+        }
+      },
+      "number_price_max": {
+        "type": "choice",
+        "choice": "exclusive_0",
+        "confidence": 1,
+        "probabilities": {
+          "none": 0,
+          "inclusive_0": 0,
+          "exclusive_0": 1,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0,
+          "inclusive_3": 0,
+          "exclusive_3": 0
+        }
+      },
+      "number_bedrooms_min": {
+        "type": "choice",
+        "choice": "inclusive_2",
+        "confidence": 1,
+        "probabilities": {
+          "none": 0,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 1,
+          "exclusive_2": 0,
+          "inclusive_3": 0,
+          "exclusive_3": 0
+        }
+      },
+      "number_bedrooms_max": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0,
+          "inclusive_3": 0,
+          "exclusive_3": 0
+        }
+      },
+      "number_bathrooms_min": {
+        "type": "choice",
+        "choice": "inclusive_3",
+        "confidence": 0.87,
+        "probabilities": {
+          "none": 0.1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0.02,
+          "exclusive_2": 0,
+          "inclusive_3": 0.88,
+          "exclusive_3": 0
+        }
+      },
+      "number_bathrooms_max": {
+        "type": "choice",
+        "choice": "inclusive_3",
+        "confidence": 0.75,
+        "probabilities": {
+          "none": 0.2,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0.01,
+          "exclusive_2": 0.01,
+          "inclusive_3": 0.78,
+          "exclusive_3": 0
+        }
+      },
+      "number_parkingSpaces_min": {
+        "type": "choice",
+        "choice": "inclusive_1",
+        "confidence": 0.99,
+        "probabilities": {
+          "none": 0.01,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0.99,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0,
+          "inclusive_3": 0,
+          "exclusive_3": 0
+        }
+      },
+      "number_parkingSpaces_max": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 0.99,
+        "probabilities": {
+          "none": 0.99,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0.01,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0,
+          "inclusive_3": 0,
+          "exclusive_3": 0
+        }
+      },
+      "number_landArea_min": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0,
+          "inclusive_3": 0,
+          "exclusive_3": 0
+        }
+      },
+      "number_landArea_max": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0,
+          "inclusive_3": 0,
+          "exclusive_3": 0
+        }
+      },
+      "number_floorArea_min": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0,
+          "inclusive_3": 0,
+          "exclusive_3": 0
+        }
+      },
+      "number_floorArea_max": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0,
+          "inclusive_3": 0,
+          "exclusive_3": 0
+        }
+      },
+      "number_yearBuilt_min": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0,
+          "inclusive_3": 0,
+          "exclusive_3": 0
+        }
+      },
+      "number_yearBuilt_max": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0,
+          "inclusive_3": 0,
+          "exclusive_3": 0
+        }
+      },
+      "number_estimatedWeeklyRent_min": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0,
+          "inclusive_3": 0,
+          "exclusive_3": 0
+        }
+      },
+      "number_estimatedWeeklyRent_max": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0,
+          "inclusive_3": 0,
+          "exclusive_3": 0
+        }
+      },
+      "number_capitalValue_min": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0,
+          "inclusive_3": 0,
+          "exclusive_3": 0
+        }
+      },
+      "number_capitalValue_max": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0,
+          "inclusive_3": 0,
+          "exclusive_3": 0
+        }
+      },
+      "number_commuteTime_min": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0,
+          "inclusive_3": 0,
+          "exclusive_3": 0
+        }
+      },
+      "number_commuteTime_max": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0,
+          "inclusive_3": 0,
+          "exclusive_3": 0
+        }
+      },
+      "type_Villa": {
+        "type": "noul",
+        "noul": 0.09
+      },
+      "type_Townhouse": {
+        "type": "noul",
+        "noul": 0.09
+      },
+      "type_Apartment": {
+        "type": "noul",
+        "noul": 0.07
+      },
+      "type_House": {
+        "type": "noul",
+        "noul": 0.98
+      },
+      "type_Lifestyle block": {
+        "type": "noul",
+        "noul": 0.12
+      },
+      "type_Section": {
+        "type": "noul",
+        "noul": 0.09
+      },
+      "style_Character": {
+        "type": "noul",
+        "noul": 0.1
+      },
+      "style_Modernist": {
+        "type": "noul",
+        "noul": 0.1
+      },
+      "style_Contemporary": {
+        "type": "noul",
+        "noul": 0.1
+      },
+      "style_Craftsman": {
+        "type": "noul",
+        "noul": 0.08
+      },
+      "style_Mid-Century": {
+        "type": "noul",
+        "noul": 0.1
+      },
+      "ownership_Freehold": {
+        "type": "noul",
+        "noul": 0.08
+      },
+      "ownership_Cross Lease": {
+        "type": "noul",
+        "noul": 0.07
+      },
+      "ownership_Unit Title": {
+        "type": "noul",
+        "noul": 0.08
+      },
+      "hazard_flood_plains": {
+        "type": "noul",
+        "noul": 0.08
+      },
+      "hazard_flood_prone_areas": {
+        "type": "noul",
+        "noul": 0.07
+      },
+      "hazard_overland_flow_paths": {
+        "type": "noul",
+        "noul": 0.07
+      },
+      "hazard_coastal_inundation": {
+        "type": "noul",
+        "noul": 0.07
+      },
+      "open_home": {
+        "type": "noul",
+        "noul": 0.05
+      },
+      "no_mapped_hazard": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "requested": 0,
+          "none": 1
+        }
+      },
+      "commute_mode": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 0.87,
+        "probabilities": {
+          "none": 0.9,
+          "driving": 0.1,
+          "transit": 0,
+          "walking": 0
+        }
+      },
+      "school_mode": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "zone": 0,
+          "nearby": 0
+        }
+      },
+      "school_type": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "Secondary": 0
+        }
+      },
+      "commute_destination": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 0.98,
+        "probabilities": {
+          "none": 0.99,
+          "Auckland CBD": 0.01
+        }
+      },
+      "unsupported_requirement": {
+        "type": "noul",
+        "noul": 0.07
+      }
+    },
+    "usage": {
+      "input_tokens": 13421,
+      "output_tokens": 2960
+    }
+  },
+  {
+    "model": "jev-1.13.0",
+    "answers": {
+      "property_type": {
+        "type": "choice",
+        "choice": "House",
+        "confidence": 0.78,
+        "probabilities": {
+          "Villa": 0,
+          "Townhouse": 0.13,
+          "Apartment": 0,
+          "House": 0.81,
+          "Lifestyle block": 0,
+          "Section": 0,
+          "none": 0.05
+        }
+      },
+      "architectural_style": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "Character": 0,
+          "Modernist": 0,
+          "Contemporary": 0,
+          "Craftsman": 0,
+          "Mid-Century": 0,
+          "none": 1
+        }
+      },
+      "flood_hazard": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "flood_plains": 0,
+          "flood_prone_areas": 0,
+          "overland_flow_paths": 0,
+          "coastal_inundation": 0,
+          "any_mapped": 0,
+          "no_mapped": 0,
+          "none": 1
+        }
+      },
+      "location": {
+        "type": "choice",
+        "choice": "Ponsonby",
+        "confidence": 1,
+        "probabilities": {
+          "none": 0,
+          "unknown": 0,
+          "Auckland": 0,
+          "Ponsonby": 1
+        }
+      },
+      "is_school_zone_requested": {
+        "type": "noul",
+        "noul": 0.03
+      },
+      "price_intent": {
+        "type": "choice",
+        "choice": "min_budget",
+        "confidence": 0.4,
+        "probabilities": {
+          "max_budget": 0.33,
+          "min_budget": 0.55,
+          "exact": 0.12,
+          "none": 0
+        }
+      },
+      "era_intent": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "character_heritage": 0,
+          "mid_century": 0,
+          "modernist": 0,
+          "contemporary": 0,
+          "none": 1
+        }
+      },
+      "needs_clarification": {
+        "type": "noul",
+        "noul": 0.01
+      },
+      "number_price_min": {
+        "type": "choice",
+        "choice": "inclusive_0",
+        "confidence": 1,
+        "probabilities": {
+          "none": 0,
+          "inclusive_0": 1,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0,
+          "inclusive_3": 0,
+          "exclusive_3": 0,
+          "inclusive_4": 0,
+          "exclusive_4": 0
+        }
+      },
+      "number_price_max": {
+        "type": "choice",
+        "choice": "inclusive_1",
+        "confidence": 1,
+        "probabilities": {
+          "none": 0,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 1,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0,
+          "inclusive_3": 0,
+          "exclusive_3": 0,
+          "inclusive_4": 0,
+          "exclusive_4": 0
+        }
+      },
+      "number_bedrooms_min": {
+        "type": "choice",
+        "choice": "inclusive_2",
+        "confidence": 0.99,
+        "probabilities": {
+          "none": 0,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0.99,
+          "exclusive_2": 0,
+          "inclusive_3": 0.01,
+          "exclusive_3": 0,
+          "inclusive_4": 0,
+          "exclusive_4": 0
+        }
+      },
+      "number_bedrooms_max": {
+        "type": "choice",
+        "choice": "inclusive_3",
+        "confidence": 0.98,
+        "probabilities": {
+          "none": 0.01,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0,
+          "inclusive_3": 0.98,
+          "exclusive_3": 0,
+          "inclusive_4": 0.01,
+          "exclusive_4": 0
+        }
+      },
+      "number_bathrooms_min": {
+        "type": "choice",
+        "choice": "inclusive_4",
+        "confidence": 1,
+        "probabilities": {
+          "none": 0,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0,
+          "inclusive_3": 0,
+          "exclusive_3": 0,
+          "inclusive_4": 1,
+          "exclusive_4": 0
+        }
+      },
+      "number_bathrooms_max": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 0.98,
+        "probabilities": {
+          "none": 0.98,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0,
+          "inclusive_3": 0,
+          "exclusive_3": 0,
+          "inclusive_4": 0.02,
+          "exclusive_4": 0
+        }
+      },
+      "number_parkingSpaces_min": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0,
+          "inclusive_3": 0,
+          "exclusive_3": 0,
+          "inclusive_4": 0,
+          "exclusive_4": 0
+        }
+      },
+      "number_parkingSpaces_max": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0,
+          "inclusive_3": 0,
+          "exclusive_3": 0,
+          "inclusive_4": 0,
+          "exclusive_4": 0
+        }
+      },
+      "number_landArea_min": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0,
+          "inclusive_3": 0,
+          "exclusive_3": 0,
+          "inclusive_4": 0,
+          "exclusive_4": 0
+        }
+      },
+      "number_landArea_max": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0,
+          "inclusive_3": 0,
+          "exclusive_3": 0,
+          "inclusive_4": 0,
+          "exclusive_4": 0
+        }
+      },
+      "number_floorArea_min": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0,
+          "inclusive_3": 0,
+          "exclusive_3": 0,
+          "inclusive_4": 0,
+          "exclusive_4": 0
+        }
+      },
+      "number_floorArea_max": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0,
+          "inclusive_3": 0,
+          "exclusive_3": 0,
+          "inclusive_4": 0,
+          "exclusive_4": 0
+        }
+      },
+      "number_yearBuilt_min": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0,
+          "inclusive_3": 0,
+          "exclusive_3": 0,
+          "inclusive_4": 0,
+          "exclusive_4": 0
+        }
+      },
+      "number_yearBuilt_max": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0,
+          "inclusive_3": 0,
+          "exclusive_3": 0,
+          "inclusive_4": 0,
+          "exclusive_4": 0
+        }
+      },
+      "number_estimatedWeeklyRent_min": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0,
+          "inclusive_3": 0,
+          "exclusive_3": 0,
+          "inclusive_4": 0,
+          "exclusive_4": 0
+        }
+      },
+      "number_estimatedWeeklyRent_max": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0,
+          "inclusive_3": 0,
+          "exclusive_3": 0,
+          "inclusive_4": 0,
+          "exclusive_4": 0
+        }
+      },
+      "number_capitalValue_min": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0,
+          "inclusive_3": 0,
+          "exclusive_3": 0,
+          "inclusive_4": 0,
+          "exclusive_4": 0
+        }
+      },
+      "number_capitalValue_max": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0,
+          "inclusive_3": 0,
+          "exclusive_3": 0,
+          "inclusive_4": 0,
+          "exclusive_4": 0
+        }
+      },
+      "number_commuteTime_min": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0,
+          "inclusive_3": 0,
+          "exclusive_3": 0,
+          "inclusive_4": 0,
+          "exclusive_4": 0
+        }
+      },
+      "number_commuteTime_max": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0,
+          "inclusive_3": 0,
+          "exclusive_3": 0,
+          "inclusive_4": 0,
+          "exclusive_4": 0
+        }
+      },
+      "type_Villa": {
+        "type": "noul",
+        "noul": 0.06
+      },
+      "type_Townhouse": {
+        "type": "noul",
+        "noul": 0.98
+      },
+      "type_Apartment": {
+        "type": "noul",
+        "noul": 0.07
+      },
+      "type_House": {
+        "type": "noul",
+        "noul": 0.98
+      },
+      "type_Lifestyle block": {
+        "type": "noul",
+        "noul": 0.05
+      },
+      "type_Section": {
+        "type": "noul",
+        "noul": 0.06
+      },
+      "style_Character": {
+        "type": "noul",
+        "noul": 0.1
+      },
+      "style_Modernist": {
+        "type": "noul",
+        "noul": 0.08
+      },
+      "style_Contemporary": {
+        "type": "noul",
+        "noul": 0.1
+      },
+      "style_Craftsman": {
+        "type": "noul",
+        "noul": 0.08
+      },
+      "style_Mid-Century": {
+        "type": "noul",
+        "noul": 0.08
+      },
+      "ownership_Freehold": {
+        "type": "noul",
+        "noul": 0.08
+      },
+      "ownership_Cross Lease": {
+        "type": "noul",
+        "noul": 0.07
+      },
+      "ownership_Unit Title": {
+        "type": "noul",
+        "noul": 0.07
+      },
+      "hazard_flood_plains": {
+        "type": "noul",
+        "noul": 0.06
+      },
+      "hazard_flood_prone_areas": {
+        "type": "noul",
+        "noul": 0.06
+      },
+      "hazard_overland_flow_paths": {
+        "type": "noul",
+        "noul": 0.06
+      },
+      "hazard_coastal_inundation": {
+        "type": "noul",
+        "noul": 0.06
+      },
+      "open_home": {
+        "type": "noul",
+        "noul": 0.05
+      },
+      "no_mapped_hazard": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "requested": 0,
+          "none": 1
+        }
+      },
+      "commute_mode": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "driving": 0,
+          "transit": 0,
+          "walking": 0
+        }
+      },
+      "school_mode": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "zone": 0,
+          "nearby": 0
+        }
+      },
+      "school_type": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "Secondary": 0
+        }
+      },
+      "commute_destination": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "Auckland CBD": 0
+        }
+      },
+      "unsupported_requirement": {
+        "type": "noul",
+        "noul": 0.13
+      }
+    },
+    "usage": {
+      "input_tokens": 14761,
+      "output_tokens": 3320
+    }
+  },
+  {
+    "model": "jev-1.13.0",
+    "answers": {
+      "property_type": {
+        "type": "choice",
+        "choice": "House",
+        "confidence": 1,
+        "probabilities": {
+          "Villa": 0,
+          "Townhouse": 0,
+          "Apartment": 0,
+          "House": 1,
+          "Lifestyle block": 0,
+          "Section": 0,
+          "none": 0
+        }
+      },
+      "architectural_style": {
+        "type": "choice",
+        "choice": "Contemporary",
+        "confidence": 1,
+        "probabilities": {
+          "Character": 0,
+          "Modernist": 0,
+          "Contemporary": 1,
+          "Craftsman": 0,
+          "Mid-Century": 0,
+          "none": 0
+        }
+      },
+      "flood_hazard": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "flood_plains": 0,
+          "flood_prone_areas": 0,
+          "overland_flow_paths": 0,
+          "coastal_inundation": 0,
+          "any_mapped": 0,
+          "no_mapped": 0,
+          "none": 1
+        }
+      },
+      "location": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "unknown": 0,
+          "Auckland": 0,
+          "Ponsonby": 0
+        }
+      },
+      "is_school_zone_requested": {
+        "type": "noul",
+        "noul": 0.02
+      },
+      "price_intent": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "max_budget": 0,
+          "min_budget": 0,
+          "exact": 0,
+          "none": 1
+        }
+      },
+      "era_intent": {
+        "type": "choice",
+        "choice": "contemporary",
+        "confidence": 0.92,
+        "probabilities": {
+          "character_heritage": 0,
+          "mid_century": 0,
+          "modernist": 0,
+          "contemporary": 0.94,
+          "none": 0.06
+        }
+      },
+      "needs_clarification": {
+        "type": "noul",
+        "noul": 0.02
+      },
+      "number_price_min": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0,
+          "inclusive_3": 0,
+          "exclusive_3": 0
+        }
+      },
+      "number_price_max": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0,
+          "inclusive_3": 0,
+          "exclusive_3": 0
+        }
+      },
+      "number_bedrooms_min": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0,
+          "inclusive_3": 0,
+          "exclusive_3": 0
+        }
+      },
+      "number_bedrooms_max": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0,
+          "inclusive_3": 0,
+          "exclusive_3": 0
+        }
+      },
+      "number_bathrooms_min": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0,
+          "inclusive_3": 0,
+          "exclusive_3": 0
+        }
+      },
+      "number_bathrooms_max": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0,
+          "inclusive_3": 0,
+          "exclusive_3": 0
+        }
+      },
+      "number_parkingSpaces_min": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0,
+          "inclusive_3": 0,
+          "exclusive_3": 0
+        }
+      },
+      "number_parkingSpaces_max": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0,
+          "inclusive_3": 0,
+          "exclusive_3": 0
+        }
+      },
+      "number_landArea_min": {
+        "type": "choice",
+        "choice": "inclusive_2",
+        "confidence": 1,
+        "probabilities": {
+          "none": 0,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 1,
+          "exclusive_2": 0,
+          "inclusive_3": 0,
+          "exclusive_3": 0
+        }
+      },
+      "number_landArea_max": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0,
+          "inclusive_3": 0,
+          "exclusive_3": 0
+        }
+      },
+      "number_floorArea_min": {
+        "type": "choice",
+        "choice": "inclusive_3",
+        "confidence": 1,
+        "probabilities": {
+          "none": 0,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0,
+          "inclusive_3": 1,
+          "exclusive_3": 0
+        }
+      },
+      "number_floorArea_max": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0,
+          "inclusive_3": 0,
+          "exclusive_3": 0
+        }
+      },
+      "number_yearBuilt_min": {
+        "type": "choice",
+        "choice": "inclusive_0",
+        "confidence": 1,
+        "probabilities": {
+          "none": 0,
+          "inclusive_0": 1,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0,
+          "inclusive_3": 0,
+          "exclusive_3": 0
+        }
+      },
+      "number_yearBuilt_max": {
+        "type": "choice",
+        "choice": "inclusive_1",
+        "confidence": 1,
+        "probabilities": {
+          "none": 0,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 1,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0,
+          "inclusive_3": 0,
+          "exclusive_3": 0
+        }
+      },
+      "number_estimatedWeeklyRent_min": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0,
+          "inclusive_3": 0,
+          "exclusive_3": 0
+        }
+      },
+      "number_estimatedWeeklyRent_max": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0,
+          "inclusive_3": 0,
+          "exclusive_3": 0
+        }
+      },
+      "number_capitalValue_min": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0,
+          "inclusive_3": 0,
+          "exclusive_3": 0
+        }
+      },
+      "number_capitalValue_max": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0,
+          "inclusive_3": 0,
+          "exclusive_3": 0
+        }
+      },
+      "number_commuteTime_min": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0,
+          "inclusive_3": 0,
+          "exclusive_3": 0
+        }
+      },
+      "number_commuteTime_max": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0,
+          "inclusive_3": 0,
+          "exclusive_3": 0
+        }
+      },
+      "type_Villa": {
+        "type": "noul",
+        "noul": 0.08
+      },
+      "type_Townhouse": {
+        "type": "noul",
+        "noul": 0.08
+      },
+      "type_Apartment": {
+        "type": "noul",
+        "noul": 0.07
+      },
+      "type_House": {
+        "type": "noul",
+        "noul": 0.95
+      },
+      "type_Lifestyle block": {
+        "type": "noul",
+        "noul": 0.1
+      },
+      "type_Section": {
+        "type": "noul",
+        "noul": 0.09
+      },
+      "style_Character": {
+        "type": "noul",
+        "noul": 0.07
+      },
+      "style_Modernist": {
+        "type": "noul",
+        "noul": 0.08
+      },
+      "style_Contemporary": {
+        "type": "noul",
+        "noul": 0.98
+      },
+      "style_Craftsman": {
+        "type": "noul",
+        "noul": 0.06
+      },
+      "style_Mid-Century": {
+        "type": "noul",
+        "noul": 0.06
+      },
+      "ownership_Freehold": {
+        "type": "noul",
+        "noul": 0.09
+      },
+      "ownership_Cross Lease": {
+        "type": "noul",
+        "noul": 0.07
+      },
+      "ownership_Unit Title": {
+        "type": "noul",
+        "noul": 0.08
+      },
+      "hazard_flood_plains": {
+        "type": "noul",
+        "noul": 0.06
+      },
+      "hazard_flood_prone_areas": {
+        "type": "noul",
+        "noul": 0.07
+      },
+      "hazard_overland_flow_paths": {
+        "type": "noul",
+        "noul": 0.07
+      },
+      "hazard_coastal_inundation": {
+        "type": "noul",
+        "noul": 0.09
+      },
+      "open_home": {
+        "type": "noul",
+        "noul": 0.04
+      },
+      "no_mapped_hazard": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "requested": 0,
+          "none": 1
+        }
+      },
+      "commute_mode": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "driving": 0,
+          "transit": 0,
+          "walking": 0
+        }
+      },
+      "school_mode": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "zone": 0,
+          "nearby": 0
+        }
+      },
+      "school_type": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "Secondary": 0
+        }
+      },
+      "commute_destination": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "Auckland CBD": 0
+        }
+      },
+      "unsupported_requirement": {
+        "type": "noul",
+        "noul": 0.07
+      }
+    },
+    "usage": {
+      "input_tokens": 13763,
+      "output_tokens": 2961
+    }
+  },
+  {
+    "model": "jev-1.13.0",
+    "answers": {
+      "property_type": {
+        "type": "choice",
+        "choice": "Villa",
+        "confidence": 1,
+        "probabilities": {
+          "Villa": 1,
+          "Townhouse": 0,
+          "Apartment": 0,
+          "House": 0,
+          "Lifestyle block": 0,
+          "Section": 0,
+          "none": 0
+        }
+      },
+      "architectural_style": {
+        "type": "choice",
+        "choice": "Character",
+        "confidence": 1,
+        "probabilities": {
+          "Character": 1,
+          "Modernist": 0,
+          "Contemporary": 0,
+          "Craftsman": 0,
+          "Mid-Century": 0,
+          "none": 0
+        }
+      },
+      "flood_hazard": {
+        "type": "choice",
+        "choice": "no_mapped",
+        "confidence": 1,
+        "probabilities": {
+          "flood_plains": 0,
+          "flood_prone_areas": 0,
+          "overland_flow_paths": 0,
+          "coastal_inundation": 0,
+          "any_mapped": 0,
+          "no_mapped": 1,
+          "none": 0
+        }
+      },
+      "location": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "unknown": 0,
+          "Auckland": 0,
+          "Ponsonby": 0
+        }
+      },
+      "is_school_zone_requested": {
+        "type": "noul",
+        "noul": 0.02
+      },
+      "price_intent": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "max_budget": 0,
+          "min_budget": 0,
+          "exact": 0,
+          "none": 1
+        }
+      },
+      "era_intent": {
+        "type": "choice",
+        "choice": "character_heritage",
+        "confidence": 0.96,
+        "probabilities": {
+          "character_heritage": 0.97,
+          "mid_century": 0,
+          "modernist": 0,
+          "contemporary": 0,
+          "none": 0.03
+        }
+      },
+      "needs_clarification": {
+        "type": "noul",
+        "noul": 0.01
+      },
+      "number_price_min": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0
+        }
+      },
+      "number_price_max": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0
+        }
+      },
+      "number_bedrooms_min": {
+        "type": "choice",
+        "choice": "inclusive_1",
+        "confidence": 0.96,
+        "probabilities": {
+          "none": 0.03,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0.97,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0
+        }
+      },
+      "number_bedrooms_max": {
+        "type": "choice",
+        "choice": "inclusive_1",
+        "confidence": 0.99,
+        "probabilities": {
+          "none": 0.01,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0.99,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0
+        }
+      },
+      "number_bathrooms_min": {
+        "type": "choice",
+        "choice": "inclusive_2",
+        "confidence": 1,
+        "probabilities": {
+          "none": 0,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 1,
+          "exclusive_2": 0
+        }
+      },
+      "number_bathrooms_max": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 0.99,
+        "probabilities": {
+          "none": 0.99,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0.01,
+          "exclusive_2": 0
+        }
+      },
+      "number_parkingSpaces_min": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0
+        }
+      },
+      "number_parkingSpaces_max": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0
+        }
+      },
+      "number_landArea_min": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0
+        }
+      },
+      "number_landArea_max": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0
+        }
+      },
+      "number_floorArea_min": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0
+        }
+      },
+      "number_floorArea_max": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0
+        }
+      },
+      "number_yearBuilt_min": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 0.96,
+        "probabilities": {
+          "none": 0.97,
+          "inclusive_0": 0,
+          "exclusive_0": 0.03,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0
+        }
+      },
+      "number_yearBuilt_max": {
+        "type": "choice",
+        "choice": "exclusive_0",
+        "confidence": 1,
+        "probabilities": {
+          "none": 0,
+          "inclusive_0": 0,
+          "exclusive_0": 1,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0
+        }
+      },
+      "number_estimatedWeeklyRent_min": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0
+        }
+      },
+      "number_estimatedWeeklyRent_max": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0
+        }
+      },
+      "number_capitalValue_min": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0
+        }
+      },
+      "number_capitalValue_max": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0
+        }
+      },
+      "number_commuteTime_min": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0
+        }
+      },
+      "number_commuteTime_max": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0
+        }
+      },
+      "type_Villa": {
+        "type": "noul",
+        "noul": 0.97
+      },
+      "type_Townhouse": {
+        "type": "noul",
+        "noul": 0.06
+      },
+      "type_Apartment": {
+        "type": "noul",
+        "noul": 0.05
+      },
+      "type_House": {
+        "type": "noul",
+        "noul": 0.06
+      },
+      "type_Lifestyle block": {
+        "type": "noul",
+        "noul": 0.06
+      },
+      "type_Section": {
+        "type": "noul",
+        "noul": 0.08
+      },
+      "style_Character": {
+        "type": "noul",
+        "noul": 0.92
+      },
+      "style_Modernist": {
+        "type": "noul",
+        "noul": 0.06
+      },
+      "style_Contemporary": {
+        "type": "noul",
+        "noul": 0.07
+      },
+      "style_Craftsman": {
+        "type": "noul",
+        "noul": 0.09
+      },
+      "style_Mid-Century": {
+        "type": "noul",
+        "noul": 0.08
+      },
+      "ownership_Freehold": {
+        "type": "noul",
+        "noul": 0.08
+      },
+      "ownership_Cross Lease": {
+        "type": "noul",
+        "noul": 0.08
+      },
+      "ownership_Unit Title": {
+        "type": "noul",
+        "noul": 0.09
+      },
+      "hazard_flood_plains": {
+        "type": "noul",
+        "noul": 0.1
+      },
+      "hazard_flood_prone_areas": {
+        "type": "noul",
+        "noul": 0.09
+      },
+      "hazard_overland_flow_paths": {
+        "type": "noul",
+        "noul": 0.12
+      },
+      "hazard_coastal_inundation": {
+        "type": "noul",
+        "noul": 0.1
+      },
+      "open_home": {
+        "type": "noul",
+        "noul": 0.04
+      },
+      "no_mapped_hazard": {
+        "type": "choice",
+        "choice": "requested",
+        "confidence": 1,
+        "probabilities": {
+          "requested": 1,
+          "none": 0
+        }
+      },
+      "commute_mode": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "driving": 0,
+          "transit": 0,
+          "walking": 0
+        }
+      },
+      "school_mode": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "zone": 0,
+          "nearby": 0
+        }
+      },
+      "school_type": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "Secondary": 0
+        }
+      },
+      "commute_destination": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "Auckland CBD": 0
+        }
+      },
+      "unsupported_requirement": {
+        "type": "noul",
+        "noul": 0.08
+      }
+    },
+    "usage": {
+      "input_tokens": 12255,
+      "output_tokens": 2600
+    }
+  },
+  {
+    "model": "jev-1.13.0",
+    "answers": {
+      "property_type": {
+        "type": "choice",
+        "choice": "House",
+        "confidence": 1,
+        "probabilities": {
+          "Villa": 0,
+          "Townhouse": 0,
+          "Apartment": 0,
+          "House": 1,
+          "Lifestyle block": 0,
+          "Section": 0,
+          "none": 0
+        }
+      },
+      "architectural_style": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "Character": 0,
+          "Modernist": 0,
+          "Contemporary": 0,
+          "Craftsman": 0,
+          "Mid-Century": 0,
+          "none": 1
+        }
+      },
+      "flood_hazard": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "flood_plains": 0,
+          "flood_prone_areas": 0,
+          "overland_flow_paths": 0,
+          "coastal_inundation": 0,
+          "any_mapped": 0,
+          "no_mapped": 0,
+          "none": 1
+        }
+      },
+      "location": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "unknown": 0,
+          "Auckland": 0,
+          "Ponsonby": 0
+        }
+      },
+      "is_school_zone_requested": {
+        "type": "noul",
+        "noul": 0.02
+      },
+      "price_intent": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "max_budget": 0,
+          "min_budget": 0,
+          "exact": 0,
+          "none": 1
+        }
+      },
+      "era_intent": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "character_heritage": 0,
+          "mid_century": 0,
+          "modernist": 0,
+          "contemporary": 0,
+          "none": 1
+        }
+      },
+      "needs_clarification": {
+        "type": "noul",
+        "noul": 0.02
+      },
+      "number_price_min": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0
+        }
+      },
+      "number_price_max": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0
+        }
+      },
+      "number_bedrooms_min": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0
+        }
+      },
+      "number_bedrooms_max": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0
+        }
+      },
+      "number_bathrooms_min": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0
+        }
+      },
+      "number_bathrooms_max": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0
+        }
+      },
+      "number_parkingSpaces_min": {
+        "type": "choice",
+        "choice": "inclusive_2",
+        "confidence": 0.98,
+        "probabilities": {
+          "none": 0.02,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0.98,
+          "exclusive_2": 0
+        }
+      },
+      "number_parkingSpaces_max": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 0.98,
+        "probabilities": {
+          "none": 0.98,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0.02,
+          "exclusive_2": 0
+        }
+      },
+      "number_landArea_min": {
+        "type": "choice",
+        "choice": "inclusive_0",
+        "confidence": 1,
+        "probabilities": {
+          "none": 0,
+          "inclusive_0": 1,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0
+        }
+      },
+      "number_landArea_max": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0
+        }
+      },
+      "number_floorArea_min": {
+        "type": "choice",
+        "choice": "inclusive_1",
+        "confidence": 1,
+        "probabilities": {
+          "none": 0,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 1,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0
+        }
+      },
+      "number_floorArea_max": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0
+        }
+      },
+      "number_yearBuilt_min": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0
+        }
+      },
+      "number_yearBuilt_max": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0
+        }
+      },
+      "number_estimatedWeeklyRent_min": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0
+        }
+      },
+      "number_estimatedWeeklyRent_max": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0
+        }
+      },
+      "number_capitalValue_min": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0
+        }
+      },
+      "number_capitalValue_max": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0
+        }
+      },
+      "number_commuteTime_min": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0
+        }
+      },
+      "number_commuteTime_max": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0
+        }
+      },
+      "type_Villa": {
+        "type": "noul",
+        "noul": 0.08
+      },
+      "type_Townhouse": {
+        "type": "noul",
+        "noul": 0.06
+      },
+      "type_Apartment": {
+        "type": "noul",
+        "noul": 0.06
+      },
+      "type_House": {
+        "type": "noul",
+        "noul": 0.98
+      },
+      "type_Lifestyle block": {
+        "type": "noul",
+        "noul": 0.09
+      },
+      "type_Section": {
+        "type": "noul",
+        "noul": 0.07
+      },
+      "style_Character": {
+        "type": "noul",
+        "noul": 0.1
+      },
+      "style_Modernist": {
+        "type": "noul",
+        "noul": 0.1
+      },
+      "style_Contemporary": {
+        "type": "noul",
+        "noul": 0.08
+      },
+      "style_Craftsman": {
+        "type": "noul",
+        "noul": 0.07
+      },
+      "style_Mid-Century": {
+        "type": "noul",
+        "noul": 0.07
+      },
+      "ownership_Freehold": {
+        "type": "noul",
+        "noul": 0.98
+      },
+      "ownership_Cross Lease": {
+        "type": "noul",
+        "noul": 0.07
+      },
+      "ownership_Unit Title": {
+        "type": "noul",
+        "noul": 0.07
+      },
+      "hazard_flood_plains": {
+        "type": "noul",
+        "noul": 0.06
+      },
+      "hazard_flood_prone_areas": {
+        "type": "noul",
+        "noul": 0.06
+      },
+      "hazard_overland_flow_paths": {
+        "type": "noul",
+        "noul": 0.07
+      },
+      "hazard_coastal_inundation": {
+        "type": "noul",
+        "noul": 0.08
+      },
+      "open_home": {
+        "type": "noul",
+        "noul": 0.04
+      },
+      "no_mapped_hazard": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "requested": 0,
+          "none": 1
+        }
+      },
+      "commute_mode": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 0.75,
+        "probabilities": {
+          "none": 0.81,
+          "driving": 0.19,
+          "transit": 0,
+          "walking": 0
+        }
+      },
+      "school_mode": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "zone": 0,
+          "nearby": 0
+        }
+      },
+      "school_type": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "Secondary": 0
+        }
+      },
+      "commute_destination": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "Auckland CBD": 0
+        }
+      },
+      "unsupported_requirement": {
+        "type": "noul",
+        "noul": 0.13
+      }
+    },
+    "usage": {
+      "input_tokens": 12261,
+      "output_tokens": 2593
+    }
+  },
+  {
+    "model": "jev-1.13.0",
+    "answers": {
+      "property_type": {
+        "type": "choice",
+        "choice": "Apartment",
+        "confidence": 1,
+        "probabilities": {
+          "Villa": 0,
+          "Townhouse": 0,
+          "Apartment": 1,
+          "House": 0,
+          "Lifestyle block": 0,
+          "Section": 0,
+          "none": 0
+        }
+      },
+      "architectural_style": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "Character": 0,
+          "Modernist": 0,
+          "Contemporary": 0,
+          "Craftsman": 0,
+          "Mid-Century": 0,
+          "none": 1
+        }
+      },
+      "flood_hazard": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 0.99,
+        "probabilities": {
+          "flood_plains": 0,
+          "flood_prone_areas": 0,
+          "overland_flow_paths": 0,
+          "coastal_inundation": 0,
+          "any_mapped": 0,
+          "no_mapped": 0.01,
+          "none": 0.99
+        }
+      },
+      "location": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "unknown": 0,
+          "Auckland": 0,
+          "Ponsonby": 0
+        }
+      },
+      "is_school_zone_requested": {
+        "type": "noul",
+        "noul": 0.02
+      },
+      "price_intent": {
+        "type": "choice",
+        "choice": "max_budget",
+        "confidence": 1,
+        "probabilities": {
+          "max_budget": 1,
+          "min_budget": 0,
+          "exact": 0,
+          "none": 0
+        }
+      },
+      "era_intent": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "character_heritage": 0,
+          "mid_century": 0,
+          "modernist": 0,
+          "contemporary": 0,
+          "none": 1
+        }
+      },
+      "needs_clarification": {
+        "type": "noul",
+        "noul": 0.01
+      },
+      "number_price_min": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0
+        }
+      },
+      "number_price_max": {
+        "type": "choice",
+        "choice": "exclusive_0",
+        "confidence": 1,
+        "probabilities": {
+          "none": 0,
+          "inclusive_0": 0,
+          "exclusive_0": 1,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0
+        }
+      },
+      "number_bedrooms_min": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 0.95,
+        "probabilities": {
+          "none": 0.96,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0.02,
+          "exclusive_1": 0,
+          "inclusive_2": 0.02,
+          "exclusive_2": 0
+        }
+      },
+      "number_bedrooms_max": {
+        "type": "choice",
+        "choice": "inclusive_1",
+        "confidence": 0.99,
+        "probabilities": {
+          "none": 0,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0.99,
+          "exclusive_1": 0,
+          "inclusive_2": 0.01,
+          "exclusive_2": 0
+        }
+      },
+      "number_bathrooms_min": {
+        "type": "choice",
+        "choice": "inclusive_2",
+        "confidence": 0.77,
+        "probabilities": {
+          "none": 0.1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0.1,
+          "exclusive_1": 0,
+          "inclusive_2": 0.8,
+          "exclusive_2": 0
+        }
+      },
+      "number_bathrooms_max": {
+        "type": "choice",
+        "choice": "inclusive_2",
+        "confidence": 0.81,
+        "probabilities": {
+          "none": 0.11,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0.05,
+          "exclusive_1": 0,
+          "inclusive_2": 0.84,
+          "exclusive_2": 0
+        }
+      },
+      "number_parkingSpaces_min": {
+        "type": "choice",
+        "choice": "inclusive_2",
+        "confidence": 0.91,
+        "probabilities": {
+          "none": 0.06,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0.02,
+          "exclusive_1": 0,
+          "inclusive_2": 0.92,
+          "exclusive_2": 0
+        }
+      },
+      "number_parkingSpaces_max": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0
+        }
+      },
+      "number_landArea_min": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0
+        }
+      },
+      "number_landArea_max": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0
+        }
+      },
+      "number_floorArea_min": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0
+        }
+      },
+      "number_floorArea_max": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0
+        }
+      },
+      "number_yearBuilt_min": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0
+        }
+      },
+      "number_yearBuilt_max": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0
+        }
+      },
+      "number_estimatedWeeklyRent_min": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0
+        }
+      },
+      "number_estimatedWeeklyRent_max": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0
+        }
+      },
+      "number_capitalValue_min": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0
+        }
+      },
+      "number_capitalValue_max": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0
+        }
+      },
+      "number_commuteTime_min": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0
+        }
+      },
+      "number_commuteTime_max": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0
+        }
+      },
+      "type_Villa": {
+        "type": "noul",
+        "noul": 0.05
+      },
+      "type_Townhouse": {
+        "type": "noul",
+        "noul": 0.06
+      },
+      "type_Apartment": {
+        "type": "noul",
+        "noul": 0.98
+      },
+      "type_House": {
+        "type": "noul",
+        "noul": 0.05
+      },
+      "type_Lifestyle block": {
+        "type": "noul",
+        "noul": 0.05
+      },
+      "type_Section": {
+        "type": "noul",
+        "noul": 0.06
+      },
+      "style_Character": {
+        "type": "noul",
+        "noul": 0.1
+      },
+      "style_Modernist": {
+        "type": "noul",
+        "noul": 0.1
+      },
+      "style_Contemporary": {
+        "type": "noul",
+        "noul": 0.09
+      },
+      "style_Craftsman": {
+        "type": "noul",
+        "noul": 0.07
+      },
+      "style_Mid-Century": {
+        "type": "noul",
+        "noul": 0.08
+      },
+      "ownership_Freehold": {
+        "type": "noul",
+        "noul": 0.07
+      },
+      "ownership_Cross Lease": {
+        "type": "noul",
+        "noul": 0.07
+      },
+      "ownership_Unit Title": {
+        "type": "noul",
+        "noul": 0.09
+      },
+      "hazard_flood_plains": {
+        "type": "noul",
+        "noul": 0.07
+      },
+      "hazard_flood_prone_areas": {
+        "type": "noul",
+        "noul": 0.07
+      },
+      "hazard_overland_flow_paths": {
+        "type": "noul",
+        "noul": 0.06
+      },
+      "hazard_coastal_inundation": {
+        "type": "noul",
+        "noul": 0.08
+      },
+      "open_home": {
+        "type": "noul",
+        "noul": 0.05
+      },
+      "no_mapped_hazard": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "requested": 0,
+          "none": 1
+        }
+      },
+      "commute_mode": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 0.97,
+        "probabilities": {
+          "none": 0.98,
+          "driving": 0.02,
+          "transit": 0,
+          "walking": 0
+        }
+      },
+      "school_mode": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "zone": 0,
+          "nearby": 0
+        }
+      },
+      "school_type": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "Secondary": 0
+        }
+      },
+      "commute_destination": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "Auckland CBD": 0
+        }
+      },
+      "unsupported_requirement": {
+        "type": "noul",
+        "noul": 0.06
+      }
+    },
+    "usage": {
+      "input_tokens": 12215,
+      "output_tokens": 2600
+    }
+  },
+  {
+    "model": "jev-1.13.0",
+    "answers": {
+      "property_type": {
+        "type": "choice",
+        "choice": "House",
+        "confidence": 1,
+        "probabilities": {
+          "Villa": 0,
+          "Townhouse": 0,
+          "Apartment": 0,
+          "House": 1,
+          "Lifestyle block": 0,
+          "Section": 0,
+          "none": 0
+        }
+      },
+      "architectural_style": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "Character": 0,
+          "Modernist": 0,
+          "Contemporary": 0,
+          "Craftsman": 0,
+          "Mid-Century": 0,
+          "none": 1
+        }
+      },
+      "flood_hazard": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 0.99,
+        "probabilities": {
+          "flood_plains": 0,
+          "flood_prone_areas": 0,
+          "overland_flow_paths": 0,
+          "coastal_inundation": 0,
+          "any_mapped": 0,
+          "no_mapped": 0.01,
+          "none": 0.99
+        }
+      },
+      "location": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "unknown": 0,
+          "Auckland": 0,
+          "Ponsonby": 0
+        }
+      },
+      "is_school_zone_requested": {
+        "type": "noul",
+        "noul": 0.29
+      },
+      "price_intent": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "max_budget": 0,
+          "min_budget": 0,
+          "exact": 0,
+          "none": 1
+        }
+      },
+      "era_intent": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "character_heritage": 0,
+          "mid_century": 0,
+          "modernist": 0,
+          "contemporary": 0,
+          "none": 1
+        }
+      },
+      "needs_clarification": {
+        "type": "noul",
+        "noul": 0.01
+      },
+      "number_price_min": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0
+        }
+      },
+      "number_price_max": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0
+        }
+      },
+      "number_bedrooms_min": {
+        "type": "choice",
+        "choice": "inclusive_0",
+        "confidence": 1,
+        "probabilities": {
+          "none": 0,
+          "inclusive_0": 1,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0
+        }
+      },
+      "number_bedrooms_max": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0
+        }
+      },
+      "number_bathrooms_min": {
+        "type": "choice",
+        "choice": "inclusive_1",
+        "confidence": 1,
+        "probabilities": {
+          "none": 0,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 1,
+          "exclusive_1": 0
+        }
+      },
+      "number_bathrooms_max": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 0.99,
+        "probabilities": {
+          "none": 0.99,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0.01,
+          "exclusive_1": 0
+        }
+      },
+      "number_parkingSpaces_min": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0
+        }
+      },
+      "number_parkingSpaces_max": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0
+        }
+      },
+      "number_landArea_min": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0
+        }
+      },
+      "number_landArea_max": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0
+        }
+      },
+      "number_floorArea_min": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0
+        }
+      },
+      "number_floorArea_max": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0
+        }
+      },
+      "number_yearBuilt_min": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0
+        }
+      },
+      "number_yearBuilt_max": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0
+        }
+      },
+      "number_estimatedWeeklyRent_min": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0
+        }
+      },
+      "number_estimatedWeeklyRent_max": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0
+        }
+      },
+      "number_capitalValue_min": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0
+        }
+      },
+      "number_capitalValue_max": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0
+        }
+      },
+      "number_commuteTime_min": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0
+        }
+      },
+      "number_commuteTime_max": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0
+        }
+      },
+      "type_Villa": {
+        "type": "noul",
+        "noul": 0.08
+      },
+      "type_Townhouse": {
+        "type": "noul",
+        "noul": 0.08
+      },
+      "type_Apartment": {
+        "type": "noul",
+        "noul": 0.07
+      },
+      "type_House": {
+        "type": "noul",
+        "noul": 0.97
+      },
+      "type_Lifestyle block": {
+        "type": "noul",
+        "noul": 0.08
+      },
+      "type_Section": {
+        "type": "noul",
+        "noul": 0.07
+      },
+      "style_Character": {
+        "type": "noul",
+        "noul": 0.1
+      },
+      "style_Modernist": {
+        "type": "noul",
+        "noul": 0.09
+      },
+      "style_Contemporary": {
+        "type": "noul",
+        "noul": 0.09
+      },
+      "style_Craftsman": {
+        "type": "noul",
+        "noul": 0.08
+      },
+      "style_Mid-Century": {
+        "type": "noul",
+        "noul": 0.08
+      },
+      "ownership_Freehold": {
+        "type": "noul",
+        "noul": 0.08
+      },
+      "ownership_Cross Lease": {
+        "type": "noul",
+        "noul": 0.07
+      },
+      "ownership_Unit Title": {
+        "type": "noul",
+        "noul": 0.07
+      },
+      "hazard_flood_plains": {
+        "type": "noul",
+        "noul": 0.07
+      },
+      "hazard_flood_prone_areas": {
+        "type": "noul",
+        "noul": 0.07
+      },
+      "hazard_overland_flow_paths": {
+        "type": "noul",
+        "noul": 0.07
+      },
+      "hazard_coastal_inundation": {
+        "type": "noul",
+        "noul": 0.07
+      },
+      "open_home": {
+        "type": "noul",
+        "noul": 0.9
+      },
+      "no_mapped_hazard": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "requested": 0,
+          "none": 1
+        }
+      },
+      "commute_mode": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "driving": 0,
+          "transit": 0,
+          "walking": 0
+        }
+      },
+      "school_mode": {
+        "type": "choice",
+        "choice": "nearby",
+        "confidence": 1,
+        "probabilities": {
+          "none": 0,
+          "zone": 0,
+          "nearby": 1
+        }
+      },
+      "school_type": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "Secondary": 0
+        }
+      },
+      "commute_destination": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "Auckland CBD": 0
+        }
+      },
+      "unsupported_requirement": {
+        "type": "noul",
+        "noul": 0.07
+      }
+    },
+    "usage": {
+      "input_tokens": 10881,
+      "output_tokens": 2232
+    }
+  },
+  {
+    "model": "jev-1.13.0",
+    "answers": {
+      "property_type": {
+        "type": "choice",
+        "choice": "Townhouse",
+        "confidence": 1,
+        "probabilities": {
+          "Villa": 0,
+          "Townhouse": 1,
+          "Apartment": 0,
+          "House": 0,
+          "Lifestyle block": 0,
+          "Section": 0,
+          "none": 0
+        }
+      },
+      "architectural_style": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "Character": 0,
+          "Modernist": 0,
+          "Contemporary": 0,
+          "Craftsman": 0,
+          "Mid-Century": 0,
+          "none": 1
+        }
+      },
+      "flood_hazard": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 0.99,
+        "probabilities": {
+          "flood_plains": 0,
+          "flood_prone_areas": 0,
+          "overland_flow_paths": 0,
+          "coastal_inundation": 0,
+          "any_mapped": 0,
+          "no_mapped": 0.01,
+          "none": 0.99
+        }
+      },
+      "location": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 0.92,
+        "probabilities": {
+          "none": 0.94,
+          "unknown": 0.01,
+          "Auckland": 0.05,
+          "Ponsonby": 0
+        }
+      },
+      "is_school_zone_requested": {
+        "type": "noul",
+        "noul": 0.03
+      },
+      "price_intent": {
+        "type": "choice",
+        "choice": "max_budget",
+        "confidence": 1,
+        "probabilities": {
+          "max_budget": 1,
+          "min_budget": 0,
+          "exact": 0,
+          "none": 0
+        }
+      },
+      "era_intent": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "character_heritage": 0,
+          "mid_century": 0,
+          "modernist": 0,
+          "contemporary": 0,
+          "none": 1
+        }
+      },
+      "needs_clarification": {
+        "type": "noul",
+        "noul": 0.01
+      },
+      "number_price_min": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0
+        }
+      },
+      "number_price_max": {
+        "type": "choice",
+        "choice": "exclusive_2",
+        "confidence": 1,
+        "probabilities": {
+          "none": 0,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 1
+        }
+      },
+      "number_bedrooms_min": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 0.99,
+        "probabilities": {
+          "none": 0.99,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0.01,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0
+        }
+      },
+      "number_bedrooms_max": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0
+        }
+      },
+      "number_bathrooms_min": {
+        "type": "choice",
+        "choice": "inclusive_1",
+        "confidence": 1,
+        "probabilities": {
+          "none": 0,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 1,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0
+        }
+      },
+      "number_bathrooms_max": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0
+        }
+      },
+      "number_parkingSpaces_min": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0
+        }
+      },
+      "number_parkingSpaces_max": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0
+        }
+      },
+      "number_landArea_min": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0
+        }
+      },
+      "number_landArea_max": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0
+        }
+      },
+      "number_floorArea_min": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0
+        }
+      },
+      "number_floorArea_max": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0
+        }
+      },
+      "number_yearBuilt_min": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0
+        }
+      },
+      "number_yearBuilt_max": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0
+        }
+      },
+      "number_estimatedWeeklyRent_min": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0
+        }
+      },
+      "number_estimatedWeeklyRent_max": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0
+        }
+      },
+      "number_capitalValue_min": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0
+        }
+      },
+      "number_capitalValue_max": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0
+        }
+      },
+      "number_commuteTime_min": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 0.89,
+        "probabilities": {
+          "none": 0.91,
+          "inclusive_0": 0.09,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0
+        }
+      },
+      "number_commuteTime_max": {
+        "type": "choice",
+        "choice": "inclusive_0",
+        "confidence": 0.56,
+        "probabilities": {
+          "none": 0.04,
+          "inclusive_0": 0.62,
+          "exclusive_0": 0.34,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0
+        }
+      },
+      "type_Villa": {
+        "type": "noul",
+        "noul": 0.05
+      },
+      "type_Townhouse": {
+        "type": "noul",
+        "noul": 0.98
+      },
+      "type_Apartment": {
+        "type": "noul",
+        "noul": 0.06
+      },
+      "type_House": {
+        "type": "noul",
+        "noul": 0.06
+      },
+      "type_Lifestyle block": {
+        "type": "noul",
+        "noul": 0.06
+      },
+      "type_Section": {
+        "type": "noul",
+        "noul": 0.06
+      },
+      "style_Character": {
+        "type": "noul",
+        "noul": 0.1
+      },
+      "style_Modernist": {
+        "type": "noul",
+        "noul": 0.09
+      },
+      "style_Contemporary": {
+        "type": "noul",
+        "noul": 0.1
+      },
+      "style_Craftsman": {
+        "type": "noul",
+        "noul": 0.08
+      },
+      "style_Mid-Century": {
+        "type": "noul",
+        "noul": 0.09
+      },
+      "ownership_Freehold": {
+        "type": "noul",
+        "noul": 0.09
+      },
+      "ownership_Cross Lease": {
+        "type": "noul",
+        "noul": 0.07
+      },
+      "ownership_Unit Title": {
+        "type": "noul",
+        "noul": 0.09
+      },
+      "hazard_flood_plains": {
+        "type": "noul",
+        "noul": 0.07
+      },
+      "hazard_flood_prone_areas": {
+        "type": "noul",
+        "noul": 0.07
+      },
+      "hazard_overland_flow_paths": {
+        "type": "noul",
+        "noul": 0.06
+      },
+      "hazard_coastal_inundation": {
+        "type": "noul",
+        "noul": 0.08
+      },
+      "open_home": {
+        "type": "noul",
+        "noul": 0.04
+      },
+      "no_mapped_hazard": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "requested": 0,
+          "none": 1
+        }
+      },
+      "commute_mode": {
+        "type": "choice",
+        "choice": "transit",
+        "confidence": 1,
+        "probabilities": {
+          "none": 0,
+          "driving": 0,
+          "transit": 1,
+          "walking": 0
+        }
+      },
+      "school_mode": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "zone": 0,
+          "nearby": 0
+        }
+      },
+      "school_type": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "Secondary": 0
+        }
+      },
+      "commute_destination": {
+        "type": "choice",
+        "choice": "Auckland CBD",
+        "confidence": 0.98,
+        "probabilities": {
+          "none": 0.01,
+          "Auckland CBD": 0.99
+        }
+      },
+      "unsupported_requirement": {
+        "type": "noul",
+        "noul": 0.07
+      }
+    },
+    "usage": {
+      "input_tokens": 12305,
+      "output_tokens": 2601
+    }
+  },
+  {
+    "model": "jev-1.13.0",
+    "answers": {
+      "property_type": {
+        "type": "choice",
+        "choice": "Lifestyle block",
+        "confidence": 1,
+        "probabilities": {
+          "Villa": 0,
+          "Townhouse": 0,
+          "Apartment": 0,
+          "House": 0,
+          "Lifestyle block": 1,
+          "Section": 0,
+          "none": 0
+        }
+      },
+      "architectural_style": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 0.98,
+        "probabilities": {
+          "Character": 0,
+          "Modernist": 0,
+          "Contemporary": 0.02,
+          "Craftsman": 0,
+          "Mid-Century": 0,
+          "none": 0.98
+        }
+      },
+      "flood_hazard": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 0.99,
+        "probabilities": {
+          "flood_plains": 0,
+          "flood_prone_areas": 0,
+          "overland_flow_paths": 0,
+          "coastal_inundation": 0,
+          "any_mapped": 0,
+          "no_mapped": 0.01,
+          "none": 0.99
+        }
+      },
+      "location": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "unknown": 0,
+          "Auckland": 0,
+          "Ponsonby": 0
+        }
+      },
+      "is_school_zone_requested": {
+        "type": "noul",
+        "noul": 0.03
+      },
+      "price_intent": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "max_budget": 0,
+          "min_budget": 0,
+          "exact": 0,
+          "none": 1
+        }
+      },
+      "era_intent": {
+        "type": "choice",
+        "choice": "contemporary",
+        "confidence": 0.39,
+        "probabilities": {
+          "character_heritage": 0,
+          "mid_century": 0,
+          "modernist": 0.15,
+          "contemporary": 0.51,
+          "none": 0.34
+        }
+      },
+      "needs_clarification": {
+        "type": "noul",
+        "noul": 0.02
+      },
+      "number_price_min": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0,
+          "inclusive_3": 0,
+          "exclusive_3": 0
+        }
+      },
+      "number_price_max": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0,
+          "inclusive_3": 0,
+          "exclusive_3": 0
+        }
+      },
+      "number_bedrooms_min": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0,
+          "inclusive_3": 0,
+          "exclusive_3": 0
+        }
+      },
+      "number_bedrooms_max": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0,
+          "inclusive_3": 0,
+          "exclusive_3": 0
+        }
+      },
+      "number_bathrooms_min": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0,
+          "inclusive_3": 0,
+          "exclusive_3": 0
+        }
+      },
+      "number_bathrooms_max": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0,
+          "inclusive_3": 0,
+          "exclusive_3": 0
+        }
+      },
+      "number_parkingSpaces_min": {
+        "type": "choice",
+        "choice": "inclusive_3",
+        "confidence": 0.99,
+        "probabilities": {
+          "none": 0.01,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0,
+          "inclusive_3": 0.99,
+          "exclusive_3": 0
+        }
+      },
+      "number_parkingSpaces_max": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0,
+          "inclusive_3": 0,
+          "exclusive_3": 0
+        }
+      },
+      "number_landArea_min": {
+        "type": "choice",
+        "choice": "inclusive_0",
+        "confidence": 1,
+        "probabilities": {
+          "none": 0,
+          "inclusive_0": 1,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0,
+          "inclusive_3": 0,
+          "exclusive_3": 0
+        }
+      },
+      "number_landArea_max": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0,
+          "inclusive_3": 0,
+          "exclusive_3": 0
+        }
+      },
+      "number_floorArea_min": {
+        "type": "choice",
+        "choice": "exclusive_1",
+        "confidence": 0.98,
+        "probabilities": {
+          "none": 0,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0.02,
+          "exclusive_1": 0.98,
+          "inclusive_2": 0,
+          "exclusive_2": 0,
+          "inclusive_3": 0,
+          "exclusive_3": 0
+        }
+      },
+      "number_floorArea_max": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0,
+          "inclusive_3": 0,
+          "exclusive_3": 0
+        }
+      },
+      "number_yearBuilt_min": {
+        "type": "choice",
+        "choice": "exclusive_2",
+        "confidence": 1,
+        "probabilities": {
+          "none": 0,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 1,
+          "inclusive_3": 0,
+          "exclusive_3": 0
+        }
+      },
+      "number_yearBuilt_max": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 0.99,
+        "probabilities": {
+          "none": 0.99,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0.01,
+          "inclusive_3": 0,
+          "exclusive_3": 0
+        }
+      },
+      "number_estimatedWeeklyRent_min": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0,
+          "inclusive_3": 0,
+          "exclusive_3": 0
+        }
+      },
+      "number_estimatedWeeklyRent_max": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0,
+          "inclusive_3": 0,
+          "exclusive_3": 0
+        }
+      },
+      "number_capitalValue_min": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0,
+          "inclusive_3": 0,
+          "exclusive_3": 0
+        }
+      },
+      "number_capitalValue_max": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0,
+          "inclusive_3": 0,
+          "exclusive_3": 0
+        }
+      },
+      "number_commuteTime_min": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0,
+          "inclusive_3": 0,
+          "exclusive_3": 0
+        }
+      },
+      "number_commuteTime_max": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0,
+          "inclusive_3": 0,
+          "exclusive_3": 0
+        }
+      },
+      "type_Villa": {
+        "type": "noul",
+        "noul": 0.06
+      },
+      "type_Townhouse": {
+        "type": "noul",
+        "noul": 0.06
+      },
+      "type_Apartment": {
+        "type": "noul",
+        "noul": 0.05
+      },
+      "type_House": {
+        "type": "noul",
+        "noul": 0.06
+      },
+      "type_Lifestyle block": {
+        "type": "noul",
+        "noul": 0.99
+      },
+      "type_Section": {
+        "type": "noul",
+        "noul": 0.07
+      },
+      "style_Character": {
+        "type": "noul",
+        "noul": 0.08
+      },
+      "style_Modernist": {
+        "type": "noul",
+        "noul": 0.08
+      },
+      "style_Contemporary": {
+        "type": "noul",
+        "noul": 0.09
+      },
+      "style_Craftsman": {
+        "type": "noul",
+        "noul": 0.07
+      },
+      "style_Mid-Century": {
+        "type": "noul",
+        "noul": 0.08
+      },
+      "ownership_Freehold": {
+        "type": "noul",
+        "noul": 0.07
+      },
+      "ownership_Cross Lease": {
+        "type": "noul",
+        "noul": 0.07
+      },
+      "ownership_Unit Title": {
+        "type": "noul",
+        "noul": 0.08
+      },
+      "hazard_flood_plains": {
+        "type": "noul",
+        "noul": 0.07
+      },
+      "hazard_flood_prone_areas": {
+        "type": "noul",
+        "noul": 0.06
+      },
+      "hazard_overland_flow_paths": {
+        "type": "noul",
+        "noul": 0.07
+      },
+      "hazard_coastal_inundation": {
+        "type": "noul",
+        "noul": 0.08
+      },
+      "open_home": {
+        "type": "noul",
+        "noul": 0.03
+      },
+      "no_mapped_hazard": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "requested": 0,
+          "none": 1
+        }
+      },
+      "commute_mode": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 0.87,
+        "probabilities": {
+          "none": 0.9,
+          "driving": 0.1,
+          "transit": 0,
+          "walking": 0
+        }
+      },
+      "school_mode": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "zone": 0,
+          "nearby": 0
+        }
+      },
+      "school_type": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "Secondary": 0
+        }
+      },
+      "commute_destination": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "Auckland CBD": 0
+        }
+      },
+      "unsupported_requirement": {
+        "type": "noul",
+        "noul": 0.07
+      }
+    },
+    "usage": {
+      "input_tokens": 13723,
+      "output_tokens": 2961
+    }
+  },
+  {
+    "model": "jev-1.13.0",
+    "answers": {
+      "property_type": {
+        "type": "choice",
+        "choice": "House",
+        "confidence": 1,
+        "probabilities": {
+          "Villa": 0,
+          "Townhouse": 0,
+          "Apartment": 0,
+          "House": 1,
+          "Lifestyle block": 0,
+          "Section": 0,
+          "none": 0
+        }
+      },
+      "architectural_style": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "Character": 0,
+          "Modernist": 0,
+          "Contemporary": 0,
+          "Craftsman": 0,
+          "Mid-Century": 0,
+          "none": 1
+        }
+      },
+      "flood_hazard": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "flood_plains": 0,
+          "flood_prone_areas": 0,
+          "overland_flow_paths": 0,
+          "coastal_inundation": 0,
+          "any_mapped": 0,
+          "no_mapped": 0,
+          "none": 1
+        }
+      },
+      "location": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 0.99,
+        "probabilities": {
+          "none": 0.99,
+          "unknown": 0,
+          "Auckland": 0.01,
+          "Ponsonby": 0
+        }
+      },
+      "is_school_zone_requested": {
+        "type": "noul",
+        "noul": 0.03
+      },
+      "price_intent": {
+        "type": "choice",
+        "choice": "min_budget",
+        "confidence": 0.49,
+        "probabilities": {
+          "max_budget": 0.31,
+          "min_budget": 0.62,
+          "exact": 0.07,
+          "none": 0
+        }
+      },
+      "era_intent": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "character_heritage": 0,
+          "mid_century": 0,
+          "modernist": 0,
+          "contemporary": 0,
+          "none": 1
+        }
+      },
+      "needs_clarification": {
+        "type": "noul",
+        "noul": 0.01
+      },
+      "number_price_min": {
+        "type": "choice",
+        "choice": "inclusive_0",
+        "confidence": 1,
+        "probabilities": {
+          "none": 0,
+          "inclusive_0": 1,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0,
+          "inclusive_3": 0,
+          "exclusive_3": 0,
+          "inclusive_4": 0,
+          "exclusive_4": 0,
+          "inclusive_5": 0,
+          "exclusive_5": 0
+        }
+      },
+      "number_price_max": {
+        "type": "choice",
+        "choice": "inclusive_1",
+        "confidence": 1,
+        "probabilities": {
+          "none": 0,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 1,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0,
+          "inclusive_3": 0,
+          "exclusive_3": 0,
+          "inclusive_4": 0,
+          "exclusive_4": 0,
+          "inclusive_5": 0,
+          "exclusive_5": 0
+        }
+      },
+      "number_bedrooms_min": {
+        "type": "choice",
+        "choice": "inclusive_4",
+        "confidence": 1,
+        "probabilities": {
+          "none": 0,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0,
+          "inclusive_3": 0,
+          "exclusive_3": 0,
+          "inclusive_4": 1,
+          "exclusive_4": 0,
+          "inclusive_5": 0,
+          "exclusive_5": 0
+        }
+      },
+      "number_bedrooms_max": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 0.97,
+        "probabilities": {
+          "none": 0.97,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0,
+          "inclusive_3": 0,
+          "exclusive_3": 0,
+          "inclusive_4": 0.03,
+          "exclusive_4": 0,
+          "inclusive_5": 0,
+          "exclusive_5": 0
+        }
+      },
+      "number_bathrooms_min": {
+        "type": "choice",
+        "choice": "inclusive_5",
+        "confidence": 0.88,
+        "probabilities": {
+          "none": 0.08,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0.03,
+          "exclusive_2": 0,
+          "inclusive_3": 0,
+          "exclusive_3": 0,
+          "inclusive_4": 0,
+          "exclusive_4": 0,
+          "inclusive_5": 0.89,
+          "exclusive_5": 0
+        }
+      },
+      "number_bathrooms_max": {
+        "type": "choice",
+        "choice": "inclusive_5",
+        "confidence": 0.74,
+        "probabilities": {
+          "none": 0.23,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0.01,
+          "exclusive_2": 0,
+          "inclusive_3": 0,
+          "exclusive_3": 0,
+          "inclusive_4": 0,
+          "exclusive_4": 0,
+          "inclusive_5": 0.76,
+          "exclusive_5": 0
+        }
+      },
+      "number_parkingSpaces_min": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0,
+          "inclusive_3": 0,
+          "exclusive_3": 0,
+          "inclusive_4": 0,
+          "exclusive_4": 0,
+          "inclusive_5": 0,
+          "exclusive_5": 0
+        }
+      },
+      "number_parkingSpaces_max": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0,
+          "inclusive_3": 0,
+          "exclusive_3": 0,
+          "inclusive_4": 0,
+          "exclusive_4": 0,
+          "inclusive_5": 0,
+          "exclusive_5": 0
+        }
+      },
+      "number_landArea_min": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0,
+          "inclusive_3": 0,
+          "exclusive_3": 0,
+          "inclusive_4": 0,
+          "exclusive_4": 0,
+          "inclusive_5": 0,
+          "exclusive_5": 0
+        }
+      },
+      "number_landArea_max": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0,
+          "inclusive_3": 0,
+          "exclusive_3": 0,
+          "inclusive_4": 0,
+          "exclusive_4": 0,
+          "inclusive_5": 0,
+          "exclusive_5": 0
+        }
+      },
+      "number_floorArea_min": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0,
+          "inclusive_3": 0,
+          "exclusive_3": 0,
+          "inclusive_4": 0,
+          "exclusive_4": 0,
+          "inclusive_5": 0,
+          "exclusive_5": 0
+        }
+      },
+      "number_floorArea_max": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0,
+          "inclusive_3": 0,
+          "exclusive_3": 0,
+          "inclusive_4": 0,
+          "exclusive_4": 0,
+          "inclusive_5": 0,
+          "exclusive_5": 0
+        }
+      },
+      "number_yearBuilt_min": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0,
+          "inclusive_3": 0,
+          "exclusive_3": 0,
+          "inclusive_4": 0,
+          "exclusive_4": 0,
+          "inclusive_5": 0,
+          "exclusive_5": 0
+        }
+      },
+      "number_yearBuilt_max": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0,
+          "inclusive_3": 0,
+          "exclusive_3": 0,
+          "inclusive_4": 0,
+          "exclusive_4": 0,
+          "inclusive_5": 0,
+          "exclusive_5": 0
+        }
+      },
+      "number_estimatedWeeklyRent_min": {
+        "type": "choice",
+        "choice": "inclusive_3",
+        "confidence": 1,
+        "probabilities": {
+          "none": 0,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0,
+          "inclusive_3": 1,
+          "exclusive_3": 0,
+          "inclusive_4": 0,
+          "exclusive_4": 0,
+          "inclusive_5": 0,
+          "exclusive_5": 0
+        }
+      },
+      "number_estimatedWeeklyRent_max": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0,
+          "inclusive_3": 0,
+          "exclusive_3": 0,
+          "inclusive_4": 0,
+          "exclusive_4": 0,
+          "inclusive_5": 0,
+          "exclusive_5": 0
+        }
+      },
+      "number_capitalValue_min": {
+        "type": "choice",
+        "choice": "inclusive_2",
+        "confidence": 1,
+        "probabilities": {
+          "none": 0,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 1,
+          "exclusive_2": 0,
+          "inclusive_3": 0,
+          "exclusive_3": 0,
+          "inclusive_4": 0,
+          "exclusive_4": 0,
+          "inclusive_5": 0,
+          "exclusive_5": 0
+        }
+      },
+      "number_capitalValue_max": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0,
+          "inclusive_3": 0,
+          "exclusive_3": 0,
+          "inclusive_4": 0,
+          "exclusive_4": 0,
+          "inclusive_5": 0,
+          "exclusive_5": 0
+        }
+      },
+      "number_commuteTime_min": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0,
+          "inclusive_3": 0,
+          "exclusive_3": 0,
+          "inclusive_4": 0,
+          "exclusive_4": 0,
+          "inclusive_5": 0,
+          "exclusive_5": 0
+        }
+      },
+      "number_commuteTime_max": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "inclusive_0": 0,
+          "exclusive_0": 0,
+          "inclusive_1": 0,
+          "exclusive_1": 0,
+          "inclusive_2": 0,
+          "exclusive_2": 0,
+          "inclusive_3": 0,
+          "exclusive_3": 0,
+          "inclusive_4": 0,
+          "exclusive_4": 0,
+          "inclusive_5": 0,
+          "exclusive_5": 0
+        }
+      },
+      "type_Villa": {
+        "type": "noul",
+        "noul": 0.08
+      },
+      "type_Townhouse": {
+        "type": "noul",
+        "noul": 0.08
+      },
+      "type_Apartment": {
+        "type": "noul",
+        "noul": 0.07
+      },
+      "type_House": {
+        "type": "noul",
+        "noul": 0.98
+      },
+      "type_Lifestyle block": {
+        "type": "noul",
+        "noul": 0.08
+      },
+      "type_Section": {
+        "type": "noul",
+        "noul": 0.07
+      },
+      "style_Character": {
+        "type": "noul",
+        "noul": 0.09
+      },
+      "style_Modernist": {
+        "type": "noul",
+        "noul": 0.08
+      },
+      "style_Contemporary": {
+        "type": "noul",
+        "noul": 0.1
+      },
+      "style_Craftsman": {
+        "type": "noul",
+        "noul": 0.07
+      },
+      "style_Mid-Century": {
+        "type": "noul",
+        "noul": 0.08
+      },
+      "ownership_Freehold": {
+        "type": "noul",
+        "noul": 0.08
+      },
+      "ownership_Cross Lease": {
+        "type": "noul",
+        "noul": 0.07
+      },
+      "ownership_Unit Title": {
+        "type": "noul",
+        "noul": 0.08
+      },
+      "hazard_flood_plains": {
+        "type": "noul",
+        "noul": 0.07
+      },
+      "hazard_flood_prone_areas": {
+        "type": "noul",
+        "noul": 0.06
+      },
+      "hazard_overland_flow_paths": {
+        "type": "noul",
+        "noul": 0.06
+      },
+      "hazard_coastal_inundation": {
+        "type": "noul",
+        "noul": 0.08
+      },
+      "open_home": {
+        "type": "noul",
+        "noul": 0.04
+      },
+      "no_mapped_hazard": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "requested": 0,
+          "none": 1
+        }
+      },
+      "commute_mode": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "driving": 0,
+          "transit": 0,
+          "walking": 0
+        }
+      },
+      "school_mode": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "zone": 0,
+          "nearby": 0
+        }
+      },
+      "school_type": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "Secondary": 0
+        }
+      },
+      "commute_destination": {
+        "type": "choice",
+        "choice": "none",
+        "confidence": 1,
+        "probabilities": {
+          "none": 1,
+          "Auckland CBD": 0
+        }
+      },
+      "unsupported_requirement": {
+        "type": "noul",
+        "noul": 0.07
+      }
+    },
+    "usage": {
+      "input_tokens": 16181,
+      "output_tokens": 3682
+    }
+  }
+]

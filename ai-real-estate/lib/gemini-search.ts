@@ -1,6 +1,13 @@
-import type { FloodHazardType, Property, PropertyFilters } from "./property-types";
+import type {
+  FloodHazardType,
+  Property,
+  PropertyFilters,
+} from "./property-types";
 import { parseNaturalLanguageSearch } from "./property-engine";
-import { matchCatalogDetails, parseExplicitPropertyFilters } from "./property-query";
+import {
+  matchCatalogDetails,
+  parseExplicitPropertyFilters,
+} from "./property-query";
 import { floodHazardOptions } from "./flood-hazards";
 
 export type InterpretedSearch = {
@@ -21,7 +28,6 @@ type GeminiFilters = {
   bedrooms?: number | null;
   yearBuiltFrom?: number | null;
   yearBuiltTo?: number | null;
-  northFacingOnly?: boolean;
   needsClarification?: boolean;
   message?: string;
 };
@@ -36,14 +42,27 @@ const responseSchema = {
       type: "array",
       items: {
         type: "string",
-        enum: ["Apartment", "House", "Lifestyle block", "Section", "Townhouse", "Villa"],
+        enum: [
+          "Apartment",
+          "House",
+          "Lifestyle block",
+          "Section",
+          "Townhouse",
+          "Villa",
+        ],
       },
     },
     architecturalStyles: {
       type: "array",
       items: {
         type: "string",
-        enum: ["Character", "Contemporary", "Craftsman", "Mid-Century", "Modernist"],
+        enum: [
+          "Character",
+          "Contemporary",
+          "Craftsman",
+          "Mid-Century",
+          "Modernist",
+        ],
       },
     },
     floodHazardTypes: {
@@ -60,7 +79,6 @@ const responseSchema = {
     bedrooms: { type: "integer", nullable: true },
     yearBuiltFrom: { type: "integer", nullable: true },
     yearBuiltTo: { type: "integer", nullable: true },
-    northFacingOnly: { type: "boolean" },
     needsClarification: { type: "boolean" },
     message: { type: "string" },
   },
@@ -75,7 +93,6 @@ const responseSchema = {
     "bedrooms",
     "yearBuiltFrom",
     "yearBuiltTo",
-    "northFacingOnly",
     "needsClarification",
     "message",
   ],
@@ -90,7 +107,8 @@ function cleanGeminiFilters(result: GeminiFilters): PropertyFilters {
   const filters: PropertyFilters = {};
 
   if (result.propertyTypes?.length) {
-    filters.propertyTypes = result.propertyTypes as PropertyFilters["propertyTypes"];
+    filters.propertyTypes =
+      result.propertyTypes as PropertyFilters["propertyTypes"];
   }
   if (result.architecturalStyles?.length) {
     filters.architecturalStyles =
@@ -116,7 +134,6 @@ function cleanGeminiFilters(result: GeminiFilters): PropertyFilters {
   if (result.yearBuiltTo !== null && result.yearBuiltTo !== undefined) {
     filters.yearBuiltTo = result.yearBuiltTo;
   }
-  if (result.northFacingOnly) filters.northFacingOnly = true;
 
   return filters;
 }
@@ -127,12 +144,16 @@ export async function interpretPropertyQuery(
   options: { apiKey?: string; fetchImpl?: typeof fetch } = {},
 ): Promise<InterpretedSearch> {
   if (!options.apiKey) {
-    console.log("[AI Search] No GEMINI_API_KEY provided; falling back to local interpreter.");
+    console.log(
+      "[AI Search] No GEMINI_API_KEY provided; falling back to local interpreter.",
+    );
     return localResult(query, properties);
   }
 
   const locations = Array.from(
-    new Set(properties.flatMap(({ suburb, city, region }) => [suburb, city, region])),
+    new Set(
+      properties.flatMap(({ suburb, city, region }) => [suburb, city, region]),
+    ),
   );
 
   try {
@@ -161,7 +182,10 @@ export async function interpretPropertyQuery(
       },
     };
 
-    console.log("[AI Search] Request sent to Gemini:", JSON.stringify({ endpoint, payload: requestPayload }, null, 2));
+    console.log(
+      "[AI Search] Request sent to Gemini:",
+      JSON.stringify({ endpoint, payload: requestPayload }, null, 2),
+    );
 
     const response = await (options.fetchImpl ?? fetch)(endpoint, {
       method: "POST",
@@ -173,20 +197,28 @@ export async function interpretPropertyQuery(
     });
 
     if (!response.ok) {
-      console.error(`[AI Search] Gemini returned error status: ${response.status}`);
+      console.error(
+        `[AI Search] Gemini returned error status: ${response.status}`,
+      );
       throw new Error(`Gemini returned ${response.status}`);
     }
     const body = (await response.json()) as {
       candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
     };
-    console.log("[AI Search] Response received from Gemini:", JSON.stringify(body, null, 2));
+    console.log(
+      "[AI Search] Response received from Gemini:",
+      JSON.stringify(body, null, 2),
+    );
     const text = body.candidates?.[0]?.content?.parts?.[0]?.text;
     if (!text) {
       console.error("[AI Search] Gemini returned an empty response");
       throw new Error("Gemini returned an empty response");
     }
     const result = JSON.parse(text) as GeminiFilters;
-    console.log("[AI Search] Parsed filter result from Gemini:", JSON.stringify(result, null, 2));
+    console.log(
+      "[AI Search] Parsed filter result from Gemini:",
+      JSON.stringify(result, null, 2),
+    );
 
     const filters: PropertyFilters = {
       ...cleanGeminiFilters(result),
@@ -207,7 +239,10 @@ export async function interpretPropertyQuery(
       source: "gemini",
     };
   } catch (error) {
-    console.error("[AI Search] Gemini request failed, using local fallback:", error);
+    console.error(
+      "[AI Search] Gemini request failed, using local fallback:",
+      error,
+    );
     return localResult(query, properties);
   }
 }

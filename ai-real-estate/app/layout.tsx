@@ -11,7 +11,7 @@ const AIChatbot = dynamic(() => import("./components/ai-chatbot"), {
 export const metadata: Metadata = {
   title: "Haven — Find your place",
   description:
-    "Find New Zealand homes by architecture, sunlight, flood risk, building age and natural-language search.",
+    "Find New Zealand homes by architecture, mapped flood hazards, building age and natural-language search.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

@@ -26,7 +26,6 @@ export default function Loading() {
       <main>
         <section className="hero-section">
           <div className="hero-copy">
-            <p className="hero-location">Auckland, New Zealand</p>
             <h1>
               Find your kind of <em>home.</em>
             </h1>
@@ -34,7 +33,7 @@ export default function Loading() {
               <div className="search-input-group flex h-14 w-full items-center rounded-2xl border border-input bg-card px-4 text-muted-foreground shadow-sm">
                 <Search className="size-5 shrink-0 opacity-50" />
                 <span className="ml-3 text-sm opacity-60">
-                  A sunny villa in Ponsonby under $2.5m…
+                  A character villa in Ponsonby under $2.5m…
                 </span>
                 <span className="ml-auto inline-flex h-9 items-center rounded-lg bg-primary px-3 text-xs font-medium text-primary-foreground opacity-90">
                   <Search className="mr-1.5 size-3.5" />

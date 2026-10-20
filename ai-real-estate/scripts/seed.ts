@@ -96,11 +96,6 @@ async function insertProperty(
     propertyType: propertyTypeForSql[property.propertyType],
     displayPropertyType: property.propertyType,
     architecturalStyle: property.architecturalStyle ?? null,
-    orientation: property.orientation ?? null,
-    sunlightHours:
-      property.sunlightHours !== undefined
-        ? String(property.sunlightHours)
-        : null,
     landArea: String(property.landArea ?? 0),
     floorArea: String(property.floorArea ?? 0),
     bedrooms: property.bedrooms ?? 0,
