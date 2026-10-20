@@ -7,8 +7,25 @@
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-PostGIS-336791?logo=postgresql)](https://www.postgresql.org/)
 [![Drizzle ORM](https://img.shields.io/badge/ORM-Drizzle-C5F74F)](https://orm.drizzle.team/)
 [![Vitest](https://img.shields.io/badge/Tests-231%20Passed-green?logo=vitest)](https://vitest.dev/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-Haven AI Real Estate is an intelligent property discovery and buyer intelligence platform engineered for the Auckland, New Zealand residential market. Developed for **COMP602 Software Development Practice (Team W204)**, this repository on the **`Release`** branch contains the complete, verified release version of our software, accompanied by full UML architectural artifacts, test-driven development (TDD) suites, and deployment guides.
+Haven AI Real Estate is an intelligent property discovery and buyer intelligence platform engineered for the Auckland, New Zealand residential market. Developed for **COMP602 Software Development Practice (Team W204)**, this repository on the **`Release`** branch contains the complete, verified release version of our software, accompanied by full UML architectural artifacts, test-driven development (TDD) suites, and local execution guides.
+
+---
+
+## Table of Contents
+1. [Project Overview & Problem Statement](#1-project-overview--problem-statement)
+2. [Completed Sprint 2 Features](#2-completed-sprint-2-features-with-developer--tester-attributions)
+3. [Architecture & UML Class Diagrams](#3-architecture--uml-class-diagrams)
+4. [Technology Stack & Dependencies](#4-technology-stack--dependencies)
+5. [How to Run Locally (Step-by-Step)](#5-how-to-run-locally-step-by-step)
+6. [Available NPM Scripts](#6-available-npm-scripts)
+7. [Repository Structure](#7-repository-structure)
+8. [Application Routes & Walkthrough](#8-application-routes--walkthrough)
+9. [Testing & Quality Assurance (TDD Evidence)](#9-testing--quality-assurance-tdd-evidence)
+10. [Troubleshooting & FAQs](#10-troubleshooting--faqs)
+11. [Authors & Team Members](#11-authors--team-members)
+12. [License](#12-license)
 
 ---
 
@@ -95,62 +112,194 @@ The architectural design reflects a clean, modular multi-tier architecture adher
 
 ---
 
-## 5. Setup, Build & Run Instructions
+## 5. How to Run Locally (Step-by-Step)
+
+Follow these steps to run the application on your local machine.
 
 ### Prerequisites
-- **Node.js**: v18.18+ or v20+
-- **npm**: v9+ (or pnpm / yarn)
-- **PostgreSQL**: v14+ with PostGIS extension (optional for local demo; app includes bundled offline fallbacks)
+Make sure you have the following installed:
+- **Node.js**: v18.18+ or v20+ (Check with `node -v`)
+- **npm**: v9+ (or `pnpm` / `yarn`)
+- **Git** (Check with `git --version`)
+- *(Optional)* **PostgreSQL**: v14+ with PostGIS extension (The application includes bundled offline property fixtures, so markers can run the app immediately with zero database setup).
 
-### 1. Installation
+---
+
+### Step 1: Clone the Repository & Check Out `Release`
 ```bash
+git clone https://github.com/Th3R1c0/2026_S2_-W204-_AI-Real-Estate.git
+cd 2026_S2_-W204-_AI-Real-Estate
 git checkout Release
-cd ai-real-estate
-npm install
-```
-
-### 2. Environment Configuration
-Create a `.env.local` file inside the `ai-real-estate/` directory:
-```env
-# Database Connection (PostgreSQL + PostGIS)
-DATABASE_URL="postgres://postgres:postgres@localhost:5432/real_estate"
-
-# AI Services
-TYPESAFE_API_KEY="your-typesafe-api-key"
-GEMINI_API_KEY="your-gemini-api-key"
-
-# Maps API Key
-NEXT_PUBLIC_GOOGLE_MAPS_API_KEY="your-google-maps-api-key"
-```
-*(Note: If API keys are omitted, the application operates in resilient demo mode with deterministic local fallbacks.)*
-
-### 3. Database Migration & Seeding (Optional)
-```bash
-npm run db:push
-npm run db:seed
-```
-
-### 4. Running the Development Server
-```bash
-npm run dev
-```
-Navigate to [http://localhost:3000](http://localhost:3000) in your browser.
-
-### 5. Running the Automated Test Suite (TDD)
-```bash
-npm test
-```
-Executes all **231 Vitest unit and integration tests** across **36 test suites**.
-
-### 6. Production Build & Start
-```bash
-npm run build
-npm run start
 ```
 
 ---
 
-## 6. Testing & Quality Assurance (TDD Evidence)
+### Step 2: Navigate to App Directory & Install Dependencies
+```bash
+cd ai-real-estate
+npm install
+```
+
+---
+
+### Step 3: Configure Environment Variables
+Create a `.env.local` file inside the `ai-real-estate/` directory:
+
+```bash
+# In ai-real-estate/ directory
+touch .env.local
+```
+
+Add the following keys to `.env.local`:
+```env
+# Database Connection (Optional for local review; bundled mock catalog is used if omitted)
+DATABASE_URL="postgres://postgres:postgres@localhost:5432/real_estate"
+
+# AI Natural-Language Search & Chatbot (Optional; local rule-based fallback used if omitted)
+TYPESAFE_API_KEY="your-typesafe-api-key"
+GEMINI_API_KEY="your-gemini-api-key"
+
+# Google Maps API Key (Optional; static coordinates & mock cards used if omitted)
+NEXT_PUBLIC_GOOGLE_MAPS_API_KEY="your-google-maps-api-key"
+```
+
+> **Note on Resilient Fallbacks for Markers**:  
+> You do **not** need paid API keys or a running PostgreSQL server to evaluate this software. The system is engineered with automatic local fallbacks:
+> - If `DATABASE_URL` is unset, properties load from verified bundled local fixtures.
+> - If AI keys are unset, natural language search falls back to deterministic local parsing, and the chatbot uses its built-in knowledge base.
+> - If Google Maps keys are unset, location modes display formatted school lists and council risk data.
+
+---
+
+### Step 4: Database Setup & Seeding (Optional)
+If you wish to run against a live PostgreSQL + PostGIS database:
+```bash
+# Push database schema tables
+npm run db:push
+
+# Seed property listings, address data, open homes, and pricing
+npm run db:seed
+
+# Optional: Synchronize Auckland Council flood hazard geometries
+npm run db:sync-flood-data
+```
+
+---
+
+### Step 5: Start the Development Server
+```bash
+npm run dev
+```
+Open your browser and navigate to:  
+👉 **[http://localhost:3000](http://localhost:3000)**
+
+---
+
+### Step 6: Run in Production Mode (Optional)
+To verify the optimized production build and SSR/SSG route generation:
+```bash
+# Build the application
+npm run build
+
+# Start the production server
+npm start
+```
+Then visit **[http://localhost:3000](http://localhost:3000)**.
+
+---
+
+### Step 7: Run the Automated Test Suite (TDD)
+To run all 231 unit, integration, and UI tests:
+```bash
+npm test
+```
+To run tests interactively in watch mode during development:
+```bash
+npm run test:watch
+```
+
+---
+
+## 6. Available NPM Scripts
+
+All commands should be executed from the `ai-real-estate/` directory:
+
+| Command | Description |
+|:---|:---|
+| `npm run dev` | Starts the Next.js development server on port 3000. |
+| `npm run build` | Compiles and builds the production application (`next build --webpack`). |
+| `npm start` | Launches the compiled production server. |
+| `npm test` | Runs the full Vitest automated test suite once (`vitest run`). |
+| `npm run test:watch` | Starts Vitest in interactive file-watching mode. |
+| `npm run lint` | Runs ESLint to check for code quality and standards. |
+| `npm run db:seed` | Populates the database with Auckland property listings and pricing history. |
+| `npm run db:push` | Synchronizes Drizzle schema migrations directly into PostgreSQL. |
+| `npm run db:sync-flood-data` | Ingests Auckland Council GIS flood hazard geometries into PostGIS. |
+| `npm run db:sync-school-data` | Synchronizes Ministry of Education school directory records and zone shapes. |
+
+---
+
+## 7. Repository Structure
+
+```
+2026_S2_-W204-_AI-Real-Estate/
+├── ai-real-estate/                     # Main Next.js 16 / React 19 Application
+│   ├── app/                            # App Router (Pages, Layouts, API Routes)
+│   │   ├── api/                        # Serverless API Endpoints
+│   │   │   ├── account/workspace/      # Buyer workspace sync (JSONB)
+│   │   │   ├── auth/                   # Session auth & SHA-256 tokens
+│   │   │   ├── chatbot/                # Conversational AI assistant
+│   │   │   │   └── upload-lim/         # LIM PDF parsing endpoint
+│   │   │   ├── comparable-sales/       # Haversine comp valuation API
+│   │   │   ├── flood-zones/            # Council GIS GeoJSON API
+│   │   │   └── search/                 # Natural language search endpoint
+│   │   ├── components/                 # Reusable UI & Domain Components
+│   │   │   ├── account-panel.tsx       # Auth modal (Sign in / Sign up)
+│   │   │   ├── ai-chatbot.tsx          # Real estate assistant drawer
+│   │   │   ├── comparison-matrix.tsx   # Side-by-side comparison modal
+│   │   │   ├── mortgage-calculator.tsx # Compound amortization calculator (TDD)
+│   │   │   ├── property-detail-page.tsx# Single property inspection view
+│   │   │   ├── property-explorer.tsx   # Catalog & filter controller
+│   │   │   ├── property-location-map.tsx# 3-mode Google Map (Schools/Commute/Flood)
+│   │   │   └── site-header.tsx         # Navigation header & shortlist indicator
+│   │   ├── profile/                    # Buyer workspace (/profile)
+│   │   └── properties/[id]/            # Dynamic listing pages (/properties/:id)
+│   ├── lib/                            # Core Services, Types & Utilities
+│   │   ├── flood-hazards.ts            # Council flood layer definitions
+│   │   ├── jev-search.ts               # TypeSafe Jev AI query parser
+│   │   ├── gemini-search.ts            # Google Gemini query fallback
+│   │   ├── mortgage-calculation.ts     # Amortization math engine
+│   │   ├── property-data.ts            # Seed catalog fixtures & mock data
+│   │   └── school-data.ts              # Ministry of Education zone lookups
+│   ├── public/                         # Static Assets & Documentation Exports
+│   │   ├── Sprint 2 Class Diagram.pdf  # Exported Sprint 2 UML Class Diagram
+│   │   └── uml-diagram.html            # Interactive UML Architecture Dashboard
+│   ├── tests/                          # 36 Vitest Unit & Integration Test Files
+│   ├── package.json                    # Dependencies & npm scripts
+│   └── tsconfig.json                   # Strict TypeScript configuration
+├── docs/                               # Sprint 2 Deliverables & Scrum Artifacts
+│   ├── Sprint 2 Class Diagram.pdf      # Complete UML Class Diagram
+│   ├── uml-architecture.html           # Standalone UML Dashboard Source
+│   ├── architecture-uml.puml           # PlantUML Architecture Diagram
+│   └── superpowers/plans/              # Implementation & Engineering Plans
+└── readme.md                           # This Release Documentation File
+```
+
+---
+
+## 8. Application Routes & Walkthrough
+
+| Route | View | Description |
+|:---|:---|:---|
+| **`/`** | **Discovery & Search** | Full catalog with conversational search, price sliders, building age ranges, and property cards. |
+| **`/properties/[id]`** | **Property Inspection** | Comprehensive property detail view with photo gallery, valuation history, 3-mode map, and mortgage calculator. |
+| **`/profile`** | **Buyer Workspace** | Personal dashboard showing saved homes, categorized inspection notes, and account settings. |
+| **`/uml-diagram.html`**| **UML Dashboard** | Interactive architectural dashboard with System Architecture, Database Schema, and Sequence Flows. |
+| **`/Sprint 2 Class Diagram.pdf`** | **Class Diagram PDF** | Official exported Sprint 2 UML Class Diagram ready for marker review. |
+
+---
+
+## 9. Testing & Quality Assurance (TDD Evidence)
 
 Quality was enforced throughout Sprint 2 using **Test-Driven Development (TDD)** and continuous regression testing:
 - **Mortgage Calculator (`tests/mortgage-calculator.test.tsx`)**: Developed using strict Red-Green-Refactor cycles covering compound amortization, zero-interest bounds, 100% deposits, and boundary validation.
@@ -161,7 +310,23 @@ Quality was enforced throughout Sprint 2 using **Test-Driven Development (TDD)**
 
 ---
 
-## 7. Authors & Team Members
+## 10. Troubleshooting & FAQs
+
+#### Q: Port 3000 is already in use.
+**A**: Stop any existing processes using port 3000, or run:
+```bash
+npm run dev -- -p 3001
+```
+
+#### Q: Do I need a PostgreSQL database to run the app?
+**A**: No. The app automatically detects if `DATABASE_URL` is missing or unreachable and seamlessly switches to the bundled property catalog.
+
+#### Q: How do I test the LIM report analysis?
+**A**: Open the Haven Chatbot in the bottom-right corner, click the attach button, and upload any PDF file (under 15 MB). The system will extract the text and answer questions citing specific pages.
+
+---
+
+## 11. Authors & Team Members
 
 Engineered and delivered for **COMP602 Software Development Practice** by **Team W204**:
 
@@ -173,6 +338,6 @@ Engineered and delivered for **COMP602 Software Development Practice** by **Team
 
 ---
 
-## 8. License
+## 12. License
 
 This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
