@@ -1,6 +1,6 @@
 import { act, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { expect, it } from "vitest";
+import { expect, it, vi } from "vitest";
 import PropertyExplorer from "../app/components/property-explorer";
 import AIChatbot from "../app/components/ai-chatbot";
 import PropertyDetailPage from "../app/components/property-detail-page";
@@ -392,6 +392,77 @@ it("compares low/mid/high estimates across sources, shows the Council CV split w
   expect(estimates[0].querySelector("strong")?.textContent).toBe(
     "Estimated value",
   );
+});
+
+it("downloads an iCalendar file when a calendar button is clicked next to an open home time", async () => {
+  const user = userEvent.setup();
+  const createObjectURL = vi.fn((_blob: Blob | MediaSource) => "blob:haven-open-home");
+  const revokeObjectURL = vi.fn();
+  Object.defineProperty(URL, "createObjectURL", {
+    configurable: true,
+    value: createObjectURL,
+  });
+  Object.defineProperty(URL, "revokeObjectURL", {
+    configurable: true,
+    value: revokeObjectURL,
+  });
+  const clicked: HTMLAnchorElement[] = [];
+  const clickSpy = vi
+    .spyOn(HTMLAnchorElement.prototype, "click")
+    .mockImplementation(function (this: HTMLAnchorElement) {
+      clicked.push(this);
+    });
+
+  const property: Property = {
+    ...home,
+    openHomes: [
+      {
+        date: "2026-10-24",
+        startTime: "12:00",
+        endTime: "12:30",
+        label: "Sat, 24 Oct, 12:00pm - 12:30pm",
+      },
+      {
+        date: "2026-10-25",
+        startTime: "12:00",
+        endTime: "12:30",
+        label: "Sun, 25 Oct, 12:00pm - 12:30pm",
+      },
+    ],
+  };
+  render(<PropertyDetailPage property={property} />);
+
+  const buttons = screen.getAllByRole("button", {
+    name: /Add open home .* to calendar/i,
+  });
+  expect(buttons).toHaveLength(2);
+
+  await user.click(buttons[0]);
+
+  expect(createObjectURL).toHaveBeenCalledTimes(1);
+  expect(clicked).toHaveLength(1);
+  expect(clicked[0].download).toBe("open-home-12-garden-street.ics");
+
+  const ics = await new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result));
+    reader.onerror = () => reject(reader.error);
+    reader.readAsText(createObjectURL.mock.calls[0][0] as Blob);
+  });
+  expect(ics).toContain("BEGIN:VCALENDAR");
+  expect(ics.match(/BEGIN:VEVENT/g)).toHaveLength(1);
+  expect(ics).toContain("DTSTART;TZID=Pacific/Auckland:20261024T120000");
+  expect(ics).toContain("SUMMARY:Open home: 12 Garden Street");
+  // The clicked button swaps to a confirmation tick.
+  expect(buttons[0].querySelector(".lucide-check")).not.toBeNull();
+  expect(buttons[1].querySelector(".lucide-calendar-plus")).not.toBeNull();
+
+  // Export is per click target only: no bulk "add all" control exists.
+  expect(
+    screen.queryByRole("button", { name: /add all/i }),
+  ).not.toBeInTheDocument();
+
+  clickSpy.mockRestore();
 });
 
 it("renders immediate static headings on loading screens and uses skeletons only for loading content", () => {

@@ -1182,6 +1182,22 @@ body:has(.compare-tray) .site-shell > footer {
 .open-home-list strong {
   font-weight: 450;
 }
+.open-home-calendar-btn {
+  margin-left: auto;
+  height: 22px;
+  width: 22px;
+  padding: 0;
+  flex: none;
+  color: var(--muted-foreground);
+}
+.open-home-calendar-btn svg {
+  width: 14px;
+  height: 14px;
+}
+.open-home-calendar-btn:hover {
+  color: var(--primary);
+  background: var(--secondary);
+}
 .open-home-dot {
   width: 5px;
   height: 5px;

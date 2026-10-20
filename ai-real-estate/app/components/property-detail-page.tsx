@@ -6,6 +6,8 @@ import {
   Bed,
   Building2,
   Calendar,
+  CalendarPlus,
+  Check,
   Car,
   ChevronDown,
   ChevronUp,
@@ -55,6 +57,8 @@ import {
   readSavedLocations,
   type SavedLocation,
 } from "../../lib/saved-locations";
+import { downloadOpenHomeCalendar } from "../../lib/open-home-calendar";
+import type { OpenHome } from "../../lib/property-types";
 
 const VALUATION_PUBLISHERS = [
   "Homes.co.nz",
@@ -144,8 +148,38 @@ export default function PropertyDetailPage({
   const [destinations, setDestinations] = useState<SavedLocation[]>([]);
   const [descriptionExpanded, setDescriptionExpanded] = useState(false);
 
+  const [exportedOpenHome, setExportedOpenHome] = useState<string | null>(null);
+
   const savedIdsRef = useRef<string[]>([]);
   const destinationsRef = useRef<SavedLocation[]>([]);
+  const exportTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(
+    () => () => {
+      if (exportTimeoutRef.current) clearTimeout(exportTimeoutRef.current);
+    },
+    [],
+  );
+
+  /** Download just this one open home time as an iCalendar file. */
+  function exportOpenHome(openHome: OpenHome, index: number) {
+    const propertyUrl =
+      typeof window === "undefined"
+        ? undefined
+        : `${window.location.origin}/properties/${property.id}`;
+    const downloaded = downloadOpenHomeCalendar({
+      property,
+      propertyId: property.id,
+      openHomes: [openHome],
+      propertyUrl,
+    });
+    if (!downloaded) return;
+
+    const key = `${openHome.date}-${openHome.startTime}-${index}`;
+    setExportedOpenHome(key);
+    if (exportTimeoutRef.current) clearTimeout(exportTimeoutRef.current);
+    exportTimeoutRef.current = setTimeout(() => setExportedOpenHome(null), 2500);
+  }
 
   useEffect(() => {
     if (account && account.status !== "signedIn" && account.status !== "guest")
@@ -1207,6 +1241,20 @@ export default function PropertyDetailPage({
                       <li key={`${oh.date}-${oh.startTime}-${idx}`}>
                         <span className="open-home-dot" />
                         <strong>{oh.label}</strong>
+                        <Button
+                          variant="ghost"
+                          className="open-home-calendar-btn"
+                          onClick={() => exportOpenHome(oh, idx)}
+                          title={`Add ${oh.label} to your calendar`}
+                          aria-label={`Add open home ${oh.label} to calendar (downloads an iCalendar file)`}
+                          type="button"
+                        >
+                          {exportedOpenHome === `${oh.date}-${oh.startTime}-${idx}` ? (
+                            <Check data-icon="inline-start" />
+                          ) : (
+                            <CalendarPlus data-icon="inline-start" />
+                          )}
+                        </Button>
                       </li>
                     ))}
                   </ul>
